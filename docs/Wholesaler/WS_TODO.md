@@ -133,87 +133,96 @@
 
 #### 📋 폴더 구조 생성 체크리스트
 
-- [ ] **app 폴더 구조 생성** (빈 폴더만)
+- [x] **app 폴더 구조 생성** (빈 폴더만)
 
-  - [ ] `app/(auth)/` 디렉토리 생성
+  - [x] `app/(auth)/` 디렉토리 생성
 
-    - [ ] `sign-in/` 폴더
-    - [ ] `sign-up/` 폴더
-    - [ ] `role-selection/` 폴더
-    - [ ] `wholesaler-onboarding/` 폴더
-    - [ ] `retailer-onboarding/` 폴더 (소매 담당, 빈 폴더만)
+    - [x] `sign-in/` 폴더
+    - [x] `sign-up/` 폴더
+    - [x] `role-selection/` 폴더
+    - [x] `wholesaler-onboarding/` 폴더
+    - [x] `retailer-onboarding/` 폴더 (소매 담당, 빈 폴더만)
 
-  - [ ] `app/retailer/` 디렉토리 생성 (소매 담당, 빈 폴더만)
+  - [x] `app/retailer/` 디렉토리 생성 (소매 담당, 빈 폴더만)
 
-    - [ ] `dashboard/` 폴더
-    - [ ] `products/` 폴더
-    - [ ] `products/[id]/` 폴더
-    - [ ] `cart/` 폴더
-    - [ ] `checkout/` 폴더
-    - [ ] `orders/` 폴더
-    - [ ] `orders/[id]/` 폴더
-    - [ ] `cs/` 폴더
+    - [x] `dashboard/` 폴더
+    - [x] `products/` 폴더
+    - [x] `products/[id]/` 폴더
+    - [x] `cart/` 폴더
+    - [x] `checkout/` 폴더
+    - [x] `orders/` 폴더
+    - [x] `orders/[id]/` 폴더
+    - [x] `cs/` 폴더
 
-  - [ ] `app/wholesaler/` 디렉토리 생성 (🎯 도매 담당)
+  - [x] `app/wholesaler/` 디렉토리 생성 (🎯 도매 담당)
 
-    - [ ] `pending-approval/` 폴더
-    - [ ] `dashboard/` 폴더
-    - [ ] `products/` 폴더
-    - [ ] `products/new/` 폴더
-    - [ ] `products/[id]/edit/` 폴더
-    - [ ] `market-prices/` 폴더
-    - [ ] `orders/` 폴더
-    - [ ] `orders/[id]/` 폴더
-    - [ ] `settlements/` 폴더
+    - [x] `pending-approval/` 폴더
+    - [x] `dashboard/` 폴더
+    - [x] `products/` 폴더
+    - [x] `products/new/` 폴더
+    - [x] `products/[id]/edit/` 폴더
+    - [x] `market-prices/` 폴더
+    - [x] `orders/` 폴더
+    - [x] `orders/[id]/` 폴더
+    - [x] `settlements/` 폴더
 
-  - [ ] `app/admin/` 디렉토리 생성 (관리자 담당, 빈 폴더만)
-    - [ ] `dashboard/` 폴더
-    - [ ] `wholesalers/` 폴더
-    - [ ] `users/` 폴더
-    - [ ] `cs/` 폴더
-    - [ ] `audit-logs/` 폴더
+  - [x] `app/admin/` 디렉토리 생성 (관리자 담당, 빈 폴더만)
 
-- [ ] **components 폴더 구조 생성** (빈 폴더만)
+    - [x] `dashboard/` 폴더
+    - [x] `wholesalers/` 폴더
+    - [x] `users/` 폴더
+    - [x] `cs/` 폴더
+    - [x] `audit-logs/` 폴더
 
-  - [ ] `components/ui/` 디렉토리 (shadcn/ui 컴포넌트는 나중에 설치)
-  - [ ] `components/common/` 디렉토리 생성
-  - [ ] `components/shared/` 디렉토리 생성 (소매/도매 공통 컴포넌트)
-  - [ ] `components/retailer/` 디렉토리 생성 (소매 담당, 빈 폴더만)
-    - [ ] `Layout/` 폴더
-    - [ ] `Products/` 폴더
-    - [ ] `Cart/` 폴더
-    - [ ] `Checkout/` 폴더
-    - [ ] `Orders/` 폴더
-  - [ ] `components/wholesaler/` 디렉토리 생성 (🎯 도매 담당)
-    - [ ] `Layout/` 폴더
-    - [ ] `Dashboard/` 폴더
-    - [ ] `Products/` 폴더
-    - [ ] `MarketPrices/` 폴더
-    - [ ] `Orders/` 폴더
-    - [ ] `Settlements/` 폴더
+  - [x] `app/api/` 디렉토리 생성 (API 라우트)
+    - [x] `api/ai/standardize/` 폴더 (🥇 1순위: Gemini 상품명 표준화)
+    - [x] `api/ai/market-price/` 폴더 (🥈 2순위: 공공데이터 시세 조회)
+    - [ ] `api/payments/callback/` 폴더 (7순위: 나중에 생성)
+    - [ ] `api/cs/chat/` 폴더 (5순위: 나중에 생성)
 
-- [ ] **lib 폴더 구조 생성** (빈 폴더만)
+- [x] **components 폴더 구조 생성** (빈 폴더만)
 
-  - [ ] `lib/supabase/` 디렉토리 생성
-    - [ ] `queries/` 폴더 생성
+  - [x] `components/ui/` 디렉토리 (shadcn/ui 컴포넌트는 나중에 설치)
+  - [x] `components/common/` 디렉토리 생성
+  - [x] `components/shared/` 디렉토리 생성 (소매/도매 공통 컴포넌트)
+  - [x] `components/retailer/` 디렉토리 생성 (소매 담당, 빈 폴더만)
+    - [x] `Layout/` 폴더
+    - [x] `Products/` 폴더
+    - [x] `Cart/` 폴더
+    - [x] `Checkout/` 폴더
+    - [x] `Orders/` 폴더
+  - [x] `components/wholesaler/` 디렉토리 생성 (🎯 도매 담당)
+    - [x] `Layout/` 폴더
+    - [x] `Dashboard/` 폴더
+    - [x] `Products/` 폴더
+    - [x] `MarketPrices/` 폴더
+    - [x] `Orders/` 폴더
+    - [x] `Settlements/` 폴더
+
+- [x] **lib 폴더 구조 생성** (빈 폴더만)
+
+  - [x] `lib/supabase/` 디렉토리 생성
+    - [x] `queries/` 폴더 생성
       - [ ] `products.ts` 파일은 나중에 (공통 쿼리)
       - [ ] `orders.ts` 파일은 나중에 (공통 쿼리)
       - [ ] `wholesalers.ts` 파일은 나중에 (도매 전용)
       - [ ] `retailers.ts` 파일은 나중에 (소매 전용)
       - [ ] `settlements.ts` 파일은 나중에 (도매 전용)
-  - [ ] `lib/clerk/` 디렉토리 생성
-  - [ ] `lib/api/` 디렉토리 생성
-  - [ ] `lib/validation/` 디렉토리 생성
-  - [ ] `lib/utils/` 디렉토리 생성
+  - [x] `lib/clerk/` 디렉토리 생성
+  - [x] `lib/api/` 디렉토리 생성
+  - [x] `lib/validation/` 디렉토리 생성
+  - [x] `lib/utils/` 디렉토리 생성
+  - [x] `lib/gemini.ts` 파일 생성 (🥇 1순위: AI 표준화)
+  - [x] `lib/market-api.ts` 파일 생성 (🥈 2순위: 시세 조회)
 
-- [ ] **types 폴더 생성** (빈 폴더만)
+- [x] **types 폴더 생성** (빈 폴더만)
 
-  - [ ] `types/` 디렉토리 생성
+  - [x] `types/` 디렉토리 생성
   - [ ] 파일들은 나중에 필요할 때 생성
 
-- [ ] **hooks 폴더 생성** (빈 폴더만)
+- [x] **hooks 폴더 생성** (빈 폴더만)
 
-  - [ ] `hooks/` 디렉토리 생성
+  - [x] `hooks/` 디렉토리 생성
   - [ ] 파일들은 나중에 필요할 때 생성
 
 #### ⚠️ 주의사항
@@ -304,10 +313,14 @@ mkdir -p hooks
 
 폴더 생성 후 다음을 확인:
 
-- [ ] `app/retailer/`, `app/wholesaler/`, `app/admin/` 폴더 존재
-- [ ] `components/shared/` 폴더 존재
-- [ ] `lib/supabase/queries/` 폴더 존재
-- [ ] `types/`, `hooks/` 폴더 존재
+- [x] `app/retailer/`, `app/wholesaler/`, `app/admin/` 폴더 존재
+- [x] `components/shared/` 폴더 존재
+- [x] `lib/supabase/queries/` 폴더 존재
+- [x] `types/`, `hooks/` 폴더 존재
+- [x] `app/api/ai/standardize/` 폴더 존재 (🥇 1순위)
+- [x] `app/api/ai/market-price/` 폴더 존재 (🥈 2순위)
+- [x] `lib/gemini.ts` 파일 존재 (🥇 1순위)
+- [x] `lib/market-api.ts` 파일 존재 (🥈 2순위)
 
 #### 📝 다음 단계
 
