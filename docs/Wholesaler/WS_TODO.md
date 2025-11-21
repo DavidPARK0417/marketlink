@@ -355,20 +355,20 @@ mkdir -p hooks
   - [x] `lib/clerk/auth.ts` 작성
   - [x] Clerk 미들웨어 설정 확인
 
-- [ ] **유틸리티 함수 작성**
-  - [ ] `lib/utils/format.ts` 작성
-    - [ ] 날짜 포맷 함수 (`formatDate`, `formatDateTime`)
-    - [ ] 금액 포맷 함수 (`formatCurrency`)
-    - [ ] 전화번호 포맷 함수 (`formatPhone`)
-  - [ ] `lib/utils/constants.ts` 작성
-    - [ ] 은행 목록 정의 (`BANKS`)
-    - [ ] 주문 상태 정의 (`ORDER_STATUS` - pending/confirmed/shipped/completed/cancelled)
-    - [ ] 도매 승인 상태 정의 (`WHOLESALER_STATUS`)
-    - [ ] 배송 방법 정의 (`DELIVERY_METHODS` - courier/direct/quick/freight/pickup)
-    - [ ] 카테고리 목록 정의 (`CATEGORIES`)
-    - [ ] 단위 목록 정의 (`UNITS`)
-    - [ ] 문의 상태 정의 (`INQUIRY_STATUS` - open/answered/closed) (선택)
-    - [ ] ⚠️ REGIONS는 제거 (address 필드로 통합)
+- [x] **유틸리티 함수 작성**
+  - [x] `lib/utils/format.ts` 작성
+    - [x] 날짜 포맷 함수 (`formatDate`, `formatDateTime`)
+    - [x] 금액 포맷 함수 (`formatCurrency`)
+    - [x] 전화번호 포맷 함수 (`formatPhone`)
+  - [x] `lib/utils/constants.ts` 작성
+    - [x] 은행 목록 정의 (`BANKS`)
+    - [x] 주문 상태 정의 (`ORDER_STATUS` - pending/confirmed/shipped/completed/cancelled)
+    - [x] 도매 승인 상태 정의 (`WHOLESALER_STATUS`)
+    - [x] 배송 방법 정의 (`DELIVERY_METHODS` - courier/direct/quick/freight/pickup)
+    - [x] 카테고리 목록 정의 (`CATEGORIES`)
+    - [x] 단위 목록 정의 (`UNITS`)
+    - [x] 문의 상태 정의 (`INQUIRY_STATUS` - open/answered/closed) (선택)
+    - [x] ⚠️ REGIONS는 제거 (address 필드로 통합)
 
 ### 🔐 인증 및 온보딩 구현
 
