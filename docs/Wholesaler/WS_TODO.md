@@ -350,10 +350,10 @@ mkdir -p hooks
   - [x] `lib/supabase/server.ts` 작성 (서버 사이드용)
   - [x] `lib/supabase/realtime.ts` 작성 (실시간 구독용)
 
-- [ ] **Clerk 인증 설정**
+- [x] **Clerk 인증 설정**
 
-  - [ ] `lib/clerk/auth.ts` 작성
-  - [ ] Clerk 미들웨어 설정 확인
+  - [x] `lib/clerk/auth.ts` 작성
+  - [x] Clerk 미들웨어 설정 확인
 
 - [ ] **유틸리티 함수 작성**
   - [ ] `lib/utils/format.ts` 작성
