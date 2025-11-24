@@ -18,8 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SaaS 템플릿",
-  description: "Next.js + Clerk + Supabase 보일러플레이트",
+  title: "FarmToBiz - 도매와 소매를 연결하는 B2B 중개 플랫폼",
+  description:
+    "도매의 민감 정보를 노출하지 않으면서 소매가 여러 도매의 상품을 비교하고 주문할 수 있는 B2B 플랫폼",
 };
 
 export default function RootLayout({
