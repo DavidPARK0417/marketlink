@@ -451,24 +451,24 @@ mkdir -p hooks
 
 #### 4. 도매 레이아웃에서 승인 상태 확인
 
-- [ ] **`app/wholesaler/layout.tsx` 구현**
-  - [ ] Clerk 인증 확인 (`auth()`)
-  - [ ] 로그인하지 않은 경우 `/sign-in`으로 리다이렉트
-  - [ ] Supabase에서 `wholesalers` 정보 조회
-  - [ ] `wholesaler` 정보가 없으면 `/wholesaler/onboarding`으로 리다이렉트
-  - [ ] `status` = 'pending' 또는 'rejected'이면 `/wholesaler/pending-approval`로 리다이렉트
-  - [ ] `status` = 'suspended'이면 `/wholesaler/suspended`로 리다이렉트
-  - [ ] `status` = 'approved'인 경우에만 대시보드 접근 허용
-  - [ ] 레이아웃 구조 설정 (Sidebar + Header + Main Content)
+- [x] **`app/wholesaler/layout.tsx` 구현**
+  - [x] Clerk 인증 확인 (`auth()`)
+  - [x] 로그인하지 않은 경우 `/sign-in`으로 리다이렉트
+  - [x] Supabase에서 `wholesalers` 정보 조회
+  - [x] `wholesaler` 정보가 없으면 `/wholesaler-onboarding`으로 리다이렉트
+  - [x] `status` = 'pending' 또는 'rejected'이면 `/wholesaler/pending-approval`로 리다이렉트
+  - [x] `status` = 'suspended'이면 `/wholesaler/suspended`로 리다이렉트
+  - [x] `status` = 'approved'인 경우에만 대시보드 접근 허용
+  - [x] 레이아웃 구조 설정 (Sidebar + Header + Main Content)
 
 #### 5. 정지된 계정 페이지 (필수)
 
-- [ ] **⚠️ `app/wholesaler/suspended/page.tsx` 구현**
-  - [ ] 계정 정지 안내 메시지
-  - [ ] 정지 사유 표시 (wholesalers.rejection_reason 또는 별도 필드)
-  - [ ] 고객센터 연락처 표시
-  - [ ] 로그아웃 버튼
-  - [ ] 경고 아이콘 (XCircle)
+- [x] **⚠️ `app/wholesaler/suspended/page.tsx` 구현**
+  - [x] 계정 정지 안내 메시지
+  - [x] 정지 사유 표시 (wholesalers.rejection_reason 또는 별도 필드)
+  - [x] 고객센터 연락처 표시
+  - [x] 로그아웃 버튼
+  - [x] 경고 아이콘 (XCircle)
 
 #### 6. Anonymous Code 자동 생성 (필수)
 
