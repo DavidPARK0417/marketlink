@@ -488,6 +488,25 @@ mkdir -p hooks
     - [ ] 여러 계정 동시 생성 시 중복 없는지 확인
     - [ ] 온보딩 완료 후 anonymous_code 확인
 
+**커서 AI 프롬프트:**
+
+```
+Anonymous Code 자동 생성 로직을 구현해줘.
+
+요구사항:
+- PM과 협의한 구현 방법에 따라 구현 (Edge Function 또는 Database Trigger)
+- 생성 형식: VENDOR-001, VENDOR-002, VENDOR-003 (순차 증가)
+- 3자리 숫자 패딩 (001, 002, ..., 999)
+- wholesalers 테이블 INSERT 시 자동 생성
+- 중복 방지 로직 (UNIQUE 제약 또는 트랜잭션 처리)
+- 최대 번호 조회 후 +1 증가
+- 동시성 처리 (여러 계정 동시 생성 시 중복 방지)
+
+⚠️ 구현 방법은 PM과 협의 후 결정하세요. Edge Function, Database Trigger, 또는 다른 방법 중 선택합니다.
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
+
 ### 🎨 레이아웃 구현 (Week 2)
 
 #### 1. 사이드바 컴포넌트
@@ -520,16 +539,66 @@ mkdir -p hooks
   - [ ] 로딩 스피너 애니메이션
   - [ ] 크기 옵션 (sm, md, lg)
 
+**커서 AI 프롬프트:**
+
+```
+로딩 스피너 컴포넌트를 만들어줘.
+
+요구사항:
+- 로딩 스피너 애니메이션 (회전 애니메이션)
+- 크기 옵션: sm, md, lg (props로 받기)
+- Tailwind CSS 스타일링
+- 접근성: aria-label 추가
+
+파일: components/common/LoadingSpinner.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
+
 - [ ] **`components/common/EmptyState.tsx` 구현**
 
   - [ ] 빈 상태 일러스트레이션
   - [ ] 메시지 표시
   - [ ] 액션 버튼 (선택적)
 
+**커서 AI 프롬프트:**
+
+```
+빈 상태 컴포넌트를 만들어줘.
+
+요구사항:
+- 빈 상태 일러스트레이션 (아이콘 또는 일러스트)
+- 메시지 표시 (props로 받기)
+- 액션 버튼 (선택적, props로 받기)
+- 재사용 가능한 컴포넌트
+- Tailwind CSS 스타일링
+
+파일: components/common/EmptyState.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
+
 - [ ] **`components/common/PageHeader.tsx` 구현**
   - [ ] 페이지 제목
   - [ ] 설명 (선택적)
   - [ ] 액션 버튼 영역 (선택적)
+
+**커서 AI 프롬프트:**
+
+```
+페이지 헤더 컴포넌트를 만들어줘.
+
+요구사항:
+- 페이지 제목 (필수)
+- 설명 (선택적, props로 받기)
+- 액션 버튼 영역 (선택적, ReactNode로 받기)
+- 재사용 가능한 컴포넌트
+- Tailwind CSS 스타일링
+
+파일: components/common/PageHeader.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
 
 ### 📄 빈 페이지 생성
 
@@ -655,6 +724,26 @@ mkdir -p hooks
   - [ ] 재사용 가능한 폼 컴포넌트
   - [ ] mode prop으로 등록/수정 모드 구분
 
+**커서 AI 프롬프트:**
+
+```
+상품 폼 컴포넌트를 만들어줘.
+
+요구사항:
+- 재사용 가능한 폼 컴포넌트
+- mode prop: 'create' | 'edit' (등록/수정 모드 구분)
+- react-hook-form + zod 스키마 사용
+- 모든 상품 입력 필드 포함 (상품명, 카테고리, 가격, 재고 등)
+- 이미지 업로드 기능 포함
+- AI 표준화 버튼, 시세 참고 버튼 포함
+- 등록 모드: 빈 폼, 수정 모드: 기존 데이터로 초기화
+- 에러 처리 및 토스트 알림
+
+파일: components/wholesaler/Products/ProductForm.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
+
 #### 3. 상품 수정 기능
 
 - [ ] **`app/wholesaler/products/[id]/edit/page.tsx` 구현**
@@ -663,6 +752,25 @@ mkdir -p hooks
   - [ ] 기존 데이터로 폼 초기화
   - [ ] 수정 API 연동
   - [ ] 성공 시 상품 목록으로 이동
+
+**커서 AI 프롬프트:**
+
+```
+상품 수정 페이지를 만들어줘.
+
+요구사항:
+- 상품 ID로 기존 데이터 조회 (Next.js 15: await params)
+- ProductForm 컴포넌트 재사용 (mode='edit')
+- 기존 데이터로 폼 초기화
+- 수정 API 연동 (Server Action 또는 API Route)
+- 성공 시 /wholesaler/products로 리다이렉트 + 토스트 알림
+- 로딩 상태 및 에러 처리
+- 존재하지 않는 상품 ID 처리 (notFound())
+
+파일: app/wholesaler/products/[id]/edit/page.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
 
 ### 🤖 AI 상품명 표준화 (Week 3 후반)
 
@@ -1066,10 +1174,45 @@ mkdir -p hooks
   - [ ] 증감률 표시 (선택)
   - [ ] 로딩 상태 (스켈레톤)
 
+**커서 AI 프롬프트:**
+
+```
+대시보드 통계 카드 컴포넌트를 만들어줘.
+
+요구사항:
+- Props: title, value, icon, trend (선택)
+- shadcn/ui Card 컴포넌트 사용
+- 아이콘 표시 (lucide-react)
+- 증감률 표시 (선택, trend prop 있을 때만)
+- 로딩 상태: 스켈레톤 UI
+- Tailwind CSS 스타일링
+
+파일: components/wholesaler/Dashboard/StatCard.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
+
 - [ ] **`components/wholesaler/Dashboard/RecentOrders.tsx` 구현**
   - [ ] 최근 주문 5개 표시
   - [ ] 주문번호, 주문일, 상태, 금액
   - [ ] "전체 보기" 버튼 (주문 목록으로 이동)
+
+**커서 AI 프롬프트:**
+
+```
+최근 주문 컴포넌트를 만들어줘.
+
+요구사항:
+- 최근 주문 5개 표시
+- 컬럼: 주문번호, 주문일, 상태(뱃지), 금액
+- "전체 보기" 버튼 (/wholesaler/orders로 이동)
+- 로딩 상태: 스켈레톤 UI
+- 빈 상태: EmptyState 컴포넌트
+
+파일: components/wholesaler/Dashboard/RecentOrders.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
 
 #### 2. 대시보드 페이지
 
@@ -1092,6 +1235,29 @@ mkdir -p hooks
   - [ ] 실시간 업데이트 (Realtime 구독)
   - [ ] 로딩 상태
   - [ ] 에러 처리
+
+**커서 AI 프롬프트:**
+
+```
+도매 대시보드 페이지를 만들어줘.
+
+요구사항:
+- 통계 카드 4개: 오늘 주문(건수), 출고 예정(건수), 이번 주 정산 예정(금액), 전체 상품(개수)
+- Supabase에서 실제 데이터 조회
+  - 오늘 주문: orders 테이블 COUNT (created_at = 오늘)
+  - 출고 예정: orders 테이블 COUNT (status = confirmed)
+  - 정산 예정: settlements 테이블 SUM (status = pending)
+  - 전체 상품: products 테이블 COUNT (is_active = true)
+- RecentOrders 컴포넌트 (최근 주문 5개)
+- 재고 부족 알림 섹션 (재고 10개 이하 상품)
+- Supabase Realtime 구독 (새 주문 알림)
+- ⚠️ Realtime cleanup 함수 필수 포함
+- 로딩 상태 및 에러 처리
+
+파일: app/wholesaler/dashboard/page.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
 
 - [ ] **훅 구현**
   - [ ] `hooks/useWholesaler.ts` 구현
@@ -1147,6 +1313,26 @@ mkdir -p hooks
   - [ ] `getSettlementById()` 함수 구현
   - [ ] ⚠️ 정산 데이터는 결제 완료 시 자동 생성됨 (조회만 담당)
 
+**커서 AI 프롬프트:**
+
+```
+정산 조회 쿼리 함수를 만들어줘.
+
+요구사항:
+- getSettlements(): 현재 도매점의 정산 내역 조회
+  - RLS 정책 활용 (wholesaler_id 필터)
+  - 상태별 필터링 (status: pending, completed)
+  - 날짜 범위 필터링 (scheduled_payout_at)
+  - 페이지네이션 (page, limit)
+  - 정렬 (scheduled_payout_at ASC)
+- getSettlementById(): 정산 상세 정보 조회
+- ⚠️ 정산 데이터는 결제 완료 시 자동 생성됨 (조회만 담당)
+
+파일: lib/supabase/queries/settlements.ts
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
+
 #### 2. 정산 관리 페이지
 
 - [ ] **`app/wholesaler/settlements/page.tsx` 구현**
@@ -1163,6 +1349,25 @@ mkdir -p hooks
   - [ ] 빈 상태
   - [ ] 에러 처리
 
+**커서 AI 프롬프트:**
+
+```
+정산 관리 페이지를 만들어줘.
+
+요구사항:
+- 페이지 헤더: 제목 + 총 정산 예정 금액 표시
+- 탭 UI: 정산 예정(pending), 정산 완료(completed)
+- 필터 UI: 날짜 범위 선택, 상태 선택
+- SettlementTable 컴포넌트 렌더링
+- 로딩 상태: 스켈레톤 UI
+- 빈 상태: EmptyState 컴포넌트
+- 에러 처리 및 토스트 알림
+
+파일: app/wholesaler/settlements/page.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
+
 - [ ] **`components/wholesaler/Settlements/SettlementTable.tsx` 구현**
 
   - [ ] 테이블 컬럼
@@ -1177,6 +1382,24 @@ mkdir -p hooks
   - [ ] 정렬 기능
   - [ ] 페이지네이션
   - [ ] 총 정산 예정 금액 표시 (하단)
+
+**커서 AI 프롬프트:**
+
+```
+정산 테이블 컴포넌트를 만들어줘.
+
+요구사항:
+- 테이블 컬럼: 주문번호, 주문일, 정산 예정일, 주문 금액, 수수료, 정산 금액(강조), 상태(뱃지), 액션(상세보기)
+- 정렬 기능 (정산 예정일, 정산 금액)
+- 페이지네이션
+- 총 정산 예정 금액 표시 (하단)
+- 상세보기 버튼 클릭 시 Dialog 모달 열기
+- 반응형 디자인 (모바일에서는 카드형으로 전환)
+
+파일: components/wholesaler/Settlements/SettlementTable.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
 
 - [ ] **정산 상세 모달**
   - [ ] Dialog 컴포넌트 사용
@@ -1239,6 +1462,31 @@ mkdir -p hooks
   - [ ] `getInquiryStats()` 함수 구현 (대시보드용)
     - [ ] 미답변 문의 카운트
 
+**커서 AI 프롬프트:**
+
+```
+문의 조회 쿼리 함수를 만들어줘.
+
+요구사항:
+- getInquiries(): 현재 도매점 관련 문의만 조회
+  - RLS 정책 활용
+  - 상태별 필터링 (status: open, answered, closed)
+  - 날짜 범위 필터링 (created_at)
+  - 페이지네이션 (page, limit)
+  - 정렬 (created_at DESC)
+- getInquiryById(): 문의 상세 정보 조회
+  - 문의자 정보는 익명 코드만 포함
+- replyToInquiry(): 답변 작성
+  - admin_reply 업데이트
+  - status 변경 (open → answered)
+  - replied_at 기록
+- getInquiryStats(): 대시보드용 (미답변 문의 카운트)
+
+파일: lib/supabase/queries/inquiries.ts
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
+
 #### 2. 문의 목록 페이지
 
 - [ ] **`app/wholesaler/inquiries/page.tsx` 구현**
@@ -1254,6 +1502,27 @@ mkdir -p hooks
   - [ ] 로딩 상태 (스켈레톤)
   - [ ] 빈 상태 (EmptyState)
   - [ ] 에러 처리
+
+**커서 AI 프롬프트:**
+
+```
+문의 목록 페이지를 만들어줘.
+
+요구사항:
+- 페이지 헤더: 제목 + "새 문의" 버튼 (선택)
+- 탭 UI: 미답변(open), 답변완료(answered), 종료(closed)
+- 필터 UI: 날짜 범위, 상태 선택, 검색(제목/내용)
+- InquiryTable 컴포넌트 렌더링
+- Supabase Realtime 구독 (새 문의 알림)
+- ⚠️ Realtime cleanup 함수 필수 포함
+- 로딩 상태: 스켈레톤 UI
+- 빈 상태: EmptyState 컴포넌트
+- 에러 처리 및 토스트 알림
+
+파일: app/wholesaler/inquiries/page.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
 
 - [ ] **`components/wholesaler/Inquiries/InquiryTable.tsx` 구현**
 
@@ -1300,6 +1569,31 @@ mkdir -p hooks
   - [ ] 로딩 상태
   - [ ] 에러 처리
   - [ ] 성공 시 토스트 알림
+
+**커서 AI 프롬프트:**
+
+```
+문의 상세 페이지를 만들어줘.
+
+요구사항:
+- 문의 ID로 데이터 조회 (Next.js 15: await params)
+- 페이지 헤더: 제목 + 상태 뱃지
+- 문의 정보: 제목, 내용, 문의일, 문의자(익명 코드만)
+  - ⚠️ 소매점 실명/연락처 절대 노출 금지
+- 답변 섹션:
+  - 기존 답변 표시 (admin_reply, replied_at)
+  - 답변 작성 폼 (status='open'인 경우만)
+    - Textarea 컴포넌트
+    - 유효성 검증 (최소 10자)
+    - 답변 제출 버튼
+- 상태 변경: 답변 완료 시 'answered'로 변경
+- 로딩 상태 및 에러 처리
+- 성공 시 토스트 알림
+
+파일: app/wholesaler/inquiries/[id]/page.tsx
+
+⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
+```
 
 - [ ] **`components/wholesaler/Inquiries/InquiryReplyForm.tsx` 구현**
   - [ ] react-hook-form 설정
