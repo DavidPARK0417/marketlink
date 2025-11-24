@@ -9,7 +9,6 @@
  * - 모든 라우트에서 Clerk 인증 확인
  * - 인증되지 않은 사용자 처리
  * - 공개 라우트와 보호된 라우트 구분
- * - /retailer/* 경로 보호 (미인증 사용자 리다이렉트)
  *
  * ⚠️ 주의:
  * - matcher 설정에 따라 특정 파일들은 미들웨어를 건너뜁니다
@@ -22,37 +21,15 @@
  * @see {@link https://clerk.com/docs/nextjs/middleware} - Clerk 미들웨어 문서
  */
 
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-
-/**
- * 보호된 라우트 매처
- * /retailer/* 경로는 인증이 필요합니다.
- */
-const isProtectedRoute = createRouteMatcher(["/retailer(.*)"]);
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
 /**
  * Clerk 미들웨어
  *
  * 모든 요청에 대해 Clerk 인증을 처리합니다.
- * /retailer/* 경로는 인증이 필요하며, 미인증 사용자는 로그인 페이지로 리다이렉트됩니다.
+ * 인증되지 않은 사용자는 Clerk가 자동으로 로그인 페이지로 리다이렉트합니다.
  */
-export default clerkMiddleware(async (auth, req) => {
-  // 보호된 라우트 확인
-  if (isProtectedRoute(req)) {
-    const { userId } = await auth();
-
-    // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
-    if (!userId) {
-      console.log("🚫 [middleware] 미인증 사용자 접근 차단:", req.nextUrl.pathname);
-      const signInUrl = new URL("/sign-in", req.url);
-      signInUrl.searchParams.set("redirect_url", req.nextUrl.pathname);
-      return NextResponse.redirect(signInUrl);
-    }
-
-    console.log("✅ [middleware] 인증된 사용자 접근 허용:", req.nextUrl.pathname);
-  }
-});
+export default clerkMiddleware();
 
 /**
  * 미들웨어 실행 조건 설정
