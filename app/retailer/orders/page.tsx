@@ -87,6 +87,9 @@ export default function OrdersPage() {
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
           주문 내역
         </h1>
+        <p className="mt-2 text-sm md:text-base text-gray-600 dark:text-gray-400">
+          주문 상태 및 배송 정보를 확인하세요
+        </p>
       </div>
 
       {/* 검색 및 필터 */}
@@ -134,21 +137,21 @@ export default function OrdersPage() {
         {mockOrders.map((order) => (
           <div
             key={order.id}
-            className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
+            className="p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
           >
             {/* 주문 헤더 */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col gap-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
                     {order.order_date}
                   </span>
-                  <span className="text-sm text-gray-400">·</span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <span className="text-xs sm:text-sm text-gray-400">·</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 break-all">
                     {order.order_number}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status as keyof typeof statusColors]}`}
                   >
@@ -162,7 +165,7 @@ export default function OrdersPage() {
 
               <Link
                 href={`/retailer/orders/${order.id}`}
-                className="text-sm text-green-600 dark:text-green-400 font-medium hover:underline"
+                className="text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium hover:underline whitespace-nowrap flex-shrink-0"
               >
                 상세 보기
               </Link>
@@ -174,7 +177,7 @@ export default function OrdersPage() {
                 {order.products.map((product, index) => (
                   <p
                     key={index}
-                    className="text-base font-bold text-gray-900 dark:text-gray-100"
+                    className="text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100 break-words"
                   >
                     {product.name}
                     {order.products.length > 1 &&
@@ -182,34 +185,34 @@ export default function OrdersPage() {
                       ` 외 ${order.products.length - 1}건`}
                   </p>
                 ))}
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                   수량: {order.products.reduce((sum, p) => sum + p.quantity, 0)}개
                 </p>
               </div>
             </div>
 
             {/* 주문 푸터 */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex flex-col gap-1">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                   결제 금액
                 </span>
-                <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">
                   {order.total_price.toLocaleString()}원
                 </span>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 {order.status === "delivered" ? (
-                  <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
+                  <button className="w-full sm:w-auto px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-medium rounded-lg transition-colors">
                     구매 확정
                   </button>
                 ) : order.status === "preparing" ? (
-                  <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 text-sm font-medium rounded-lg transition-colors">
+                  <button className="w-full sm:w-auto px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 text-xs sm:text-sm font-medium rounded-lg transition-colors">
                     주문 취소
                   </button>
                 ) : null}
-                <button className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-medium rounded-lg transition-colors">
+                <button className="w-full sm:w-auto px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-xs sm:text-sm font-medium rounded-lg transition-colors">
                   재주문
                 </button>
               </div>
