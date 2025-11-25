@@ -28,16 +28,16 @@ export default function WholesalerSignInPage() {
   console.log("=".repeat(80));
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-16 bg-gradient-to-b from-green-50 to-white">
-      <div className="w-full max-w-md space-y-4">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-4 md:py-8 bg-gradient-to-b from-green-50 to-white">
+      <div className="w-full max-w-md space-y-3">
         {/* 역할 안내 카드 */}
         <Card className="border-green-200">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Package className="w-8 h-8 text-green-600" />
+          <CardHeader className="text-center py-3">
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Package className="w-6 h-6 text-green-600" />
             </div>
-            <CardTitle className="text-2xl">도매업자 로그인</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl">도매업자 로그인</CardTitle>
+            <CardDescription className="text-sm">
               전국의 소매업체에게 상품을 판매하고 비즈니스를 확장하세요.
             </CardDescription>
           </CardHeader>
@@ -63,12 +63,14 @@ export default function WholesalerSignInPage() {
 
         {/* 신규 회원 안내 카드 */}
         <Card className="border-blue-200 bg-blue-50/50">
-          <CardHeader className="text-center py-4">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <UserPlus className="w-5 h-5 text-blue-600" />
-              <CardTitle className="text-lg">아직 회원이 아니신가요?</CardTitle>
+          <CardHeader className="text-center py-3">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <UserPlus className="w-4 h-4 text-blue-600" />
+              <CardTitle className="text-base">
+                아직 회원이 아니신가요?
+              </CardTitle>
             </div>
-            <CardDescription className="text-blue-900/70 mb-3">
+            <CardDescription className="text-blue-900/70 mb-2 text-sm">
               지금 바로 회원가입하고 도매 비즈니스를 시작하세요!
             </CardDescription>
             <Link href="/sign-up?type=wholesaler">
