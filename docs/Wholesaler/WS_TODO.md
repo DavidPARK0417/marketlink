@@ -526,11 +526,11 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 2. 헤더 컴포넌트
 
-- [ ] **`components/wholesaler/Layout/Header.tsx` 구현**
-  - [ ] 페이지 제목 영역
-  - [ ] 알림 아이콘 (새 주문 알림 표시)
-  - [ ] 사용자 드롭다운 메뉴 (Clerk `UserButton` 사용)
-  - [ ] 반응형 디자인 (모바일 대응)
+- [x] **`components/wholesaler/Layout/Header.tsx` 구현**
+  - [x] 페이지 제목 영역
+  - [x] 알림 아이콘 (새 주문 알림 표시)
+  - [x] 사용자 드롭다운 메뉴 (Clerk `UserButton` 사용)
+  - [x] 반응형 디자인 (모바일 대응)
 
 #### 3. 공통 컴포넌트
 
