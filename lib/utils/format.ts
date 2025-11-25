@@ -175,6 +175,30 @@ export function formatCurrency(
 }
 
 /**
+ * 가격 포맷 함수 (간단한 형식)
+ *
+ * 숫자를 한국 원화 형식으로 포맷팅합니다.
+ * formatCurrency와 달리 "원" 접미사만 사용합니다.
+ *
+ * @param {number} price - 포맷팅할 가격
+ * @returns {string} 포맷팅된 가격 문자열 (예: "3,000원")
+ *
+ * @example
+ * ```tsx
+ * formatPrice(3000); // "3,000원"
+ * formatPrice(1000000); // "1,000,000원"
+ * ```
+ */
+export function formatPrice(price: number): string {
+  if (isNaN(price)) {
+    console.warn("⚠️ [format] 잘못된 가격:", price);
+    return "0원";
+  }
+
+  return new Intl.NumberFormat("ko-KR").format(price) + "원";
+}
+
+/**
  * 전화번호 포맷 함수
  *
  * 전화번호를 표준 형식(010-1234-5678)으로 포맷팅합니다.

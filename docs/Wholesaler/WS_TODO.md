@@ -633,41 +633,41 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 1. 상품 목록 페이지
 
-- [ ] **Supabase 쿼리 함수 작성**
+- [x] **Supabase 쿼리 함수 작성**
 
-  - [ ] `lib/supabase/queries/products.ts` 작성
-  - [ ] `getProducts()` 함수 구현
-    - [ ] 현재 도매점의 상품만 조회 (RLS 정책 활용)
-    - [ ] 페이지네이션 지원
-    - [ ] 정렬 지원 (최신순, 가격순 등)
-  - [ ] `getProductsByCategory()` 함수 구현
-  - [ ] `searchProducts()` 함수 구현
+  - [x] `lib/supabase/queries/products.ts` 작성
+  - [x] `getProducts()` 함수 구현
+    - [x] 현재 도매점의 상품만 조회 (RLS 정책 활용)
+    - [x] 페이지네이션 지원
+    - [x] 정렬 지원 (최신순, 가격순 등)
+  - [x] `getProductsByCategory()` 함수 구현
+  - [x] `searchProducts()` 함수 구현
 
-- [ ] **`app/wholesaler/products/page.tsx` 구현**
+- [x] **`app/wholesaler/products/page.tsx` 구현**
 
-  - [ ] 페이지 헤더 (제목 + "상품 등록" 버튼)
-  - [ ] 필터 UI
-    - [ ] 카테고리 선택 (Select)
-    - [ ] 활성/비활성 필터 (Tabs)
-    - [ ] 검색 입력 필드 (상품명)
-  - [ ] 상품 테이블 컴포넌트 렌더링
-  - [ ] 로딩 상태 (스켈레톤)
-  - [ ] 빈 상태 (EmptyState)
-  - [ ] 에러 처리
+  - [x] 페이지 헤더 (제목 + "상품 등록" 버튼)
+  - [x] 필터 UI
+    - [x] 카테고리 선택 (Select)
+    - [x] 활성/비활성 필터 (Tabs)
+    - [x] 검색 입력 필드 (상품명)
+  - [x] 상품 테이블 컴포넌트 렌더링
+  - [x] 로딩 상태 (스켈레톤)
+  - [x] 빈 상태 (EmptyState)
+  - [x] 에러 처리
 
-- [ ] **`components/wholesaler/Products/ProductTable.tsx` 구현**
-  - [ ] TanStack Table 설정
-  - [ ] 테이블 컬럼 정의
-    - [ ] 이미지 (썸네일)
-    - [ ] 상품명
-    - [ ] 카테고리
-    - [ ] 가격
-    - [ ] 재고
-    - [ ] 상태 (활성/비활성 뱃지)
-    - [ ] 액션 (수정/비활성화 버튼)
-  - [ ] 정렬 기능
-  - [ ] 페이지네이션
-  - [ ] 활성화/비활성화 토글 함수
+- [x] **`components/wholesaler/Products/ProductTable.tsx` 구현**
+  - [x] TanStack Table 설정
+  - [x] 테이블 컬럼 정의
+    - [x] 이미지 (썸네일)
+    - [x] 상품명
+    - [x] 카테고리
+    - [x] 가격
+    - [x] 재고
+    - [x] 상태 (활성/비활성 뱃지)
+    - [x] 액션 (수정/비활성화 버튼)
+  - [x] 정렬 기능
+  - [x] 페이지네이션
+  - [x] 활성화/비활성화 토글 함수
 
 #### 2. 상품 등록 폼
 

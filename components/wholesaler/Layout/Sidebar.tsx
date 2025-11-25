@@ -152,8 +152,17 @@ export default function WholesalerSidebar() {
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col">
       {/* 로고/제목 영역 */}
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-gray-900">도매 관리</h1>
+      <div className="p-4 border-b border-gray-200">
+        <Link href="/wholesaler/dashboard" className="block w-full">
+          <Image
+            src="/farmtobiz_logo.png"
+            alt="FarmToBiz"
+            width={208}
+            height={80}
+            className="w-full h-auto object-contain"
+            priority
+          />
+        </Link>
       </div>
 
       {/* 사용자 프로필 영역 */}
