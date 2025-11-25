@@ -6,11 +6,14 @@
  * 현재 경로를 하이라이트하고, 도매 메뉴를 제공합니다.
  *
  * 주요 기능:
- * 1. 도매 메뉴 항목 표시
- * 2. 현재 경로 하이라이트
- * 3. 아이콘과 함께 메뉴 표시
+ * 1. 사용자 프로필 영역 표시 (아바타, 도매 회원사, 이메일)
+ * 2. 도매 메뉴 항목 표시
+ * 3. 현재 경로 하이라이트
+ * 4. 아이콘과 함께 메뉴 표시
+ * 5. 하단 새 상품 등록하기 버튼
  *
  * @dependencies
+ * - @clerk/nextjs (useUser)
  * - next/navigation (usePathname, Link)
  * - lucide-react (아이콘)
  * - lib/utils (cn 함수)
@@ -20,6 +23,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 import {
   LayoutDashboard,
   Package,
@@ -27,7 +32,8 @@ import {
   ShoppingCart,
   DollarSign,
   MessageSquare,
-  Home,
+  Settings,
+  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -62,10 +68,31 @@ const menuItems = [
     label: "문의 관리",
     icon: MessageSquare,
   },
+  {
+    href: "/wholesaler/settings",
+    label: "설정",
+    icon: Settings,
+  },
 ];
 
 export default function WholesalerSidebar() {
   const pathname = usePathname();
+  const { user, isLoaded } = useUser();
+
+  // 사용자 이름의 첫 글자 추출 (아바타 폴백용)
+  const getInitials = (name: string | null | undefined): string => {
+    if (!name) return "U";
+    const words = name.trim().split(" ");
+    if (words.length >= 2) {
+      return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+    }
+    return name[0].toUpperCase();
+  };
+
+  // 아바타 이미지 URL 또는 null
+  const avatarUrl = user?.imageUrl || null;
+  const userName = user?.fullName || user?.firstName || null;
+  const userEmail = user?.primaryEmailAddress?.emailAddress || null;
 
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col">
@@ -74,8 +101,42 @@ export default function WholesalerSidebar() {
         <h1 className="text-xl font-bold text-gray-900">도매 관리</h1>
       </div>
 
+      {/* 사용자 프로필 영역 */}
+      {isLoaded && user && (
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            {/* 아바타 */}
+            <div className="relative flex-shrink-0">
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt={userName || "사용자"}
+                  width={48}
+                  height={48}
+                  className="rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold text-lg">
+                  {getInitials(userName)}
+                </div>
+              )}
+            </div>
+
+            {/* 사용자 정보 */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                도매 회원사
+              </p>
+              {userEmail && (
+                <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 메뉴 네비게이션 */}
-      <nav className="flex-1 p-4">
+      <nav className="flex-1 p-4 overflow-y-auto">
         <div className="flex flex-col gap-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -105,14 +166,14 @@ export default function WholesalerSidebar() {
         </div>
       </nav>
 
-      {/* 하단 홈 링크 */}
+      {/* 하단 새 상품 등록하기 버튼 */}
       <div className="p-4 border-t border-gray-200">
         <Link
-          href="/"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          href="/wholesaler/products/new"
+          className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
-          <Home className="w-5 h-5" />
-          <span>홈으로</span>
+          <Plus className="w-5 h-5" />
+          <span>새 상품 등록하기</span>
         </Link>
       </div>
     </aside>

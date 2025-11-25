@@ -511,18 +511,18 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 1. 사이드바 컴포넌트
 
-- [ ] **`components/wholesaler/Layout/Sidebar.tsx` 구현**
-  - [ ] 로고 영역
-  - [ ] 메뉴 아이템 정의
-    - [ ] 대시보드 (`/wholesaler/dashboard`, LayoutDashboard 아이콘)
-    - [ ] 상품 관리 (`/wholesaler/products`, Package 아이콘)
-    - [ ] 시세 조회 (`/wholesaler/market-prices`, TrendingUp 아이콘)
-    - [ ] 주문 관리 (`/wholesaler/orders`, ShoppingCart 아이콘)
-    - [ ] 정산 관리 (`/wholesaler/settlements`, DollarSign 아이콘)
-    - [ ] 문의 관리 (`/wholesaler/inquiries`, MessageSquare 아이콘) - 선택
-  - [ ] 현재 경로 하이라이트 (usePathname 활용)
-  - [ ] hover 효과
-  - [ ] Tailwind CSS 스타일링
+- [x] **`components/wholesaler/Layout/Sidebar.tsx` 구현**
+  - [x] 로고 영역
+  - [x] 메뉴 아이템 정의
+    - [x] 대시보드 (`/wholesaler/dashboard`, LayoutDashboard 아이콘)
+    - [x] 상품 관리 (`/wholesaler/products`, Package 아이콘)
+    - [x] 시세 조회 (`/wholesaler/market-prices`, TrendingUp 아이콘)
+    - [x] 주문 관리 (`/wholesaler/orders`, ShoppingCart 아이콘)
+    - [x] 정산 관리 (`/wholesaler/settlements`, DollarSign 아이콘)
+    - [x] 문의 관리 (`/wholesaler/inquiries`, MessageSquare 아이콘) - 선택
+  - [x] 현재 경로 하이라이트 (usePathname 활용)
+  - [x] hover 효과
+  - [x] Tailwind CSS 스타일링
 
 #### 2. 헤더 컴포넌트
 
