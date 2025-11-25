@@ -21,7 +21,7 @@
 "use client";
 
 import { SignIn } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 // 🚨 파일 로드 확인 및 전역 에러 감지 리스너 등록
@@ -210,6 +210,7 @@ export default function SignInWithRedirect({
   });
 
   const router = useRouter();
+  const pathname = usePathname();
   const [showSignUpModal, setShowSignUpModal] = useState(false);
 
   // 🎯 전역 에러 감지: Clerk가 DOM에 렌더링하는 에러 메시지를 감지
@@ -557,19 +558,42 @@ export default function SignInWithRedirect({
     console.log("=".repeat(60));
     console.log("📝 [Modal] 확인 버튼 클릭!");
 
-    // 일관성을 위해 소매사업자는 /sign-in/retailer로, 도매사업자는 /sign-in/wholesaler로 리다이렉트
-    const redirectUrl = isRetailer
-      ? "/sign-in/retailer"
-      : "/sign-in/wholesaler";
+    // 모달 확인 후 현재 로그인 페이지로 리다이렉트
+    // isRetailer 플래그를 사용하여 정확한 경로 결정
+    // pathname이 /sign-in/wholesaler 또는 /sign-in/retailer인지 확인
+    let redirectUrl: string;
+
+    if (
+      pathname &&
+      (pathname.includes("/wholesaler") || pathname.includes("/retailer"))
+    ) {
+      // pathname이 이미 올바른 경로를 포함하고 있으면 사용
+      redirectUrl = pathname;
+    } else if (
+      path &&
+      (path.includes("/wholesaler") || path.includes("/retailer"))
+    ) {
+      // path prop이 올바른 경로를 포함하고 있으면 사용
+      redirectUrl = path;
+    } else {
+      // 그 외의 경우 isRetailer 플래그로 직접 구성
+      redirectUrl = isRetailer ? "/sign-in/retailer" : "/sign-in/wholesaler";
+    }
 
     console.log("📝 [Modal] 리다이렉트 대상:", redirectUrl);
+    console.log("📝 [Modal] pathname (현재 경로):", pathname);
+    console.log("📝 [Modal] path prop:", path);
     console.log(
       "📝 [Modal] 사용자 유형:",
       isRetailer ? "소매사업자" : "도매사업자",
     );
     console.log("=".repeat(60));
+
     setShowSignUpModal(false);
-    router.push(redirectUrl);
+
+    // 같은 페이지로 리다이렉트할 때는 window.location을 사용하여 강제 새로고침
+    // router.push는 같은 페이지로 이동할 때 작동하지 않을 수 있음
+    window.location.href = redirectUrl;
   };
 
   const userTypeMessage = isRetailer

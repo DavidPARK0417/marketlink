@@ -49,9 +49,10 @@ export default function RetailerSignInPage() {
             }}
             path="/sign-in/retailer"
             signUpUrl="/sign-up?type=retailer"
-            fallbackRedirectUrl="/retailer/dashboard"
-            forceRedirectUrl="/retailer/dashboard"
+            fallbackRedirectUrl="/retailer-onboarding"
+            forceRedirectUrl="/retailer-onboarding"
             redirectToSignUpUrl="/sign-up?type=retailer"
+            onboardingUrl="/retailer-onboarding"
           />
         </div>
 

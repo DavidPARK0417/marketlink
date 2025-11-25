@@ -37,7 +37,9 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
   const afterSignUpUrl =
     type === "wholesaler"
       ? "/wholesaler-onboarding" // 도매점: 온보딩 페이지
-      : "/retailer/dashboard"; // 소매점: 대시보드 (또는 기본값)
+      : type === "retailer"
+      ? "/retailer-onboarding" // 소매점: 온보딩 페이지
+      : "/retailer/dashboard"; // 기본값
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">

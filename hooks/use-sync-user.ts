@@ -139,7 +139,8 @@ export function useSyncUser() {
 
     // Clerk 세션이 완전히 생성될 때까지 약간의 지연 추가
     // 회원가입 직후에는 세션이 완전히 준비되지 않을 수 있음
-    const delay = 500; // 500ms 지연
+    // 지연 시간을 100ms로 단축하여 빠른 리다이렉트 지원
+    const delay = 100; // 100ms 지연 (500ms에서 단축)
     const timer = setTimeout(() => {
       syncUser(1);
     }, delay);

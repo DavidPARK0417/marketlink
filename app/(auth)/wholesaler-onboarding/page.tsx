@@ -29,6 +29,7 @@ import { redirect } from "next/navigation";
 import { getUserProfile } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import WholesalerOnboardingForm from "./WholesalerOnboardingForm";
+import WholesalerOnboardingClient from "./WholesalerOnboardingClient";
 
 export default async function WholesalerOnboardingPage() {
   console.log("🔍 [wholesaler-onboarding] 페이지 접근");
@@ -36,9 +37,10 @@ export default async function WholesalerOnboardingPage() {
   // 인증 확인
   const profile = await getUserProfile();
 
+  // 프로필이 없으면 클라이언트 컴포넌트로 재시도 로직 처리
   if (!profile) {
-    console.log("⚠️ [wholesaler-onboarding] 인증되지 않음, 로그인 페이지로");
-    redirect("/sign-in/wholesaler");
+    console.log("⚠️ [wholesaler-onboarding] 프로필 없음, 클라이언트 재시도 로직 실행");
+    return <WholesalerOnboardingClient />;
   }
 
   // 역할 확인: role이 null이면 온보딩 진행, null이 아니고 wholesaler가 아니면 메인 페이지로
