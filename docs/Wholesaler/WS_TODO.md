@@ -534,10 +534,10 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 3. 공통 컴포넌트
 
-- [ ] **`components/common/LoadingSpinner.tsx` 구현**
+- [x] **`components/common/LoadingSpinner.tsx` 구현**
 
-  - [ ] 로딩 스피너 애니메이션
-  - [ ] 크기 옵션 (sm, md, lg)
+  - [x] 로딩 스피너 애니메이션
+  - [x] 크기 옵션 (sm, md, lg)
 
 **커서 AI 프롬프트:**
 

@@ -1,27 +1,160 @@
 /**
  * @file components/auth/sign-in-with-redirect.tsx
- * @description SignIn 컴포넌트 래퍼 - 계정 없음 오류 감지 시 회원가입 페이지로 자동 리다이렉트
+ * @description SignIn 컴포넌트 래퍼 - Clerk 에러 감지 시 커스텀 모달 표시
  *
  * Clerk의 SignIn 컴포넌트를 래핑하여 가입되지 않은 계정으로 로그인 시도 시
- * 자동으로 회원가입 페이지로 리다이렉트하는 기능을 제공합니다.
+ * 커스텀 모달을 표시하고 온보딩 페이지로 리다이렉트하는 기능을 제공합니다.
  *
  * 주요 기능:
- * 1. MutationObserver를 사용하여 Clerk의 에러 메시지 감지
- * 2. "계정이 존재하지 않습니다" 또는 "form_identifier_not_found" 에러 감지
- * 3. 계정 없음 오류인 경우에만 회원가입 페이지로 리다이렉트
- * 4. 다른 오류(비밀번호 오류 등)는 Clerk의 기본 에러 메시지 표시 유지
+ * 1. Clerk 컴포넌트의 자체 에러 감지
+ * 2. "External Account was not found" 등의 계정 없음 에러 감지
+ * 3. 커스텀 모달 표시
+ * 4. 온보딩 페이지로 리다이렉트
  *
  * @dependencies
  * - @clerk/nextjs (SignIn)
  * - next/navigation (useRouter)
- * - react (useEffect, useRef)
+ * - react (useState, useEffect)
+ * - components/ui/dialog (모달)
  */
 
 "use client";
 
 import { SignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+
+// 🚨 파일 로드 확인 및 전역 에러 감지 리스너 등록
+if (typeof window !== "undefined") {
+  console.log("=".repeat(80));
+  console.log(
+    "🚨🚨🚨 [FILE LOADED] sign-in-with-redirect.tsx 파일이 로드되었습니다!",
+  );
+  console.log("=".repeat(80));
+
+  // 🔥 전역 에러 감지 시스템 (컴포넌트 언마운트 후에도 작동)
+  if (!(window as any).__clerkErrorListenerActive) {
+    (window as any).__clerkErrorListenerActive = true;
+    console.log("🔧 [Global System] 전역 에러 감지 시스템 활성화");
+
+    let globalCheckCount = 0;
+    let globalIntervalId: NodeJS.Timeout | null = null;
+    let globalModalShown = false;
+
+    const globalErrorCheck = () => {
+      globalCheckCount++;
+
+      const allText = document.body.textContent || "";
+      const allTextLower = allText.toLowerCase();
+
+      // 20번마다 로그 (1초마다)
+      if (globalCheckCount % 20 === 0) {
+        console.log(
+          `🔍 [Global System] 체크 #${globalCheckCount} (${(
+            (globalCheckCount * 50) /
+            1000
+          ).toFixed(1)}초) - 텍스트 길이: ${allText.length}`,
+        );
+      }
+
+      // 에러 패턴 체크
+      const errorPatterns = [
+        "the external account was not found",
+        "external account was not found",
+        "external account not found",
+      ];
+
+      const foundPatterns = errorPatterns.filter((pattern) =>
+        allTextLower.includes(pattern),
+      );
+
+      if (foundPatterns.length > 0 && !globalModalShown) {
+        console.log("=".repeat(80));
+        console.log("✅✅✅ [Global System] External Account 에러 감지!");
+        console.log("📝 [Global System] 발견된 패턴:", foundPatterns);
+        console.log("=".repeat(80));
+
+        globalModalShown = true;
+
+        // 모달을 표시하기 위해 커스텀 이벤트 발생
+        window.dispatchEvent(
+          new CustomEvent("clerk-external-account-error", {
+            detail: { patterns: foundPatterns },
+          }),
+        );
+
+        // 전역 모달 표시 함수 호출 (있는 경우)
+        if ((window as any).showSignUpModal) {
+          (window as any).showSignUpModal();
+        }
+      }
+    };
+
+    // 전역 MutationObserver
+    const globalObserver = new MutationObserver(() => {
+      const allText = document.body.textContent?.toLowerCase() || "";
+      if (
+        allText.includes("external account") &&
+        allText.includes("not found")
+      ) {
+        console.log("🔍 [Global System] MutationObserver - 에러 감지!");
+        globalErrorCheck();
+      }
+    });
+
+    // 전역 체크 시작
+    const startGlobalCheck = () => {
+      if (globalIntervalId) return; // 이미 실행 중
+
+      console.log("🚀 [Global System] 전역 체크 시작");
+      globalObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+
+      globalIntervalId = setInterval(() => {
+        globalErrorCheck();
+        if (globalCheckCount >= 400) {
+          // 20초 후 중단
+          if (globalIntervalId) {
+            clearInterval(globalIntervalId);
+            globalIntervalId = null;
+          }
+        }
+      }, 50);
+    };
+
+    // 페이지 로드 시 시작
+    if (document.readyState === "complete") {
+      startGlobalCheck();
+    } else {
+      window.addEventListener("load", startGlobalCheck);
+      document.addEventListener("DOMContentLoaded", startGlobalCheck);
+    }
+
+    // 페이지 전환 감지
+    window.addEventListener("popstate", () => {
+      console.log("🔍 [Global System] 페이지 전환 감지 - 체크 재시작");
+      globalCheckCount = 0;
+      globalModalShown = false;
+      if (globalIntervalId) {
+        clearInterval(globalIntervalId);
+        globalIntervalId = null;
+      }
+      startGlobalCheck();
+    });
+  }
+}
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface SignInWithRedirectProps {
   /**
@@ -29,9 +162,17 @@ interface SignInWithRedirectProps {
    */
   path: string;
   signUpUrl: string;
-  afterSignInUrl: string;
   /**
-   * 로그인 후 강제 리다이렉트 URL (환경 변수보다 우선)
+   * 로그인 후 폴백 리다이렉트 URL (다른 리다이렉트 URL이 없을 때 사용)
+   * @deprecated afterSignInUrl 대신 fallbackRedirectUrl 사용
+   */
+  afterSignInUrl?: string;
+  /**
+   * 로그인 후 폴백 리다이렉트 URL (새로운 API)
+   */
+  fallbackRedirectUrl?: string;
+  /**
+   * 로그인 후 강제 리다이렉트 URL (환경 변수보다 우선, 최우선순위)
    */
   forceRedirectUrl?: string;
   appearance?: {
@@ -44,166 +185,425 @@ interface SignInWithRedirectProps {
    * 회원가입 페이지 URL (리다이렉트 대상)
    */
   redirectToSignUpUrl: string;
+  /**
+   * 온보딩 페이지 URL (모달 확인 후 이동할 페이지)
+   */
+  onboardingUrl?: string;
 }
 
 export default function SignInWithRedirect({
   path,
   signUpUrl,
   afterSignInUrl,
+  fallbackRedirectUrl,
   forceRedirectUrl,
   appearance,
   redirectToSignUpUrl,
+  onboardingUrl,
 }: SignInWithRedirectProps) {
+  // 🚨 컴포넌트가 렌더링되는지 확인
+  console.log("🚨🚨🚨 [SignInWithRedirect] 컴포넌트 렌더링됨!");
+  console.log("📋 [SignInWithRedirect] Props:", {
+    path,
+    signUpUrl,
+    onboardingUrl,
+  });
+
   const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const hasRedirectedRef = useRef(false);
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
 
+  // 🎯 전역 에러 감지: Clerk가 DOM에 렌더링하는 에러 메시지를 감지
   useEffect(() => {
-    if (!containerRef.current) return;
+    console.log("=".repeat(60));
+    console.log("🚨 [useEffect] 실행됨!");
+    console.log("🔍 [Global Listener] 에러 감지 리스너 시작");
+    console.log("=".repeat(60));
 
-    console.log("🔍 [sign-in-redirect] 에러 감지 시작");
-
-    // 에러 감지 함수
-    const checkForAccountNotFoundError = () => {
-      if (hasRedirectedRef.current || !containerRef.current) return;
-
-      // Clerk의 에러 메시지 요소 찾기 (다양한 선택자 시도)
-      const errorSelectors = [
-        '[data-localization-key*="identifier"]',
-        '[data-localization-key*="form_identifier_not_found"]',
-        ".cl-alert",
-        '[role="alert"]',
-        ".cl-formFieldErrorText",
-        '[class*="error"]',
-        '[class*="Error"]',
-      ];
-
-      let errorElements: NodeListOf<Element> | null = null;
-      for (const selector of errorSelectors) {
-        errorElements = containerRef.current.querySelectorAll(selector);
-        if (errorElements.length > 0) break;
-      }
-
-      if (errorElements && errorElements.length > 0) {
-        errorElements.forEach((element) => {
-          const text = element.textContent?.toLowerCase() || "";
-          const innerHTML = element.innerHTML?.toLowerCase() || "";
-          const dataKey =
-            element.getAttribute("data-localization-key")?.toLowerCase() || "";
-
-          // 계정 없음 오류 키워드 확인
-          const accountNotFoundKeywords = [
-            "form_identifier_not_found",
-            "account not found",
-            "계정이 존재하지 않습니다",
-            "identifier_not_found",
-            "user not found",
-            "존재하지 않는",
-            "찾을 수 없습니다",
-            "couldn't find",
-            "doesn't exist",
-          ];
-
-          const isAccountNotFound = accountNotFoundKeywords.some(
-            (keyword) =>
-              text.includes(keyword) ||
-              innerHTML.includes(keyword) ||
-              dataKey.includes(keyword),
-          );
-
-          // 비밀번호 오류는 제외
-          const isPasswordError =
-            text.includes("password") ||
-            text.includes("비밀번호") ||
-            text.includes("incorrect") ||
-            text.includes("틀렸습니다") ||
-            text.includes("wrong") ||
-            dataKey.includes("password");
-
-          if (isAccountNotFound && !isPasswordError) {
-            console.log(
-              "✅ [sign-in-redirect] 계정 없음 오류 감지, 회원가입 페이지로 리다이렉트",
-            );
-            hasRedirectedRef.current = true;
-            router.push(redirectToSignUpUrl);
-            return;
-          }
-        });
-      }
-
-      // 추가로 전체 텍스트에서 에러 메시지 확인
-      const allText = containerRef.current.textContent?.toLowerCase() || "";
-      const accountNotFoundPatterns = [
-        /form_identifier_not_found/,
-        /계정이 존재하지 않습니다/,
-        /account.*not.*found/i,
-        /user.*not.*found/i,
-        /존재하지 않는.*계정/i,
-      ];
-
-      const passwordErrorPatterns = [
-        /password/i,
-        /비밀번호/i,
-        /incorrect.*password/i,
-        /틀린.*비밀번호/i,
-      ];
-
-      const hasAccountNotFound = accountNotFoundPatterns.some((pattern) =>
-        pattern.test(allText),
-      );
-      const hasPasswordError = passwordErrorPatterns.some((pattern) =>
-        pattern.test(allText),
-      );
-
-      if (
-        hasAccountNotFound &&
-        !hasPasswordError &&
-        !hasRedirectedRef.current
-      ) {
-        console.log(
-          "✅ [sign-in-redirect] 계정 없음 오류 감지 (텍스트 검색), 회원가입 페이지로 리다이렉트",
-        );
-        hasRedirectedRef.current = true;
-        router.push(redirectToSignUpUrl);
-      }
+    // 🔥 전역 이벤트 리스너 등록 (전역 시스템에서 발생한 이벤트 감지)
+    const handleGlobalError = (event: CustomEvent) => {
+      console.log("=".repeat(60));
+      console.log("✅✅✅ [Component] 전역 시스템에서 에러 감지 이벤트 수신!");
+      console.log("📝 [Component] 패턴:", event.detail);
+      console.log("=".repeat(60));
+      setShowSignUpModal(true);
     };
 
-    // MutationObserver로 에러 메시지 감지
-    const observer = new MutationObserver(() => {
-      checkForAccountNotFoundError();
+    window.addEventListener(
+      "clerk-external-account-error",
+      handleGlobalError as EventListener,
+    );
+
+    // 전역 모달 표시 함수 등록
+    (window as any).showSignUpModal = () => {
+      console.log("🔧 [Component] 전역 함수 호출 - 모달 표시");
+      setShowSignUpModal(true);
+    };
+
+    let checkCount = 0;
+    const MAX_CHECKS = 400; // 최대 20초간 체크 (50ms * 400)
+    let intervalId: NodeJS.Timeout | null = null;
+    let hasDetected = false; // 중복 감지 방지
+    let modalShown = false; // 모달이 이미 표시되었는지 추적
+
+    const checkForClerkError = () => {
+      if (hasDetected) return true; // 이미 감지했으면 중단
+
+      checkCount++;
+
+      // 전체 document에서 에러 메시지 찾기
+      const allText = document.body.textContent || "";
+      const allTextLower = allText.toLowerCase();
+
+      // 🔥 로그 출력 빈도 조절 (20번마다 - 50ms * 20 = 1초마다)
+      const shouldLog = checkCount % 20 === 0;
+      if (shouldLog) {
+        console.log(
+          `🔍 [Global Listener] 체크 #${checkCount} (${(
+            (checkCount * 50) /
+            1000
+          ).toFixed(1)}초) - 전체 텍스트 길이: ${allText.length}`,
+        );
+      }
+
+      // 🔥 더 많은 에러 메시지 변형 체크
+      const errorPatterns = [
+        "the external account was not found",
+        "external account was not found",
+        "external account not found",
+        "account was not found",
+        "account not found",
+        "external account",
+        "not found",
+      ];
+
+      // 에러 패턴 감지
+      const foundPatterns = errorPatterns.filter((pattern) =>
+        allTextLower.includes(pattern),
+      );
+
+      if (foundPatterns.length >= 2) {
+        // 최소 2개 이상의 패턴이 일치하면 에러로 판단
+        console.log("=".repeat(60));
+        console.log("✅✅✅ [Global Listener] External Account 에러 감지!");
+        console.log("📝 [Global Listener] 발견된 패턴:", foundPatterns);
+        console.log(
+          "📝 [Global Listener] 감지된 텍스트 샘플:",
+          allText.substring(0, 500),
+        );
+        console.log("=".repeat(60));
+
+        if (!modalShown) {
+          hasDetected = true;
+          modalShown = true;
+          setShowSignUpModal(true);
+        }
+        return true; // 감지 성공
+      }
+
+      // 특정 선택자들도 확인
+      const errorSelectors = [
+        "[role='alert']",
+        ".cl-alert",
+        ".cl-alertText",
+        "[class*='alert']",
+        "[class*='error']",
+        "[data-localization-key*='error']",
+        "[data-localization-key*='not_found']",
+        "[data-localization-key*='external']",
+      ];
+
+      for (const selector of errorSelectors) {
+        const elements = document.querySelectorAll(selector);
+        if (elements.length > 0) {
+          // 에러 요소 발견 시 로그 출력
+          if (shouldLog) {
+            console.log(
+              `🔍 [Global Listener] "${selector}" 발견: ${elements.length}개`,
+            );
+          }
+
+          elements.forEach((element, index) => {
+            const text = element.textContent?.toLowerCase() || "";
+            if (text.length > 0) {
+              // 에러 관련 텍스트가 있으면 상세 로그
+              if (
+                text.includes("external") ||
+                text.includes("account") ||
+                text.includes("not found")
+              ) {
+                console.log(
+                  `🔍 [Global Listener] 요소 ${index} 텍스트:`,
+                  text.substring(0, 200),
+                );
+              }
+
+              if (
+                text.includes("external account") &&
+                text.includes("not found")
+              ) {
+                console.log("=".repeat(60));
+                console.log(
+                  `✅✅✅ [Global Listener] 요소 ${index}에서 에러 감지!`,
+                );
+                console.log(
+                  `📝 [Global Listener] 전체 텍스트: ${text.substring(0, 300)}`,
+                );
+                console.log("=".repeat(60));
+
+                if (!modalShown) {
+                  hasDetected = true;
+                  modalShown = true;
+                  setShowSignUpModal(true);
+                }
+                return true; // 감지 성공
+              }
+            }
+          });
+        }
+      }
+
+      return false; // 아직 감지 못함
+    };
+
+    // 즉시 체크
+    if (checkForClerkError()) {
+      console.log("✅ [Global Listener] 즉시 감지됨!");
+      return;
+    }
+
+    // 🔥 MutationObserver 추가: DOM 변화 즉시 감지
+    const observer = new MutationObserver((mutations) => {
+      // 에러 관련 변화만 로그 출력 (너무 많으면 성능 저하)
+      const hasRelevantChange = mutations.some((mutation) => {
+        const target = mutation.target as HTMLElement;
+        const text = target.textContent?.toLowerCase() || "";
+        return (
+          text.includes("external") ||
+          text.includes("account") ||
+          text.includes("not found")
+        );
+      });
+
+      if (hasRelevantChange) {
+        console.log(
+          "🔍 [MutationObserver] 에러 관련 DOM 변화 감지 - 즉시 체크 실행",
+        );
+        if (checkForClerkError() && intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+          observer.disconnect();
+        }
+      }
     });
 
-    // 관찰 시작
-    observer.observe(containerRef.current, {
+    observer.observe(document.body, {
       childList: true,
       subtree: true,
       characterData: true,
       attributes: true,
-      attributeFilter: ["data-localization-key", "class"],
+      attributeFilter: ["class", "role", "data-localization-key"],
     });
 
-    // 주기적으로도 체크 (MutationObserver가 놓칠 수 있는 경우 대비)
-    const intervalId = setInterval(() => {
-      checkForAccountNotFoundError();
-    }, 500);
+    // 주기적 체크 (50ms마다 - 더 빠른 감지)
+    intervalId = setInterval(() => {
+      const detected = checkForClerkError();
 
-    // 정리 함수
-    return () => {
-      observer.disconnect();
-      clearInterval(intervalId);
+      if (detected || checkCount >= MAX_CHECKS) {
+        console.log(
+          `🛑 [Global Listener] 체크 종료 (detected: ${detected}, count: ${checkCount}, 시간: ${(
+            (checkCount * 50) /
+            1000
+          ).toFixed(1)}초)`,
+        );
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+        observer.disconnect();
+      }
+    }, 50); // 🔥 50ms로 단축
+
+    // 🔥 window error 이벤트 리스너 추가
+    const handleWindowError = (event: ErrorEvent) => {
+      const errorMessage = event.message?.toLowerCase() || "";
+      const errorSource = event.filename || "";
+
+      console.log("🔍 [Window Error] 에러 이벤트:", {
+        message: errorMessage,
+        source: errorSource,
+      });
+
+      if (
+        errorMessage.includes("external account") ||
+        errorMessage.includes("not found") ||
+        errorSource.includes("clerk")
+      ) {
+        console.log("✅✅✅ [Window Error] External Account 에러 감지!");
+        if (!modalShown) {
+          hasDetected = true;
+          modalShown = true;
+          setShowSignUpModal(true);
+        }
+      }
     };
-  }, [router, redirectToSignUpUrl]);
+
+    // 🔥 페이지 로드/변경 시에도 체크
+    const handlePageLoad = () => {
+      console.log("🔍 [Page Load] 페이지 로드/변경 감지 - 즉시 체크 실행");
+      setTimeout(() => {
+        checkForClerkError();
+      }, 100);
+    };
+
+    window.addEventListener("error", handleWindowError);
+    window.addEventListener("load", handlePageLoad);
+    window.addEventListener("popstate", handlePageLoad);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+      observer.disconnect();
+      window.removeEventListener("error", handleWindowError);
+      window.removeEventListener("load", handlePageLoad);
+      window.removeEventListener("popstate", handlePageLoad);
+      window.removeEventListener(
+        "clerk-external-account-error",
+        handleGlobalError as EventListener,
+      );
+      delete (window as any).showSignUpModal;
+      console.log("🛑 [Global Listener] 리스너 정리");
+    };
+  }, []);
+
+  // 모달 상태 추적
+  useEffect(() => {
+    if (showSignUpModal) {
+      console.log("=".repeat(60));
+      console.log("🎯🎯🎯 [Modal] 모달이 열렸습니다!");
+      console.log("=".repeat(60));
+    } else {
+      console.log("🔒 [Modal] 모달이 닫혔습니다.");
+    }
+  }, [showSignUpModal]);
+
+  // 에러 메시지 숨김 처리: 모달이 표시되면 Clerk 에러 메시지 숨기기
+  useEffect(() => {
+    if (showSignUpModal) {
+      console.log("🔧 [Modal] Clerk 에러 메시지 숨김 처리 시작");
+
+      // Clerk 에러 메시지 요소 찾기 및 숨김
+      const hideErrorMessages = () => {
+        const errorSelectors = [
+          "[role='alert']",
+          ".cl-alert",
+          ".cl-alertText",
+          "[class*='alert']",
+          "[class*='error']",
+          "[data-localization-key*='error']",
+          "[data-localization-key*='not_found']",
+          "[data-localization-key*='external']",
+        ];
+
+        errorSelectors.forEach((selector) => {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach((element) => {
+            const text = element.textContent?.toLowerCase() || "";
+            if (
+              text.includes("external account") ||
+              text.includes("not found") ||
+              text.includes("account was not found")
+            ) {
+              (element as HTMLElement).style.display = "none";
+              console.log("✅ [Modal] 에러 메시지 숨김:", selector);
+            }
+          });
+        });
+      };
+
+      // 즉시 실행
+      hideErrorMessages();
+
+      // DOM 변화 감지를 위한 MutationObserver
+      const observer = new MutationObserver(() => {
+        hideErrorMessages();
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["class", "role", "data-localization-key"],
+      });
+
+      return () => {
+        observer.disconnect();
+        console.log("🛑 [Modal] 에러 메시지 숨김 처리 정리");
+      };
+    }
+  }, [showSignUpModal]);
+
+  // 모달 확인 핸들러
+  const handleSignUpConfirm = () => {
+    console.log("=".repeat(60));
+    console.log("📝 [Modal] 확인 버튼 클릭!");
+    const redirectUrl = onboardingUrl || redirectToSignUpUrl;
+    console.log("📝 [Modal] 온보딩 페이지로 이동:", redirectUrl);
+    console.log("=".repeat(60));
+    setShowSignUpModal(false);
+    router.push(redirectUrl);
+  };
 
   return (
-    <div ref={containerRef}>
+    <>
       <SignIn
         appearance={appearance}
         routing="path"
         path={path}
         signUpUrl={signUpUrl}
-        afterSignInUrl={afterSignInUrl}
+        fallbackRedirectUrl={fallbackRedirectUrl || afterSignInUrl}
         forceRedirectUrl={forceRedirectUrl}
       />
-    </div>
+
+      {/* 회원가입 안내 모달 */}
+      <Dialog
+        open={showSignUpModal}
+        onOpenChange={setShowSignUpModal}
+        modal={true}
+      >
+        <DialogContent
+          className="sm:max-w-[425px]"
+          style={{ zIndex: 9999 }}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">
+              회원가입을 먼저 진행하세요!
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-base">
+              가입되지 않은 계정으로 로그인을 시도하셨습니다.
+              <br />
+              도매사업자로 시작하려면 먼저 회원가입을 진행해주세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowSignUpModal(false)}
+              className="min-w-[80px]"
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleSignUpConfirm}
+              className="min-w-[80px] bg-blue-600 hover:bg-blue-700"
+            >
+              확인
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

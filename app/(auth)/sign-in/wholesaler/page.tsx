@@ -22,6 +22,11 @@ import { Package, UserPlus } from "lucide-react";
 import SignInWithRedirect from "@/components/auth/sign-in-with-redirect";
 
 export default function WholesalerSignInPage() {
+  // 🚨 페이지 렌더링 확인
+  console.log("=".repeat(80));
+  console.log("🚨🚨🚨 [WholesalerSignInPage] 페이지가 렌더링되었습니다!");
+  console.log("=".repeat(80));
+
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-16 bg-gradient-to-b from-green-50 to-white">
       <div className="w-full max-w-md space-y-4">
@@ -49,9 +54,10 @@ export default function WholesalerSignInPage() {
             }}
             path="/sign-in/wholesaler"
             signUpUrl="/sign-up?type=wholesaler"
-            afterSignInUrl="/wholesaler-onboarding"
+            fallbackRedirectUrl="/wholesaler-onboarding"
             forceRedirectUrl="/wholesaler-onboarding"
             redirectToSignUpUrl="/sign-up?type=wholesaler"
+            onboardingUrl="/wholesaler-onboarding"
           />
         </div>
 
