@@ -578,10 +578,10 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 ⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
 ```
 
-- [ ] **`components/common/PageHeader.tsx` 구현**
-  - [ ] 페이지 제목
-  - [ ] 설명 (선택적)
-  - [ ] 액션 버튼 영역 (선택적)
+- [x] **`components/common/PageHeader.tsx` 구현**
+  - [x] 페이지 제목
+  - [x] 설명 (선택적)
+  - [x] 액션 버튼 영역 (선택적)
 
 **커서 AI 프롬프트:**
 
