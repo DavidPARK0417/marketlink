@@ -543,16 +543,38 @@ export default function SignInWithRedirect({
     }
   }, [showSignUpModal]);
 
+  // 소매사업자/도매사업자 구분 로직 개선
+  // path, redirectToSignUpUrl, signUpUrl, fallbackRedirectUrl 등을 종합적으로 확인
+  const isRetailer =
+    path.includes("/retailer") ||
+    redirectToSignUpUrl.includes("type=retailer") ||
+    signUpUrl.includes("type=retailer") ||
+    fallbackRedirectUrl?.includes("/retailer") ||
+    forceRedirectUrl?.includes("/retailer");
+
   // 모달 확인 핸들러
   const handleSignUpConfirm = () => {
     console.log("=".repeat(60));
     console.log("📝 [Modal] 확인 버튼 클릭!");
-    const redirectUrl = onboardingUrl || redirectToSignUpUrl;
-    console.log("📝 [Modal] 온보딩 페이지로 이동:", redirectUrl);
+
+    // 일관성을 위해 소매사업자는 /sign-in/retailer로, 도매사업자는 /sign-in/wholesaler로 리다이렉트
+    const redirectUrl = isRetailer
+      ? "/sign-in/retailer"
+      : "/sign-in/wholesaler";
+
+    console.log("📝 [Modal] 리다이렉트 대상:", redirectUrl);
+    console.log(
+      "📝 [Modal] 사용자 유형:",
+      isRetailer ? "소매사업자" : "도매사업자",
+    );
     console.log("=".repeat(60));
     setShowSignUpModal(false);
     router.push(redirectUrl);
   };
+
+  const userTypeMessage = isRetailer
+    ? "소매사업자로 시작하려면 먼저 회원가입을 진행해주세요."
+    : "도매사업자로 시작하려면 먼저 회원가입을 진행해주세요.";
 
   return (
     <>
@@ -584,7 +606,7 @@ export default function SignInWithRedirect({
             <DialogDescription className="pt-2 text-base">
               가입되지 않은 계정으로 로그인을 시도하셨습니다.
               <br />
-              도매사업자로 시작하려면 먼저 회원가입을 진행해주세요.
+              {userTypeMessage}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="sm:justify-end gap-2">

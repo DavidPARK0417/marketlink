@@ -33,6 +33,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   // URL 파라미터를 확인하여 도매업자 관련인지 판단
   const isWholesalerFlow = redirectUrl.includes("/wholesaler") || 
                           redirectUrl.includes("wholesaler-onboarding");
+  
+  // URL 파라미터를 확인하여 소매업자 관련인지 판단
+  const isRetailerFlow = redirectUrl.includes("/retailer") || 
+                         redirectUrl.includes("/retailer/dashboard");
 
   // 도매업자 관련이면 도매업자 로그인 설정 사용
   if (isWholesalerFlow) {
@@ -48,6 +52,24 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
           forceRedirectUrl="/wholesaler-onboarding"
           redirectToSignUpUrl="/sign-up?type=wholesaler"
           onboardingUrl="/wholesaler-onboarding"
+        />
+      </div>
+    );
+  }
+
+  // 소매업자 관련이면 소매업자 로그인 설정 사용
+  if (isRetailerFlow) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
+        <SignInWithRedirect
+          appearance={{
+            elements: {},
+          }}
+          path="/sign-in"
+          signUpUrl="/sign-up?type=retailer"
+          fallbackRedirectUrl="/retailer/dashboard"
+          forceRedirectUrl="/retailer/dashboard"
+          redirectToSignUpUrl="/sign-up?type=retailer"
         />
       </div>
     );
