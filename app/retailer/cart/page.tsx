@@ -106,28 +106,31 @@ export default function CartPage() {
           {mockCartItems.map((item) => (
             <div
               key={item.id}
-              className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+              className="p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
             >
-              <div className="flex gap-4">
-                {/* 체크박스 */}
-                <input
-                  type="checkbox"
-                  defaultChecked
-                  className="mt-1 w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-green-600 focus:ring-green-500"
-                />
-
-                {/* 이미지 */}
-                <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
-                  <Image
-                    src={item.product_image}
-                    alt={item.product_name}
-                    fill
-                    className="object-cover"
+              <div className="flex flex-col sm:flex-row gap-4">
+                {/* 체크박스 및 이미지 */}
+                <div className="flex items-start gap-3 sm:gap-4">
+                  {/* 체크박스 */}
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="mt-1 w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-green-600 focus:ring-green-500 flex-shrink-0"
                   />
+
+                  {/* 이미지 */}
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
+                    <Image
+                      src={item.product_image}
+                      alt={item.product_name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
 
                 {/* 상품 정보 */}
-                <div className="flex-1 flex flex-col gap-2">
+                <div className="flex-1 flex flex-col gap-2 min-w-0">
                   {/* 판매자 */}
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {item.anonymous_seller_id} · {item.seller_region}
@@ -136,7 +139,7 @@ export default function CartPage() {
                   {/* 상품명 */}
                   <Link
                     href={`/retailer/products/${item.product_id}`}
-                    className="text-base font-bold text-gray-900 dark:text-gray-100 hover:text-green-600 dark:hover:text-green-400"
+                    className="text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100 hover:text-green-600 dark:hover:text-green-400 line-clamp-2"
                   >
                     {item.product_name}
                   </Link>
@@ -147,10 +150,10 @@ export default function CartPage() {
                   </p>
 
                   {/* 수량 조절 및 가격 */}
-                  <div className="flex items-center justify-between mt-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-2">
                     {/* 수량 조절 */}
                     <div className="flex items-center gap-2">
-                      <button className="flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <button className="flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <Minus className="w-4 h-4" />
                       </button>
                       <input
@@ -159,17 +162,17 @@ export default function CartPage() {
                         readOnly
                         className="w-12 h-8 text-center border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm"
                       />
-                      <button className="flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <button className="flex items-center justify-center w-8 h-8 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
 
                     {/* 가격 */}
-                    <div className="flex items-center gap-4">
-                      <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    <div className="flex items-center justify-between sm:justify-end gap-4">
+                      <p className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">
                         {(item.price * item.quantity).toLocaleString()}원
                       </p>
-                      <button className="text-gray-400 hover:text-red-600 dark:hover:text-red-500">
+                      <button className="text-gray-400 hover:text-red-600 dark:hover:text-red-500 transition-colors">
                         <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
@@ -182,7 +185,7 @@ export default function CartPage() {
 
         {/* 오른쪽: 주문 요약 (Sticky) */}
         <div className="lg:col-span-1">
-          <div className="sticky top-24 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="sticky top-24 p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
               주문 요약
             </h2>
