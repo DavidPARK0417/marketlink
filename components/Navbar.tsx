@@ -7,6 +7,8 @@ import { useUser } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
+import { useTheme } from "next-themes";
+import { Sun, Moon } from "lucide-react";
 
 const Navbar = () => {
   const { isSignedIn, isLoaded, user } = useUser();
@@ -15,6 +17,12 @@ const Navbar = () => {
   const supabase = useClerkSupabaseClient();
   const [isApprovedWholesaler, setIsApprovedWholesaler] = useState(false);
   const [wholesalerStatus, setWholesalerStatus] = useState<string | null>(null);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 승인된 도매사업자 여부 및 상태 확인
   useEffect(() => {
@@ -95,6 +103,11 @@ const Navbar = () => {
     (wholesalerStatus === "pending" || wholesalerStatus === "rejected") &&
     pathname !== "/wholesaler";
 
+  // 소매점 페이지에서는 Navbar를 표시하지 않음
+  if (pathname?.startsWith("/retailer")) {
+    return null;
+  }
+
   return (
     <header className="flex justify-between items-center p-4 gap-4 h-16 max-w-7xl mx-auto">
       <Link
@@ -112,38 +125,56 @@ const Navbar = () => {
         <span className="text-2xl font-bold text-green-600">FarmToBiz</span>
       </Link>
 
-      {/* 로그인 상태에 따라 사용자 정보 표시 */}
-      {isLoaded && (
-        <div className="flex items-center gap-3">
-          {isSignedIn ? (
-            <>
-              {/* 로그인 상태 표시 */}
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="hidden sm:inline">로그인됨</span>
-                {user?.primaryEmailAddress?.emailAddress && (
-                  <span className="hidden md:inline text-gray-500">
-                    ({user.primaryEmailAddress.emailAddress})
-                  </span>
-                )}
-              </div>
-              {/* pending 또는 rejected 상태인 도매사업자에게만 "로그인되지 않음" 버튼 표시 */}
-              {shouldShowLoginButton && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">로그인되지 않음</span>
-                </div>
+      {/* 우측 영역: 테마 토글 및 사용자 정보 */}
+      <div className="flex items-center gap-3">
+        {/* 테마 토글 버튼 */}
+        <button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+          aria-label="테마 변경"
+        >
+          {mounted ? (
+            theme === "dark" ? (
+              <Moon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            ) : (
+              <Sun className="w-5 h-5 text-orange-500" />
+            )
+          ) : (
+            <div className="w-5 h-5" /> // hydration mismatch 방지용 placeholder
+          )}
+        </button>
+
+        {/* 로그인 상태에 따라 사용자 정보 표시 */}
+        {isLoaded && isSignedIn && (
+          <>
+            {/* 로그인 상태 표시 */}
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+              <span className="hidden sm:inline">로그인됨</span>
+              {user?.primaryEmailAddress?.emailAddress && (
+                <span className="hidden md:inline text-gray-500 dark:text-gray-400">
+                  ({user.primaryEmailAddress.emailAddress})
+                </span>
               )}
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: "w-8 h-8",
-                  },
-                }}
-              />
-            </>
-          ) : null}
-        </div>
-      )}
+            </div>
+            {/* pending 또는 rejected 상태인 도매사업자에게만 "로그인되지 않음" 버튼 표시 */}
+            {shouldShowLoginButton && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  로그인되지 않음
+                </span>
+              </div>
+            )}
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: "w-8 h-8",
+                },
+              }}
+            />
+          </>
+        )}
+      </div>
     </header>
   );
 };

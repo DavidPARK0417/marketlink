@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>B2B 식품 중개 플랫폼</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Noto+Sans+KR:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2563EB",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                        "text-light": "#111418",
+                        "text-dark": "#f3f4f6",
+                        "neutral-light": "#f0f2f4",
+                        "neutral-dark": "#2c343c",
+                        "secondary-light": "#374151",
+                        "secondary-dark": "#9ca3af",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "Noto Sans KR", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col w-full max-w-5xl flex-1 px-4">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-neutral-light dark:border-neutral-dark/50 px-6 sm:px-10 py-4 bg-background-light dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-tighter">신선마켓 B2B</h2>
+</div>
+<div class="flex items-center gap-4 sm:gap-6">
+<div class="hidden sm:flex items-center gap-6">
+<a class="text-secondary-light dark:text-secondary-dark text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary" href="#">로그인</a>
+<a class="text-secondary-light dark:text-secondary-dark text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary" href="#">회원가입</a>
+</div>
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full size-10 bg-neutral-light dark:bg-neutral-dark text-text-light dark:text-text-dark hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined !text-2xl">headset_mic</span>
+</button>
+</div>
+</header>
+<main>
+<!-- HeroSection -->
+<section class="py-16 sm:py-24">
+<div class="@container">
+<div class="flex flex-col gap-10 px-4 py-10 @[864px]:flex-row @[864px]:items-center">
+<div class="flex flex-col gap-6 @[480px]:gap-8 @[864px]:justify-center flex-1">
+<div class="flex flex-col gap-4 text-left">
+<h1 class="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-tighter @[480px]:text-5xl">
+                                                신선한 식자재, 비즈니스의 경쟁력이 되다
+                                            </h1>
+<h2 class="text-secondary-light dark:text-secondary-dark text-base font-normal leading-relaxed @[480px]:text-lg">
+                                                최고의 농수산물을 도매와 소매를 잇는 B2B 플랫폼에서 만나보세요. 신선함과 합리적인 가격으로 귀하의 비즈니스를 한 단계 성장시키세요.
+                                            </h2>
+</div>
+<div class="flex flex-wrap gap-3">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+<span class="truncate">파트너 가입하기</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-neutral-light dark:bg-neutral-dark text-text-light dark:text-text-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-neutral-light/80 dark:hover:bg-neutral-dark/80 transition-colors">
+<span class="truncate">상품 둘러보기</span>
+</button>
+</div>
+</div>
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl @[480px]:h-auto @[480px]:min-w-[400px] @[864px]:w-2/5" data-alt="A vibrant arrangement of fresh fruits and vegetables on a clean background" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA32ZYNJFjLheOUBnF6WLTABx4iUwvljFG2EDuasLSpAKZq0_riWyBPn_wwBjvc7DuILvH2DriPY29TDXnusF_Bt9GFEitrEK-aqwvzGMhkDF9oTl-h1H2l09TUxiWgHJWfxvHhYpPHWBi5Vi0kl_fgOReU4IMB07n-hlId7sFScvAU4CiX226eBSMunEV9MIm7dLELHKmVHU6iarnLrYOSIrSMtx_afsWxDbk9d8Y1ryjPxyLJ5PQoqTNZQoKOJFi6RF_80h0qhno");'></div>
+</div>
+</div>
+</section>
+<!-- Category Cards Section -->
+<section class="py-16 sm:py-24">
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tighter px-4 pb-8 text-center">주요 취급 품목</h2>
+<div class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 p-4">
+<div class="bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden" data-alt="Fresh assorted fruits in a basket" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDW6zkpzrZYy21xyduUqu4ZV25yVkN0O75_7aIlQAyEnXXzEdYRvCk4Ve_RlZkJ6NxIcBJRTFZveqAK92anw3fU_S0X-cVWlzaZPLKt-6DSxOmKVCvELijoiUwdr8mrkihU2qPx_Oc_CQY75p7H6wHeWfoaW7VIVCGp7DJbUDsexaGCFgUFMAtNm1LSRUhQvlNFJIC3ZS7yfpdS1V5UKYYPvRpDxGXrXndUd8UZBr_EQM2dmsJQOLP3J3FrisNcrnIqdT0FAb2j23U");'>
+<div class="transform transition-transform duration-300 group-hover:-translate-y-2">
+<p class="text-white text-lg font-bold leading-tight w-4/5">과일</p>
+</div>
+</div>
+<div class="bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden" data-alt="A variety of fresh green vegetables" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBUNWT4CDqbILxtNgkLydg_4T9QXpMjwRqgylRu3lmOP4rEtXM0MjWDvoEvdmy-YSueWIJ5yNOC_P8z85kwBR5dpMJgv4TAF9qB-zsG1bQ9MBwH4GdbMNMEe4lEJpt1YDFneA5xtcQ8xnoZ3PA24RHIDoXFuDjP6rh6JpvnqKrAM5kXted5LhDtUUVl1BPZcBtCR_Ta__c2brcuWjdyj6ZpzzLhSJOiS8475SkGDKrTC03zaqiPUi4K2FR6pHk3jG6TXFKn2pB_fkw");'>
+<div class="transform transition-transform duration-300 group-hover:-translate-y-2">
+<p class="text-white text-lg font-bold leading-tight w-4/5">채소</p>
+</div>
+</div>
+<div class="bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden" data-alt="Raw cuts of beef steak" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDKxkJaSxXNfj-sSbYaFFch5zsTzQk3LGqXLCVSjyFeraAilqdNqBbTMvmJPsZqxIxv3FSof09VLySsPcR53uXIH-yBSf3SlLS1QBK5woCTNWltd0tBDIcm6QhQgN2YhQcUD4SglWj82X-UoclDxQK9H8YYEIjyPBpmvkktDBSybz0zQ6QusB5lnUConTGe2UPv7qMbMaIb8zUWJiRPn936HV81I31ilvYy2Saewu9kOEWhaI5nB6K_9D79YMES73MuPFIH59wM0Jo");'>
+<div class="transform transition-transform duration-300 group-hover:-translate-y-2">
+<p class="text-white text-lg font-bold leading-tight w-4/5">육류</p>
+</div>
+</div>
+<div class="bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden" data-alt="Fresh fish and seafood on ice" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAL6Iur8SiF_70dQNwcvbdhP5e18gA9if1fpZZzZA4NDlnyQ6SWWKrGCd7QvdOcReAqYIXT3u027HnQnhyyrWnP1ADKAr3YTxldTeejF8UMMWDmtFRhSgnWKP3CHc3x-zFqmNHB35zVB3vy90Vv3aYYqtpR-baU516_M6zC9nhhpQaLjNd2KiWs0ChXE7VQYYC0uwSGuBhgTa2DOo7QfXRLBRPKhEhE8E8dyVcEeFKfEkJlI-GZhsd7YG8r4C6unScVQc375zcJpzE");'>
+<div class="transform transition-transform duration-300 group-hover:-translate-y-2">
+<p class="text-white text-lg font-bold leading-tight w-4/5">수산물</p>
+</div>
+</div>
+<div class="bg-cover bg-center flex flex-col gap-3 rounded-xl justify-end p-4 aspect-square group overflow-hidden" data-alt="Various processed food items like cheese and bread" style='background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 40%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDO0jwzTnNn-Rz30lXn0Y0wc9FgqVqNItVulICxRYAxbmGc1LvHJF_-cl-DoSW7qVJONAyKHe_JZuMrkHtXzy9deZwfMjsi8a3K5HAtU6ZV_UD2K5ygTOOaMnlD2uvBtFhQ5LVL3VnSzKRIEHwGON76XGLlMmIUu4H8_81GIc6jO3uSafQvzP9Z8Krju5IwIS1v2bhLTY7sojruz9MG1y-36KRY8Etc3KylAnJyfxuBAU9SPcccMM4E2hbvKzSj3Rol2Wdysrsn1Dc");'>
+<div class="transform transition-transform duration-300 group-hover:-translate-y-2">
+<p class="text-white text-lg font-bold leading-tight w-4/5">가공식품</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommended Products Section -->
+<section class="py-16 sm:py-24">
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-tighter px-4 pb-8 text-center">MD 추천 상품</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4">
+<div class="flex flex-col gap-3 group">
+<div class="relative overflow-hidden rounded-xl">
+<div class="bg-cover bg-center aspect-square w-full transition-transform duration-300 group-hover:scale-105" data-alt="A box of fresh strawberries" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXmjdWOhr_NOc7CSYarDq4lLq1I5keJpOWpSeoKuqhlbuwIWKH81Knrg7YzK2-6jem0IbqILDLJp77YtrnlpcF_xtEj4g8W0YsETEHEDazT8b6yEy2ow1IhUta_drZi6JV1LGhZFxbMplyJmIxVc0dmSbzoakmYa9teKINIGOocfg3aRBxRD0Kd_uaa_fH8BBOaEryVBAiZ2rgH_ScsyHwdIe-cH2mVb4vRkGJ3iZRytfk_41j3CH9aYuhSAoQQS8LADuPpSCExSU');"></div>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-sm text-secondary-light dark:text-secondary-dark">햇살농장</p>
+<h3 class="font-bold text-text-light dark:text-text-dark">고당도 설향 딸기 1kg</h3>
+<p class="font-semibold text-text-light dark:text-text-dark">15,900원</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 group">
+<div class="relative overflow-hidden rounded-xl">
+<div class="bg-cover bg-center aspect-square w-full transition-transform duration-300 group-hover:scale-105" data-alt="Fresh salmon fillet" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuALvWdcZ5Xn-t8aQ4SvcM8IjiwI7acT5fmGMwLcaJ94w1k7vFcaBtlxHqRdCsFvq57nv0UZd3K-dROgt8O2da8kZg4jqTStbwFcOIT879uKTUD3g0ZbtHGjg-lO13RXSAw02QfF4fhI5SCKSiediriXgw4HERDMzviY4xlgimQFGXGCssBbg6KBnTYDHBgEzS-NFFWso1i-9ypli1SPev91WJvM1--RNYoObOOY1K6hcD0lwh1JC38F-9yXKia_L7NoFD7we362Lnw');"></div>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-sm text-secondary-light dark:text-secondary-dark">바다의선물</p>
+<h3 class="font-bold text-text-light dark:text-text-dark">노르웨이 생연어 필렛 500g</h3>
+<p class="font-semibold text-text-light dark:text-text-dark">22,000원</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 group">
+<div class="relative overflow-hidden rounded-xl">
+<div class="bg-cover bg-center aspect-square w-full transition-transform duration-300 group-hover:scale-105" data-alt="A bunch of asparagus" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCDrQ81XkRYJdf9rIsoo07fpTARljlBlf8kv-mVsc3ZLZdpuT_hlizsMrlpr-0h61DbhBLF18URNaUZJOP1Vn4Kf3IY_1WQ7Oe5eaabuJ-Wi9A1LRTNfQAMBou_4aKpKcpLp3wysfkbsxRVN4HqJKcRqR7b7RQrQbI4M5_5gzhRWh_BhXItAVZppDuq6vGRL0gAh0-y9wM7gP7vLxpocId9cMTzRPj6hI95r-PevevikhCK2FkkIw0LNi8evyWIIlm8-YvvNglOhiM');"></div>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-sm text-secondary-light dark:text-secondary-dark">푸른채소</p>
+<h3 class="font-bold text-text-light dark:text-text-dark">무농약 아스파라거스 1단</h3>
+<p class="font-semibold text-text-light dark:text-text-dark">4,500원</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 group">
+<div class="relative overflow-hidden rounded-xl">
+<div class="bg-cover bg-center aspect-square w-full transition-transform duration-300 group-hover:scale-105" data-alt="Organic eggs in a carton" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDvlkSvrcDTFiquUnEVyWY7l1u6PJ6uStFW6OmEaE0ocR6iUVzKPon2os5R6PeN0mS0iMiH0ZC-wHiLu7YQhF6dQz_cYpiJseLgI4DCBduKQskASRA7mZnyl8eFl8xBetmHwdg2mpI7neuggShgA3VmKYe6_Ba7wJr6ZUs1fvtO83VGlY8AGp_A5dOx6LIlcRqB8W0Omm_HLkQ5oPQBC_G70XluwfrzZkxofPMI5cIloQUJ9X-kzYTDoOb4lr5vltjRkjsjjwJ5Su0');"></div>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-sm text-secondary-light dark:text-secondary-dark">참된목장</p>
+<h3 class="font-bold text-text-light dark:text-text-dark">유기농 동물복지 유정란 10구</h3>
+<p class="font-semibold text-text-light dark:text-text-dark">7,800원</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Value Proposition Section -->
+<section class="py-16 sm:py-24">
+<div class="px-4 text-center">
+<h2 class="text-3xl font-bold tracking-tighter text-text-light dark:text-text-dark">우리의 특별한 경쟁력</h2>
+<p class="mx-auto mt-4 max-w-2xl text-lg text-secondary-light dark:text-secondary-dark">최고의 파트너가 되기 위한 우리의 약속입니다.</p>
+</div>
+<div class="mt-12 grid gap-8 p-4 md:grid-cols-3">
+<div class="flex flex-col items-center gap-4 text-center p-6 bg-white dark:bg-neutral-dark rounded-xl shadow-sm">
+<div class="flex items-center justify-center rounded-full bg-primary/10 text-primary size-12">
+<span class="material-symbols-outlined !text-3xl">local_shipping</span>
+</div>
+<h3 class="text-xl font-bold text-text-light dark:text-text-dark">산지 직송 시스템</h3>
+<p class="text-secondary-light dark:text-secondary-dark">엄선된 생산자로부터 매일 가장 신선한 상품을 직접 배송받아 공급합니다.</p>
+</div>
+<div class="flex flex-col items-center gap-4 text-center p-6 bg-white dark:bg-neutral-dark rounded-xl shadow-sm">
+<div class="flex items-center justify-center rounded-full bg-primary/10 text-primary size-12">
+<span class="material-symbols-outlined !text-3xl">verified</span>
+</div>
+<h3 class="text-xl font-bold text-text-light dark:text-text-dark">투명한 가격 정책</h3>
+<p class="text-secondary-light dark:text-secondary-dark">불필요한 유통 마진을 없애고, 모두에게 합리적이고 투명한 가격을 제공합니다.</p>
+</div>
+<div class="flex flex-col items-center gap-4 text-center p-6 bg-white dark:bg-neutral-dark rounded-xl shadow-sm">
+<div class="flex items-center justify-center rounded-full bg-primary/10 text-primary size-12">
+<span class="material-symbols-outlined !text-3xl">shopping_cart_checkout</span>
+</div>
+<h3 class="text-xl font-bold text-text-light dark:text-text-dark">간편한 주문/결제</h3>
+<p class="text-secondary-light dark:text-secondary-dark">모바일과 웹에서 언제 어디서든 손쉽게 주문하고 안전하게 결제할 수 있습니다.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="mt-24 border-t border-neutral-light dark:border-neutral-dark/50">
+<div class="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
+<div class="flex justify-center space-x-6 md:order-2">
+<a class="text-secondary-light dark:text-secondary-dark hover:text-text-light dark:hover:text-text-dark" href="#">
+<span class="sr-only">Facebook</span>
+<svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" fill-rule="evenodd"></path></svg>
+</a>
+<a class="text-secondary-light dark:text-secondary-dark hover:text-text-light dark:hover:text-text-dark" href="#">
+<span class="sr-only">Instagram</span>
+<svg aria-hidden="true" class="h-6 w-6" fill="currentColor" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.345 2.525c.636-.247 1.363-.416 2.427-.465C9.793 2.013 10.147 2 12.315 2zm0 1.623c-2.383 0-2.706.01-3.667.058-1.002.045-1.504.207-1.857.344-.467.182-.86.399-1.249.787-.389.389-.605.782-.787 1.249-.137.353-.3.855-.344 1.857-.048.961-.058 1.284-.058 3.667s.01 2.706.058 3.667c.045 1.002.207 1.504.344 1.857.182.466.399.86.787 1.249.389.389.782.605 1.249.787.353.137.855.3 1.857.344.961.048 1.284.058 3.667.058s2.706-.01 3.667-.058c1.002-.045 1.504-.207 1.857-.344.467-.182.86-.399 1.249-.787.389-.389.605-.782.787-1.249.137-.353.3-.855.344-1.857.048-.961.058-1.284.058-3.667s-.01-2.706-.058-3.667c-.045-1.002-.207-1.504-.344-1.857a3.097 3.097 0 00-.787-1.249 3.097 3.097 0 00-1.249-.787c-.353-.137-.855-.3-1.857-.344-.961-.048-1.284-.058-3.667-.058zM12 8.292a4.908 4.908 0 014.908 4.908A4.908 4.908 0 0112 18.108a4.908 4.908 0 01-4.908-4.908A4.908 4.908 0 0112 8.292zm0 1.623a3.285 3.285 0 100 6.57 3.285 3.285 0 000-6.57zM17.636 6.172a1.182 1.182 0 11-2.364 0 1.182 1.182 0 012.364 0z" fill-rule="evenodd"></path></svg>
+</a>
+</div>
+<div class="mt-8 md:order-1 md:mt-0">
+<p class="text-center text-xs leading-5 text-secondary-light dark:text-secondary-dark">© 2024 신선마켓 B2B. All rights reserved.</p>
+<div class="flex justify-center space-x-4 mt-2 text-xs leading-5 text-secondary-light dark:text-secondary-dark">
+<a class="hover:underline" href="#">이용약관</a>
+<a class="hover:underline" href="#">개인정보처리방침</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</div>
+</div>
+</body></html>

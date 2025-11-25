@@ -22,18 +22,18 @@ Phase 5: AI 기능 & 최적화 (2-3주)
 
 ### 1.1 인증 시스템 (R.AUTH.01-03)
 
-- [x] **Clerk 인증 설정**
+- [X] **Clerk 인증 설정**
 
-  - [x] Clerk 프로젝트 생성 및 환경변수 설정
-  - [x] 한국어 로컬라이제이션 적용
-  - [x] 로그인/회원가입 페이지 구현 (`/app/sign-in`, `/app/sign-up`)
-  - [x] 소매점 사용자 역할(role) 구분 로직 추가
-  - [x] 역할 선택 페이지 구현 (`/role-selection`) - 디자인 레이아웃 적용 완료
-- [x] **초기 리다이렉트 구현 (R.AUTH.02)**
+  - [X] Clerk 프로젝트 생성 및 환경변수 설정
+  - [X] 한국어 로컬라이제이션 적용
+  - [X] 로그인/회원가입 페이지 구현 (`/app/sign-in`, `/app/sign-up`)
+  - [X] 소매점 사용자 역할(role) 구분 로직 추가
+  - [X] 역할 선택 페이지 구현 (`/role-selection`) - 디자인 레이아웃 적용 완료
+- [X] **초기 리다이렉트 구현 (R.AUTH.02)**
 
-  - [x] 로그인 성공 시 `/retailer/dashboard` 자동 이동
-  - [x] 미인증 사용자 접근 시 로그인 페이지로 리다이렉트
-  - [x] `middleware.ts`에서 경로 보호 설정
+  - [X] 로그인 성공 시 `/retailer/dashboard` 자동 이동
+  - [X] 미인증 사용자 접근 시 로그인 페이지로 리다이렉트
+  - [X] `middleware.ts`에서 경로 보호 설정
 - [ ] **Supabase RLS 권한 설정 (R.AUTH.03)**
 
   - [ ] 소매점 사용자가 본인 데이터만 조회하도록 RLS 정책 작성
@@ -42,18 +42,18 @@ Phase 5: AI 기능 & 최적화 (2-3주)
 
 ### 1.2 레이아웃 & 네비게이션
 
-- [x] **공통 레이아웃 구조**
+- [X] **공통 레이아웃 구조**
 
-  - [x] `/app/retailer/layout.tsx` 생성
+  - [X] `/app/retailer/layout.tsx` 생성
     - 소매점 권한 확인 (`requireRetailer()`)
     - 헤더 컴포넌트 통합
     - 공통 레이아웃 구조 완성
-  - [x] 헤더 컴포넌트 (`components/retailer/header.tsx`)
-    - [x] 로고 (FarmToBiz 로고 이미지 및 텍스트)
-    - [x] 로고 클릭 시 홈페이지(`/`)로 이동
-    - [x] 사용자 메뉴 (Clerk UserButton)
-    - [x] 로그아웃 버튼 (UserButton 내장 기능)
-    - [x] 반응형 디자인 적용
+  - [X] 헤더 컴포넌트 (`components/retailer/header.tsx`)
+    - [X] 로고 (FarmToBiz 로고 이미지 및 텍스트)
+    - [X] 로고 클릭 시 홈페이지(`/`)로 이동
+    - [X] 사용자 메뉴 (Clerk UserButton)
+    - [X] 로그아웃 버튼 (UserButton 내장 기능)
+    - [X] 반응형 디자인 적용
   - [ ] 사이드바 네비게이션 (`components/retailer/sidebar.tsx`)
     - 대시보드 링크
     - 상품 검색 링크
@@ -72,12 +72,12 @@ Phase 5: AI 기능 & 최적화 (2-3주)
 
 ### 2.1 대시보드 (R.DASH.01-04)
 
-- [ ] **Bento Grid 레이아웃 (R.DASH.01)**
+- [X] **Bento Grid 레이아웃 (R.DASH.01)**
 
-  - [ ] `/app/retailer/dashboard/page.tsx` 생성
-  - [ ] Bento Grid 컴포넌트 구현 (`components/retailer/bento-grid.tsx`)
-  - [ ] 모바일/태블릿/데스크톱 레이아웃 최적화
-  - [ ] Tailwind CSS로 반응형 스타일링
+  - [X] `/app/retailer/dashboard/page.tsx` 생성
+  - [X] Bento Grid 컴포넌트 구현 (`components/retailer/bento-grid.tsx`)
+  - [X] 모바일/태블릿/데스크톱 레이아웃 최적화
+  - [X] Tailwind CSS로 반응형 스타일링
 - [ ] **AI 추천 상품 모듈 (R.DASH.02)**
 
   - [ ] AI 추천 상품 카드 컴포넌트 (`components/retailer/ai-recommendation-card.tsx`)
@@ -468,13 +468,13 @@ Phase 5: AI 기능 & 최적화 (2-3주)
 
 ## 📊 진행 상황 추적
 
-| Phase                           | 진행률 | 상태    | 시작일 | 완료 예정일 |
-| ------------------------------- | ------ | ------- | ------ | ----------- |
+| Phase                           | 진행률 | 상태    | 시작일     | 완료 예정일 |
+| ------------------------------- | ------ | ------- | ---------- | ----------- |
 | Phase 1: 인증 & 기본 구조       | 65%    | 진행 중 | 2024-11-24 | -           |
-| Phase 2: 상품 탐색 & 장바구니   | 0%     | 대기 중 | -      | -           |
-| Phase 3: 주문 & 결제            | 0%     | 대기 중 | -      | -           |
-| Phase 4: 마이페이지 & 거래 관리 | 0%     | 대기 중 | -      | -           |
-| Phase 5: AI 기능 & 최적화       | 0%     | 대기 중 | -      | -           |
+| Phase 2: 상품 탐색 & 장바구니   | 40%    | 진행 중 | 2024-11-24 | -           |
+| Phase 3: 주문 & 결제            | 30%    | 진행 중 | 2024-11-25 | -           |
+| Phase 4: 마이페이지 & 거래 관리 | 25%    | 진행 중 | 2024-11-25 | -           |
+| Phase 5: AI 기능 & 최적화       | 0%     | 대기 중 | -          | -           |
 
 ---
 
