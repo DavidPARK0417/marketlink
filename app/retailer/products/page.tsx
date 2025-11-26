@@ -5,7 +5,7 @@
  * 주요 기능:
  * 1. 상품 검색 (R.SEARCH.01)
  * 2. AI 표준화된 상품명 표시 (R.SEARCH.02)
- * 3. 배송 필터링 (R.SEARCH.03)
+ * 3. 카테고리 필터링
  * 4. 도매 정보 익명화 (R.SEARCH.04)
  * 5. 장바구니 추가 (R.SEARCH.05)
  *
@@ -32,7 +32,6 @@ export default async function ProductsPage({
     page?: string;
     category?: string;
     search?: string;
-    dawn_delivery?: string;
     sortBy?: string;
     sortOrder?: string;
   }>;
@@ -45,7 +44,6 @@ export default async function ProductsPage({
   const page = parseInt(params.page ?? "1", 10);
   const category = params.category;
   const search = params.search;
-  const dawnDelivery = params.dawn_delivery === "true";
   const sortBy =
     (params.sortBy as "created_at" | "price" | "standardized_name") ??
     "created_at";
@@ -55,7 +53,6 @@ export default async function ProductsPage({
   const filter: {
     category?: string;
     search?: string;
-    dawn_delivery_available?: boolean;
   } = {};
 
   if (category) {
@@ -64,10 +61,6 @@ export default async function ProductsPage({
 
   if (search) {
     filter.search = search;
-  }
-
-  if (dawnDelivery) {
-    filter.dawn_delivery_available = true;
   }
 
   // 상품 목록 조회
@@ -113,7 +106,6 @@ export default async function ProductsPage({
       <ProductSearchClient
         initialSearch={search}
         initialCategory={category}
-        initialDawnDelivery={dawnDelivery}
         initialSortBy={sortBy}
         initialSortOrder={sortOrder}
       />
@@ -142,14 +134,6 @@ export default async function ProductsPage({
                         <span className="text-gray-400 text-sm">이미지 없음</span>
                       </div>
                     )}
-                    {/* 배지 */}
-                    <div className="absolute top-2 left-2 flex flex-col gap-2">
-                      {product.delivery_dawn_available && (
-                        <span className="px-2 py-1 bg-blue-500 text-white text-xs font-bold rounded-full">
-                          새벽배송
-                        </span>
-                      )}
-                    </div>
                   </div>
                 </Link>
 
@@ -211,7 +195,7 @@ export default async function ProductsPage({
             <div className="flex justify-center items-center gap-2 mt-8">
               {page > 1 && (
                 <Link
-                  href={`/retailer/products?page=${page - 1}${search ? `&search=${search}` : ""}${category ? `&category=${category}` : ""}${dawnDelivery ? `&dawn_delivery=true` : ""}`}
+                  href={`/retailer/products?page=${page - 1}${search ? `&search=${search}` : ""}${category ? `&category=${category}` : ""}`}
                   className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 font-medium hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   이전
@@ -222,7 +206,7 @@ export default async function ProductsPage({
               </span>
               {page < totalPages && (
                 <Link
-                  href={`/retailer/products?page=${page + 1}${search ? `&search=${search}` : ""}${category ? `&category=${category}` : ""}${dawnDelivery ? `&dawn_delivery=true` : ""}`}
+                  href={`/retailer/products?page=${page + 1}${search ? `&search=${search}` : ""}${category ? `&category=${category}` : ""}`}
                   className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 font-medium hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   다음

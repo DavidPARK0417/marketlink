@@ -26,6 +26,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { Home, Search, ShoppingCart, ClipboardList } from "lucide-react";
+import { CommandPalette } from "./command-palette";
 
 // 네비게이션 링크 정의
 const navLinks = [
@@ -63,22 +64,24 @@ export default function RetailerHeader() {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* 로고 */}
-          <Link href="/retailer/dashboard" className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt="FarmToBiz"
-              width={32}
-              height={32}
-              className="object-contain"
-            />
-            <span className="text-xl font-bold text-green-600 hidden sm:inline">
-              FarmToBiz
-            </span>
-          </Link>
+    <>
+      <CommandPalette />
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* 로고 */}
+            <Link href="/retailer/dashboard" className="flex items-center gap-2">
+              <Image
+                src="/logo.png"
+                alt="FarmToBiz"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
+              <span className="text-xl font-bold text-green-600 hidden sm:inline">
+                FarmToBiz
+              </span>
+            </Link>
 
           {/* 네비게이션 링크 + 사용자 메뉴 - 데스크톱 */}
           <div className="hidden md:flex items-center gap-4">
@@ -151,5 +154,6 @@ export default function RetailerHeader() {
         </nav>
       </div>
     </header>
+    </>
   );
 }

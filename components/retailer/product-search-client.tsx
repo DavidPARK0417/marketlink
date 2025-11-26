@@ -19,7 +19,6 @@ import { Search, Filter, X } from "lucide-react";
 interface ProductSearchClientProps {
   initialSearch?: string;
   initialCategory?: string;
-  initialDawnDelivery?: boolean;
   initialSortBy?: string;
   initialSortOrder?: string;
 }
@@ -30,7 +29,6 @@ interface ProductSearchClientProps {
 export function ProductSearchClient({
   initialSearch = "",
   initialCategory,
-  initialDawnDelivery = false,
   initialSortBy = "created_at",
   initialSortOrder = "desc",
 }: ProductSearchClientProps) {
@@ -40,7 +38,6 @@ export function ProductSearchClient({
 
   const [search, setSearch] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || "all");
-  const [dawnDelivery, setDawnDelivery] = useState(initialDawnDelivery);
   const [sortBy, setSortBy] = useState(initialSortBy);
   const [sortOrder, setSortOrder] = useState(initialSortOrder);
 
@@ -54,7 +51,6 @@ export function ProductSearchClient({
   const updateURL = (updates: {
     search?: string;
     category?: string;
-    dawn_delivery?: boolean;
     sortBy?: string;
     sortOrder?: string;
   }) => {
@@ -79,15 +75,6 @@ export function ProductSearchClient({
         }
       }
 
-      // 새벽 배송
-      if (updates.dawn_delivery !== undefined) {
-        if (updates.dawn_delivery) {
-          params.set("dawn_delivery", "true");
-        } else {
-          params.delete("dawn_delivery");
-        }
-      }
-
       // 정렬
       if (updates.sortBy !== undefined) {
         params.set("sortBy", updates.sortBy);
@@ -107,7 +94,6 @@ export function ProductSearchClient({
   const resetFilters = () => {
     setSearch("");
     setSelectedCategory("all");
-    setDawnDelivery(false);
     setSortBy("created_at");
     setSortOrder("desc");
     router.push("/retailer/products");
@@ -118,10 +104,10 @@ export function ProductSearchClient({
     { value: "all", label: "전체" },
     { value: "과일", label: "과일" },
     { value: "채소", label: "채소" },
-    { value: "엽채류", label: "엽채류" },
-    { value: "근채류", label: "근채류" },
+    { value: "곡물", label: "곡물" },
+    { value: "견과류", label: "견과류" },
     { value: "수산물", label: "수산물" },
-    { value: "축산물", label: "축산물" },
+    { value: "기타", label: "기타" },
   ];
 
   return (
@@ -138,14 +124,11 @@ export function ProductSearchClient({
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
               onKeyDown={(e) => {
-                // Cmd+K 또는 Ctrl+K 단축키 (향후 Command Palette 구현)
-                if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-                  e.preventDefault();
-                  // TODO: Command Palette 열기
-                }
+                // Enter 키로 검색 실행
                 if (e.key === "Enter") {
                   updateURL({ search });
                 }
+                // Cmd+K 또는 Ctrl+K는 Command Palette에서 처리됨
               }}
               className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
               disabled={isPending}
@@ -205,24 +188,8 @@ export function ProductSearchClient({
           </button>
         ))}
 
-        {/* 새벽 배송 필터 (R.SEARCH.03) */}
-        <button
-          onClick={() => {
-            setDawnDelivery(!dawnDelivery);
-            updateURL({ dawn_delivery: !dawnDelivery });
-          }}
-          className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-            dawnDelivery
-              ? "bg-blue-500 text-white"
-              : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-          }`}
-          disabled={isPending}
-        >
-          새벽 배송 가능
-        </button>
-
         {/* 필터 초기화 */}
-        {(search || selectedCategory !== "all" || dawnDelivery) && (
+        {(search || selectedCategory !== "all") && (
           <button
             onClick={resetFilters}
             className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"

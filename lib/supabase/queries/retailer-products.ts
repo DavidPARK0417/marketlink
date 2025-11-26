@@ -24,7 +24,6 @@ export interface GetRetailerProductsOptions {
   filter?: {
     category?: string;
     search?: string;
-    dawn_delivery_available?: boolean;
     min_price?: number;
     max_price?: number;
   };
@@ -101,13 +100,6 @@ export async function getRetailerProducts(
     query = query.or(
       `standardized_name.ilike.%${filter.search}%,original_name.ilike.%${filter.search}%,category.ilike.%${filter.search}%`
     );
-  }
-
-  if (filter.dawn_delivery_available !== undefined) {
-    // delivery_options JSONB에서 새벽 배송 가능 여부 확인
-    query = query.contains("delivery_options", {
-      dawn_delivery_available: filter.dawn_delivery_available,
-    });
   }
 
   if (filter.min_price !== undefined) {

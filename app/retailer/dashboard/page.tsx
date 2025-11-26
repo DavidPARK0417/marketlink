@@ -87,7 +87,7 @@ const mockRecommendedProducts = [
     id: "4",
     name: "유기농 동물복지 유정란",
     standardized_name: "유기농 동물복지 유정란 10구",
-    category: "축산물",
+    category: "기타",
     specification: "10구",
     price: 7800,
     moq: 1,

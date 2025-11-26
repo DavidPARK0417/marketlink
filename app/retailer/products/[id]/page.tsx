@@ -17,6 +17,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ShoppingCart, Truck, Package } from "lucide-react";
+import { ProductDetailTabs } from "./product-detail-tabs";
 
 // 임시 목 데이터
 const mockProduct = {
@@ -180,27 +181,7 @@ export default async function ProductDetailPage({
       </div>
 
       {/* 추가 정보 탭 */}
-      <div className="mt-12">
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <div className="flex gap-8">
-            <button className="pb-4 border-b-2 border-green-600 text-green-600 font-medium">
-              상세 정보
-            </button>
-            <button className="pb-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-              배송 안내
-            </button>
-            <button className="pb-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-              교환/반품
-            </button>
-          </div>
-        </div>
-
-        <div className="py-8">
-          <p className="text-gray-700 dark:text-gray-300">
-            상품 상세 정보가 여기에 표시됩니다.
-          </p>
-        </div>
-      </div>
+      <ProductDetailTabs product={mockProduct} />
     </div>
   );
 }
