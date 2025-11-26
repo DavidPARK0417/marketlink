@@ -785,41 +785,41 @@ Anonymous Code 자동 생성 로직을 구현해줘.
   - [ ] "Get API Key" 클릭
   - [ ] API 키 복사 후 `.env.local`에 추가
 
-- [ ] **`lib/api/ai-standardize.ts` 구현**
-  - [ ] `standardizeProductName()` 함수 구현
-    - [ ] Gemini 2.5 Flash API 호출
-    - [ ] 프롬프트 작성 (상품명 표준화 규칙 포함)
-    - [ ] JSON 응답 파싱
-    - [ ] 반환값: `{ standardizedName, suggestedCategory, keywords, confidence }`
-  - [ ] `standardizeProductNamesBatch()` 함수 구현 (⚠️ 선택 기능)
-    - [ ] 여러 상품을 한 번에 표준화
-    - [ ] 배치 처리로 API 호출 최적화
-  - [ ] 에러 처리 (API 한도 초과, 네트워크 오류 등)
-  - [ ] Rate limit 처리
+- [x] **`lib/api/ai-standardize.ts` 구현**
+  - [x] `standardizeProductName()` 함수 구현
+    - [x] Gemini 2.5 Flash API 호출
+    - [x] 프롬프트 작성 (상품명 표준화 규칙 포함)
+    - [x] JSON 응답 파싱
+    - [x] 반환값: `{ standardizedName, suggestedCategory, keywords, confidence }`
+  - [x] `standardizeProductNamesBatch()` 함수 구현 (⚠️ 선택 기능)
+    - [x] 여러 상품을 한 번에 표준화
+    - [x] 배치 처리로 API 호출 최적화
+  - [x] 에러 처리 (API 한도 초과, 네트워크 오류 등)
+  - [x] Rate limit 처리
 
 #### 2. AI 표준화 컴포넌트
 
-- [ ] **`components/wholesaler/Products/AIStandardizeButton.tsx` 구현**
-  - [ ] "AI 표준화" 버튼 UI
-  - [ ] 버튼 클릭 시 모달 열기
-  - [ ] 로딩 상태 (Gemini AI 분석 중)
-  - [ ] 결과 모달 UI
-    - [ ] 원본 상품명 표시
-    - [ ] 표준화된 상품명 표시 (강조)
-    - [ ] 추천 카테고리 표시 (Badge)
-    - [ ] 검색 키워드 표시 (Badge 배열)
-    - [ ] 신뢰도 표시 (Progress Bar + 퍼센트)
-    - [ ] 신뢰도 낮을 시 경고 메시지
-  - [ ] "적용하기" 버튼
-    - [ ] 표준화된 이름을 폼에 자동 입력
-    - [ ] 추천 카테고리를 폼에 자동 입력
-  - [ ] "취소" 버튼
-  - [ ] 에러 처리 및 재시도
-  - [ ] **⚠️ API Rate Limiting 처리 (필수)**
-    - [ ] 429 에러 (Too Many Requests) 처리
-    - [ ] 사용자에게 "잠시 후 다시 시도해주세요" 메시지
-    - [ ] 재시도 버튼 제공
-    - [ ] 호출 간 최소 딜레이 추가 (분당 15회 제한 고려)
+- [x] **`components/wholesaler/Products/ProductForm.tsx`에 AI 표준화 기능 통합**
+  - [x] "AI 표준화" 버튼 UI (기존 버튼 활용)
+  - [x] 버튼 클릭 시 모달 열기
+  - [x] 로딩 상태 (Gemini AI 분석 중)
+  - [x] 결과 모달 UI
+    - [x] 원본 상품명 표시
+    - [x] 표준화된 상품명 표시 (강조)
+    - [x] 추천 카테고리 표시 (Badge)
+    - [x] 검색 키워드 표시 (Badge 배열)
+    - [x] 신뢰도 표시 (Progress Bar + 퍼센트)
+    - [x] 신뢰도 낮을 시 경고 메시지
+  - [x] "적용하기" 버튼
+    - [x] 표준화된 이름을 폼에 자동 입력
+    - [x] 추천 카테고리를 폼에 자동 입력
+  - [x] "취소" 버튼
+  - [x] 에러 처리 및 재시도
+  - [x] **⚠️ API Rate Limiting 처리 (필수)**
+    - [x] 429 에러 (Too Many Requests) 처리
+    - [x] 사용자에게 "잠시 후 다시 시도해주세요" 메시지
+    - [x] 재시도 버튼 제공 (모달 닫기 후 다시 시도 가능)
+    - [x] 호출 간 최소 딜레이 추가 (분당 15회 제한 고려)
 
 #### 3. 상품 등록 폼에 통합
 

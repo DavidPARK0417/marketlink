@@ -37,6 +37,8 @@ import {
   Sparkles,
   TrendingUp,
   ImageIcon,
+  Check,
+  AlertCircle,
 } from "lucide-react";
 import {
   Form,
@@ -64,11 +66,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { productSchema, type ProductFormData } from "@/lib/validation/product";
 import { CATEGORIES, DELIVERY_METHODS, UNITS } from "@/lib/utils/constants";
 import { uploadProductImage, deleteProductImage } from "@/lib/supabase/storage";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 import type { Product } from "@/types/product";
+import type { StandardizeResult } from "@/lib/api/ai-standardize";
 import Image from "next/image";
 
 interface ProductFormProps {
@@ -129,6 +141,12 @@ export default function ProductForm({
     new Set(),
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // AI 표준화 관련 상태
+  const [isStandardizing, setIsStandardizing] = useState(false);
+  const [standardizeDialogOpen, setStandardizeDialogOpen] = useState(false);
+  const [standardizeResult, setStandardizeResult] =
+    useState<StandardizeResult | null>(null);
 
   // specification 파싱 (수정 모드)
   const parsedSpec = initialData
@@ -263,6 +281,82 @@ export default function ProductForm({
     [handleImageUpload],
   );
 
+  // AI 표준화 핸들러
+  const handleStandardize = async () => {
+    const currentName = form.getValues("name");
+
+    if (!currentName || !currentName.trim()) {
+      toast.error("상품명을 먼저 입력해주세요.");
+      return;
+    }
+
+    setIsStandardizing(true);
+    setStandardizeResult(null);
+
+    try {
+      console.group("🤖 [ProductForm] AI 표준화 시작");
+      console.log("상품명:", currentName);
+
+      const response = await fetch("/api/ai/standardize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productName: currentName }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("❌ [ProductForm] 표준화 실패:", data);
+        throw new Error(data.error || "표준화에 실패했습니다.");
+      }
+
+      if (data.success && data.data) {
+        console.log("✅ [ProductForm] 표준화 성공:", data.data);
+        setStandardizeResult(data.data);
+        setStandardizeDialogOpen(true);
+      } else {
+        throw new Error("표준화 결과를 받지 못했습니다.");
+      }
+    } catch (error) {
+      console.error("❌ [ProductForm] 표준화 오류:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "AI 표준화 중 오류가 발생했습니다.",
+      );
+    } finally {
+      setIsStandardizing(false);
+      console.groupEnd();
+    }
+  };
+
+  // 표준화 결과 적용 핸들러
+  const handleAcceptStandardize = () => {
+    if (!standardizeResult) return;
+
+    console.log("✅ [ProductForm] 표준화 결과 적용:", standardizeResult);
+
+    // 상품명 업데이트
+    form.setValue("name", standardizeResult.standardizedName, {
+      shouldValidate: true,
+    });
+
+    // 카테고리 업데이트 (카테고리가 비어있거나 "기타"인 경우만)
+    const currentCategory = form.getValues("category");
+    if (!currentCategory || currentCategory === "기타") {
+      if (CATEGORIES.includes(standardizeResult.suggestedCategory as any)) {
+        form.setValue("category", standardizeResult.suggestedCategory, {
+          shouldValidate: true,
+        });
+      }
+    }
+
+    setStandardizeDialogOpen(false);
+    toast.success("표준화된 상품명이 적용되었습니다.");
+  };
+
   // 폼 제출 핸들러
   const handleSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
@@ -326,13 +420,15 @@ export default function ProductForm({
                       type="button"
                       variant="outline"
                       size="icon"
-                      onClick={() => {
-                        toast.info("AI 표준화 기능은 준비 중입니다.");
-                      }}
-                      disabled={isSubmitting}
+                      onClick={handleStandardize}
+                      disabled={isSubmitting || isStandardizing}
                       title="AI 표준화"
                     >
-                      <Sparkles className="h-4 w-4" />
+                      {isStandardizing ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                   <FormDescription>
@@ -817,6 +913,124 @@ export default function ProductForm({
             </div>
           </form>
         </Form>
+
+        {/* AI 표준화 결과 모달 */}
+        <Dialog open={standardizeDialogOpen} onOpenChange={setStandardizeDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>AI 표준화 결과</DialogTitle>
+              <DialogDescription>
+                상품명을 표준화하여 검색 최적화를 개선했습니다.
+              </DialogDescription>
+            </DialogHeader>
+
+            {standardizeResult && (
+              <div className="space-y-6 py-4">
+                {/* 원본 상품명 */}
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                    원본 상품명
+                  </label>
+                  <p className="mt-1 text-base text-gray-900">
+                    {standardizeResult.originalName}
+                  </p>
+                </div>
+
+                {/* 표준화된 상품명 */}
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                    표준화된 상품명
+                  </label>
+                  <p className="mt-1 text-lg font-semibold text-blue-600">
+                    {standardizeResult.standardizedName}
+                  </p>
+                </div>
+
+                {/* 추천 카테고리 */}
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                    추천 카테고리
+                  </label>
+                  <div className="mt-2">
+                    <Badge variant="secondary" className="text-sm">
+                      {standardizeResult.suggestedCategory}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* 검색 키워드 */}
+                {standardizeResult.keywords.length > 0 && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">
+                      검색 키워드
+                    </label>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {standardizeResult.keywords.map((keyword, index) => (
+                        <Badge key={index} variant="outline" className="text-sm">
+                          {keyword}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 신뢰도 */}
+                <div>
+                  <label className="text-sm font-medium text-gray-500">
+                    신뢰도
+                  </label>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">
+                        {Math.round(standardizeResult.confidence * 100)}%
+                      </span>
+                      {standardizeResult.confidence < 0.8 && (
+                        <div className="flex items-center gap-1 text-amber-600">
+                          <AlertCircle className="h-4 w-4" />
+                          <span className="text-xs">
+                            신뢰도가 낮습니다. 수동으로 확인해주세요.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                      <div
+                        className={`h-full transition-all ${
+                          standardizeResult.confidence >= 0.8
+                            ? "bg-green-500"
+                            : standardizeResult.confidence >= 0.6
+                              ? "bg-yellow-500"
+                              : "bg-red-500"
+                        }`}
+                        style={{
+                          width: `${standardizeResult.confidence * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setStandardizeDialogOpen(false)}
+              >
+                취소
+              </Button>
+              <Button
+                type="button"
+                onClick={handleAcceptStandardize}
+                disabled={!standardizeResult}
+              >
+                <Check className="mr-2 h-4 w-4" />
+                적용하기
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
