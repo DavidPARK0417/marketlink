@@ -24,6 +24,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getPaginationRowModel,
+  flexRender,
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
@@ -65,7 +66,7 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
               onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
               className="h-8 px-2"
             >
-              확정일자
+              거래일자
               {column.getIsSorted() === "asc" ? (
                 <ArrowUp className="ml-2 size-4" />
               ) : column.getIsSorted() === "desc" ? (
@@ -78,28 +79,70 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
         },
         cell: ({ row }) => {
           const date = row.getValue("cfmtnYmd") as string;
-          return <div className="font-medium">{date}</div>;
+          const auctionDate = row.original.auctionDate;
+          
+          // 날짜 포맷팅 (YYYY-MM-DD 형식)
+          let displayDate = date;
+          if (date && date.length === 8) {
+            // YYYYMMDD 형식을 YYYY-MM-DD로 변환
+            displayDate = `${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6, 8)}`;
+          }
+          
+          return (
+            <div className="flex flex-col gap-1">
+              <div className="font-medium text-sm">{displayDate}</div>
+              {auctionDate && (
+                <div className="text-xs text-muted-foreground">
+                  {auctionDate.split(" ")[1] || ""} {/* 시간만 표시 */}
+                </div>
+              )}
+            </div>
+          );
         },
       },
       {
-        accessorKey: "lclsfNm",
-        header: "대분류",
+        accessorKey: "marketName",
+        header: "지역",
         cell: ({ row }) => {
-          return <div>{row.getValue("lclsfNm") || "-"}</div>;
+          return <div className="text-sm">{row.getValue("marketName") || "-"}</div>;
         },
       },
       {
-        accessorKey: "mclsfNm",
-        header: "중분류",
+        accessorKey: "itemName",
+        header: "품목명",
         cell: ({ row }) => {
-          return <div>{row.getValue("mclsfNm") || "-"}</div>;
+          return <div className="font-semibold">{row.getValue("itemName") || "-"}</div>;
         },
       },
       {
-        accessorKey: "sclsfNm",
-        header: "소분류",
+        accessorKey: "varietyName",
+        header: "품종",
         cell: ({ row }) => {
-          return <div>{row.getValue("sclsfNm") || "-"}</div>;
+          return <div className="text-sm text-muted-foreground">{row.getValue("varietyName") || "-"}</div>;
+        },
+      },
+      {
+        accessorKey: "quality",
+        header: "품질",
+        cell: ({ row }) => {
+          const quality = row.getValue("quality") as string | undefined;
+          if (!quality) return <div className="text-muted-foreground text-xs">-</div>;
+          
+          const qualityColors = {
+            특: "bg-red-100 text-red-800 border-red-200",
+            상: "bg-blue-100 text-blue-800 border-blue-200",
+            중: "bg-green-100 text-green-800 border-green-200",
+            하: "bg-gray-100 text-gray-800 border-gray-200",
+          };
+          
+          return (
+            <Badge 
+              variant="outline" 
+              className={`text-xs ${qualityColors[quality as keyof typeof qualityColors] || ""}`}
+            >
+              {quality}
+            </Badge>
+          );
         },
       },
       {
@@ -111,7 +154,7 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
               onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
               className="h-8 px-2"
             >
-              평균가
+              낙찰가
               {column.getIsSorted() === "asc" ? (
                 <ArrowUp className="ml-2 size-4" />
               ) : column.getIsSorted() === "desc" ? (
@@ -124,23 +167,51 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
         },
         cell: ({ row }) => {
           const price = row.getValue("avgPrice") as number;
-          return <div className="font-semibold">{formatPrice(price)}원</div>;
+          const unitName = row.original.unitName || "";
+          const unitQuantity = row.original.unitQuantity || 1;
+          
+          return (
+            <div className="flex flex-col gap-1">
+              <div className="font-semibold text-primary">{formatPrice(price)}원</div>
+              {unitName && (
+                <div className="text-xs text-muted-foreground">
+                  {unitQuantity > 1 ? `${unitQuantity}${unitName}당` : `1${unitName}당`}
+                </div>
+              )}
+            </div>
+          );
         },
       },
       {
-        accessorKey: "minPrice",
-        header: "최소가",
+        accessorKey: "quantity",
+        header: "수량",
         cell: ({ row }) => {
-          const price = row.getValue("minPrice") as number;
-          return <div>{formatPrice(price)}원</div>;
+          const quantity = row.getValue("quantity") as number;
+          const unitName = row.original.unitName || "";
+          
+          if (!quantity) return <div className="text-muted-foreground text-xs">-</div>;
+          
+          return (
+            <div className="text-sm">
+              {formatPrice(quantity)}{unitName && ` ${unitName}`}
+            </div>
+          );
         },
       },
       {
-        accessorKey: "maxPrice",
-        header: "최고가",
+        accessorKey: "packageName",
+        header: "포장",
         cell: ({ row }) => {
-          const price = row.getValue("maxPrice") as number;
-          return <div>{formatPrice(price)}원</div>;
+          const packageName = row.getValue("packageName") as string | undefined;
+          return <div className="text-sm text-muted-foreground">{packageName || "-"}</div>;
+        },
+      },
+      {
+        accessorKey: "originName",
+        header: "출하지",
+        cell: ({ row }) => {
+          const originName = row.getValue("originName") as string | undefined;
+          return <div className="text-sm text-muted-foreground">{originName || "-"}</div>;
         },
       },
       {
@@ -206,9 +277,10 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : header.column.getCanSort()
-                        ? header.renderHeader()
-                        : header.column.columnDef.header}
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -219,7 +291,9 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{cell.renderCell()}</TableCell>
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))

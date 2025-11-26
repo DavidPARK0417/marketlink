@@ -20,25 +20,12 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { format } from "date-fns";
-import { ko } from "date-fns/locale";
-import { Search, Calendar } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { itemCategories } from "@/lib/api/market-prices";
 
 export interface PriceFilterParams {
-  date?: string; // YYYY-MM-DD 형식
-  lclsfCd?: string; // 대분류 코드
-  mclsfCd?: string; // 중분류 코드
-  sclsfCd?: string; // 소분류 코드
+  searchKeyword?: string; // 품목명 검색
 }
 
 interface PriceFilterProps {
@@ -47,141 +34,46 @@ interface PriceFilterProps {
 }
 
 export default function PriceFilter({ onSearch, isLoading = false }: PriceFilterProps) {
-  const [date, setDate] = useState<string>(
-    format(new Date(), "yyyy-MM-dd", { locale: ko })
-  );
-  const [lclsfCd, setLclsfCd] = useState<string | undefined>(undefined);
-  const [mclsfCd, setMclsfCd] = useState<string | undefined>(undefined);
-  const [sclsfCd, setSclsfCd] = useState<string | undefined>(undefined);
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     const params: PriceFilterParams = {};
-    if (date) params.date = date;
-    // "all" 값은 API 파라미터에서 제외
-    if (lclsfCd && lclsfCd !== "all") params.lclsfCd = lclsfCd;
-    if (mclsfCd && mclsfCd !== "all") params.mclsfCd = mclsfCd;
-    if (sclsfCd && sclsfCd !== "all") params.sclsfCd = sclsfCd;
+    if (searchKeyword.trim()) params.searchKeyword = searchKeyword.trim();
 
-    onSearch(params);
-  };
-
-  const handleQuickSearch = (categoryKey: keyof typeof itemCategories) => {
-    const category = itemCategories[categoryKey];
-    setLclsfCd(category.code);
-    setMclsfCd(undefined);
-    setSclsfCd(undefined);
-
-    const params: PriceFilterParams = {
-      date: date || format(new Date(), "yyyy-MM-dd", { locale: ko }),
-      lclsfCd: category.code,
-    };
     onSearch(params);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 md:p-8">
-      <div className="flex flex-col gap-4">
-        {/* 확정일자 선택 */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="date" className="text-sm font-medium">
-            확정일자
+    <form onSubmit={handleSubmit} className="px-4 md:px-6 py-4 md:py-5">
+      {/* 품목명 검색 + 버튼을 한 줄로 배치 */}
+      <div className="flex gap-4">
+        {/* 품목명 검색 */}
+        <div className="flex-1 flex flex-col gap-2">
+          <label htmlFor="search" className="text-sm font-medium">
+            품목명 검색
           </label>
           <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              id="search"
+              type="text"
+              placeholder="예: 배추, 사과, 레몬"
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
               className="pl-10"
-              max={format(new Date(), "yyyy-MM-dd", { locale: ko })}
             />
           </div>
         </div>
 
-        {/* 대분류 선택 */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="lclsf" className="text-sm font-medium">
-            대분류
-          </label>
-          <Select value={lclsfCd || "all"} onValueChange={(value) => setLclsfCd(value === "all" ? undefined : value)}>
-            <SelectTrigger id="lclsf">
-              <SelectValue placeholder="대분류를 선택하세요" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">전체</SelectItem>
-              {Object.entries(itemCategories).map(([key, category]) => (
-                <SelectItem key={key} value={category.code}>
-                  {key}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* 중분류 선택 (대분류 선택 시에만 활성화) */}
-        {lclsfCd && (
-          <div className="flex flex-col gap-2">
-            <label htmlFor="mclsf" className="text-sm font-medium">
-              중분류
-            </label>
-            <Select value={mclsfCd || "all"} onValueChange={(value) => setMclsfCd(value === "all" ? undefined : value)}>
-              <SelectTrigger id="mclsf">
-                <SelectValue placeholder="중분류를 선택하세요" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                {/* 실제 API 응답 구조 확인 후 중분류 목록 추가 필요 */}
-                <SelectItem value="0101">예시: 배추</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {/* 소분류 선택 (중분류 선택 시에만 활성화) */}
-        {mclsfCd && (
-          <div className="flex flex-col gap-2">
-            <label htmlFor="sclsf" className="text-sm font-medium">
-              소분류
-            </label>
-            <Select value={sclsfCd || "all"} onValueChange={(value) => setSclsfCd(value === "all" ? undefined : value)}>
-              <SelectTrigger id="sclsf">
-                <SelectValue placeholder="소분류를 선택하세요" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                {/* 실제 API 응답 구조 확인 후 소분류 목록 추가 필요 */}
-                <SelectItem value="010101">예시: 배추 상품</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
         {/* 조회 버튼 */}
-        <Button type="submit" disabled={isLoading} className="w-full">
-          <Search className="mr-2 size-4" />
-          {isLoading ? "조회 중..." : "조회"}
-        </Button>
-      </div>
-
-      {/* 인기 품목 빠른 검색 */}
-      <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium">인기 품목 빠른 검색</p>
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(itemCategories).map((key) => (
-            <Button
-              key={key}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickSearch(key as keyof typeof itemCategories)}
-              disabled={isLoading}
-            >
-              {key}
-            </Button>
-          ))}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium opacity-0">버튼</label>
+          <Button type="submit" disabled={isLoading} className="h-10 px-6">
+            <Search className="mr-2 size-4" />
+            {isLoading ? "조회 중..." : "시세 조회"}
+          </Button>
         </div>
       </div>
     </form>

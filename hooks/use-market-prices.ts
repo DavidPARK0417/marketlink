@@ -34,7 +34,7 @@
 import React from "react";
 // React Query가 설치되어 있지 않으면 주석 처리
 // import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { MarketPriceParams, PriceItem, getMarketPrices, getPriceTrend, PriceTrendItem } from "@/lib/api/market-prices";
+import { MarketPriceParams, PriceItem, PriceTrendItem } from "@/lib/api/market-prices";
 
 // 임시: React Query가 설치될 때까지 기본 훅 사용
 // React Query 설치 후 아래 코드를 활성화하고 임시 코드를 제거하세요
@@ -73,10 +73,20 @@ export function useMarketPrices(
   // 임시: React Query 없이 기본 상태 관리
   // React Query 설치 후 이 부분을 제거하세요
   const [data, setData] = React.useState<PriceItem[] | undefined>(undefined);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false); // 🔥 초기값을 false로 변경
   const [error, setError] = React.useState<Error | null>(null);
 
   React.useEffect(() => {
+    // 🔥 파라미터가 비어있으면 API 호출하지 않음
+    const hasParams = params.whslMrktCd || params.date || params.lclsfCd || params.mclsfCd || params.sclsfCd || params.numOfRows;
+    
+    if (!hasParams) {
+      setIsLoading(false);
+      setData(undefined);
+      setError(null);
+      return;
+    }
+
     let isMounted = true;
 
     async function fetchData() {
@@ -84,9 +94,28 @@ export function useMarketPrices(
       setError(null);
 
       try {
-        const result = await getMarketPrices(params);
+        // API Route를 통해 서버 사이드에서 공공 API 호출 (CORS 문제 해결)
+        const queryParams = new URLSearchParams();
+        if (params.date) queryParams.append("date", params.date);
+        if (params.lclsfCd) queryParams.append("lclsfCd", params.lclsfCd);
+        if (params.mclsfCd) queryParams.append("mclsfCd", params.mclsfCd);
+        if (params.sclsfCd) queryParams.append("sclsfCd", params.sclsfCd);
+        if (params.pageNo) queryParams.append("pageNo", params.pageNo.toString());
+        if (params.numOfRows) queryParams.append("numOfRows", params.numOfRows.toString());
+        if (params.whslMrktCd) queryParams.append("whslMrktCd", params.whslMrktCd);
+
+        const response = await fetch(`/api/market-prices?${queryParams.toString()}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        const prices = result.data || [];
+
         if (isMounted) {
-          setData(result);
+          setData(prices);
         }
       } catch (err) {
         if (isMounted) {
@@ -115,9 +144,27 @@ export function useMarketPrices(
       setIsLoading(true);
       setError(null);
       try {
-        const result = await getMarketPrices(params);
-        setData(result);
-        return { data: result, error: null };
+        // API Route를 통해 서버 사이드에서 공공 API 호출 (CORS 문제 해결)
+        const queryParams = new URLSearchParams();
+        if (params.date) queryParams.append("date", params.date);
+        if (params.lclsfCd) queryParams.append("lclsfCd", params.lclsfCd);
+        if (params.mclsfCd) queryParams.append("mclsfCd", params.mclsfCd);
+        if (params.sclsfCd) queryParams.append("sclsfCd", params.sclsfCd);
+        if (params.pageNo) queryParams.append("pageNo", params.pageNo.toString());
+        if (params.numOfRows) queryParams.append("numOfRows", params.numOfRows.toString());
+
+        const response = await fetch(`/api/market-prices?${queryParams.toString()}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        const prices = result.data || [];
+        
+        setData(prices);
+        return { data: prices, error: null };
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);
@@ -160,7 +207,7 @@ export function usePriceTrend(
 
   // 임시: React Query 없이 기본 상태 관리
   const [data, setData] = React.useState<PriceTrendItem[] | undefined>(undefined);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false); // 🔥 초기값을 false로 변경
   const [error, setError] = React.useState<Error | null>(null);
 
   React.useEffect(() => {
@@ -176,9 +223,25 @@ export function usePriceTrend(
       setError(null);
 
       try {
-        const result = await getPriceTrend(lclsfCd, mclsfCd, sclsfCd, days);
+        // API Route를 통해 서버 사이드에서 공공 API 호출 (CORS 문제 해결)
+        const queryParams = new URLSearchParams();
+        queryParams.append("lclsfCd", lclsfCd);
+        if (mclsfCd) queryParams.append("mclsfCd", mclsfCd);
+        if (sclsfCd) queryParams.append("sclsfCd", sclsfCd);
+        queryParams.append("days", days.toString());
+
+        const response = await fetch(`/api/market-prices/trend?${queryParams.toString()}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        const trendData = result.data || [];
+
         if (isMounted) {
-          setData(result);
+          setData(trendData);
         }
       } catch (err) {
         if (isMounted) {
@@ -209,9 +272,25 @@ export function usePriceTrend(
       setIsLoading(true);
       setError(null);
       try {
-        const result = await getPriceTrend(lclsfCd, mclsfCd, sclsfCd, days);
-        setData(result);
-        return { data: result, error: null };
+        // API Route를 통해 서버 사이드에서 공공 API 호출 (CORS 문제 해결)
+        const queryParams = new URLSearchParams();
+        queryParams.append("lclsfCd", lclsfCd);
+        if (mclsfCd) queryParams.append("mclsfCd", mclsfCd);
+        if (sclsfCd) queryParams.append("sclsfCd", sclsfCd);
+        queryParams.append("days", days.toString());
+
+        const response = await fetch(`/api/market-prices/trend?${queryParams.toString()}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        const trendData = result.data || [];
+        
+        setData(trendData);
+        return { data: trendData, error: null };
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         setError(error);

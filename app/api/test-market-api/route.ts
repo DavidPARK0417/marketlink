@@ -1,20 +1,18 @@
 /**
  * @file app/api/test-market-api/route.ts
- * @description 공공데이터포털 API 테스트용 Route
+ * @description 공공데이터포털 API 대분류 코드 체계 파악용 테스트
  *
- * 실제 공공 API를 호출하여 응답 구조를 확인하는 테스트용 API입니다.
- * 여러 파라미터 조합으로 테스트하여 실제 응답 구조를 파악합니다.
- *
- * @dependencies
- * - 환경 변수: PUBLIC_DATA_API_KEY
+ * 다양한 대분류 코드로 API를 호출하여 실제 코드 체계를 파악합니다.
  */
 
 import { NextResponse } from "next/server";
 
-// 환경변수에서 API 키 가져오기 (따옴표 제거)
 const rawApiKey = process.env.PUBLIC_DATA_API_KEY;
 const API_KEY = rawApiKey?.trim().replace(/^["']|["']$/g, "") || null;
-const BASE_URL = "https://apis.data.go.kr/B552845/katOnline";
+const TEST_API_KEY =
+  "637bda9c5cbfe57e5f9bd8d403344dc96c3b8ec57e6ad52c980a355a554cffcc";
+const FINAL_API_KEY = API_KEY || TEST_API_KEY;
+const BASE_URL = "https://apis.data.go.kr/B552845/katRealTime/trades";
 
 interface TestResult {
   testName: string;
@@ -23,175 +21,118 @@ interface TestResult {
   data?: any;
   error?: string;
   status?: number;
+  uniqueLclsfCodes?: string[];
+  uniqueLclsfNames?: string[];
+  sampleItems?: any[];
 }
 
 export async function GET(request: Request) {
   try {
-    console.group("🧪 [test-market-api] 공공 API 테스트 시작");
+    console.group("🧪 [test-market-api] 대분류 코드 체계 파악 시작");
 
-    if (!API_KEY) {
-      console.error("❌ [test-market-api] API 키가 설정되지 않았습니다.");
+    if (!FINAL_API_KEY) {
       return NextResponse.json(
-        {
-          error: "API 키가 설정되지 않았습니다.",
-          hint: "PUBLIC_DATA_API_KEY 환경 변수를 확인하세요.",
-        },
+        { error: "API 키가 설정되지 않았습니다." },
         { status: 500 },
       );
     }
 
-    const { searchParams } = new URL(request.url);
-    const testType = searchParams.get("type") || "all";
-
     const results: TestResult[] = [];
 
-    // 테스트 1: 기본 호출 (최소 파라미터)
-    if (testType === "all" || testType === "basic") {
+    // 대량 데이터 조회하여 다양한 대분류 코드 수집
+    const testCodes = [
+      { code: null, name: "전체 데이터 (대분류 코드 체계 파악)" },
+      { code: "01", name: "코드 01 테스트" },
+      { code: "02", name: "코드 02 테스트" },
+      { code: "03", name: "코드 03 테스트" },
+      { code: "04", name: "코드 04 테스트" },
+      { code: "05", name: "코드 05 테스트" },
+      { code: "06", name: "코드 06 테스트" },
+      { code: "07", name: "코드 07 테스트" },
+      { code: "08", name: "코드 08 테스트" },
+      { code: "09", name: "코드 09 테스트" },
+      { code: "10", name: "코드 10 테스트" },
+      { code: "11", name: "코드 11 테스트" },
+      { code: "12", name: "코드 12 테스트" },
+    ];
+
+    for (const test of testCodes) {
       try {
-        console.log("📊 테스트 1: 기본 호출");
-        const url = `${BASE_URL}?serviceKey=${encodeURIComponent(API_KEY)}&pageNo=1&numOfRows=10&returnType=json`;
-        console.log("URL:", url.replace(API_KEY, "***"));
+        console.log(`📊 테스트: ${test.name}`);
+
+        let url = `${BASE_URL}?serviceKey=${encodeURIComponent(
+          FINAL_API_KEY,
+        )}&pageNo=1&numOfRows=50&returnType=json`;
+        if (test.code) {
+          url += `&gds_lclsf_cd=${test.code}`;
+        }
+
+        console.log("URL:", url.replace(FINAL_API_KEY, "***"));
 
         const response = await fetch(url, {
           cache: "no-store",
-          headers: {
-            Accept: "application/json",
-          },
+          headers: { Accept: "application/json" },
         });
 
-        const data = await response.json();
-        console.log("✅ 테스트 1 성공:", {
+        const responseText = await response.text();
+        const data = JSON.parse(responseText);
+
+        // 대분류 코드 및 이름 추출
+        const lclsfCodes = new Set<string>();
+        const lclsfNames = new Set<string>();
+        const sampleItems: any[] = [];
+
+        if (data?.response?.body?.items?.item) {
+          const items = Array.isArray(data.response.body.items.item)
+            ? data.response.body.items.item
+            : [data.response.body.items.item];
+
+          items.forEach((item: any, index: number) => {
+            if (item.gds_lclsf_cd) lclsfCodes.add(item.gds_lclsf_cd);
+            if (item.gds_lclsf_nm) lclsfNames.add(item.gds_lclsf_nm);
+
+            // 처음 3개 아이템만 샘플로 저장
+            if (index < 3) {
+              sampleItems.push({
+                itemName: item.corp_gds_item_nm,
+                lclsfCd: item.gds_lclsf_cd,
+                lclsfNm: item.gds_lclsf_nm,
+                mclsfCd: item.gds_mclsf_cd,
+                mclsfNm: item.gds_mclsf_nm,
+                sclsfCd: item.gds_sclsf_cd,
+                sclsfNm: item.gds_sclsf_nm,
+              });
+            }
+          });
+        }
+
+        console.log(`✅ ${test.name} 성공:`, {
           status: response.status,
-          dataKeys: Object.keys(data),
+          totalCount: data?.response?.body?.totalCount,
+          uniqueLclsfCodes: Array.from(lclsfCodes),
+          uniqueLclsfNames: Array.from(lclsfNames),
         });
 
         results.push({
-          testName: "기본 호출 (최소 파라미터)",
-          url: url.replace(API_KEY, "***"),
+          testName: test.name,
+          url: url.replace(FINAL_API_KEY, "***"),
           success: response.ok,
-          data: data,
-          status: response.status,
-        });
-      } catch (error) {
-        console.error("❌ 테스트 1 실패:", error);
-        results.push({
-          testName: "기본 호출 (최소 파라미터)",
-          url: "",
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
-    // 테스트 2: 날짜 조건 추가
-    if (testType === "all" || testType === "date") {
-      try {
-        console.log("📊 테스트 2: 날짜 조건 추가");
-        const today = new Date();
-        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-        const url = `${BASE_URL}?serviceKey=${encodeURIComponent(API_KEY)}&pageNo=1&numOfRows=10&returnType=json&cond[cfmtn_ymd::EQ]=${dateStr}`;
-        console.log("URL:", url.replace(API_KEY, "***"));
-
-        const response = await fetch(url, {
-          cache: "no-store",
-          headers: {
-            Accept: "application/json",
+          data: {
+            totalCount: data?.response?.body?.totalCount,
+            numOfRows: data?.response?.body?.numOfRows,
           },
+          status: response.status,
+          uniqueLclsfCodes: Array.from(lclsfCodes).sort(),
+          uniqueLclsfNames: Array.from(lclsfNames).sort(),
+          sampleItems: sampleItems,
         });
 
-        const data = await response.json();
-        console.log("✅ 테스트 2 성공:", {
-          status: response.status,
-          dataKeys: Object.keys(data),
-        });
-
-        results.push({
-          testName: "날짜 조건 추가",
-          url: url.replace(API_KEY, "***"),
-          success: response.ok,
-          data: data,
-          status: response.status,
-        });
+        // API 부하 방지를 위한 딜레이 (0.5초)
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error) {
-        console.error("❌ 테스트 2 실패:", error);
+        console.error(`❌ ${test.name} 실패:`, error);
         results.push({
-          testName: "날짜 조건 추가",
-          url: "",
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
-    // 테스트 3: 대분류 코드 추가
-    if (testType === "all" || testType === "category") {
-      try {
-        console.log("📊 테스트 3: 대분류 코드 추가");
-        const url = `${BASE_URL}?serviceKey=${encodeURIComponent(API_KEY)}&pageNo=1&numOfRows=10&returnType=json&cond[onln_whsl_mrkt_lclsf_cd::EQ]=01`;
-        console.log("URL:", url.replace(API_KEY, "***"));
-
-        const response = await fetch(url, {
-          cache: "no-store",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        const data = await response.json();
-        console.log("✅ 테스트 3 성공:", {
-          status: response.status,
-          dataKeys: Object.keys(data),
-        });
-
-        results.push({
-          testName: "대분류 코드 추가 (01)",
-          url: url.replace(API_KEY, "***"),
-          success: response.ok,
-          data: data,
-          status: response.status,
-        });
-      } catch (error) {
-        console.error("❌ 테스트 3 실패:", error);
-        results.push({
-          testName: "대분류 코드 추가 (01)",
-          url: "",
-          success: false,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
-
-    // 테스트 4: 중분류 코드 추가
-    if (testType === "all" || testType === "subcategory") {
-      try {
-        console.log("📊 테스트 4: 중분류 코드 추가");
-        const url = `${BASE_URL}?serviceKey=${encodeURIComponent(API_KEY)}&pageNo=1&numOfRows=10&returnType=json&cond[onln_whsl_mrkt_mclsf_cd::EQ]=0101`;
-        console.log("URL:", url.replace(API_KEY, "***"));
-
-        const response = await fetch(url, {
-          cache: "no-store",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        const data = await response.json();
-        console.log("✅ 테스트 3 성공:", {
-          status: response.status,
-          dataKeys: Object.keys(data),
-        });
-
-        results.push({
-          testName: "중분류 코드 추가 (0101)",
-          url: url.replace(API_KEY, "***"),
-          success: response.ok,
-          data: data,
-          status: response.status,
-        });
-      } catch (error) {
-        console.error("❌ 테스트 4 실패:", error);
-        results.push({
-          testName: "중분류 코드 추가 (0101)",
+          testName: test.name,
           url: "",
           success: false,
           error: error instanceof Error ? error.message : String(error),
@@ -204,7 +145,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         success: true,
-        message: "API 테스트 완료",
+        message: "대분류 코드 체계 파악 완료",
         results: results,
         summary: {
           total: results.length,
@@ -225,4 +166,3 @@ export async function GET(request: Request) {
     );
   }
 }
-

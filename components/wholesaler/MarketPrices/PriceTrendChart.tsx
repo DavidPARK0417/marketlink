@@ -2,12 +2,13 @@
  * @file components/wholesaler/MarketPrices/PriceTrendChart.tsx
  * @description 가격 추이 차트 컴포넌트
  *
- * 일주일 시세 추이를 차트로 표시하는 컴포넌트입니다.
+ * 일별/월별/연별 시세 추이를 차트로 표시하는 컴포넌트입니다.
  *
  * 주요 기능:
- * 1. 일주일 시세 추이 차트 (Line Chart)
- * 2. 날짜별 평균 가격 표시
- * 3. 반응형 디자인
+ * 1. 일별/월별/연별 시세 추이 차트 (Line Chart)
+ * 2. 기간 선택 기능
+ * 3. 날짜별 평균 가격 표시
+ * 4. 반응형 디자인
  *
  * @dependencies
  * - recharts (차트 라이브러리)
@@ -16,7 +17,7 @@
 
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   LineChart,
   Line,
@@ -27,50 +28,107 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PriceTrendItem } from "@/lib/api/market-prices";
 
+export type TrendPeriod = "daily" | "monthly" | "yearly";
+
 interface PriceTrendChartProps {
-  data: PriceTrendItem[];
+  dailyData?: PriceTrendItem[];
+  monthlyData?: PriceTrendItem[];
+  yearlyData?: PriceTrendItem[];
   isLoading?: boolean;
+  itemName?: string;
 }
 
 export default function PriceTrendChart({
-  data,
+  dailyData = [],
+  monthlyData = [],
+  yearlyData = [],
   isLoading = false,
+  itemName,
 }: PriceTrendChartProps) {
+  const [period, setPeriod] = useState<TrendPeriod>("daily");
+
+  // 선택된 기간에 따른 데이터
+  const currentData = useMemo(() => {
+    switch (period) {
+      case "daily":
+        return dailyData;
+      case "monthly":
+        return monthlyData;
+      case "yearly":
+        return yearlyData;
+      default:
+        return dailyData;
+    }
+  }, [period, dailyData, monthlyData, yearlyData]);
+
   // 차트 데이터 포맷팅
   const chartData = useMemo(() => {
-    return data.map((item) => ({
+    return currentData.map((item) => ({
       date: item.date,
       가격: item.price,
     }));
-  }, [data]);
+  }, [currentData]);
 
   // 가격 포맷팅 함수
   const formatPrice = (value: number) => {
     return new Intl.NumberFormat("ko-KR").format(value) + "원";
   };
 
-  // 날짜 포맷팅 함수 (YYYY-MM-DD -> MM/DD)
+  // 날짜 포맷팅 함수
   const formatDate = (date: string) => {
-    const [year, month, day] = date.split("-");
-    return `${month}/${day}`;
+    if (period === "yearly") {
+      return date; // 연도만 표시
+    } else if (period === "monthly") {
+      return date; // YYYY-MM 형식
+    } else {
+      // 일별: YYYY-MM-DD -> MM/DD
+      const [year, month, day] = date.split("-");
+      return `${month}/${day}`;
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">차트 로딩 중...</div>
-      </div>
-    );
-  }
+  // 기간별 제목 및 설명
+  const periodInfo = useMemo(() => {
+    switch (period) {
+      case "daily":
+        return {
+          title: "일별 시세 추이",
+          description: "최근 30일간의 평균 가격 추이를 확인하세요.",
+        };
+      case "monthly":
+        return {
+          title: "월별 시세 추이",
+          description: "최근 12개월간의 평균 가격 추이를 확인하세요.",
+        };
+      case "yearly":
+        return {
+          title: "연별 시세 추이",
+          description: "최근 5년간의 평균 가격 추이를 확인하세요.",
+        };
+    }
+  }, [period]);
 
-  if (data.length === 0) {
+  // 로딩 중이거나 데이터가 없을 때
+  if (isLoading || (currentData.length === 0 && (dailyData.length === 0 && monthlyData.length === 0 && yearlyData.length === 0))) {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-64 p-6 md:p-8">
+          <div className="text-muted-foreground">차트 데이터를 불러오는 중...</div>
+        </div>
+      );
+    }
+    
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-2">
+      <div className="flex flex-col items-center justify-center h-64 gap-2 p-6 md:p-8">
         <div className="text-muted-foreground">차트 데이터가 없습니다.</div>
         <div className="text-sm text-muted-foreground">
-          시세 추이를 조회하려면 대분류를 선택하세요.
+          {itemName 
+            ? `${itemName}의 시세 추이 데이터를 조회할 수 없습니다.`
+            : "시세 추이를 조회하려면 품목을 검색하세요."}
         </div>
       </div>
     );
@@ -78,11 +136,22 @@ export default function PriceTrendChart({
 
   return (
     <div className="flex flex-col gap-4 p-6 md:p-8">
-      <div className="flex flex-col gap-2">
-        <h3 className="text-lg font-semibold">일주일 시세 추이</h3>
-        <p className="text-sm text-muted-foreground">
-          최근 7일간의 평균 가격 추이를 확인하세요.
-        </p>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <h3 className="text-lg font-semibold">
+            {itemName ? `${itemName} ${periodInfo.title}` : periodInfo.title}
+          </h3>
+          <p className="text-sm text-muted-foreground">{periodInfo.description}</p>
+        </div>
+
+        {/* 기간 선택 탭 */}
+        <Tabs value={period} onValueChange={(value) => setPeriod(value as TrendPeriod)}>
+          <TabsList>
+            <TabsTrigger value="daily">일별</TabsTrigger>
+            <TabsTrigger value="monthly">월별</TabsTrigger>
+            <TabsTrigger value="yearly">연별</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       <div className="w-full h-64 md:h-80">
@@ -94,6 +163,9 @@ export default function PriceTrendChart({
               tickFormatter={formatDate}
               className="text-xs"
               tick={{ fill: "currentColor" }}
+              angle={period === "daily" ? -45 : 0}
+              textAnchor={period === "daily" ? "end" : "middle"}
+              height={period === "daily" ? 60 : 30}
             />
             <YAxis
               tickFormatter={(value) => formatPrice(value)}
