@@ -484,10 +484,34 @@ export default function ProductForm({
                       <Input
                         type="number"
                         placeholder="0"
+                        min="0"
+                        step="1"
                         {...field}
+                        value={field.value ?? ""}
                         onChange={(e) => {
-                          const value = parseInt(e.target.value) || 0;
-                          field.onChange(value);
+                          const inputValue = e.target.value;
+                          // 빈 문자열이면 빈 문자열로 유지 (사용자가 삭제 중일 수 있음)
+                          if (inputValue === "") {
+                            field.onChange(0);
+                            return;
+                          }
+                          const value = parseInt(inputValue, 10);
+                          // NaN이거나 0 미만이면 0으로 설정
+                          const safeValue = isNaN(value) ? 0 : Math.max(0, value);
+                          field.onChange(safeValue);
+                        }}
+                        onBlur={(e) => {
+                          // 포커스를 잃을 때도 0 미만 값 방지
+                          const inputValue = e.target.value;
+                          if (inputValue === "") {
+                            field.onChange(0);
+                            return;
+                          }
+                          const value = parseInt(inputValue, 10);
+                          const safeValue = isNaN(value) ? 0 : Math.max(0, value);
+                          if (value !== safeValue) {
+                            field.onChange(safeValue);
+                          }
                         }}
                         disabled={isSubmitting}
                       />
@@ -554,10 +578,34 @@ export default function ProductForm({
                     <Input
                       type="number"
                       placeholder="0"
+                      min="0"
+                      step="1"
                       {...field}
+                      value={field.value ?? ""}
                       onChange={(e) => {
-                        const value = parseInt(e.target.value) || 0;
-                        field.onChange(value);
+                        const inputValue = e.target.value;
+                        // 빈 문자열이면 빈 문자열로 유지 (사용자가 삭제 중일 수 있음)
+                        if (inputValue === "") {
+                          field.onChange(0);
+                          return;
+                        }
+                        const value = parseInt(inputValue, 10);
+                        // NaN이거나 0 미만이면 0으로 설정
+                        const safeValue = isNaN(value) ? 0 : Math.max(0, value);
+                        field.onChange(safeValue);
+                      }}
+                      onBlur={(e) => {
+                        // 포커스를 잃을 때도 0 미만 값 방지
+                        const inputValue = e.target.value;
+                        if (inputValue === "") {
+                          field.onChange(0);
+                          return;
+                        }
+                        const value = parseInt(inputValue, 10);
+                        const safeValue = isNaN(value) ? 0 : Math.max(0, value);
+                        if (value !== safeValue) {
+                          field.onChange(safeValue);
+                        }
                       }}
                       disabled={isSubmitting}
                     />
@@ -634,10 +682,34 @@ export default function ProductForm({
                     <Input
                       type="number"
                       placeholder="0"
+                      min="0"
+                      step="1"
                       {...field}
+                      value={field.value ?? ""}
                       onChange={(e) => {
-                        const value = parseInt(e.target.value) || 0;
-                        field.onChange(value);
+                        const inputValue = e.target.value;
+                        // 빈 문자열이면 빈 문자열로 유지 (사용자가 삭제 중일 수 있음)
+                        if (inputValue === "") {
+                          field.onChange(0);
+                          return;
+                        }
+                        const value = parseInt(inputValue, 10);
+                        // NaN이거나 0 미만이면 0으로 설정
+                        const safeValue = isNaN(value) ? 0 : Math.max(0, value);
+                        field.onChange(safeValue);
+                      }}
+                      onBlur={(e) => {
+                        // 포커스를 잃을 때도 0 미만 값 방지
+                        const inputValue = e.target.value;
+                        if (inputValue === "") {
+                          field.onChange(0);
+                          return;
+                        }
+                        const value = parseInt(inputValue, 10);
+                        const safeValue = isNaN(value) ? 0 : Math.max(0, value);
+                        if (value !== safeValue) {
+                          field.onChange(safeValue);
+                        }
                       }}
                       disabled={isSubmitting}
                     />
