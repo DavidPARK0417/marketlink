@@ -129,10 +129,10 @@ Phase 5: AI 기능 & 최적화 (2-3주)
     - [X] 배송 옵션 필드 (`delivery_options`) - JSONB 타입으로 추가 완료
     - [X] 도매상 ID 필드 (`wholesaler_id`) - 기존 필드
     - [X] 한국어 텍스트 검색 지원 (`pg_trgm` 확장 설치 및 인덱스 생성)
-  - [ ] `wholesalers` 테이블에 익명 식별자 필드 추가
+  - [X] `wholesalers` 테이블에 익명 식별자 필드 추가
     - 익명 ID (`anonymous_id`: Partner #F2B-01 형식)
     - 대략적 지역 (`region`: 시/구 단위)
-  - [ ] 배송 옵션 관련 필드 추가
+  - [X] 배송 옵션 관련 필드 추가
     - 새벽 배송 가능 여부 (`is_dawn_delivery_available`)
     - 배송 시간대 (`delivery_time_slots`)
 - [ ] **Smart Search - Command Palette (R.SEARCH.01)**

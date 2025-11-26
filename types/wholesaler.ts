@@ -27,6 +27,8 @@ export interface Wholesaler {
   anonymous_code: string; // VENDOR-001 형식 (소매에게 노출되는 익명 코드)
   anonymous_id: string | null; // Partner #F2B-01 형식의 익명 식별자
   region: string | null; // 시/구 단위의 대략적 지역 정보
+  is_dawn_delivery_available: boolean | null; // 새벽 배송 가능 여부
+  delivery_time_slots: string[] | null; // 배송 가능 시간대 배열 (예: ["02:00-06:00", "06:00-10:00"])
   status: WholesalerStatus;
   rejection_reason: string | null;
   created_at: string;
@@ -54,6 +56,8 @@ export interface UpdateWholesalerRequest {
   phone?: string;
   address?: string;
   bank_account?: string;
+  is_dawn_delivery_available?: boolean;
+  delivery_time_slots?: string[];
 }
 
 /**
