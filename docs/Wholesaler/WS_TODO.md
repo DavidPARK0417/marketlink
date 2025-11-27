@@ -1238,10 +1238,12 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 ⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
 ```
 
-- [ ] **`components/wholesaler/Dashboard/RecentOrders.tsx` 구현**
-  - [ ] 최근 주문 5개 표시
-  - [ ] 주문번호, 주문일, 상태, 금액
-  - [ ] "전체 보기" 버튼 (주문 목록으로 이동)
+- [x] **`components/wholesaler/Dashboard/RecentOrders.tsx` 구현**
+  - [x] 최근 주문 5개 표시
+  - [x] 주문번호, 주문일, 상태, 금액
+  - [x] "전체 보기" 버튼 (주문 목록으로 이동)
+  - [x] 로딩 상태: 스켈레톤 UI (RecentOrdersSkeleton.tsx)
+  - [x] 빈 상태: EmptyState 컴포넌트
 
 **커서 AI 프롬프트:**
 
