@@ -8,7 +8,7 @@ import { UserButton } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 import { useTheme } from "next-themes";
-import { Sun, Moon } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 
 const Navbar = () => {
   const { isSignedIn, isLoaded, user } = useUser();
@@ -20,6 +20,7 @@ const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  // 클라이언트 마운트 확인 (hydration 문제 방지)
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -88,10 +89,10 @@ const Navbar = () => {
     // 승인된 도매사업자인 경우 대시보드로 이동
     if (isApprovedWholesaler) {
       console.log("✅ [navbar] 승인된 도매사업자, 대시보드로 이동");
-      router.push("/wholesaler");
+      router.push("/wholesaler/dashboard");
     } else {
-      console.log("ℹ️ [navbar] 일반 사용자, 홈으로 이동");
-      router.push("/");
+      console.log("ℹ️ [navbar] 일반 사용자, 도매 로그인 페이지로 이동");
+      router.push("/sign-in/wholesaler");
     }
   };
 
@@ -129,22 +130,22 @@ const Navbar = () => {
         />
       </Link>
 
-      {/* 우측 영역: 테마 토글 및 사용자 정보 */}
+      {/* 우측 영역: 사용자 정보 */}
       <div className="flex items-center gap-3">
         {/* 테마 토글 버튼 */}
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           aria-label="테마 변경"
         >
           {mounted ? (
             theme === "dark" ? (
               <Moon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             ) : (
-              <Sun className="w-5 h-5 text-orange-500" />
+              <Sun className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             )
           ) : (
-            <div className="w-5 h-5" /> // hydration mismatch 방지용 placeholder
+            <div className="w-5 h-5" /> // 로딩 중 플레이스홀더
           )}
         </button>
 

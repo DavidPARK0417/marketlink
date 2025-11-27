@@ -1,9 +1,47 @@
 # 도매 페이지 개발 TODO 리스트
 
-> **프로젝트**: AI 기반 B2B 도매-소매 중개 플랫폼  
+> **프로젝트**: AI 기반 B2B 도매-소매 중개 플랫폼 - **도매 전용**  
 > **개발 기간**: 8주  
 > **개발 방식**: 커서 AI 바이브 코딩  
-> **최종 업데이트**: 2025-11-20 (PRD.md, SQL2.sql 기준)
+> **최종 업데이트**: 2025-11-27 (프로젝트 분리 반영)
+
+---
+
+## 🚨 프로젝트 분리 구조 (2025-11-27 적용)
+
+### 핵심 변경사항
+
+- **소매 프로젝트 분리**: 별도 도메인/코드베이스로 분리됨
+- **역할 선택 페이지 제거**: 도매 전용이므로 불필요
+- **루트 페이지 리다이렉트**: `/` → `/sign-in/wholesaler`
+- **진입점**: 외부 메인 랜딩 페이지 → 도매 로그인 직접 연결
+
+### 제거된 파일/폴더
+
+```
+✅ 삭제 완료:
+- app/retailer/ - 소매 페이지 전체
+- app/(auth)/sign-in/retailer/ - 소매 로그인
+- app/(auth)/retailer-onboarding/ - 소매 온보딩
+- app/(auth)/role-selection/ - 역할 선택 페이지
+- components/retailer/ - 소매 컴포넌트
+- components/role-selection-header.tsx
+- actions/retailer/
+- types/소매만/
+- lib/validation/retailer.ts
+- lib/supabase/queries/retailer-products.ts
+- stores/cart-store.ts
+```
+
+### 수정된 파일
+
+```
+✅ 수정 완료:
+- app/page.tsx → 도매 로그인 리다이렉트
+- components/Navbar.tsx → 로고 클릭 핸들러
+- app/layout.tsx → 도매 전용 메타데이터
+- lib/clerk/auth.ts → role-selection 참조 제거
+```
 
 ---
 
@@ -104,7 +142,9 @@
     - [ ] 조회 정책: 모든 사용자 조회 가능 (public)
     - [ ] 삭제 정책: 자신의 파일만 삭제 가능
 
-- [ ] **소매 개발자와 협업**
+- [ ] **소매 개발자와 협업 (⚠️ DB 테이블 구조만)**
+
+  **⚠️ 중요**: 프로젝트가 분리되어 있으므로, **Supabase DB 테이블 구조**에 대해서만 협의합니다.
 
   - [ ] `products` 테이블 구조 합의
   - [ ] **⚠️ `orders` 상태 플로우 합의** (pending → confirmed → shipped → completed)
@@ -114,22 +154,23 @@
     - [ ] 각 상품/도매별로 별도 order 생성
   - [ ] 카테고리 목록 공유 (채소류, 과일류, 곡물류, 수산물, 축산물, 가공식품, 기타)
   - [ ] 익명 코드 형식 합의 (VENDOR-001, RETAILER-001)
+  - [ ] **타입 정의 동기화** (`types/product.ts`, `types/order.ts`, `types/database.ts`)
 
 - [ ] **디자이너와 협업**
   - [ ] 디자인 시스템 가이드 전달
   - [ ] 레퍼런스 사이트 공유 (shadcn/ui, Linear, Stripe)
   - [ ] Week 2-8 디자인 일정 확인
 
-### 📁 통합 폴더 구조 생성 (Day 5-7)
+### 📁 ~~통합 폴더 구조 생성~~ → 도매 전용 프로젝트 정리 완료 ✅
 
-> **⚠️ 중요**: 프로젝트 초기에 소매/도매/관리자를 모두 고려한 통합 폴더 구조를 생성합니다.  
-> 이렇게 하면 팀원 간 구조 일관성을 유지하고, 공통 영역을 효율적으로 관리할 수 있습니다.
+> **✅ 프로젝트 정리 완료**: 소매 관련 파일/폴더가 모두 제거되어 도매 전용 프로젝트로 정리되었습니다.
 
-#### 🎯 작업 원칙
+#### 🎯 완료된 작업
 
-- **빈 폴더만 생성**: 실제 파일(`page.tsx`, 컴포넌트 등)은 만들지 않기
-- **전체 구조 생성**: 소매/도매/관리자 모두 포함
-- **공통 영역 포함**: `components/shared/`, 공통 쿼리 등 구조만 생성
+- **소매 관련 제거**: `app/retailer/`, `components/retailer/` 등 모두 삭제
+- **역할 선택 제거**: `app/(auth)/role-selection/` 삭제
+- **루트 리다이렉트**: `/` → `/sign-in/wholesaler` 구현
+- **메타데이터 업데이트**: 도매 전용 메타데이터로 변경
 
 #### 📋 폴더 구조 생성 체크리스트
 
@@ -137,24 +178,15 @@
 
   - [x] `app/(auth)/` 디렉토리 생성
 
-    - [x] `sign-in/` 폴더
-    - [x] `sign-up/` 폴더
-    - [x] `role-selection/` 폴더
-    - [x] `wholesaler-onboarding/` 폴더
-    - [x] `retailer-onboarding/` 폴더 (소매 담당, 빈 폴더만)
+    - [x] `sign-in/` 폴더 ✅
+    - [x] `sign-up/` 폴더 ✅
+    - [x] ~~`role-selection/` 폴더~~ (❌ 제거됨 - 도매 전용)
+    - [x] `wholesaler-onboarding/` 폴더 ✅
+    - [x] ~~`retailer-onboarding/` 폴더~~ (❌ 제거됨 - 별도 프로젝트)
 
-  - [x] `app/retailer/` 디렉토리 생성 (소매 담당, 빈 폴더만)
+  - [x] ~~`app/retailer/` 디렉토리~~ (❌ 제거됨 - 별도 프로젝트)
 
-    - [x] `dashboard/` 폴더
-    - [x] `products/` 폴더
-    - [x] `products/[id]/` 폴더
-    - [x] `cart/` 폴더
-    - [x] `checkout/` 폴더
-    - [x] `orders/` 폴더
-    - [x] `orders/[id]/` 폴더
-    - [x] `cs/` 폴더
-
-  - [x] `app/wholesaler/` 디렉토리 생성 (🎯 도매 담당)
+  - [x] `app/wholesaler/` 디렉토리 (🎯 도매 전용)
 
     - [x] `pending-approval/` 폴더
     - [x] `dashboard/` 폴더
@@ -184,14 +216,9 @@
 
   - [x] `components/ui/` 디렉토리 (shadcn/ui 컴포넌트는 나중에 설치)
   - [x] `components/common/` 디렉토리 생성
-  - [x] `components/shared/` 디렉토리 생성 (소매/도매 공통 컴포넌트)
-  - [x] `components/retailer/` 디렉토리 생성 (소매 담당, 빈 폴더만)
-    - [x] `Layout/` 폴더
-    - [x] `Products/` 폴더
-    - [x] `Cart/` 폴더
-    - [x] `Checkout/` 폴더
-    - [x] `Orders/` 폴더
-  - [x] `components/wholesaler/` 디렉토리 생성 (🎯 도매 담당)
+  - [x] ~~`components/shared/` 디렉토리~~ (❌ 제거됨 - 별도 프로젝트)
+  - [x] ~~`components/retailer/` 디렉토리~~ (❌ 제거됨 - 별도 프로젝트)
+  - [x] `components/wholesaler/` 디렉토리 (🎯 도매 전용)
     - [x] `Layout/` 폴더
     - [x] `Dashboard/` 폴더
     - [x] `Products/` 폴더
@@ -206,7 +233,7 @@
       - [ ] `products.ts` 파일은 나중에 (공통 쿼리)
       - [ ] `orders.ts` 파일은 나중에 (공통 쿼리)
       - [ ] `wholesalers.ts` 파일은 나중에 (도매 전용)
-      - [ ] `retailers.ts` 파일은 나중에 (소매 전용)
+      - [x] ~~`retailers.ts` 파일~~ (❌ 제거됨 - 별도 프로젝트)
       - [ ] `settlements.ts` 파일은 나중에 (도매 전용)
   - [x] `lib/clerk/` 디렉토리 생성
   - [x] `lib/api/` 디렉토리 생성
@@ -225,12 +252,12 @@
   - [x] `hooks/` 디렉토리 생성
   - [ ] 파일들은 나중에 필요할 때 생성
 
-#### ⚠️ 주의사항
+#### ⚠️ 주의사항 (프로젝트 분리 환경)
 
-1. **빈 폴더만 생성**: 실제 파일은 만들지 않기
-2. **소매/관리자 영역**: 폴더 구조만 생성하고, 실제 파일은 해당 팀원이 생성
-3. **공통 영역**: `components/shared/`, `lib/supabase/queries/products.ts` 등은 구조만 생성
-4. **팀원과 공유**: 폴더 구조 생성 후 소매 담당자와 관리자 담당자에게 공유
+1. **도매 전용 프로젝트**: 소매 관련 폴더/파일은 모두 제거됨
+2. **DB만 공유**: Supabase DB 테이블 구조만 소매 개발자와 협의
+3. **타입 동기화**: DB 스키마 변경 시 양쪽 프로젝트 타입 정의 동기화 필요
+4. **별도 배포**: 각 프로젝트는 독립적으로 배포 및 개발
 
 #### 📝 폴더 생성 방법
 
@@ -242,9 +269,9 @@
 # app 폴더 구조
 mkdir -p app/\(auth\)/sign-in
 mkdir -p app/\(auth\)/sign-up
-mkdir -p app/\(auth\)/role-selection
+# mkdir -p app/\(auth\)/role-selection  # ❌ 제거됨
 mkdir -p app/\(auth\)/wholesaler-onboarding
-mkdir -p app/\(auth\)/retailer-onboarding
+# mkdir -p app/\(auth\)/retailer-onboarding  # ❌ 제거됨
 
 mkdir -p app/retailer/dashboard
 mkdir -p app/retailer/products/\[id\]
@@ -385,16 +412,18 @@ mkdir -p hooks
 
 ### 🔐 인증 및 온보딩 구현
 
-#### 1. 역할 선택 페이지
+#### 1. ~~역할 선택 페이지~~ (❌ 제거됨 - 도매 전용 프로젝트)
 
-- [x] **`app/(auth)/role-selection/page.tsx` 구현**
-  - [x] UI 구현 (소매점/도매점 선택 카드)
-  - [x] Clerk `useUser()` 훅 연동
-  - [x] 역할 선택 시 `profiles` 테이블에 저장
-  - [x] 소매 선택 시 `/retailer/dashboard`로 리다이렉트
-  - [x] 도매 선택 시 `/wholesaler/onboarding`으로 리다이렉트
-  - [x] 로딩 상태 처리
-  - [x] 에러 처리
+- [x] ~~`app/(auth)/role-selection/page.tsx` 구현~~ (❌ 불필요)
+  - 도매 전용 도메인이므로 역할이 이미 결정됨
+  - 외부 메인 랜딩 페이지에서 직접 도매 로그인으로 연결
+  - 루트 페이지(`/`)는 `/sign-in/wholesaler`로 자동 리다이렉트
+
+#### 1-1. 루트 페이지 리다이렉트 (신규 추가) ✅
+
+- [x] **`app/page.tsx` 구현**
+  - [x] `/` → `/sign-in/wholesaler` 자동 리다이렉트
+  - [x] 도매 전용 진입점 명확화
 
 #### 2. 사업자 정보 입력 폼
 
@@ -621,7 +650,7 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 - [ ] 모든 페이지로 이동 가능한지 확인 (페이지 파일 존재, 실제 테스트 필요)
 - [ ] 각 페이지의 레이아웃이 올바르게 표시되는지 확인 (레이아웃 구현 완료, 실제 테스트 필요)
 - [ ] 빈 페이지에서 사이드바 네비게이션 테스트 (사이드바 구현 완료, 실제 테스트 필요)
-- [ ] 인증 플로우 테스트 (역할 선택 → 온보딩 → 승인 대기) (구현 완료, 실제 테스트 필요)
+  - [ ] 인증 플로우 테스트 (온보딩 → 승인 대기) (구현 완료, 실제 테스트 필요)
 - [ ] 실시간 승인 알림 테스트 (구현 완료, 실제 테스트 필요)
 - [ ] 코드 리뷰 및 리팩토링
 
@@ -1669,8 +1698,9 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 - [ ] **회원가입 플로우**
 
-  - [ ] Clerk로 회원가입
-  - [ ] 역할 선택 (도매 선택)
+  - [ ] 메인 랜딩 페이지에서 "도매업자로 시작하기" 버튼 클릭
+  - [ ] Clerk로 회원가입 또는 로그인
+  - [ ] ~~역할 선택~~ (❌ 제거됨 - 도매 전용)
   - [ ] 사업자 정보 입력
   - [ ] 유효성 검증 동작 확인
   - [ ] 데이터베이스에 저장 확인

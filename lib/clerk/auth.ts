@@ -210,26 +210,30 @@ export async function getUserRole(): Promise<UserRole | null> {
  * ```
  */
 export function redirectByRole(role: UserRole | null | undefined): never {
-  // 역할이 없으면 역할 선택 페이지로 리다이렉트
+  // 역할이 없으면 도매 로그인 페이지로 리다이렉트
   if (!role) {
     console.log(
-      "⚠️ [auth] redirectByRole: 역할 없음, 역할 선택 페이지로 리다이렉트",
+      "⚠️ [auth] redirectByRole: 역할 없음, 도매 로그인 페이지로 리다이렉트",
     );
-    redirect("/role-selection");
+    redirect("/sign-in/wholesaler");
   }
 
   switch (role) {
-    case "retailer":
-      redirect("/retailer/dashboard");
-      break;
     case "wholesaler":
       redirect("/wholesaler/dashboard");
       break;
     case "admin":
       redirect("/admin/dashboard");
       break;
+    case "retailer":
+      // 도매 전용 프로젝트이므로 소매 역할은 지원하지 않음
+      console.error(
+        "❌ [auth] redirectByRole: 소매 역할은 이 프로젝트에서 지원하지 않습니다",
+      );
+      redirect("/sign-in/wholesaler");
+      break;
     default:
-      redirect("/role-selection");
+      redirect("/sign-in/wholesaler");
   }
 }
 
@@ -299,9 +303,7 @@ export async function requireRetailer(): Promise<ProfileWithDetails> {
     redirect("/");
   }
 
-  console.log(
-    `✅ [auth] requireRetailer: 권한 확인됨 (role: ${profile.role})`,
-  );
+  console.log(`✅ [auth] requireRetailer: 권한 확인됨 (role: ${profile.role})`);
   return profile;
 }
 
