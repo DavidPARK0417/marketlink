@@ -5,8 +5,8 @@
  * 현재 로그인한 사용자의 프로필 정보를 확인하는 페이지입니다.
  */
 
+import Link from "next/link";
 import { getUserProfile } from "@/lib/clerk/auth";
-import { redirect } from "next/navigation";
 
 export default async function CheckProfilePage() {
   const profile = await getUserProfile();
@@ -163,12 +163,12 @@ export default async function CheckProfilePage() {
             </>
           )}
 
-          <a
+          <Link
             href="/"
             className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-lg text-center transition-colors"
           >
             홈으로 돌아가기
-          </a>
+          </Link>
         </div>
       </div>
     </div>

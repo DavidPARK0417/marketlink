@@ -21,7 +21,7 @@
 "use client";
 
 import { SignIn } from "@clerk/nextjs";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 // 개발 환경에서만 로그를 출력하는 유틸리티 함수

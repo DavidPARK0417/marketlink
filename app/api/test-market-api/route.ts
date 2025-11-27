@@ -26,7 +26,7 @@ interface TestResult {
   sampleItems?: any[];
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     console.group("🧪 [test-market-api] 대분류 코드 체계 파악 시작");
 
