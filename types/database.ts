@@ -104,6 +104,7 @@ export interface Retailer {
   business_name: string;
   address: string;
   phone: string;
+  anonymous_code: string; // R-001 형식 (도매점에게 노출되는 익명 코드)
   created_at: string;
 }
 

@@ -146,7 +146,7 @@ export async function getOrders(
 
   // 기본 쿼리 생성 (products, product_variants 조인)
   // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
-  // ⚠️ retailers 테이블에는 anonymous_code가 없으므로 제거
+  // ✅ retailers 테이블의 anonymous_code 조회 (도매점에게 노출용)
   let query = supabase
     .from("orders")
     .select(
@@ -154,7 +154,7 @@ export async function getOrders(
       *,
       products(*),
       product_variants(*),
-      retailers(id, business_name)
+      retailers(id, anonymous_code)
     `,
       { count: "exact" },
     )
@@ -261,7 +261,7 @@ export async function getOrderById(
       *,
       products(*),
       product_variants(*),
-      retailers(id, business_name)
+      retailers(id, anonymous_code)
     `,
     )
     .eq("id", orderId)
@@ -286,7 +286,10 @@ export async function getOrderById(
     ...data,
     product: data.products,
     variant: data.product_variants,
-  } as OrderDetail;
+    retailers: data.retailers,
+  } as OrderDetail & {
+    retailers?: { id: string; anonymous_code: string } | null;
+  };
 }
 
 /**

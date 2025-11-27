@@ -1076,47 +1076,47 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 3. 주문 상세 페이지
 
-- [ ] **`app/wholesaler/orders/[id]/page.tsx` 구현**
+- [x] **`app/wholesaler/orders/[id]/page.tsx` 구현** ✅
 
-  - [ ] 주문 ID로 데이터 조회
-  - [ ] 페이지 헤더 (주문번호 + 상태)
-  - [ ] 주문 정보 섹션
-    - [ ] 주문번호
-    - [ ] 주문일
-    - [ ] 현재 상태
-  - [ ] 소매점 정보 섹션
-    - [ ] ⚠️ 익명 코드만 표시 (예: R-001)
-    - [ ] ❌ 실명/연락처 절대 노출 금지
-  - [ ] 배송지 정보 섹션
-    - [ ] 배송지 주소
-    - [ ] 배송 요청사항
-  - [ ] 주문 상품 정보
-    - [ ] ⚠️ 1 주문 = 1 상품 (테이블 불필요, 카드형으로 표시)
-    - [ ] 이미지
-    - [ ] 상품명
-    - [ ] 옵션명 (variant 있으면)
-    - [ ] 단가 (unit_price)
-    - [ ] 수량 (quantity)
-    - [ ] 합계 (unit_price \* quantity)
-  - [ ] 금액 정보
-    - [ ] 상품 금액
-    - [ ] 배송비
-    - [ ] 총 금액
-  - [ ] 주문 타임라인
-    - [ ] 주문 접수 (created_at)
-    - [ ] 접수 확인 (status = confirmed)
-    - [ ] 출고 완료 (status = shipped)
-    - [ ] 배송 완료 (status = completed)
-    - [ ] ⚠️ updated_at만 자동 업데이트됨 (트리거)
-  - [ ] 상태 변경 버튼
-    - [ ] pending → "접수 확인" 버튼
-    - [ ] confirmed → "출고 처리" 버튼 (⚠️ preparing 단계 제거)
-    - [ ] shipped → "완료 처리" 버튼
-  - [ ] 로딩 상태
-  - [ ] 에러 처리
+  - [x] 주문 ID로 데이터 조회 ✅
+  - [x] 페이지 헤더 (주문번호 + 상태) ✅
+  - [x] 주문 정보 섹션 ✅
+    - [x] 주문번호 ✅
+    - [x] 주문일 ✅
+    - [x] 현재 상태 ✅
+  - [x] 소매점 정보 섹션 ✅
+    - [x] ⚠️ 익명 코드만 표시 (예: R-001) ✅
+    - [x] ❌ 실명/연락처 절대 노출 금지 ✅
+  - [x] 배송지 정보 섹션 ✅
+    - [x] 배송지 주소 ✅
+    - [x] 배송 요청사항 ✅
+  - [x] 주문 상품 정보 ✅
+    - [x] ⚠️ 1 주문 = 1 상품 (테이블 불필요, 카드형으로 표시) ✅
+    - [x] 이미지 ✅
+    - [x] 상품명 ✅
+    - [x] 옵션명 (variant 있으면) ✅
+    - [x] 단가 (unit_price) ✅
+    - [x] 수량 (quantity) ✅
+    - [x] 합계 (unit_price \* quantity) ✅
+  - [x] 금액 정보 ✅
+    - [x] 상품 금액 ✅
+    - [x] 배송비 ✅
+    - [x] 총 금액 ✅
+  - [x] 주문 타임라인 ✅
+    - [x] 주문 접수 (created_at) ✅
+    - [x] 접수 확인 (status = confirmed) ✅
+    - [x] 출고 완료 (status = shipped) ✅
+    - [x] 배송 완료 (status = completed) ✅
+    - [x] ⚠️ updated_at만 자동 업데이트됨 (트리거) ✅
+  - [x] 상태 변경 버튼 ✅
+    - [x] pending → "접수 확인" 버튼 ✅
+    - [x] confirmed → "출고 처리" 버튼 (⚠️ preparing 단계 제거) ✅
+    - [x] shipped → "완료 처리" 버튼 ✅
+  - [x] 로딩 상태 ✅ (Server Component 자동 처리 + isUpdating 상태)
+  - [x] 에러 처리 ✅ (try-catch + toast.error)
 
-- [ ] **`components/wholesaler/Orders/OrderDetail.tsx` 구현**
-  - [ ] 재사용 가능한 주문 상세 컴포넌트
+- [x] **`components/wholesaler/Orders/OrderDetail.tsx` 구현** ✅
+  - [x] 재사용 가능한 주문 상세 컴포넌트 ✅
 
 ### 🔔 실시간 알림 (Week 6)
 
