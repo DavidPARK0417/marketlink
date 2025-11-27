@@ -257,7 +257,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
         enableSorting: false,
       },
     ],
-    []
+    [toggleActive]
   );
 
   // 테이블 인스턴스 생성

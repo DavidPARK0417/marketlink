@@ -28,7 +28,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PriceTrendItem } from "@/lib/api/market-prices";
 
@@ -86,7 +85,7 @@ export default function PriceTrendChart({
       return date; // YYYY-MM 형식
     } else {
       // 일별: YYYY-MM-DD -> MM/DD
-      const [year, month, day] = date.split("-");
+      const [, month, day] = date.split("-");
       return `${month}/${day}`;
     }
   };

@@ -207,7 +207,7 @@ export async function standardizeProductName(
     let result;
     try {
       result = JSON.parse(textContent);
-    } catch (parseError) {
+    } catch {
       // JSON 파싱 실패 시 텍스트에서 JSON 추출 시도
       console.warn("⚠️ [ai-standardize] JSON 파싱 실패, 재시도...");
       const jsonMatch = textContent.match(/\{[\s\S]*\}/);

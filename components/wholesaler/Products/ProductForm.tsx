@@ -118,15 +118,6 @@ function parseSpecification(specification: string | null): {
   return { value: specification, unit: "ea" };
 }
 
-/**
- * unit과 value를 합쳐서 specification 생성
- */
-function combineSpecification(value: string, unit: string): string | null {
-  if (!value.trim()) {
-    return null;
-  }
-  return `${value.trim()}${unit}`;
-}
 
 export default function ProductForm({
   mode,
@@ -799,7 +790,7 @@ export default function ProductForm({
             <FormField
               control={form.control}
               name="images"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>상품 이미지 (최대 5개)</FormLabel>
                   <FormControl>
