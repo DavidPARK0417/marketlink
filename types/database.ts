@@ -59,6 +59,11 @@ export type CsMessageSenderType = "user" | "bot" | "admin";
 export type InquiryStatus = "open" | "answered" | "closed";
 
 /**
+ * 문의 유형 타입
+ */
+export type InquiryType = "retailer_to_wholesaler" | "wholesaler_to_admin";
+
+/**
  * 배송 방법 타입
  */
 export type DeliveryMethod =

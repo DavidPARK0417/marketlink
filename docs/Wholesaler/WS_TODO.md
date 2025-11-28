@@ -1494,31 +1494,31 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 0. 문의 구조 결정 (필수 - Week 1-2에 협의)
 
-- [ ] **PM과 협의**
-  - [ ] `inquiries` vs `cs_threads` 사용 결정
-  - [ ] 문의 유형 구분 (소매→도매, 도매→관리자)
-  - [ ] `user_id` 참조 확인 (`users` vs `profiles`)
-  - [ ] RLS 정책 요청
-  - [ ] 문의 유형 필드 추가 여부 결정
+- [x] **PM과 협의**
+  - [x] `inquiries` vs `cs_threads` 사용 결정 ✅ `inquiries` 테이블 사용
+  - [x] 문의 유형 구분 (소매→도매, 도매→관리자) ✅ `inquiry_type` 필드 추가
+  - [x] `user_id` 참조 확인 (`users` vs `profiles`) ✅ `profiles` 테이블 참조
+  - [ ] RLS 정책 요청 ⚠️ 개발 단계에서 제외, 완료 시점에 포함 예정
+  - [x] 문의 유형 필드 추가 여부 결정 ✅ 마이그레이션 완료 (`inquiry_type`, `wholesaler_id`, `order_id`)
 
 #### 1. Supabase 쿼리 함수
 
-- [ ] **`lib/supabase/queries/inquiries.ts` 작성**
-  - [ ] `getInquiries()` 함수 구현
-    - [ ] 현재 도매점 관련 문의만 조회
-    - [ ] 상태별 필터링 (open, answered, closed)
-    - [ ] 날짜 범위 필터링
-    - [ ] 페이지네이션
-    - [ ] 정렬 (최신순)
-  - [ ] `getInquiryById()` 함수 구현
-    - [ ] 문의 상세 정보 조회
-    - [ ] 문의자 정보는 익명 코드만 포함
-  - [ ] `replyToInquiry()` 함수 구현
-    - [ ] 답변 작성 (`admin_reply` 업데이트)
-    - [ ] 상태 변경 (open → answered)
-    - [ ] `replied_at` 기록
-  - [ ] `getInquiryStats()` 함수 구현 (대시보드용)
-    - [ ] 미답변 문의 카운트
+- [x] **`lib/supabase/queries/inquiries.ts` 작성** ✅
+  - [x] `getInquiries()` 함수 구현 ✅
+    - [x] 현재 도매점 관련 문의만 조회 ✅
+    - [x] 상태별 필터링 (open, answered, closed) ✅
+    - [x] 날짜 범위 필터링 ✅
+    - [x] 페이지네이션 ✅
+    - [x] 정렬 (최신순) ✅
+  - [x] `getInquiryById()` 함수 구현 ✅
+    - [x] 문의 상세 정보 조회 ✅
+    - [x] 문의자 정보는 익명 코드만 포함 ✅
+  - [x] `replyToInquiry()` 함수 구현 ✅
+    - [x] 답변 작성 (`admin_reply` 업데이트) ✅
+    - [x] 상태 변경 (open → answered) ✅
+    - [x] `replied_at` 기록 ✅
+  - [x] `getInquiryStats()` 함수 구현 (대시보드용) ✅
+    - [x] 미답변 문의 카운트 ✅
 
 **커서 AI 프롬프트:**
 
@@ -1547,19 +1547,19 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 2. 문의 목록 페이지
 
-- [ ] **`app/wholesaler/inquiries/page.tsx` 구현**
+- [x] **`app/wholesaler/inquiries/page.tsx` 구현** ✅
 
-  - [ ] 페이지 헤더 (제목 + "새 문의" 버튼 - 선택)
-  - [ ] 탭 UI (미답변/답변완료/종료)
-  - [ ] 필터 UI
-    - [ ] 날짜 범위 선택 (DateRangePicker)
-    - [ ] 상태 선택 (Select)
-    - [ ] 검색 입력 필드 (제목, 내용)
-  - [ ] 문의 테이블 컴포넌트 렌더링
-  - [ ] 실시간 업데이트 (Realtime 구독)
-  - [ ] 로딩 상태 (스켈레톤)
-  - [ ] 빈 상태 (EmptyState)
-  - [ ] 에러 처리
+  - [x] 페이지 헤더 (제목 + "새 문의" 버튼 - 선택) ✅ (헤더만 구현, "새 문의" 버튼은 선택 사항으로 제외)
+  - [x] 탭 UI (미답변/답변완료/종료) ✅
+  - [x] 필터 UI ✅
+    - [x] 날짜 범위 선택 (DateRangePicker) ✅
+    - [x] 상태 선택 (Select) ✅
+    - [x] 검색 입력 필드 (제목, 내용) ✅
+  - [x] 문의 테이블 컴포넌트 렌더링 ✅
+  - [ ] 실시간 업데이트 (Realtime 구독) ⚠️ 선택 기능, 추후 구현 예정
+  - [x] 로딩 상태 (스켈레톤) ✅
+  - [x] 빈 상태 (EmptyState) ✅ (테이블 내부에 빈 상태 표시)
+  - [x] 에러 처리 ✅
 
 **커서 AI 프롬프트:**
 
@@ -1582,51 +1582,51 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 ⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
 ```
 
-- [ ] **`components/wholesaler/Inquiries/InquiryTable.tsx` 구현**
+- [x] **`components/wholesaler/Inquiries/InquiryTable.tsx` 구현** ✅
 
-  - [ ] TanStack Table 설정
-  - [ ] 테이블 컬럼
-    - [ ] 문의일 (created_at)
-    - [ ] 제목 (title)
-    - [ ] 문의자 (익명 코드만 표시)
-    - [ ] 상태 (Badge: open/answered/closed)
-    - [ ] 액션 (상세보기 버튼)
-  - [ ] 정렬 기능
-  - [ ] 페이지네이션
-  - [ ] 클릭 시 상세 페이지로 이동
+  - [x] TanStack Table 설정 ✅
+  - [x] 테이블 컬럼 ✅
+    - [x] 문의일 (created_at) ✅
+    - [x] 제목 (title) ✅
+    - [x] 문의자 (익명 코드만 표시) ✅
+    - [x] 상태 (Badge: open/answered/closed) ✅
+    - [x] 액션 (상세보기 버튼) ✅
+  - [x] 정렬 기능 ✅
+  - [x] 페이지네이션 ✅
+  - [x] 클릭 시 상세 페이지로 이동 ✅
 
-- [ ] **`components/wholesaler/Inquiries/InquiryFilter.tsx` 구현**
-  - [ ] 날짜 범위 선택
-  - [ ] 상태 필터
-  - [ ] 검색 입력
-  - [ ] 필터 초기화 버튼
+- [x] **`components/wholesaler/Inquiries/InquiryFilter.tsx` 구현** ✅
+  - [x] 날짜 범위 선택 ✅
+  - [x] 상태 필터 ✅
+  - [x] 검색 입력 ✅
+  - [x] 필터 초기화 버튼 ✅
 
 #### 3. 문의 상세 및 답변
 
-- [ ] **`app/wholesaler/inquiries/[id]/page.tsx` 구현**
+- [x] **`app/wholesaler/inquiries/[id]/page.tsx` 구현** ✅
 
-  - [ ] 문의 ID로 데이터 조회
-  - [ ] 페이지 헤더 (제목 + 상태 뱃지)
-  - [ ] 문의 정보 섹션
-    - [ ] 제목 (title)
-    - [ ] 내용 (content)
-    - [ ] 문의일 (created_at)
-    - [ ] 문의자 (익명 코드만 표시)
-    - [ ] ⚠️ 소매점 실명/연락처 절대 노출 금지
-  - [ ] 답변 섹션
-    - [ ] 기존 답변 표시 (있는 경우)
-      - [ ] 답변 내용 (admin_reply)
-      - [ ] 답변일 (replied_at)
-    - [ ] 답변 작성 폼 (status가 'open'인 경우만)
-      - [ ] Textarea 컴포넌트
-      - [ ] 답변 제출 버튼
-      - [ ] 유효성 검증 (최소 10자)
-  - [ ] 상태 변경 기능
-    - [ ] 답변 완료 시 'answered'로 변경
-    - [ ] 종료 버튼 (선택)
-  - [ ] 로딩 상태
-  - [ ] 에러 처리
-  - [ ] 성공 시 토스트 알림
+  - [x] 문의 ID로 데이터 조회 ✅
+  - [x] 페이지 헤더 (제목 + 상태 뱃지) ✅
+  - [x] 문의 정보 섹션 ✅
+    - [x] 제목 (title) ✅
+    - [x] 내용 (content) ✅
+    - [x] 문의일 (created_at) ✅
+    - [x] 문의자 (익명 코드만 표시) ✅
+    - [x] ⚠️ 소매점 실명/연락처 절대 노출 금지 ✅
+  - [x] 답변 섹션 ✅
+    - [x] 기존 답변 표시 (있는 경우) ✅
+      - [x] 답변 내용 (admin_reply) ✅
+      - [x] 답변일 (replied_at) ✅
+    - [x] 답변 작성 폼 (status가 'open'인 경우만) ✅
+      - [x] Textarea 컴포넌트 ✅
+      - [x] 답변 제출 버튼 ✅
+      - [x] 유효성 검증 (최소 10자) ✅
+  - [x] 상태 변경 기능 ✅
+    - [x] 답변 완료 시 'answered'로 변경 ✅
+    - [ ] 종료 버튼 (선택) ⚠️ 선택 기능, 추후 구현 가능
+  - [x] 로딩 상태 ✅
+  - [x] 에러 처리 ✅
+  - [x] 성공 시 토스트 알림 ✅
 
 **커서 AI 프롬프트:**
 
@@ -1653,12 +1653,12 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 ⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
 ```
 
-- [ ] **`components/wholesaler/Inquiries/InquiryReplyForm.tsx` 구현**
-  - [ ] react-hook-form 설정
-  - [ ] Textarea 입력 필드
-  - [ ] 유효성 검증 (zod)
-  - [ ] 제출 처리
-  - [ ] 로딩 상태
+- [x] **`components/wholesaler/Inquiries/InquiryReplyForm.tsx` 구현** ✅
+  - [x] react-hook-form 설정 ✅
+  - [x] Textarea 입력 필드 ✅
+  - [x] 유효성 검증 (zod) ✅
+  - [x] 제출 처리 ✅
+  - [x] 로딩 상태 ✅
 
 #### 4. 실시간 알림
 
@@ -2073,7 +2073,7 @@ Anonymous Code 자동 생성 로직을 구현해줘.
   - [ ] 승인일 (읽기 전용)
   - [ ] 가입일 (읽기 전용)
 
-#### 5. 알림 설정 
+#### 5. 알림 설정
 
 - [ ] **알림 설정 기능**
   - [ ] 새 주문 알림 (이메일, 푸시)

@@ -9,7 +9,7 @@
  * - types/database.ts
  */
 
-import type { InquiryStatus } from "./database";
+import type { InquiryStatus, InquiryType } from "./database";
 
 /**
  * 문의 테이블 타입
@@ -18,6 +18,9 @@ import type { InquiryStatus } from "./database";
 export interface Inquiry {
   id: string;
   user_id: string; // profiles 테이블 참조
+  inquiry_type: InquiryType | null; // 문의 유형
+  wholesaler_id: string | null; // 소매→도매 문의의 경우 대상 도매점 ID
+  order_id: string | null; // 소매→도매 문의의 경우 관련 주문 ID
   title: string;
   content: string;
   status: InquiryStatus;
@@ -31,6 +34,9 @@ export interface Inquiry {
  */
 export interface CreateInquiryRequest {
   user_id: string;
+  inquiry_type: InquiryType;
+  wholesaler_id?: string | null; // retailer_to_wholesaler인 경우 필수
+  order_id?: string | null; // retailer_to_wholesaler인 경우 선택
   title: string;
   content: string;
 }
@@ -55,7 +61,8 @@ export interface ReplyInquiryRequest {
  * 문의 목록 조회 필터 타입
  */
 export interface InquiryFilter {
-  user_id?: string;
+  wholesaler_id?: string; // 도매점별 필터링
+  inquiry_type?: InquiryType; // 문의 유형 필터링
   status?: InquiryStatus;
   start_date?: string; // ISO 8601 형식
   end_date?: string; // ISO 8601 형식
@@ -64,9 +71,14 @@ export interface InquiryFilter {
 
 /**
  * 문의 상세 정보 타입
- * 필요시 프로필 정보 등 추가 가능
+ * 익명 코드 등 추가 정보 포함
  */
 export interface InquiryDetail extends Inquiry {
-  // 추가 정보가 필요한 경우 여기에 확장
-  // 예: user_name, user_email 등
+  // 문의자 익명 코드 (retailers 테이블의 anonymous_code)
+  user_anonymous_code?: string | null;
+  // 주문 정보 (order_id가 있는 경우)
+  order?: {
+    order_number: string;
+    created_at: string;
+  } | null;
 }
