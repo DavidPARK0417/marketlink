@@ -118,7 +118,6 @@ function parseSpecification(specification: string | null): {
   return { value: specification, unit: "ea" };
 }
 
-
 export default function ProductForm({
   mode,
   initialData,
@@ -478,29 +477,34 @@ export default function ProductForm({
                         min="0"
                         step="1"
                         {...field}
-                        value={field.value ?? ""}
+                        value={field.value === 0 ? "" : field.value ?? ""}
                         onChange={(e) => {
                           const inputValue = e.target.value;
-                          // 빈 문자열이면 빈 문자열로 유지 (사용자가 삭제 중일 수 있음)
+                          // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)
                           if (inputValue === "") {
-                            field.onChange(0);
+                            field.onChange("");
                             return;
                           }
                           const value = parseInt(inputValue, 10);
-                          // NaN이거나 0 미만이면 0으로 설정
-                          const safeValue = isNaN(value) ? 0 : Math.max(0, value);
-                          field.onChange(safeValue);
+                          // 유효한 숫자만 업데이트
+                          if (!isNaN(value) && value >= 0) {
+                            field.onChange(value);
+                          }
                         }}
                         onBlur={(e) => {
-                          // 포커스를 잃을 때도 0 미만 값 방지
+                          // 포커스를 잃을 때만 기본값 적용
                           const inputValue = e.target.value;
-                          if (inputValue === "") {
+                          if (
+                            inputValue === "" ||
+                            inputValue === null ||
+                            inputValue === undefined
+                          ) {
                             field.onChange(0);
-                            return;
-                          }
-                          const value = parseInt(inputValue, 10);
-                          const safeValue = isNaN(value) ? 0 : Math.max(0, value);
-                          if (value !== safeValue) {
+                          } else {
+                            const value = parseInt(inputValue, 10);
+                            const safeValue = isNaN(value)
+                              ? 0
+                              : Math.max(0, value);
                             field.onChange(safeValue);
                           }
                         }}
@@ -542,10 +546,39 @@ export default function ProductForm({
                     <Input
                       type="number"
                       placeholder="1"
+                      min="1"
+                      step="1"
                       {...field}
+                      value={field.value === 1 ? "" : field.value ?? ""}
                       onChange={(e) => {
-                        const value = parseInt(e.target.value) || 1;
-                        field.onChange(value);
+                        const inputValue = e.target.value;
+                        // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)
+                        if (inputValue === "") {
+                          field.onChange("");
+                          return;
+                        }
+                        const value = parseInt(inputValue, 10);
+                        // 유효한 숫자만 업데이트
+                        if (!isNaN(value) && value >= 1) {
+                          field.onChange(value);
+                        }
+                      }}
+                      onBlur={(e) => {
+                        // 포커스를 잃을 때만 기본값 적용
+                        const inputValue = e.target.value;
+                        if (
+                          inputValue === "" ||
+                          inputValue === null ||
+                          inputValue === undefined
+                        ) {
+                          field.onChange(1);
+                        } else {
+                          const value = parseInt(inputValue, 10);
+                          const safeValue = isNaN(value)
+                            ? 1
+                            : Math.max(1, value);
+                          field.onChange(safeValue);
+                        }
                       }}
                       disabled={isSubmitting}
                     />
@@ -572,29 +605,34 @@ export default function ProductForm({
                       min="0"
                       step="1"
                       {...field}
-                      value={field.value ?? ""}
+                      value={field.value === 0 ? "" : field.value ?? ""}
                       onChange={(e) => {
                         const inputValue = e.target.value;
-                        // 빈 문자열이면 빈 문자열로 유지 (사용자가 삭제 중일 수 있음)
+                        // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)
                         if (inputValue === "") {
-                          field.onChange(0);
+                          field.onChange("");
                           return;
                         }
                         const value = parseInt(inputValue, 10);
-                        // NaN이거나 0 미만이면 0으로 설정
-                        const safeValue = isNaN(value) ? 0 : Math.max(0, value);
-                        field.onChange(safeValue);
+                        // 유효한 숫자만 업데이트
+                        if (!isNaN(value) && value >= 0) {
+                          field.onChange(value);
+                        }
                       }}
                       onBlur={(e) => {
-                        // 포커스를 잃을 때도 0 미만 값 방지
+                        // 포커스를 잃을 때만 기본값 적용
                         const inputValue = e.target.value;
-                        if (inputValue === "") {
+                        if (
+                          inputValue === "" ||
+                          inputValue === null ||
+                          inputValue === undefined
+                        ) {
                           field.onChange(0);
-                          return;
-                        }
-                        const value = parseInt(inputValue, 10);
-                        const safeValue = isNaN(value) ? 0 : Math.max(0, value);
-                        if (value !== safeValue) {
+                        } else {
+                          const value = parseInt(inputValue, 10);
+                          const safeValue = isNaN(value)
+                            ? 0
+                            : Math.max(0, value);
                           field.onChange(safeValue);
                         }
                       }}
@@ -676,29 +714,34 @@ export default function ProductForm({
                       min="0"
                       step="1"
                       {...field}
-                      value={field.value ?? ""}
+                      value={field.value === 0 ? "" : field.value ?? ""}
                       onChange={(e) => {
                         const inputValue = e.target.value;
-                        // 빈 문자열이면 빈 문자열로 유지 (사용자가 삭제 중일 수 있음)
+                        // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)
                         if (inputValue === "") {
-                          field.onChange(0);
+                          field.onChange("");
                           return;
                         }
                         const value = parseInt(inputValue, 10);
-                        // NaN이거나 0 미만이면 0으로 설정
-                        const safeValue = isNaN(value) ? 0 : Math.max(0, value);
-                        field.onChange(safeValue);
+                        // 유효한 숫자만 업데이트
+                        if (!isNaN(value) && value >= 0) {
+                          field.onChange(value);
+                        }
                       }}
                       onBlur={(e) => {
-                        // 포커스를 잃을 때도 0 미만 값 방지
+                        // 포커스를 잃을 때만 기본값 적용
                         const inputValue = e.target.value;
-                        if (inputValue === "") {
+                        if (
+                          inputValue === "" ||
+                          inputValue === null ||
+                          inputValue === undefined
+                        ) {
                           field.onChange(0);
-                          return;
-                        }
-                        const value = parseInt(inputValue, 10);
-                        const safeValue = isNaN(value) ? 0 : Math.max(0, value);
-                        if (value !== safeValue) {
+                        } else {
+                          const value = parseInt(inputValue, 10);
+                          const safeValue = isNaN(value)
+                            ? 0
+                            : Math.max(0, value);
                           field.onChange(safeValue);
                         }
                       }}
