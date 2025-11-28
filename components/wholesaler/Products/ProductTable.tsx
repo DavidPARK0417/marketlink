@@ -10,6 +10,7 @@
  * 3. 페이지네이션
  * 4. 활성화/비활성화 토글
  * 5. 필터링 UI
+ * 6. 상품 삭제
  *
  * @dependencies
  * - @tanstack/react-table
@@ -19,7 +20,9 @@
  * - components/ui/input.tsx
  * - components/ui/badge.tsx
  * - components/ui/button.tsx
+ * - components/ui/dialog.tsx
  * - actions/wholesaler/toggle-product-active.ts
+ * - actions/wholesaler/delete-product.ts
  */
 
 "use client";
@@ -36,17 +39,26 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import { Edit, Eye, EyeOff, ImageIcon } from "lucide-react";
+import { Edit, Eye, EyeOff, ImageIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/types/product";
 import type { GetProductsResult } from "@/lib/supabase/queries/products";
 import { toggleProductActive } from "@/actions/wholesaler/toggle-product-active";
+import { deleteProduct } from "@/actions/wholesaler/delete-product";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { CATEGORIES } from "@/lib/utils/constants";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
@@ -78,6 +90,11 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
   const [category, setCategory] = useState(initialFilters.category ?? "all");
   const [status, setStatus] = useState(initialFilters.status ?? "all");
   const [search, setSearch] = useState(initialFilters.search ?? "");
+
+  // 삭제 확인 다이얼로그 상태
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // 필터 적용 함수
   const applyFilters = () => {
@@ -141,6 +158,41 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       toast.error("상품 상태 변경 중 오류가 발생했습니다.");
     }
   }, [router]);
+
+  // 삭제 확인 다이얼로그 열기
+  const handleDeleteClick = useCallback((product: Product) => {
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  // 상품 삭제 실행
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!productToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      console.log("🗑️ [product-table] 상품 삭제 시작", {
+        productId: productToDelete.id,
+        productName: productToDelete.name,
+      });
+
+      const result = await deleteProduct(productToDelete.id);
+
+      if (result.success) {
+        toast.success("상품이 삭제되었습니다.");
+        setDeleteDialogOpen(false);
+        setProductToDelete(null);
+        router.refresh(); // 서버 데이터 새로고침
+      } else {
+        toast.error(result.error || "상품 삭제에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("❌ [product-table] 상품 삭제 실패:", error);
+      toast.error("상품 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [productToDelete, router]);
 
   // 테이블 컬럼 정의
   const columns: ColumnDef<Product>[] = useMemo(
@@ -252,13 +304,22 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                   <Edit className="h-4 w-4" />
                 </Link>
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDeleteClick(product)}
+                title="삭제"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           );
         },
         enableSorting: false,
       },
     ],
-    [toggleActive]
+    [toggleActive, handleDeleteClick]
   );
 
   // 테이블 인스턴스 생성
@@ -399,6 +460,39 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
           </div>
         </div>
       )}
+
+      {/* 삭제 확인 다이얼로그 */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>상품 삭제 확인</DialogTitle>
+            <DialogDescription>
+              정말로 "{productToDelete?.name}" 상품을 삭제하시겠습니까?
+              <br />
+              이 작업은 되돌릴 수 없으며, 상품 이미지도 함께 삭제됩니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setProductToDelete(null);
+              }}
+              disabled={isDeleting}
+            >
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "삭제 중..." : "삭제"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
