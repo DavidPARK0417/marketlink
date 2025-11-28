@@ -29,26 +29,15 @@ export async function POST(request: NextRequest) {
 
     console.log("요청 파라미터:", { inquiry_id });
 
-    const result = await replyToInquiry({
+    const inquiry = await replyToInquiry({
       inquiry_id,
       admin_reply,
     });
 
-    if (!result.success) {
-      console.error(
-        "❌ [api/admin/inquiries/reply] 답변 작성 실패:",
-        result.error,
-      );
-      return NextResponse.json(
-        { error: result.error || "답변 작성에 실패했습니다." },
-        { status: 500 },
-      );
-    }
-
     console.log("✅ [api/admin/inquiries/reply] 관리자용 문의 답변 작성 성공");
     console.groupEnd();
 
-    return NextResponse.json({ success: true, inquiry: result.inquiry });
+    return NextResponse.json({ success: true, inquiry });
   } catch (error) {
     console.error(
       "❌ [api/admin/inquiries/reply] 관리자용 문의 답변 작성 오류:",
