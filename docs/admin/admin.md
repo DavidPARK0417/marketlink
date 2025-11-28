@@ -414,9 +414,31 @@ export async function getInquiriesForAdmin(
 **주요 기능**:
 
 - 문의 상세 정보 표시 (제목, 내용, 문의일, 도매사업자 익명 코드)
+- **첨부 이미지 표시** (도매사업자가 업로드한 이미지)
+  - 최대 5개까지 첨부 가능
+  - 개별 파일 크기 제한: 5MB
+  - 이미지 클릭 시 모달로 확대 보기
+  - 이미지 다운로드 기능 제공
 - 기존 답변 표시
 - 답변 작성 폼 (status가 'open'인 경우만)
 - 답변 작성 시 상태가 'answered'로 변경
+
+**첨부 이미지 처리**:
+
+- **Storage 버킷**: `product-images` (public 버킷 활용)
+- **경로 구조**: `{clerk_user_id}/inquiries/{timestamp}-{filename}`
+- **데이터베이스**: `inquiries.attachment_urls TEXT[]` 필드에 Public URL 배열 저장
+- **이미지 표시**:
+  - Next.js Image 컴포넌트 사용
+  - 그리드 레이아웃 (2-3열, 반응형)
+  - 이미지가 없는 경우 처리
+- **이미지 확대 보기**:
+  - 클릭 시 모달로 원본 크기 표시
+  - 여러 이미지 간 네비게이션 (이전/다음 버튼)
+- **이미지 다운로드**:
+  - 각 이미지에 다운로드 버튼 제공
+  - 원본 파일명 또는 타임스탬프 기반 파일명으로 다운로드
+- **Public URL 사용**: 버킷이 public이므로 Signed URL 불필요
 
 **API 엔드포인트**:
 

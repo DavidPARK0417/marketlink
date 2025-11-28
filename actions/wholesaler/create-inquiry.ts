@@ -56,6 +56,7 @@ export interface CreateInquiryResult {
 export async function createInquiry(formData: {
   title: string;
   content: string;
+  attachment_urls?: string[] | null;
 }): Promise<CreateInquiryResult> {
   try {
     console.group("📝 [inquiry] 관리자 문의 작성 시작");
@@ -115,6 +116,14 @@ export async function createInquiry(formData: {
       };
     }
 
+    // 첨부 이미지 검증
+    if (formData.attachment_urls && formData.attachment_urls.length > 5) {
+      return {
+        success: false,
+        error: "첨부 이미지는 최대 5개까지 업로드할 수 있습니다.",
+      };
+    }
+
     // 3. inquiries 테이블에 INSERT
     const supabase = createClerkSupabaseClient();
 
@@ -130,6 +139,10 @@ export async function createInquiry(formData: {
         status: "open",
         admin_reply: null,
         replied_at: null,
+        attachment_urls:
+          formData.attachment_urls && formData.attachment_urls.length > 0
+            ? formData.attachment_urls
+            : null,
       })
       .select("id")
       .single();

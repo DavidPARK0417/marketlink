@@ -25,6 +25,7 @@ export interface Inquiry {
   content: string;
   status: InquiryStatus;
   admin_reply: string | null;
+  attachment_urls?: string[] | null; // 첨부 이미지 URL 배열 (최대 5개)
   created_at: string;
   replied_at: string | null;
 }
@@ -39,6 +40,7 @@ export interface CreateInquiryRequest {
   order_id?: string | null; // retailer_to_wholesaler인 경우 선택
   title: string;
   content: string;
+  attachment_urls?: string[] | null; // 첨부 이미지 URL 배열 (최대 5개)
 }
 
 /**

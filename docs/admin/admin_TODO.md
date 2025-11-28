@@ -230,6 +230,17 @@ Phase 2 (선택): ░░░░░░░░░░░░░░░░  0% (0/4 완�
   - [x] 도매사업자 익명 코드 표시 ✅
   - [x] 상태 뱃지 표시 ✅
 
+- [x] **첨부 이미지 표시** ✅
+
+  - [x] `attachment_urls` 필드가 있는 경우 이미지 표시 ✅
+  - [x] 그리드 레이아웃 (2-3열, 반응형) ✅
+  - [x] Next.js Image 컴포넌트 사용 ✅
+  - [x] 이미지 클릭 시 모달로 확대 보기 ✅
+  - [x] 이미지 간 네비게이션 (이전/다음 버튼) ✅
+  - [x] 이미지 다운로드 기능 ✅
+  - [x] 빈 이미지 처리 (첨부 이미지가 없는 경우) ✅
+  - [x] 이미지 로딩 상태 처리 ✅
+
 - [x] **답변 기능** ✅
   - [x] 기존 답변 표시 (있는 경우) ✅
   - [x] 답변 작성 폼 (status가 'open'인 경우만) ✅
@@ -278,11 +289,70 @@ Phase 2 (선택): ░░░░░░░░░░░░░░░░  0% (0/4 완�
   - [x] `/admin/inquiries` 링크 ✅
   - [x] `MessageSquare` 아이콘 사용 ✅
 
+#### 5.5 첨부 이미지 기능 구현 ✅ 완료
+
+**목적**: 도매사업자가 문의 작성 시 이미지를 첨부하고, 관리자가 이미지를 확인할 수 있도록 함
+
+**데이터베이스 마이그레이션**:
+
+- [x] `inquiries` 테이블에 `attachment_urls TEXT[]` 필드 추가 ✅
+- [x] 마이그레이션 파일 생성 (`20251128160431_add_inquiry_attachments.sql`) ✅
+
+**타입 정의**:
+
+- [x] `types/inquiry.ts`에 `attachment_urls?: string[]` 필드 추가 ✅
+- [x] `CreateInquiryRequest` 인터페이스 업데이트 ✅
+
+**문의 작성 폼 (도매사업자)**:
+
+**파일**: `components/wholesaler/Support/InquiryCreateForm.tsx`
+
+- [x] 이미지 업로드 UI 추가 ✅
+  - [x] 파일 선택 버튼 ✅
+  - [x] 미리보기 표시 (썸네일) ✅
+  - [x] 이미지 삭제 기능 ✅
+  - [x] 최대 5개 제한 표시 ✅
+  - [x] 파일 크기 검증 (5MB) ✅
+- [x] 이미지 업로드 함수 (`lib/supabase/storage.ts`) ✅
+  - [x] `uploadInquiryAttachment()` 함수 추가 ✅
+  - [x] 경로: `{clerk_user_id}/inquiries/{timestamp}-{filename}` ✅
+  - [x] `product-images` 버킷 사용 ✅
+- [x] Server Action 수정 (`actions/wholesaler/create-inquiry.ts`) ✅
+  - [x] `attachment_urls` 배열 저장 로직 추가 ✅
+
+**관리자 페이지**:
+
+**파일**: `app/admin/inquiries/[id]/page.tsx`
+
+- [x] 첨부 이미지 표시 섹션 추가 ✅
+  - [x] 이미지가 있는 경우에만 표시 ✅
+  - [x] 그리드 레이아웃 (2-3열) ✅
+  - [x] Next.js Image 컴포넌트 사용 ✅
+- [x] 이미지 확대 모달 컴포넌트 (`components/admin/InquiryImageModal.tsx`) ✅
+  - [x] 클릭 시 모달 열기 ✅
+  - [x] 원본 크기 표시 ✅
+  - [x] 이전/다음 네비게이션 ✅
+  - [x] 닫기 버튼 ✅
+- [x] 이미지 다운로드 기능 ✅
+  - [x] 각 이미지에 다운로드 버튼 ✅
+  - [x] 파일명 처리 (타임스탬프 기반) ✅
+
+**도매사업자 페이지**:
+
+**파일**: `app/wholesaler/inquiries/[id]/page.tsx`
+
+- [x] 내 문의 상세 페이지에도 첨부 이미지 표시 추가 ✅
+  - [x] 관리자 페이지와 동일한 UI 패턴 사용 ✅
+  - [x] 이미지 확대 모달 지원 ✅
+
 **테스트**:
 
 - [x] 관리자 문의 목록이 정상적으로 표시되는지 확인 ✅
 - [x] 상태별 필터가 정상 작동하는지 확인 ✅
 - [x] 문의 상세 페이지가 정상 표시되는지 확인 ✅
+- [x] 첨부 이미지가 정상적으로 표시되는지 확인 ✅
+- [x] 이미지 확대 보기가 정상 작동하는지 확인 ✅
+- [x] 이미지 다운로드가 정상 작동하는지 확인 ✅
 - [x] 관리자 답변이 정상적으로 저장되는지 확인 ✅
 - [x] 답변 작성 후 상태가 'answered'로 변경되는지 확인 ✅
 

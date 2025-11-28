@@ -22,7 +22,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { Upload, X, Loader2, ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 import {
   Form,
@@ -37,6 +40,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createInquiry } from "@/actions/wholesaler/create-inquiry";
+import { uploadInquiryAttachment } from "@/lib/supabase/storage";
+import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 
 // 문의 작성 스키마
 const inquirySchema = z.object({
@@ -60,7 +65,14 @@ export default function InquiryCreateForm({
   onSuccess,
 }: InquiryCreateFormProps) {
   const router = useRouter();
+  const { user } = useUser();
+  const supabase = useClerkSupabaseClient();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [attachmentUrls, setAttachmentUrls] = React.useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = React.useState<Set<number>>(
+    new Set(),
+  );
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const form = useForm<InquiryFormData>({
     resolver: zodResolver(inquirySchema),
@@ -70,8 +82,67 @@ export default function InquiryCreateForm({
     },
   });
 
+  // 이미지 업로드 핸들러
+  const handleImageUpload = React.useCallback(
+    async (files: FileList | null) => {
+      if (!files || files.length === 0) return;
+      if (!user) {
+        toast.error("로그인이 필요합니다.");
+        return;
+      }
+
+      const currentImages = attachmentUrls;
+      if (currentImages.length + files.length > 5) {
+        toast.error("이미지는 최대 5개까지 업로드할 수 있습니다.");
+        return;
+      }
+
+      const fileArray = Array.from(files);
+      const uploadPromises = fileArray.map(async (file, index) => {
+        const imageIndex = currentImages.length + index;
+        setUploadingImages((prev) => new Set(prev).add(imageIndex));
+
+        try {
+          console.log(
+            "📤 [inquiry-create-form] 이미지 업로드 시작:",
+            file.name,
+          );
+          const url = await uploadInquiryAttachment(file, user.id, supabase);
+          console.log("✅ [inquiry-create-form] 이미지 업로드 성공:", url);
+
+          setAttachmentUrls((prev) => [...prev, url]);
+          toast.success(`${file.name} 업로드 완료`);
+        } catch (error) {
+          console.error("❌ [inquiry-create-form] 이미지 업로드 실패:", error);
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : `${file.name} 업로드에 실패했습니다.`,
+          );
+        } finally {
+          setUploadingImages((prev) => {
+            const next = new Set(prev);
+            next.delete(imageIndex);
+            return next;
+          });
+        }
+      });
+
+      await Promise.all(uploadPromises);
+    },
+    [user, supabase, attachmentUrls],
+  );
+
+  // 이미지 삭제 핸들러
+  const handleImageDelete = React.useCallback((index: number) => {
+    setAttachmentUrls((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
   const onSubmit = async (data: InquiryFormData) => {
-    console.log("📝 [inquiry-create-form] 폼 제출", data);
+    console.log("📝 [inquiry-create-form] 폼 제출", {
+      ...data,
+      attachmentUrls,
+    });
 
     setIsSubmitting(true);
 
@@ -79,6 +150,7 @@ export default function InquiryCreateForm({
       const result = await createInquiry({
         title: data.title,
         content: data.content,
+        attachment_urls: attachmentUrls.length > 0 ? attachmentUrls : null,
       });
 
       if (!result.success) {
@@ -92,6 +164,7 @@ export default function InquiryCreateForm({
 
       // 폼 초기화
       form.reset();
+      setAttachmentUrls([]);
 
       // 성공 콜백 실행
       if (onSuccess) {
@@ -153,6 +226,79 @@ export default function InquiryCreateForm({
             </FormItem>
           )}
         />
+
+        {/* 첨부 이미지 */}
+        <FormItem>
+          <FormLabel>첨부 이미지 (선택사항)</FormLabel>
+          <FormDescription>
+            최대 5개까지 첨부 가능합니다. 각 파일은 5MB 이하여야 합니다.
+          </FormDescription>
+          <div className="space-y-4 max-w-2xl">
+            {/* 이미지 미리보기 */}
+            {attachmentUrls.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {attachmentUrls.map((url, index) => (
+                  <div
+                    key={index}
+                    className="relative aspect-square rounded-lg overflow-hidden border"
+                  >
+                    {uploadingImages.has(index) ? (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                      </div>
+                    ) : (
+                      <>
+                        <Image
+                          src={url}
+                          alt={`첨부 이미지 ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-6 w-6"
+                          onClick={() => handleImageDelete(index)}
+                          disabled={isSubmitting}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 파일 선택 버튼 */}
+            {attachmentUrls.length < 5 && (
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => handleImageUpload(e.target.files)}
+                  disabled={isSubmitting}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isSubmitting || attachmentUrls.length >= 5}
+                  className="w-full"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {attachmentUrls.length === 0
+                    ? "이미지 선택"
+                    : `이미지 추가 (${attachmentUrls.length}/5)`}
+                </Button>
+              </div>
+            )}
+          </div>
+        </FormItem>
 
         <div className="flex justify-end gap-2 max-w-2xl">
           <Button

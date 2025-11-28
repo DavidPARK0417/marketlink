@@ -22,8 +22,9 @@ import * as React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ import {
 } from "@/components/ui/card";
 import InquiryStatusBadge from "@/components/wholesaler/Inquiries/InquiryStatusBadge";
 import InquiryReplyForm from "@/components/wholesaler/Inquiries/InquiryReplyForm";
+import InquiryImageModal from "@/components/admin/InquiryImageModal";
 
 // 관리자용 문의 상세 조회 함수
 async function fetchInquiryDetail(inquiryId: string) {
@@ -69,6 +71,8 @@ export default function AdminInquiryDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const [inquiryId, setInquiryId] = React.useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = React.useState<number>(0);
+  const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
   const queryClient = useQueryClient();
 
   // params가 Promise이므로 await 처리
@@ -185,11 +189,53 @@ export default function AdminInquiryDetailPage({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="whitespace-pre-wrap text-gray-700">
+          <div className="whitespace-pre-wrap text-gray-700 mb-4">
             {inquiry.content}
           </div>
+
+          {/* 첨부 이미지 */}
+          {inquiry.attachment_urls && inquiry.attachment_urls.length > 0 && (
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="text-sm font-medium mb-3">첨부 이미지</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {inquiry.attachment_urls.map((url, index) => (
+                  <div
+                    key={index}
+                    className="relative aspect-square rounded-lg overflow-hidden border cursor-pointer group"
+                    onClick={() => {
+                      setSelectedImageIndex(index);
+                      setIsImageModalOpen(true);
+                    }}
+                  >
+                    <Image
+                      src={url}
+                      alt={`첨부 이미지 ${index + 1}`}
+                      fill
+                      className="object-cover transition-opacity group-hover:opacity-80"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Download className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* 이미지 확대 모달 */}
+      {inquiry.attachment_urls && inquiry.attachment_urls.length > 0 && (
+        <InquiryImageModal
+          images={inquiry.attachment_urls}
+          currentIndex={selectedImageIndex}
+          isOpen={isImageModalOpen}
+          onClose={() => setIsImageModalOpen(false)}
+          onNavigate={setSelectedImageIndex}
+        />
+      )}
 
       {/* 기존 답변 표시 */}
       {inquiry.admin_reply && (
