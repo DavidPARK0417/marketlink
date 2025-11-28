@@ -104,27 +104,50 @@ export default function RecentOrders() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {orders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">
-                      {order.order_number}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(order.created_at), "yyyy-MM-dd HH:mm", {
-                        locale: ko,
-                      })}
-                    </TableCell>
-                    <TableCell>
-                      <OrderStatusBadge status={order.status} />
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {new Intl.NumberFormat("ko-KR").format(
-                        order.total_amount,
-                      )}
-                      원
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {orders.map((order) => {
+                  // 주문 상태별 배경색 설정
+                  const getStatusColor = (status: string) => {
+                    switch (status) {
+                      case "completed":
+                        return "bg-green-50 hover:bg-green-100 border-green-200";
+                      case "shipped":
+                        return "bg-blue-50 hover:bg-blue-100 border-blue-200";
+                      case "confirmed":
+                        return "bg-cyan-50 hover:bg-cyan-100 border-cyan-200";
+                      case "pending":
+                        return "bg-yellow-50 hover:bg-yellow-100 border-yellow-200";
+                      case "cancelled":
+                        return "bg-red-50 hover:bg-red-100 border-red-200";
+                      default:
+                        return "bg-white hover:bg-gray-50";
+                    }
+                  };
+
+                  return (
+                    <TableRow
+                      key={order.id}
+                      className={getStatusColor(order.status)}
+                    >
+                      <TableCell className="font-medium">
+                        {order.order_number}
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(order.created_at), "yyyy-MM-dd HH:mm", {
+                          locale: ko,
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        <OrderStatusBadge status={order.status} />
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {new Intl.NumberFormat("ko-KR").format(
+                          order.total_amount,
+                        )}
+                        원
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

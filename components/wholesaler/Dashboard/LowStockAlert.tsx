@@ -58,17 +58,26 @@ export default function LowStockAlert() {
   }
 
   return (
-    <Card>
+    <Card className="border-orange-200 bg-orange-50/50">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-yellow-600" />
-          <CardTitle className="text-lg font-semibold">
-            재고 부족 알림
-          </CardTitle>
+          <div className="rounded-full bg-orange-100 p-2">
+            <AlertTriangle className="h-5 w-5 text-orange-600" />
+          </div>
+          <div className="flex flex-col">
+            <CardTitle className="text-lg font-semibold text-orange-900">
+              재고 부족 알림
+            </CardTitle>
+            {lowStockProducts.length > 0 && (
+              <span className="text-xs text-orange-700">
+                {lowStockProducts.length}개 상품 재고 부족
+              </span>
+            )}
+          </div>
         </div>
         {lowStockProducts.length > 0 && (
           <Link href="/wholesaler/products">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-orange-300 text-orange-700 hover:bg-orange-100">
               전체 보기
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -87,23 +96,30 @@ export default function LowStockAlert() {
             {lowStockProducts.slice(0, 5).map((product) => (
               <div
                 key={product.id}
-                className="flex items-center justify-between rounded-lg border p-3 hover:bg-gray-50"
+                className="flex items-center justify-between rounded-lg border border-orange-200 bg-white p-3 shadow-sm hover:bg-orange-50 transition-colors"
               >
                 <div className="flex-1">
                   <p className="font-medium text-gray-900">{product.name}</p>
-                  <p className="text-sm text-gray-500">
-                    재고: {product.stock_quantity}개
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-sm font-semibold text-orange-600">
+                      재고: {product.stock_quantity}개
+                    </span>
+                    {product.stock_quantity <= 5 && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium">
+                        긴급
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <Link href={`/wholesaler/products/${product.id}/edit`}>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="border-orange-300 text-orange-700 hover:bg-orange-100">
                     재고 추가
                   </Button>
                 </Link>
               </div>
             ))}
             {lowStockProducts.length > 5 && (
-              <p className="text-sm text-center text-gray-500">
+              <p className="text-sm text-center text-orange-700 font-medium">
                 외 {lowStockProducts.length - 5}개 상품
               </p>
             )}

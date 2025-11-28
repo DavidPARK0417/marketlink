@@ -123,11 +123,15 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="대시보드"
-        description="오늘의 주문, 출고 예정, 정산 요약을 확인하세요."
-        hideTitle={true}
-      />
+      {/* 대시보드 헤더 섹션 */}
+      <div className="space-y-2 pb-6 border-b border-gray-200">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+          실시간 주문과 재고, 정산 현황을 한눈에!
+        </h1>
+        <p className="text-base md:text-lg text-gray-600">
+          도매업자의 하루를 더 스마트하게
+        </p>
+      </div>
 
       {/* 통계 카드 4개 */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
