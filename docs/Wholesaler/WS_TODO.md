@@ -1319,12 +1319,12 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 0. 정산 데이터 생성 프로세스 (✅ 확정됨)
 
-- [ ] **정산 프로세스 이해 (확정 사항)**
-  - [ ] ✅ 생성 시점: 결제 완료(paid_at) 직후 **자동 생성**
-  - [ ] ✅ `platform_fee_rate`: **5% 고정** (환경 변수: `NEXT_PUBLIC_PLATFORM_FEE_RATE`)
-  - [ ] ✅ `scheduled_payout_at`: 결제일 + 7일 (**D+7**)
-  - [ ] ✅ 정산 완료 처리: MVP에서는 **관리자 수동 처리** (자동 송금은 Phase 2)
-- [ ] **정산 계산 로직**
+- [x] **정산 프로세스 이해 (확정 사항)**
+  - [x] ✅ 생성 시점: 결제 완료(paid_at) 직후 **자동 생성** (`app/api/payments/callback/route.ts`)
+  - [x] ✅ `platform_fee_rate`: **5% 고정** (환경 변수: `NEXT_PUBLIC_PLATFORM_FEE_RATE`) (`lib/supabase/queries/settlements.ts`)
+  - [x] ✅ `scheduled_payout_at`: 결제일 + 7일 (**D+7**) (`lib/supabase/queries/settlements.ts`)
+  - [x] ✅ 정산 완료 처리: MVP에서는 **관리자 수동 처리** (자동 송금은 Phase 2)
+- [x] **정산 계산 로직** (`lib/supabase/queries/settlements.ts`의 `createSettlement()` 함수)
 
   ```typescript
   const platformFeeRate = parseFloat(
@@ -1336,7 +1336,10 @@ Anonymous Code 자동 생성 로직을 구현해줘.
   scheduledPayoutAt.setDate(scheduledPayoutAt.getDate() + 7); // D+7
   ```
 
-- [ ] **테스트 데이터 생성**
+- [x] **테스트 데이터 생성**
+  - [x] `app/api/test/create-settlement/route.ts` (테스트 API)
+  - [x] `lib/supabase/queries/settlements.ts`의 `createTestSettlement()` 함수
+  - [x] `supabase/migrations/test_create_settlement.sql` (SQL 스크립트)
   ```sql
   -- Supabase SQL Editor에서 실행
   INSERT INTO settlements (
@@ -1352,14 +1355,14 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 1. Supabase 쿼리 함수
 
-- [ ] **`lib/supabase/queries/settlements.ts` 작성**
-  - [ ] `getSettlements()` 함수 구현
-    - [ ] 현재 도매점의 정산 내역 조회
-    - [ ] 상태별 필터링 (pending, completed)
-    - [ ] 날짜 범위 필터링
-    - [ ] 페이지네이션
-  - [ ] `getSettlementById()` 함수 구현
-  - [ ] ⚠️ 정산 데이터는 결제 완료 시 자동 생성됨 (조회만 담당)
+- [x] **`lib/supabase/queries/settlements.ts` 작성**
+  - [x] `getSettlements()` 함수 구현
+    - [x] 현재 도매점의 정산 내역 조회
+    - [x] 상태별 필터링 (pending, completed)
+    - [x] 날짜 범위 필터링
+    - [x] 페이지네이션
+  - [x] `getSettlementById()` 함수 구현
+  - [x] ⚠️ 정산 데이터는 결제 완료 시 자동 생성됨 (조회만 담당)
 
 **커서 AI 프롬프트:**
 
