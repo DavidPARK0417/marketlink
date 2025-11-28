@@ -467,7 +467,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
           <DialogHeader>
             <DialogTitle>상품 삭제 확인</DialogTitle>
             <DialogDescription>
-              정말로 "{productToDelete?.name}" 상품을 삭제하시겠습니까?
+              정말로 &quot;{productToDelete?.name}&quot; 상품을 삭제하시겠습니까?
               <br />
               이 작업은 되돌릴 수 없으며, 상품 이미지도 함께 삭제됩니다.
             </DialogDescription>
