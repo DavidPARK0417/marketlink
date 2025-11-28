@@ -108,6 +108,7 @@ export default function InquiriesPage() {
       <PageHeader
         title="문의 관리"
         description="소매점으로부터 들어온 문의를 확인하고 답변할 수 있습니다."
+        hideTitle={true}
       />
 
       {/* 탭 UI */}

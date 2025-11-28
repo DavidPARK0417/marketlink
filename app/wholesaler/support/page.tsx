@@ -126,6 +126,7 @@ export default function SupportPage() {
       <PageHeader
         title="고객지원"
         description="관리자에게 문의를 작성하고, 내가 보낸 문의를 확인할 수 있습니다."
+        hideTitle={true}
       />
 
       {/* 탭 UI */}
