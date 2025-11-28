@@ -87,6 +87,8 @@ export interface SettlementStats {
   total_amount: number; // 총 정산 예정액
   total_platform_fee: number; // 총 플랫폼 수수료
   total_wholesaler_amount: number; // 총 도매 정산액
+  pending_amount: number; // 정산 예정 금액 (pending 상태만)
+  completed_amount: number; // 정산 완료 금액 (completed 상태만)
   pending_count: number; // 대기 중인 정산 수
   completed_count: number; // 완료된 정산 수
 }

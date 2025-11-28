@@ -17,9 +17,9 @@ import { getUserProfile } from "@/lib/clerk/auth";
 import type {
   Settlement,
   SettlementFilter,
-  SettlementStatus,
   SettlementStats,
 } from "@/types/settlement";
+import type { SettlementStatus } from "@/types/database";
 import type { Order } from "@/types/order";
 
 /**
@@ -34,10 +34,20 @@ export interface GetSettlementsOptions {
 }
 
 /**
+ * 정산 목록 조회 결과 (주문 정보 포함)
+ */
+export interface SettlementWithOrder extends Settlement {
+  orders: {
+    order_number: string;
+    created_at: string;
+  } | null;
+}
+
+/**
  * 정산 목록 조회 결과
  */
 export interface GetSettlementsResult {
-  settlements: Settlement[];
+  settlements: SettlementWithOrder[];
   total: number;
   page: number;
   pageSize: number;
@@ -97,11 +107,18 @@ export async function getSettlements(
 
   const supabase = createClerkSupabaseClient();
 
-  // 기본 쿼리 구성
+  // 기본 쿼리 구성 (orders 테이블과 조인하여 주문번호 조회)
   // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
+  // settlements.order_id → orders.id 외래키 관계
   let query = supabase
     .from("settlements")
-    .select("*", { count: "exact" })
+    .select(
+      `
+      *,
+      orders(order_number, created_at)
+    `,
+      { count: "exact" },
+    )
     .eq("wholesaler_id", currentWholesalerId)
     .order(sortBy, { ascending: sortOrder === "asc" });
 
@@ -146,7 +163,7 @@ export async function getSettlements(
   console.groupEnd();
 
   return {
-    settlements: (data as Settlement[]) ?? [],
+    settlements: (data as SettlementWithOrder[]) ?? [],
     total,
     page,
     pageSize,
@@ -410,6 +427,8 @@ export async function getSettlementStats(): Promise<SettlementStats> {
     total_amount: totalPendingAmount + totalCompletedAmount,
     total_platform_fee: totalPlatformFee,
     total_wholesaler_amount: totalPendingAmount + totalCompletedAmount,
+    pending_amount: totalPendingAmount,
+    completed_amount: totalCompletedAmount,
     pending_count: pendingData?.length ?? 0,
     completed_count: completedData?.length ?? 0,
   };
