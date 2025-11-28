@@ -199,6 +199,7 @@ export default function MarketPricesPage() {
         <PageHeader
           title="시세 조회"
           description="전국 농수산물 경매가격을 지역별, 품목별로 확인하세요."
+          hideTitle={true}
         />
       </div>
 

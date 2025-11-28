@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
       { hostname: "img.clerk.com" },
       { hostname: "picsum.photos" },
       { hostname: "images.unsplash.com" },
+      { 
+        hostname: "fmqaxnuemcmcjjgodath.supabase.co",
+        protocol: "https",
+      },
     ],
   },
 };

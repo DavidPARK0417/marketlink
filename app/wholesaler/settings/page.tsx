@@ -28,6 +28,7 @@ export default function SettingsPage() {
       <PageHeader
         title="설정"
         description="계정 및 사업자 정보를 관리하세요."
+        hideTitle={true}
       />
 
       <EmptyState

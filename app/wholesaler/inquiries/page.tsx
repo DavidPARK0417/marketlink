@@ -27,6 +27,7 @@ export default function InquiriesPage() {
       <PageHeader
         title="문의 관리"
         description="소매점으로부터 받은 문의를 확인하고 답변하세요."
+        hideTitle={true}
       />
 
       <EmptyState

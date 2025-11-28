@@ -297,6 +297,7 @@ export default function OrdersPage() {
       <PageHeader
         title="주문 관리"
         description="들어온 주문을 확인하고 처리하세요."
+        hideTitle={true}
       />
 
       {/* 탭 UI */}

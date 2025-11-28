@@ -32,6 +32,10 @@ export interface PageHeaderProps {
    * 추가 클래스명 (선택적)
    */
   className?: string;
+  /**
+   * 제목 숨김 여부 (선택적, true일 경우 제목은 표시하지 않고 설명만 표시)
+   */
+  hideTitle?: boolean;
 }
 
 export default function PageHeader({
@@ -39,6 +43,7 @@ export default function PageHeader({
   description,
   actions,
   className,
+  hideTitle = false,
 }: PageHeaderProps) {
   return (
     <div
@@ -51,9 +56,11 @@ export default function PageHeader({
       <div className="flex items-start justify-between gap-4">
         {/* 제목 및 설명 영역 */}
         <div className="flex flex-col gap-2 flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-            {title}
-          </h1>
+          {!hideTitle && (
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+              {title}
+            </h1>
+          )}
           {description && (
             <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
               {description}

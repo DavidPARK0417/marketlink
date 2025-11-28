@@ -27,6 +27,7 @@ export default function SettlementsPage() {
       <PageHeader
         title="정산 관리"
         description="정산 예정 및 완료 내역을 확인하세요."
+        hideTitle={true}
       />
 
       <EmptyState

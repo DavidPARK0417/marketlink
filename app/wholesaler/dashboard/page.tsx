@@ -126,6 +126,7 @@ export default function DashboardPage() {
       <PageHeader
         title="대시보드"
         description="오늘의 주문, 출고 예정, 정산 요약을 확인하세요."
+        hideTitle={true}
       />
 
       {/* 통계 카드 4개 */}

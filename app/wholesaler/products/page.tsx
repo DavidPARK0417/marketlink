@@ -99,6 +99,7 @@ export default async function ProductsPage({
       <PageHeader
         title="상품 관리"
         description="등록한 상품을 관리하고 수정하세요."
+        hideTitle={true}
         actions={
           <Button asChild>
             <Link href="/wholesaler/products/new">
