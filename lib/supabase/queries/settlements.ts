@@ -40,6 +40,18 @@ export interface SettlementWithOrder extends Settlement {
   orders: {
     order_number: string;
     created_at: string;
+    quantity: number;
+    unit_price: number;
+    shipping_fee: number;
+    total_amount: number;
+    paid_at: string | null;
+    products: {
+      name: string;
+      category: string;
+    } | null;
+    product_variants: {
+      name: string;
+    } | null;
   } | null;
 }
 
@@ -107,15 +119,26 @@ export async function getSettlements(
 
   const supabase = createClerkSupabaseClient();
 
-  // 기본 쿼리 구성 (orders 테이블과 조인하여 주문번호 조회)
+  // 기본 쿼리 구성 (orders 테이블과 조인하여 주문 상세 정보 조회)
   // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
   // settlements.order_id → orders.id 외래키 관계
+  // orders.product_id → products.id, orders.variant_id → product_variants.id
   let query = supabase
     .from("settlements")
     .select(
       `
       *,
-      orders(order_number, created_at)
+      orders(
+        order_number,
+        created_at,
+        quantity,
+        unit_price,
+        shipping_fee,
+        total_amount,
+        paid_at,
+        products(name, category),
+        product_variants(name)
+      )
     `,
       { count: "exact" },
     )

@@ -1452,17 +1452,24 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 ⚠️ 추가로 필요한 작업이나 수정사항이 있으면 사용자에게 먼저 질문해주세요.
 ```
 
-- [ ] **정산 상세 모달**
-  - [ ] Dialog 컴포넌트 사용
-  - [ ] 주문 정보
-  - [ ] 정산 계산 내역 (자동 계산됨)
-    - [ ] 주문 금액 (order_amount)
-    - [ ] 수수료율 (5% 고정, platform_fee_rate)
-    - [ ] 수수료 금액 (platform_fee)
-    - [ ] 정산 금액 (wholesaler_amount = order_amount - platform_fee)
-  - [ ] 정산 예정일 (scheduled_payout_at = paid_at + 7일)
-  - [ ] 정산 완료일 (completed_at, 완료된 경우)
-  - [ ] ⚠️ MVP에서는 조회만 가능 (자동 송금은 Phase 2)
+- [x] **정산 상세 모달** ✅
+  - [x] Dialog 컴포넌트 사용 ✅
+  - [x] 주문 정보 ✅
+    - [x] 주문번호, 주문일, 결제일 ✅
+    - [x] 상품명, 옵션명, 카테고리 ✅
+    - [x] 수량, 단가, 상품 금액, 배송비 ✅
+  - [x] 정산 계산 내역 (자동 계산됨) ✅
+    - [x] 주문 금액 (order_amount) ✅
+    - [x] 수수료율 (5% 고정, platform_fee_rate) ✅
+    - [x] 수수료 금액 (platform_fee) ✅
+    - [x] 정산 금액 (wholesaler_amount = order_amount - platform_fee) ✅
+    - [x] 계산식 명시 (주문 금액 - 수수료 = 정산 금액) ✅
+  - [x] 정산 일정 ✅
+    - [x] 정산 상태 ✅
+    - [x] 정산 예정일 (scheduled_payout_at = paid_at + 7일) ✅
+    - [x] 정산 완료일 (completed_at, 완료된 경우) ✅
+  - [x] 메타 정보 (정산 ID, 생성일) ✅
+  - [x] ⚠️ MVP에서는 조회만 가능 (자동 송금은 Phase 2) ✅
 
 ### ✅ Week 7 완료 체크
 
