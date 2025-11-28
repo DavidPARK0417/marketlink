@@ -30,12 +30,15 @@
 ### 1.2 핵심 기능 (MVP)
 
 #### Phase 1 (필수) ✅
+
 - ✅ **도매 승인/반려**: 도매사업자 가입 요청 처리
+- ✅ **도매 문의 관리**: 도매사업자 → 관리자 문의 조회 및 답변
 - ✅ **도매 계정 관리**: 계정 정지/해제
 - ✅ **전체 CS 처리**: 도매와 소매의 CS 통합 관리
 - ✅ **통합 감사 로그**: 모든 관리자 액션 추적
 
 #### Phase 2 (선택) 🔵
+
 - 🔵 **소매 계정 조회**: 소매 계정 목록 및 상세 보기
 - 🔵 **전체 주문 모니터링**: 도매-소매 간 주문 현황
 - 🔵 **통계 대시보드**: 플랫폼 전체 통계
@@ -67,7 +70,7 @@
    └─ wholesale.marketlink.com
    ├─ /wholesaler/* (도매 페이지)
    └─ /admin/* (관리자 페이지) ⭐
-   
+
 3️⃣ 소매 프로젝트 (별도 팀, 별도 도메인)
    └─ retail.marketlink.com
    └─ /retailer/* (소매 페이지)
@@ -98,39 +101,45 @@ app/
 **⚠️ 중요**: 관리자는 **도매 프로젝트 내에 있지만, 소매 데이터도 조회**해야 합니다.
 
 **방식 A: 직접 DB 접근** (현재 채택 ✅)
+
 ```typescript
 // 관리자 페이지에서 직접 Supabase 접근
 const supabase = createClerkSupabaseClient();
 
 // 도매와 소매의 CS를 모두 조회
 const { data: csThreads } = await supabase
-  .from('cs_threads')
-  .select('*')
-  .order('created_at', { ascending: false });
+  .from("cs_threads")
+  .select("*")
+  .order("created_at", { ascending: false });
 ```
 
 **장점**:
+
 - ✅ 구현이 간단함
 - ✅ 이미 사용 중인 패턴
 - ✅ Supabase RLS로 보안 보장
 - ✅ 초보자 친화적
 
 **단점**:
+
 - ⚠️ 소매 팀과 DB 스키마 협의 필요
 - ⚠️ 타입 정의 동기화 필요
 
 **방식 B: 통합 API 게이트웨이** (Phase 2에서 고려 🔵)
+
 ```typescript
 // 별도 API 서버를 통해 접근
-const response = await fetch('http://api-gateway/admin/cs');
+const response = await fetch("http://api-gateway/admin/cs");
 const csThreads = await response.json();
 ```
 
 **장점**:
+
 - ✅ 확장성 좋음
 - ✅ 소매/도매 프로젝트와 완전 분리
 
 **단점**:
+
 - ❌ 구현 복잡도 높음
 - ❌ 추가 서버 관리 필요
 - ❌ 현재 기능에는 과한 투자
@@ -161,18 +170,15 @@ Phase 3: API 게이트웨이 (선택, 3-4주)
 ### 3.2 우선순위
 
 **🔴 최우선 (Phase 1)**:
+
 1. 도매 승인/반려 ✅ (완료)
 2. 도매 계정 정지/해제
 3. 전체 CS 처리
 4. 통합 감사 로그
 
-**🟡 중요 (Phase 2)**:
-5. 소매 계정 조회
-6. 전체 주문 모니터링
+**🟡 중요 (Phase 2)**: 5. 소매 계정 조회 6. 전체 주문 모니터링
 
-**🔵 선택 (Phase 2+)**:
-7. 통계 대시보드
-8. 수수료율 설정
+**🔵 선택 (Phase 2+)**: 7. 통계 대시보드 8. 수수료율 설정
 
 ---
 
@@ -201,11 +207,12 @@ export async function requireAdmin(): Promise<ProfileWithDetails> {
 ```
 
 **사용 예시**:
+
 ```typescript
 // app/admin/dashboard/page.tsx
 export default async function AdminDashboard() {
   const profile = await requireAdmin(); // 관리자 체크
-  
+
   // 여기서는 항상 관리자
   return <div>관리자 대시보드</div>;
 }
@@ -220,13 +227,16 @@ export default async function AdminDashboard() {
 모든 관리자 페이지를 감싸는 레이아웃으로, 레이아웃 레벨에서 권한을 체크합니다.
 
 **주요 기능**:
+
 - ✅ `requireAdmin()`으로 권한 체크
 - ✅ 관리자 전용 네비게이션
 - ✅ 깔끔한 관리자 UI
 
 **네비게이션 메뉴**:
+
 - 대시보드 (`/admin/dashboard`)
 - 도매 승인 대기 (`/admin/wholesalers/pending`)
+- 도매 문의 관리 (`/admin/inquiries`) ✅
 - CS 관리 (`/admin/cs`)
 - 감사 로그 (`/admin/audit-logs`)
 
@@ -241,13 +251,14 @@ export default async function AdminDashboard() {
 ```typescript
 export default async function PendingWholesalersPage() {
   await requireAdmin();
-  
+
   const supabase = createClerkSupabaseClient();
-  
+
   // status='pending'인 도매사업자 조회
   const { data: wholesalers, error } = await supabase
     .from("wholesalers")
-    .select(`
+    .select(
+      `
       id,
       business_name,
       business_number,
@@ -257,10 +268,11 @@ export default async function PendingWholesalersPage() {
       profiles!inner (
         email
       )
-    `)
+    `,
+    )
     .eq("status", "pending")
     .order("created_at", { ascending: false });
-  
+
   // UI 렌더링...
 }
 ```
@@ -282,7 +294,7 @@ import { headers } from "next/headers";
 export async function approveWholesaler(wholesalerId: string, adminId: string) {
   const supabase = getServiceRoleClient();
   const ipAddress = await getIpAddress();
-  
+
   // 승인 처리
   await supabase
     .from("wholesalers")
@@ -291,7 +303,7 @@ export async function approveWholesaler(wholesalerId: string, adminId: string) {
       approved_at: new Date().toISOString(),
     })
     .eq("id", wholesalerId);
-  
+
   // 감사 로그 기록
   await supabase.from("audit_logs").insert({
     user_id: adminId,
@@ -300,7 +312,7 @@ export async function approveWholesaler(wholesalerId: string, adminId: string) {
     target_id: wholesalerId,
     ip_address: ipAddress,
   });
-  
+
   revalidatePath("/admin/wholesalers/pending");
   redirect("/admin/wholesalers/pending");
 }
@@ -330,6 +342,7 @@ export async function approveWholesaler(wholesalerId: string, adminId: string) {
 ```
 
 **예상 구조**:
+
 ```typescript
 "use server";
 
@@ -339,7 +352,7 @@ export async function approveWholesaler(wholesalerId: string, adminId: string) {
 export async function suspendWholesaler(
   wholesalerId: string,
   adminId: string,
-  suspensionReason: string
+  suspensionReason: string,
 ) {
   // 1. wholesalers.status = 'suspended'
   // 2. suspension_reason 저장
@@ -352,7 +365,7 @@ export async function suspendWholesaler(
  */
 export async function unsuspendWholesaler(
   wholesalerId: string,
-  adminId: string
+  adminId: string,
 ) {
   // 1. wholesalers.status = 'approved'
   // 2. suspension_reason = null
@@ -363,7 +376,62 @@ export async function unsuspendWholesaler(
 
 ---
 
-### 4.5 전체 CS 처리 (구현 예정)
+### 4.5 도매 문의 관리 ✅ (완료)
+
+**목적**: 도매사업자가 관리자에게 보낸 문의를 조회하고 답변
+
+#### 4.5.1 문의 목록 페이지
+
+**파일**: `app/admin/inquiries/page.tsx`
+
+관리자가 모든 도매사업자로부터 받은 문의를 조회하는 페이지입니다.
+
+**주요 기능**:
+
+- 모든 도매→관리자 문의 목록 조회 (`getInquiriesForAdmin()`)
+- 상태별 필터링 (전체/미답변/답변완료/종료)
+- 날짜 범위 및 검색 필터
+- 문의 상세 페이지로 이동
+
+**구현 내용**:
+
+```typescript
+// lib/supabase/queries/inquiries.ts
+export async function getInquiriesForAdmin(
+  options: GetInquiriesOptions = {},
+): Promise<GetInquiriesResult> {
+  // 관리자 권한 확인
+  // inquiry_type = 'wholesaler_to_admin' 필터
+  // 도매사업자 익명 코드 포함
+  // 페이지네이션 및 정렬
+}
+```
+
+#### 4.5.2 문의 상세 및 답변 페이지
+
+**파일**: `app/admin/inquiries/[id]/page.tsx`
+
+**주요 기능**:
+
+- 문의 상세 정보 표시 (제목, 내용, 문의일, 도매사업자 익명 코드)
+- 기존 답변 표시
+- 답변 작성 폼 (status가 'open'인 경우만)
+- 답변 작성 시 상태가 'answered'로 변경
+
+**API 엔드포인트**:
+
+- `GET /api/admin/inquiries/[id]`: 문의 상세 조회
+- `POST /api/admin/inquiries/reply`: 답변 작성
+
+**사용 컴포넌트**:
+
+- `InquiryTable`: 문의 목록 테이블 (재사용)
+- `InquiryFilter`: 필터 UI (재사용)
+- `InquiryReplyForm`: 답변 작성 폼 (재사용, `apiEndpoint` prop으로 관리자용 API 지정)
+
+---
+
+### 4.6 전체 CS 처리 (구현 예정)
 
 **목적**: 도매와 소매의 CS를 통합 관리
 
@@ -388,16 +456,18 @@ export async function unsuspendWholesaler(
 ```
 
 **구현 예시**:
+
 ```typescript
 export default async function AdminCSPage() {
   await requireAdmin();
-  
+
   const supabase = createClerkSupabaseClient();
-  
+
   // 모든 CS 스레드 조회
   const { data: csThreads } = await supabase
     .from("cs_threads")
-    .select(`
+    .select(
+      `
       id,
       title,
       status,
@@ -407,9 +477,10 @@ export default async function AdminCSPage() {
         email,
         role
       )
-    `)
+    `,
+    )
     .order("created_at", { ascending: false });
-  
+
   return (
     <div>
       <h1>CS 관리</h1>
@@ -424,6 +495,7 @@ export default async function AdminCSPage() {
 **파일**: `app/admin/cs/[id]/page.tsx`
 
 **기능**:
+
 - CS 스레드 상세 조회
 - 대화 이력 표시
 - 관리자 답변 작성
@@ -431,7 +503,7 @@ export default async function AdminCSPage() {
 
 ---
 
-### 4.6 통합 감사 로그 (구현 예정)
+### 4.7 통합 감사 로그 (구현 예정)
 
 **목적**: 모든 관리자 액션을 추적하고 조회
 
@@ -457,16 +529,18 @@ export default async function AdminCSPage() {
 ```
 
 **구현 예시**:
+
 ```typescript
 export default async function AuditLogsPage() {
   await requireAdmin();
-  
+
   const supabase = createClerkSupabaseClient();
-  
+
   // 감사 로그 조회
   const { data: logs } = await supabase
     .from("audit_logs")
-    .select(`
+    .select(
+      `
       id,
       action,
       target_type,
@@ -477,10 +551,11 @@ export default async function AuditLogsPage() {
       profiles!inner (
         email
       )
-    `)
+    `,
+    )
     .order("created_at", { ascending: false })
     .limit(100);
-  
+
   return (
     <div>
       <h1>감사 로그</h1>
@@ -540,8 +615,8 @@ CREATE POLICY "Admins can view all CS threads"
 ON cs_threads FOR SELECT
 USING (
   EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE clerk_user_id = auth.jwt() ->> 'sub' 
+    SELECT 1 FROM profiles
+    WHERE clerk_user_id = auth.jwt() ->> 'sub'
     AND role = 'admin'
   )
 );
@@ -551,8 +626,8 @@ CREATE POLICY "Admins can update all CS threads"
 ON cs_threads FOR UPDATE
 USING (
   EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE clerk_user_id = auth.jwt() ->> 'sub' 
+    SELECT 1 FROM profiles
+    WHERE clerk_user_id = auth.jwt() ->> 'sub'
     AND role = 'admin'
   )
 );
@@ -566,8 +641,8 @@ CREATE POLICY "Admins can view audit logs"
 ON audit_logs FOR SELECT
 USING (
   EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE clerk_user_id = auth.jwt() ->> 'sub' 
+    SELECT 1 FROM profiles
+    WHERE clerk_user_id = auth.jwt() ->> 'sub'
     AND role = 'admin'
   )
 );
@@ -583,13 +658,13 @@ USING (
 // actions/admin/*.ts
 async function getIpAddress(): Promise<string> {
   const headersList = await headers();
-  
+
   // 프록시 환경 고려
   const ipAddress =
     headersList.get("x-forwarded-for")?.split(",")[0] ||
     headersList.get("x-real-ip") ||
     "unknown";
-  
+
   return ipAddress;
 }
 ```
@@ -610,12 +685,11 @@ import { createClerkSupabaseClient } from "@/lib/supabase/server";
 // RLS 정책이 적용됨 (admin 권한 체크)
 const supabase = createClerkSupabaseClient();
 
-const { data } = await supabase
-  .from("cs_threads")
-  .select("*");
+const { data } = await supabase.from("cs_threads").select("*");
 ```
 
 **사용 시점**:
+
 - 관리자 페이지에서 데이터 조회
 - RLS 정책으로 보안 보장
 
@@ -634,6 +708,7 @@ await supabase
 ```
 
 **사용 시점**:
+
 - Server Action에서 데이터 수정
 - RLS 정책이 복잡할 때
 
@@ -648,18 +723,20 @@ await supabase
 #### 협의 필요 사항
 
 1. **테이블 스키마**:
+
    - `cs_threads`, `cs_messages`
    - `audit_logs`
    - `retailers` (선택)
 
 2. **타입 정의 동기화**:
+
    ```typescript
    // types/cs.ts (공유)
    export interface CSThread {
      id: string;
      user_id: string;
      title: string;
-     status: 'open' | 'bot_handled' | 'escalated' | 'closed';
+     status: "open" | "bot_handled" | "escalated" | "closed";
      created_at: string;
    }
    ```
@@ -675,6 +752,7 @@ await supabase
 ### 7.1 테스트 체크리스트
 
 #### 기능 테스트
+
 - [ ] 관리자 계정으로 로그인 시 관리자 페이지 접근 가능
 - [ ] 비관리자 계정으로 접근 시 홈으로 리다이렉트
 - [ ] 도매 승인 대기 목록이 정상적으로 표시됨
@@ -683,12 +761,14 @@ await supabase
 - [ ] 감사 로그가 정상적으로 기록됨
 
 #### 보안 테스트
+
 - [ ] 모든 `/admin/*` 경로가 `requireAdmin()`으로 보호됨
 - [ ] Server Action에서도 권한 재확인됨
 - [ ] 비관리자 접근 시 적절히 차단됨
 - [ ] RLS 정책이 정상 작동함
 
 #### 통합 테스트
+
 - [ ] 도매사업자 승인 후 로그인 가능
 - [ ] CS 답변 작성 후 사용자가 확인 가능
 - [ ] 감사 로그에 모든 액션 기록됨
@@ -767,6 +847,6 @@ CLERK_SECRET_KEY=sk_test_...
 ---
 
 **작성일**: 2025-11-27  
-**최종 업데이트**: 2025-11-27  
+**최종 업데이트**: 2025-11-28  
 **작성자**: AI Assistant  
-**버전**: v1.0 (프로젝트 분리 구조 반영)
+**버전**: v1.1 (도매 문의 관리 기능 추가)

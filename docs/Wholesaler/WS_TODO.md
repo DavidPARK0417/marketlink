@@ -1678,7 +1678,7 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 #### 5. 보안 확인
 
-- [ ] **RLS 정책 테스트**
+- [ ] **RLS 정책 테스트** ⚠️ 프로젝트 완성 시점에 일괄 적용 예정
 
   - [ ] 도매 A는 자신의 문의만 조회 가능
   - [ ] 도매 B의 문의는 조회 불가
@@ -1687,6 +1687,143 @@ Anonymous Code 자동 생성 로직을 구현해줘.
 
 - [ ] **민감 정보 노출 방지**
   - [ ] 소매점 실명 미노출 확인
+
+#### 6. 도매사업자 → 관리자 문의 기능
+
+- [x] **문의 작성 기능** ✅
+
+  - [x] 사이드바에 "고객지원" 메뉴 추가 ✅
+  - [x] 문의 작성 Server Action (`actions/wholesaler/create-inquiry.ts`) ✅
+  - [x] 문의 작성 페이지 (`app/wholesaler/support/page.tsx`) ✅
+  - [x] 문의 작성 폼 컴포넌트 (`components/wholesaler/Support/InquiryCreateForm.tsx`) ✅
+
+- [x] **문의 조회 기능** ✅
+
+  - [x] 도매사업자 자신의 관리자 문의 조회 (`getInquiriesToAdmin()`) ✅
+  - [x] 쿼리 함수 확장 (`lib/supabase/queries/inquiries.ts`) ✅
+  - [x] API 엔드포인트 (`app/api/wholesaler/inquiries/to-admin/route.ts`) ✅
+  - [x] 문의 상세 조회 (`getInquiryById()` 확장) ✅
+
+- [x] **관리자 페이지** ✅
+  - [x] 관리자 사이드바에 "도매 문의 관리" 메뉴 추가 ✅
+  - [x] 관리자 문의 목록 페이지 (`app/admin/inquiries/page.tsx`) ✅
+  - [x] 관리자 문의 상세 및 답변 페이지 (`app/admin/inquiries/[id]/page.tsx`) ✅
+  - [x] 관리자용 쿼리 함수 (`getInquiriesForAdmin()`) ✅
+  - [x] 관리자용 API 엔드포인트 (`app/api/admin/inquiries/route.ts`) ✅
+
+#### 7. RLS 정책 TODO (프로젝트 완성 시점 일괄 등록)
+
+⚠️ **중요**: 개발 단계에서는 RLS가 비활성화되어 있으나, 프로덕션 배포 전에 반드시 `inquiries` 테이블에 RLS 정책을 적용해야 합니다.
+
+- [ ] **`inquiries` 테이블 RLS 정책**
+
+  - [ ] **RLS 활성화**
+
+    ```sql
+    ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
+    ```
+
+  - [ ] **소매→도매 문의 조회 정책**
+
+    ```sql
+    -- 도매사업자는 자신에게 온 문의만 조회 가능
+    CREATE POLICY "wholesalers_select_own_inquiries"
+    ON inquiries FOR SELECT
+    TO authenticated
+    USING (
+      inquiry_type = 'retailer_to_wholesaler'
+      AND wholesaler_id = (
+        SELECT id FROM wholesalers
+        WHERE profile_id = auth.jwt()->>'sub'::uuid
+      )
+    );
+    ```
+
+  - [ ] **도매→관리자 문의 조회 정책**
+
+    ```sql
+    -- 도매사업자는 자신이 작성한 문의만 조회 가능
+    CREATE POLICY "wholesalers_select_own_admin_inquiries"
+    ON inquiries FOR SELECT
+    TO authenticated
+    USING (
+      inquiry_type = 'wholesaler_to_admin'
+      AND user_id = auth.jwt()->>'sub'::uuid
+    );
+
+    -- 관리자는 모든 도매→관리자 문의 조회 가능
+    CREATE POLICY "admins_select_all_admin_inquiries"
+    ON inquiries FOR SELECT
+    TO authenticated
+    USING (
+      inquiry_type = 'wholesaler_to_admin'
+      AND EXISTS (
+        SELECT 1 FROM profiles
+        WHERE id = auth.jwt()->>'sub'::uuid
+        AND role = 'admin'
+      )
+    );
+    ```
+
+  - [ ] **도매→관리자 문의 작성 정책**
+
+    ```sql
+    -- 도매사업자는 자신의 문의만 작성 가능
+    CREATE POLICY "wholesalers_insert_admin_inquiries"
+    ON inquiries FOR INSERT
+    TO authenticated
+    WITH CHECK (
+      inquiry_type = 'wholesaler_to_admin'
+      AND user_id = auth.jwt()->>'sub'::uuid
+      AND EXISTS (
+        SELECT 1 FROM profiles
+        WHERE id = auth.jwt()->>'sub'::uuid
+        AND role = 'wholesaler'
+      )
+    );
+    ```
+
+  - [ ] **문의 답변 정책**
+
+    ```sql
+    -- 도매사업자는 자신에게 온 문의에만 답변 가능
+    CREATE POLICY "wholesalers_update_own_inquiries"
+    ON inquiries FOR UPDATE
+    TO authenticated
+    USING (
+      inquiry_type = 'retailer_to_wholesaler'
+      AND wholesaler_id = (
+        SELECT id FROM wholesalers
+        WHERE profile_id = auth.jwt()->>'sub'::uuid
+      )
+    );
+
+    -- 관리자는 모든 도매→관리자 문의에 답변 가능
+    CREATE POLICY "admins_update_admin_inquiries"
+    ON inquiries FOR UPDATE
+    TO authenticated
+    USING (
+      inquiry_type = 'wholesaler_to_admin'
+      AND EXISTS (
+        SELECT 1 FROM profiles
+        WHERE id = auth.jwt()->>'sub'::uuid
+        AND role = 'admin'
+      )
+    );
+    ```
+
+  - [ ] **RLS 정책 테스트**
+
+    - [ ] 도매사업자 A는 자신에게 온 문의만 조회 가능
+    - [ ] 도매사업자 A는 자신이 작성한 관리자 문의만 조회 가능
+    - [ ] 도매사업자 B의 문의는 조회 불가
+    - [ ] 관리자는 모든 도매→관리자 문의 조회 가능
+    - [ ] 관리자는 모든 도매→관리자 문의에 답변 가능
+    - [ ] 소매점 정보는 익명 코드만 표시
+
+  - [ ] **마이그레이션 파일 생성**
+    - [ ] 모든 RLS 정책을 마이그레이션 파일로 생성
+    - [ ] `supabase/migrations/YYYYMMDDHHmmss_enable_inquiries_rls_policies.sql` 형식
   - [ ] 소매점 연락처 미노출 확인
   - [ ] 소매점 이메일 미노출 확인
   - [ ] 익명 코드만 표시 확인

@@ -19,7 +19,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Home } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  MessageSquare,
+  Home,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
@@ -32,6 +38,11 @@ const menuItems = [
     href: "/admin/wholesalers/pending",
     label: "도매 승인 대기",
     icon: Users,
+  },
+  {
+    href: "/admin/inquiries",
+    label: "도매 문의 관리",
+    icon: MessageSquare,
   },
   {
     href: "/admin/audit-logs",

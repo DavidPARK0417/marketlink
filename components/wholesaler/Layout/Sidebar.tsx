@@ -33,6 +33,7 @@ import {
   ShoppingCart,
   DollarSign,
   MessageSquare,
+  HelpCircle,
   Settings,
   Plus,
 } from "lucide-react";
@@ -81,6 +82,12 @@ const menuItems = [
     label: "문의 관리",
     icon: MessageSquare,
     breakPoint: 2, // "문의"와 "관리" 사이
+  },
+  {
+    href: "/wholesaler/support",
+    label: "고객지원",
+    icon: HelpCircle,
+    breakPoint: 2, // "고객"과 "지원" 사이
   },
   {
     href: "/wholesaler/settings",

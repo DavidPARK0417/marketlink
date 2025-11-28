@@ -47,13 +47,21 @@ type ReplyFormData = z.infer<typeof replySchema>;
 interface InquiryReplyFormProps {
   inquiryId: string;
   onSuccess?: () => void;
+  apiEndpoint?: string; // API 엔드포인트 커스터마이징 (기본값: 도매사업자용)
 }
 
 // 답변 작성 API 호출 함수
-async function submitReply(inquiryId: string, reply: string) {
-  console.log("🔍 [inquiry-reply-form] 답변 작성 요청", { inquiryId });
+async function submitReply(
+  inquiryId: string,
+  reply: string,
+  apiEndpoint: string = "/api/wholesaler/inquiries/reply",
+) {
+  console.log("🔍 [inquiry-reply-form] 답변 작성 요청", {
+    inquiryId,
+    apiEndpoint,
+  });
 
-  const response = await fetch("/api/wholesaler/inquiries/reply", {
+  const response = await fetch(apiEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -83,6 +91,7 @@ async function submitReply(inquiryId: string, reply: string) {
 export default function InquiryReplyForm({
   inquiryId,
   onSuccess,
+  apiEndpoint = "/api/wholesaler/inquiries/reply",
 }: InquiryReplyFormProps) {
   const queryClient = useQueryClient();
 
@@ -96,7 +105,7 @@ export default function InquiryReplyForm({
   // 답변 작성 뮤테이션
   const mutation = useMutation({
     mutationFn: (data: ReplyFormData) =>
-      submitReply(inquiryId, data.admin_reply),
+      submitReply(inquiryId, data.admin_reply, apiEndpoint),
     onSuccess: () => {
       console.log("✅ [inquiry-reply-form] 답변 작성 성공");
       toast.success("답변이 작성되었습니다.");
