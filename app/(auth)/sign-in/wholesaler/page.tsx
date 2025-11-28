@@ -8,6 +8,7 @@
  * 개선 사항 (v2):
  * - 로그인 후 온보딩 페이지로 이동 (자동 승인 상태 체크)
  * - 회원가입 링크에 역할 구분 파라미터 추가
+ * - 소매점 계정 차단 모달 추가
  */
 
 import Link from "next/link";
@@ -20,8 +21,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Package, UserPlus } from "lucide-react";
 import SignInWithRedirect from "@/components/auth/sign-in-with-redirect";
+import RetailerBlockModal from "@/components/auth/retailer-block-modal";
 
-export default function WholesalerSignInPage() {
+interface WholesalerSignInPageProps {
+  searchParams: Promise<{ error?: string }>;
+}
+
+export default async function WholesalerSignInPage({
+  searchParams,
+}: WholesalerSignInPageProps) {
+  const params = await searchParams;
+  const showRetailerBlockModal = params.error === "retailer";
   // 🚨 페이지 렌더링 확인
   console.log("=".repeat(80));
   console.log("🚨🚨🚨 [WholesalerSignInPage] 페이지가 렌더링되었습니다!");
@@ -84,6 +94,9 @@ export default function WholesalerSignInPage() {
           </CardHeader>
         </Card>
       </div>
+
+      {/* 소매점 계정 차단 모달 */}
+      {showRetailerBlockModal && <RetailerBlockModal />}
     </div>
   );
 }

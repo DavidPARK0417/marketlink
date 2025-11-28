@@ -24,6 +24,12 @@ export default async function RootPage() {
     redirect("/sign-in/wholesaler");
   }
 
+  // 🚨 소매점 계정이 도매점에 접근하려는 경우 차단
+  if (profile.role === "retailer") {
+    console.log("🚫 [root] 소매점 계정이 도매점에 접근 시도 - 로그인 페이지로 리다이렉트");
+    redirect("/sign-in/wholesaler?error=retailer");
+  }
+
   // 로그인된 경우 역할별로 리다이렉트
   console.log("🏠 [root] 로그인된 사용자, 역할별 리다이렉트:", profile.role);
   redirectByRole(profile.role);
