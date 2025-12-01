@@ -24,6 +24,7 @@
 
 import SignInWithRedirect from "@/components/auth/sign-in-with-redirect";
 import SignInCreateClient from "./SignInCreateClient";
+import DuplicateSignupClient from "./DuplicateSignupClient";
 import { getUserProfile } from "@/lib/clerk/auth";
 import { redirect } from "next/navigation";
 
@@ -75,18 +76,31 @@ export default async function SignInPage({
   if (isCreatePath && hasWholesalerOnboarding) {
     console.log("🔍 [sign-in] /sign-in/create 경로 + wholesaler-onboarding 감지 - 프로필 확인 시작");
     const profile = await getUserProfile();
-    
+
     console.log("🔍 [sign-in] 프로필 확인 결과:", {
       hasProfile: !!profile,
       role: profile?.role,
     });
-    
-    // 프로필이 없거나 role이 null인 경우도 온보딩으로 (신규 사용자)
-    if (!profile || profile.role === null) {
-      console.log("📝 [sign-in] 프로필 없음 또는 role이 null - 온보딩으로 리다이렉트");
+
+    // ⚠️ 중요: profile이 null인 경우는 "인증되지 않은 상태"일 수 있음
+    // 이 경우 온보딩으로 리다이렉트하면 안됨 - Clerk 로그인 UI를 표시해야 함
+    // profile이 있고 role이 null인 경우만 온보딩으로 (신규 가입 완료 후 role 선택 필요)
+    if (profile && profile.role === null) {
+      console.log("📝 [sign-in] 프로필 있고 role이 null - 온보딩으로 리다이렉트");
       redirect("/wholesaler-onboarding");
     }
-    
+
+    // 프로필이 없는 경우: 중복 가입 시도 (이미 계정이 있는 사용자)
+    // "이미 가입된 계정입니다" 모달 표시 후 로그인 페이지로 이동
+    if (!profile) {
+      console.log("⚠️ [sign-in] 프로필 없음 (인증 안됨) - 중복 가입 모달 표시");
+      return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
+          <DuplicateSignupClient />
+        </div>
+      );
+    }
+
     // 소매점 계정의 도매점 회원가입 시도 차단
     if (profile && profile.role === "retailer") {
       console.log("🚫 [sign-in] 소매점 계정의 도매점 회원가입 시도 감지 - 모달 표시");

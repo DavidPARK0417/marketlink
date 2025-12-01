@@ -12,7 +12,7 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import WholesalerOnboardingForm from "./WholesalerOnboardingForm";
@@ -25,18 +25,38 @@ interface WholesalerOnboardingClientProps {
 export default function WholesalerOnboardingClient({
   forceCheckDuplicate = false,
 }: WholesalerOnboardingClientProps) {
-  const { isLoaded, userId } = useAuth();
+  const { isLoaded, userId, getToken } = useAuth();
   const router = useRouter();
   const retryCountRef = useRef(0);
   const syncRetryCountRef = useRef(0);
+  const sessionCheckRef = useRef(0);
   const [showForm, setShowForm] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSessionReady, setIsSessionReady] = useState(false);
   const MAX_RETRIES = 3;
   const MAX_SYNC_RETRIES = 5; // 동기화 재시도는 더 많이 허용 (세션 준비 시간 고려)
+  const MAX_SESSION_CHECKS = 10; // 서버 세션 확인 최대 횟수
   const RETRY_DELAY = 500; // 500ms
   const SYNC_RETRY_DELAY = 1000; // 동기화 재시도는 1초 대기
+  const SESSION_CHECK_DELAY = 500; // 서버 세션 확인 간격
 
+  // 서버 세션이 준비되었는지 확인하는 함수
+  const checkServerSession = useCallback(async (): Promise<boolean> => {
+    try {
+      // getToken()이 성공하면 서버에서도 세션을 사용할 수 있음
+      const token = await getToken();
+      if (token) {
+        console.log("✅ [wholesaler-onboarding] 서버 세션 토큰 확인 완료");
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }, [getToken]);
+
+  // 서버 세션 준비 대기 및 forceCheckDuplicate 처리
   useEffect(() => {
     // forceCheckDuplicate가 true이면 userId 없이도 중복 가입 확인 시도
     if (forceCheckDuplicate && isLoaded) {
@@ -127,8 +147,45 @@ export default function WholesalerOnboardingClient({
       return;
     }
 
+    const waitForSession = async () => {
+      sessionCheckRef.current += 1;
+      const checkCount = sessionCheckRef.current;
+
+      console.log(
+        `🔍 [wholesaler-onboarding] 서버 세션 확인 중... (${checkCount}/${MAX_SESSION_CHECKS})`,
+      );
+
+      const ready = await checkServerSession();
+
+      if (ready) {
+        console.log("✅ [wholesaler-onboarding] 서버 세션 준비 완료!");
+        setIsSessionReady(true);
+      } else if (checkCount < MAX_SESSION_CHECKS) {
+        console.log(
+          `⏳ [wholesaler-onboarding] 서버 세션 아직 준비 안됨, ${SESSION_CHECK_DELAY}ms 후 재확인`,
+        );
+        setTimeout(waitForSession, SESSION_CHECK_DELAY);
+      } else {
+        console.error(
+          "❌ [wholesaler-onboarding] 서버 세션 확인 최대 횟수 초과",
+        );
+        setError("세션 준비에 실패했습니다. 페이지를 새로고침해주세요.");
+      }
+    };
+
+    // 초기 지연 후 세션 확인 시작 (OAuth 콜백 처리 시간 확보)
+    const timer = setTimeout(waitForSession, 300);
+    return () => clearTimeout(timer);
+  }, [isLoaded, userId, forceCheckDuplicate, checkServerSession]);
+
+  // 서버 세션이 준비된 후 프로필 확인
+  useEffect(() => {
+    if (!isSessionReady || !userId) {
+      return;
+    }
+
     console.log(
-      "✅ [wholesaler-onboarding] Clerk 로드 완료, 프로필 확인 시작",
+      "✅ [wholesaler-onboarding] 서버 세션 준비 완료, 프로필 확인 시작",
       {
         userId,
       },
@@ -325,7 +382,7 @@ export default function WholesalerOnboardingClient({
 
     // 즉시 프로필 확인 및 동기화 시도
     checkProfile();
-  }, [isLoaded, userId, router, forceCheckDuplicate]);
+  }, [isSessionReady, userId, router]);
 
   // 중복 가입 모달이 표시되면 모달만 렌더링
   if (showDuplicateModal) {
@@ -355,11 +412,21 @@ export default function WholesalerOnboardingClient({
   // 로딩 중이거나 폼을 표시할 준비가 되지 않았으면 로딩 표시
   // isLoaded가 true여야 ClerkProvider가 완전히 마운트된 상태
   if (!isLoaded || !userId || !showForm) {
+    // 로딩 상태에 따른 메시지
+    let loadingMessage = "잠시만 기다려주세요...";
+    if (!isLoaded) {
+      loadingMessage = "인증 정보를 확인하고 있습니다...";
+    } else if (!isSessionReady) {
+      loadingMessage = "세션을 준비하고 있습니다...";
+    } else if (!showForm) {
+      loadingMessage = "프로필을 확인하고 있습니다...";
+    }
+
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">잠시만 기다려주세요...</p>
+          <p className="mt-4 text-gray-600">{loadingMessage}</p>
         </div>
       </div>
     );
