@@ -39,8 +39,27 @@ export default async function WholesalerOnboardingPage() {
 
   // 프로필이 없으면 클라이언트 컴포넌트로 재시도 로직 처리
   if (!profile) {
-    console.log("⚠️ [wholesaler-onboarding] 프로필 없음, 클라이언트 재시도 로직 실행");
+    console.log(
+      "⚠️ [wholesaler-onboarding] 프로필 없음, 클라이언트 재시도 로직 실행",
+    );
     return <WholesalerOnboardingClient />;
+  }
+
+  // 🔍 중복 가입 감지: 프로필이 존재하지만 생성 시간이 5분 이상이면 중복 가입으로 간주
+  const createdAt = new Date(profile.created_at);
+  const now = new Date();
+  const timeDiff = now.getTime() - createdAt.getTime();
+  const minutesDiff = timeDiff / (1000 * 60);
+
+  // 5분 이상 전에 생성된 프로필이면 중복 가입 시도로 간주
+  if (minutesDiff > 5) {
+    console.log("⚠️ [wholesaler-onboarding] 중복 가입 시도 감지:", {
+      profileId: profile.id,
+      createdAt: profile.created_at,
+      minutesSinceCreation: minutesDiff.toFixed(2),
+    });
+    // 클라이언트 컴포넌트로 리다이렉트하여 중복 가입 모달 표시
+    return <WholesalerOnboardingClient forceCheckDuplicate={true} />;
   }
 
   // 역할 확인: role이 null이면 온보딩 진행, null이 아니고 wholesaler가 아니면 메인 페이지로
@@ -90,7 +109,7 @@ export default async function WholesalerOnboardingPage() {
       case "rejected":
         // pending/rejected 상태인 경우 이전 데이터를 폼에 채워서 표시
         console.log("→ 승인 대기/반려: 이전 데이터로 폼 표시");
-        
+
         // bank_account 파싱 (은행명과 계좌번호 분리)
         const bankAccountParts = existingWholesaler.bank_account
           ? existingWholesaler.bank_account.split(" ")
@@ -102,9 +121,15 @@ export default async function WholesalerOnboardingPage() {
         const phoneDigits = existingWholesaler.phone?.replace(/\D/g, "") || "";
         let formattedPhone = existingWholesaler.phone || "";
         if (phoneDigits.length === 11) {
-          formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 7)}-${phoneDigits.slice(7)}`;
+          formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(
+            3,
+            7,
+          )}-${phoneDigits.slice(7)}`;
         } else if (phoneDigits.length === 10) {
-          formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6)}`;
+          formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(
+            3,
+            6,
+          )}-${phoneDigits.slice(6)}`;
         }
 
         const previousData = {
