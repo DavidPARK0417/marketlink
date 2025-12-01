@@ -29,7 +29,7 @@ import {
   Legend,
 } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { PriceTrendItem } from "@/lib/api/market-prices";
+import type { PriceTrendItem } from "@/lib/api/market-prices-types";
 
 export type TrendPeriod = "daily" | "monthly" | "yearly";
 

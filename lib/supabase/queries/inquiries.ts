@@ -1,3 +1,5 @@
+"server-only";
+
 /**
  * @file lib/supabase/queries/inquiries.ts
  * @description 문의 조회 및 답변 쿼리 함수

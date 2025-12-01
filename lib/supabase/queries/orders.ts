@@ -1,3 +1,5 @@
+"server-only";
+
 /**
  * @file lib/supabase/queries/orders.ts
  * @description 주문 조회 쿼리 함수

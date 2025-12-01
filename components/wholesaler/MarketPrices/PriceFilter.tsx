@@ -1,20 +1,6 @@
 /**
  * @file components/wholesaler/MarketPrices/PriceFilter.tsx
  * @description 시세 검색 필터 컴포넌트
- *
- * 시세 조회를 위한 필터 컴포넌트입니다.
- * 확정일자, 대분류/중분류/소분류 코드를 선택하여 시세를 조회할 수 있습니다.
- *
- * 주요 기능:
- * 1. 확정일자 선택
- * 2. 대분류/중분류/소분류 선택
- * 3. 인기 품목 빠른 검색 버튼
- * 4. Enter 키로 검색 실행
- *
- * @dependencies
- * - components/ui/input, select, button
- * - lib/api/market-prices (itemCategories)
- * - date-fns (날짜 포맷팅)
  */
 
 "use client";
@@ -23,9 +9,17 @@ import { useState, FormEvent } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface PriceFilterParams {
-  searchKeyword?: string; // 품목명 검색
+  itemName?: string;
+  productClsCode?: "01" | "02" | "all";
 }
 
 interface PriceFilterProps {
@@ -33,35 +27,59 @@ interface PriceFilterProps {
   isLoading?: boolean;
 }
 
-export default function PriceFilter({ onSearch, isLoading = false }: PriceFilterProps) {
-  const [searchKeyword, setSearchKeyword] = useState<string>("");
+export default function PriceFilter({
+  onSearch,
+  isLoading = false,
+}: PriceFilterProps) {
+  const [itemName, setItemName] = useState<string>("");
+  const [productClsCode, setProductClsCode] = useState<"01" | "02" | "all">("all");
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     const params: PriceFilterParams = {};
-    if (searchKeyword.trim()) params.searchKeyword = searchKeyword.trim();
+    if (itemName.trim()) params.itemName = itemName.trim();
+    if (productClsCode !== "all") params.productClsCode = productClsCode;
 
     onSearch(params);
   };
 
   return (
     <form onSubmit={handleSubmit} className="px-4 md:px-6 py-4 md:py-5">
-      {/* 품목명 검색 + 버튼을 한 줄로 배치 */}
-      <div className="flex gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* 도매/소매 구분 */}
+        <div className="flex flex-col gap-2 md:w-48">
+          <label htmlFor="productCls" className="text-sm font-medium">
+            구분
+          </label>
+          <Select
+            value={productClsCode}
+            onValueChange={(value) => setProductClsCode(value as "01" | "02" | "all")}
+          >
+            <SelectTrigger id="productCls">
+              <SelectValue placeholder="전체" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">전체</SelectItem>
+              <SelectItem value="01">소매</SelectItem>
+              <SelectItem value="02">도매</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* 품목명 검색 */}
         <div className="flex-1 flex flex-col gap-2">
           <label htmlFor="search" className="text-sm font-medium">
-            품목명 검색
+            품목명
           </label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="search"
               type="text"
-              placeholder="예: 배추, 사과, 레몬"
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
+              placeholder="예: 사과, 배추, 레몬"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -79,4 +97,3 @@ export default function PriceFilter({ onSearch, isLoading = false }: PriceFilter
     </form>
   );
 }
-

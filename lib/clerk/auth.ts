@@ -1,3 +1,5 @@
+"server-only";
+
 /**
  * @file auth.ts
  * @description Clerk 인증 관련 유틸리티 함수들

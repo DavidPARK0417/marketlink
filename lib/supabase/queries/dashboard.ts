@@ -1,3 +1,5 @@
+"server-only";
+
 /**
  * @file lib/supabase/queries/dashboard.ts
  * @description 대시보드 통계 데이터 조회 함수

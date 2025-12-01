@@ -1,3 +1,5 @@
+"server-only";
+
 /**
  * @file lib/supabase/queries/settlements.ts
  * @description 정산 조회 및 생성 쿼리 함수

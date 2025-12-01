@@ -1,3 +1,5 @@
+"server-only";
+
 /**
  * @file lib/supabase/queries/products.ts
  * @description 상품 조회 쿼리 함수

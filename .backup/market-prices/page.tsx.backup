@@ -1,0 +1,194 @@
+/**
+ * @file app/wholesaler/market-prices/page.tsx
+ * @description 시세 조회 페이지
+ *
+ * 실시간 농수산물 경매가격을 조회하는 페이지입니다.
+ * 공공데이터포털 API를 사용하여 온라인 도매시장 거래정보를 조회합니다.
+ *
+ * 주요 기능:
+ * 1. 실시간 시세 조회
+ * 2. 상품별 시세 검색 (대분류/중분류/소분류 코드 기반)
+ * 3. 시세 테이블 표시
+ *
+ * @dependencies
+ * - components/common/PageHeader.tsx
+ * - components/wholesaler/MarketPrices/PriceFilter.tsx
+ * - components/wholesaler/MarketPrices/PriceTable.tsx
+ * - hooks/use-market-prices.ts
+ */
+
+"use client";
+
+import { useState, useMemo } from "react";
+import PageHeader from "@/components/common/PageHeader";
+import PriceFilter, {
+  type PriceFilterParams,
+} from "@/components/wholesaler/MarketPrices/PriceFilter";
+import PriceTable from "@/components/wholesaler/MarketPrices/PriceTable";
+import { useMarketPrices } from "@/hooks/use-market-prices";
+import { getCategoryFromKeyword } from "@/lib/api/market-prices-utils";
+import type { MarketPriceParams } from "@/lib/api/market-prices-types";
+import { AlertCircle, Search } from "lucide-react";
+
+export default function MarketPricesPage() {
+  // 🔥 null로 초기화 (검색 전에는 API 호출 안 함)
+  const [searchParams, setSearchParams] = useState<PriceFilterParams | null>(
+    null,
+  );
+  const [hasSearched, setHasSearched] = useState(false); // 🆕 검색 여부 추적
+
+  // 시세 조회 (searchParams가 있을 때만)
+  const apiParams = useMemo(() => {
+    if (!searchParams) return null; // 🔥 null이면 API 호출 안 함
+
+    // KAMIS API 파라미터 설정
+    // 날짜 범위: 최근 30일 (더 많은 데이터 확보)
+    const today = new Date();
+    const monthAgo = new Date(today);
+    monthAgo.setDate(today.getDate() - 30);
+
+    const startDay = monthAgo.toISOString().split("T")[0]; // YYYY-MM-DD
+    const endDay = today.toISOString().split("T")[0];
+
+    const params: MarketPriceParams = {
+      // KAMIS API 파라미터
+      itemName: searchParams.searchKeyword,
+      countryCode: searchParams.countryCode,
+      startDay: startDay,
+      endDay: endDay,
+      // 🆕 코드표 기반 파라미터
+      unitType: searchParams.unitType,
+      gradeCode: searchParams.gradeCode,
+      productNo: searchParams.productNo,
+    };
+
+    console.group("🔍 [시세 조회] KAMIS API 검색");
+    console.log("품목명:", searchParams.searchKeyword || "전체");
+    console.log("지역 코드:", searchParams.countryCode || "전체");
+    console.log("날짜 범위:", startDay, "~", endDay);
+    console.groupEnd();
+
+    return params;
+  }, [searchParams]);
+
+  const {
+    data: allPrices,
+    isLoading,
+    error,
+  } = useMarketPrices(apiParams || {}); // 🔥 null이면 빈 객체 전달
+
+  // KAMIS API는 서버에서 필터링하므로 클라이언트 필터링 최소화
+  const filteredPrices = useMemo(() => {
+    if (!allPrices || !searchParams) return [];
+
+    // KAMIS API가 이미 필터링된 결과를 반환하므로
+    // 추가 필터링은 최소한으로만 수행
+    let filtered = allPrices;
+
+    // 품목명이 정확히 일치하지 않는 경우를 위한 보조 필터링
+    if (searchParams.searchKeyword) {
+      const keyword = searchParams.searchKeyword.toLowerCase().trim();
+      filtered = filtered.filter((item) => {
+        const itemName = item.itemName.toLowerCase();
+        const varietyName = item.varietyName.toLowerCase();
+        return itemName.includes(keyword) || varietyName.includes(keyword);
+      });
+    }
+
+    return filtered;
+  }, [allPrices, searchParams]);
+
+  const handleSearch = (params: PriceFilterParams) => {
+    console.group("🔍 [시세 조회] 검색 파라미터");
+    console.log("품목명:", params.searchKeyword || "전체");
+
+    if (params.searchKeyword) {
+      const category = getCategoryFromKeyword(params.searchKeyword);
+      if (category) {
+        console.log("자동 설정된 대분류 코드:", category.lclsfCd);
+      } else {
+        console.log("⚠️ 매핑된 카테고리 없음 - 전체 데이터 조회 후 필터링");
+      }
+    }
+    console.groupEnd();
+
+    setSearchParams(params);
+    setHasSearched(true); // 🆕 검색 실행됨
+  };
+
+  const hasError = !!error;
+
+  return (
+    <div className="flex flex-col gap-4 -mx-6 -my-6">
+      <div className="px-6 md:px-8 pt-6 md:pt-8">
+        <PageHeader
+          title="시세 조회"
+          description="전국 농수산물 경매가격을 지역별, 품목별로 확인하세요."
+          hideTitle={true}
+        />
+      </div>
+
+      {/* 🆕 검색 필터 - 상단 전체 너비 */}
+      <div className="border-b bg-card">
+        <PriceFilter onSearch={handleSearch} isLoading={isLoading} />
+      </div>
+
+      {/* 에러 표시 */}
+      {hasError && (
+        <div className="mx-6 md:mx-8 border border-destructive bg-destructive/10 p-4">
+          <div className="flex gap-2">
+            <AlertCircle className="size-5 text-destructive" />
+            <div className="flex flex-col gap-1">
+              <h3 className="font-semibold text-destructive">시세 조회 오류</h3>
+              <p className="text-sm text-destructive/80">
+                {error?.message || "시세를 조회하는 중 오류가 발생했습니다."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🆕 초기 상태 메시지 */}
+      {!hasSearched && !isLoading && (
+        <div className="flex flex-col items-center justify-center p-12 gap-4">
+          <Search className="size-12 text-muted-foreground" />
+          <div className="text-center">
+            <h3 className="text-lg font-semibold mb-2">
+              시세 조회를 시작하세요
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              품목명을 입력한 후{" "}
+              <span className="font-semibold">시세 조회</span> 버튼을
+              눌러주세요.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 검색 결과 요약 */}
+      {hasSearched && !isLoading && filteredPrices.length > 0 && (
+        <div className="px-6 md:px-8 text-sm text-muted-foreground">
+          총{" "}
+          <span className="font-semibold text-foreground">
+            {filteredPrices.length}개
+          </span>
+          의 시세 정보를 찾았습니다.
+        </div>
+      )}
+
+      {/* 시세 테이블 - 검색 후에만 표시 */}
+      {hasSearched && (
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full flex flex-col">
+            <div className="px-6 md:px-8 py-4 border-b">
+              <h2 className="text-lg font-semibold">시세 목록</h2>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <PriceTable data={filteredPrices} isLoading={isLoading} />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

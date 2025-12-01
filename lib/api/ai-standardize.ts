@@ -1,6 +1,10 @@
+"server-only";
+
 /**
  * @file ai-standardize.ts
  * @description AI 상품명 표준화 API 함수
+ *
+ * ⚠️ 서버 전용: 이 파일은 서버 사이드에서만 사용할 수 있습니다.
  *
  * Gemini 2.5 Flash API를 사용하여 상품명을 표준화하는 서버 사이드 함수입니다.
  * 하이브리드 캐싱 방식을 사용하여 비용을 절감합니다.
@@ -16,6 +20,7 @@
  *
  * @example
  * ```tsx
+ * // 서버 컴포넌트 또는 API Route에서
  * import { standardizeProductName } from '@/lib/api/ai-standardize';
  *
  * const result = await standardizeProductName('양파1kg특', 'wholesaler-id');

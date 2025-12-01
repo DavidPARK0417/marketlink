@@ -1,0 +1,248 @@
+/**
+ * @file components/wholesaler/MarketPrices/PriceFilter.tsx
+ * @description 시세 검색 필터 컴포넌트
+ *
+ * 시세 조회를 위한 필터 컴포넌트입니다.
+ * 확정일자, 대분류/중분류/소분류 코드를 선택하여 시세를 조회할 수 있습니다.
+ *
+ * 주요 기능:
+ * 1. 확정일자 선택
+ * 2. 대분류/중분류/소분류 선택
+ * 3. 인기 품목 빠른 검색 버튼
+ * 4. Enter 키로 검색 실행
+ *
+ * @dependencies
+ * - components/ui/input, select, button
+ * - lib/api/market-prices (itemCategories)
+ * - date-fns (날짜 포맷팅)
+ */
+
+"use client";
+
+import { useState, FormEvent, useEffect, useRef } from "react";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { kamisCountryCodes } from "@/lib/api/market-prices-utils";
+import type { ProductCode } from "@/lib/api/product-codes";
+
+export interface PriceFilterParams {
+  searchKeyword?: string; // 품목명 검색
+  countryCode?: string; // 지역 경매시장 코드
+  unitType?: "소매" | "도매" | "소포장"; // 🆕 단위 타입 필터
+  gradeCode?: string; // 🆕 등급 코드 (01: 특, 02: 상, 03: 중)
+  productNo?: number; // 🆕 품목번호
+}
+
+interface PriceFilterProps {
+  onSearch: (params: PriceFilterParams) => void;
+  isLoading?: boolean;
+}
+
+export default function PriceFilter({
+  onSearch,
+  isLoading = false,
+}: PriceFilterProps) {
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [countryCode, setCountryCode] = useState<string>("");
+  const [unitType, setUnitType] = useState<"소매" | "도매" | "소포장" | "전체">(
+    "전체",
+  );
+  const [gradeCode, setGradeCode] = useState<string>("전체");
+
+  // 🆕 자동완성 관련 상태
+  const [suggestions, setSuggestions] = useState<ProductCode[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedProductCode, setSelectedProductCode] =
+    useState<ProductCode | null>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // 🆕 품목명 자동완성 검색
+  useEffect(() => {
+    if (searchKeyword.length >= 2) {
+      const timer = setTimeout(async () => {
+        try {
+          const response = await fetch(
+            `/api/product-codes/search?keyword=${encodeURIComponent(
+              searchKeyword,
+            )}&limit=10`,
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setSuggestions(data.data || []);
+            setShowSuggestions((data.data || []).length > 0);
+          }
+        } catch (error) {
+          console.warn("⚠️ [자동완성] 검색 실패:", error);
+          setSuggestions([]);
+          setShowSuggestions(false);
+        }
+      }, 300); // 300ms 디바운스
+
+      return () => clearTimeout(timer);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }, [searchKeyword]);
+
+  // 🆕 외부 클릭 시 자동완성 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSuggestionClick = (code: ProductCode) => {
+    setSearchKeyword(code.품목명);
+    setSelectedProductCode(code);
+    setShowSuggestions(false);
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const params: PriceFilterParams = {};
+    if (searchKeyword.trim()) params.searchKeyword = searchKeyword.trim();
+    if (countryCode) params.countryCode = countryCode;
+    if (unitType !== "전체") params.unitType = unitType;
+    if (gradeCode !== "전체") params.gradeCode = gradeCode;
+    if (selectedProductCode) params.productNo = selectedProductCode.productNo;
+
+    onSearch(params);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="px-4 md:px-6 py-4 md:py-5">
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* 지역 경매시장 선택 */}
+        <div className="flex flex-col gap-2 md:w-48">
+          <label htmlFor="country" className="text-sm font-medium">
+            지역 경매시장
+          </label>
+          <Select
+            value={countryCode || undefined}
+            onValueChange={(value) => setCountryCode(value || "")}
+          >
+            <SelectTrigger id="country">
+              <SelectValue placeholder="전체 지역" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(kamisCountryCodes)
+                .filter(([_, code]) => code !== undefined) // undefined인 항목 제외
+                .map(([name, code]) => (
+                  <SelectItem key={name} value={code!}>
+                    {name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* 품목명 검색 (자동완성) */}
+        <div className="flex-1 flex flex-col gap-2">
+          <label htmlFor="search" className="text-sm font-medium">
+            품목명 검색
+          </label>
+          <div className="relative" ref={suggestionsRef}>
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="search"
+              type="text"
+              placeholder="예: 사과, 배추, 레몬"
+              value={searchKeyword}
+              onChange={(e) => {
+                setSearchKeyword(e.target.value);
+                setSelectedProductCode(null);
+              }}
+              onFocus={() => {
+                if (suggestions.length > 0) setShowSuggestions(true);
+              }}
+              className="pl-10"
+            />
+            {/* 🆕 자동완성 제안 목록 */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-50 w-full mt-1 bg-popover border rounded-md shadow-lg max-h-60 overflow-auto">
+                {suggestions.map((code) => (
+                  <div
+                    key={code.productNo}
+                    onClick={() => handleSuggestionClick(code)}
+                    className="p-3 hover:bg-accent cursor-pointer border-b last:border-b-0"
+                  >
+                    <div className="font-medium">{code.품목명}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {code.대분류명} · {code.표시단위} · {code.단위명}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 🆕 단위 타입 선택 */}
+        <div className="flex flex-col gap-2 md:w-32">
+          <label htmlFor="unitType" className="text-sm font-medium">
+            단위 타입
+          </label>
+          <Select
+            value={unitType}
+            onValueChange={(value) => setUnitType(value as typeof unitType)}
+          >
+            <SelectTrigger id="unitType">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="전체">전체</SelectItem>
+              <SelectItem value="소매">소매</SelectItem>
+              <SelectItem value="도매">도매</SelectItem>
+              <SelectItem value="소포장">소포장</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* 🆕 등급 선택 */}
+        <div className="flex flex-col gap-2 md:w-32">
+          <label htmlFor="grade" className="text-sm font-medium">
+            등급
+          </label>
+          <Select value={gradeCode} onValueChange={setGradeCode}>
+            <SelectTrigger id="grade">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="전체">전체</SelectItem>
+              <SelectItem value="01">특급</SelectItem>
+              <SelectItem value="02">상품</SelectItem>
+              <SelectItem value="03">중품</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* 조회 버튼 */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium opacity-0">버튼</label>
+          <Button type="submit" disabled={isLoading} className="h-10 px-6">
+            <Search className="mr-2 size-4" />
+            {isLoading ? "조회 중..." : "시세 조회"}
+          </Button>
+        </div>
+      </div>
+    </form>
+  );
+}

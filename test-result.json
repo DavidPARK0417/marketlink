@@ -1,0 +1,68 @@
+﻿{
+    "testItem":  "?Ñëµ",
+    "dateRange":  {
+                      "startDay":  "2025-11-01",
+                      "endDay":  "2025-12-01"
+                  },
+    "results":  [
+                    {
+                        "step":  "1. productInfo ì¡°í",
+                        "success":  true,
+                        "foundItems":  4,
+                        "items":  [
+                                      {
+                                          "itemCode":  "411",
+                                          "itemName":  "ì¬ê³¼",
+                                          "categoryCode":  "400",
+                                          "categoryName":  "ê³¼ì¼ë¥"
+                                      },
+                                      {
+                                          "itemCode":  "411",
+                                          "itemName":  "ì¬ê³¼",
+                                          "categoryCode":  "400",
+                                          "categoryName":  "ê³¼ì¼ë¥"
+                                      },
+                                      {
+                                          "itemCode":  "411",
+                                          "itemName":  "ì¬ê³¼",
+                                          "categoryCode":  "400",
+                                          "categoryName":  "ê³¼ì¼ë¥"
+                                      },
+                                      {
+                                          "itemCode":  "411",
+                                          "itemName":  "ì¬ê³¼",
+                                          "categoryCode":  "400",
+                                          "categoryName":  "ê³¼ì¼ë¥"
+                                      }
+                                  ]
+                    },
+                    {
+                        "step":  "2. periodProductList ì¡°í",
+                        "success":  true,
+                        "itemCode":  "411",
+                        "categoryCode":  "400",
+                        "requestUrl":  "http://www.kamis.or.kr/service/price/xml.do?action=periodProductList\u0026p_cert_key=***\u0026p_cert_id=6836\u0026p_startday=2025-11-01\u0026p_endday=2025-12-01\u0026p_itemcategorycode=400\u0026p_itemcode=411\u0026p_kindcode=00\u0026p_productrankcode=04\u0026p_countrycode=1101\u0026p_convert_kg_yn=Y\u0026p_returntype=json",
+                        "responseStructure":  {
+                                                  "hasData":  true,
+                                                  "dataType":  "array",
+                                                  "dataLength":  1,
+                                                  "hasCondition":  true
+                                              },
+                        "sampleData":  [
+                                           "001"
+                                       ]
+                    },
+                    {
+                        "step":  "3. periodWholesaleProductList ì¡°í (íì¬ ì¬ì© ì¤)",
+                        "success":  true,
+                        "itemCode":  "411",
+                        "categoryCode":  "400",
+                        "requestUrl":  "http://www.kamis.or.kr/service/price/xml.do?action=periodWholesaleProductList\u0026p_cert_key=***\u0026p_cert_id=6836\u0026p_startday=2025-11-01\u0026p_endday=2025-12-01\u0026p_itemcategorycode=400\u0026p_itemcode=411\u0026p_kindcode=00\u0026p_productrankcode=04\u0026p_countrycode=1101\u0026p_convert_kg_yn=Y\u0026p_returntype=json",
+                        "totalItems":  0,
+                        "filteredItems":  0,
+                        "sampleItems":  [
+
+                                        ]
+                    }
+                ]
+}

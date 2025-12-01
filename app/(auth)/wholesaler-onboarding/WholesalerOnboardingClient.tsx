@@ -16,35 +16,124 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import WholesalerOnboardingForm from "./WholesalerOnboardingForm";
+import DuplicateSignupModal from "@/components/auth/duplicate-signup-modal";
 
 export default function WholesalerOnboardingClient() {
   const { isLoaded, userId } = useAuth();
   const router = useRouter();
   const retryCountRef = useRef(0);
+  const syncRetryCountRef = useRef(0);
   const [showForm, setShowForm] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const MAX_RETRIES = 3;
+  const MAX_SYNC_RETRIES = 5; // 동기화 재시도는 더 많이 허용 (세션 준비 시간 고려)
   const RETRY_DELAY = 500; // 500ms
+  const SYNC_RETRY_DELAY = 1000; // 동기화 재시도는 1초 대기
 
   useEffect(() => {
     // Clerk가 로드되지 않았거나 사용자가 없으면 대기
     if (!isLoaded || !userId) {
+      console.log("⏳ [wholesaler-onboarding] Clerk 로딩 대기 중...", {
+        isLoaded,
+        userId,
+      });
       return;
     }
+
+    console.log("✅ [wholesaler-onboarding] Clerk 로드 완료, 프로필 확인 시작", {
+      userId,
+    });
 
     // 프로필 확인 및 동기화 시도
     const checkProfile = async () => {
       try {
         // 먼저 동기화 API를 호출하여 프로필 생성 시도
+        let syncSuccess = false;
+        let isDuplicate = false;
+
         try {
+          console.log(
+            `🔄 [wholesaler-onboarding] 동기화 API 호출 시도 (${syncRetryCountRef.current + 1}/${MAX_SYNC_RETRIES})`,
+          );
+
           const syncResponse = await fetch("/api/sync-user", {
             method: "POST",
             credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
           });
-          if (syncResponse.ok) {
+
+          // 응답 파싱 (에러 응답도 JSON일 수 있음)
+          let syncData;
+          try {
+            syncData = await syncResponse.json();
+          } catch (parseError) {
+            // JSON 파싱 실패 시 텍스트 응답으로 처리
+            const text = await syncResponse.text();
+            console.error("❌ [wholesaler-onboarding] 동기화 응답 파싱 실패:", {
+              status: syncResponse.status,
+              text,
+            });
+            throw new Error(`동기화 응답 파싱 실패: ${text}`);
+          }
+
+          // 중복 가입 감지 (409 Conflict)
+          if (syncResponse.status === 409 && syncData.isDuplicate) {
+            console.log("⚠️ [wholesaler-onboarding] 중복 가입 감지됨:", {
+              message: syncData.message,
+              profile: syncData.profile,
+            });
+            isDuplicate = true;
+            setShowDuplicateModal(true);
+            return; // 중복 가입이면 여기서 종료
+          }
+
+          // 인증 실패 (401) - 세션이 아직 준비되지 않았을 수 있음
+          if (syncResponse.status === 401) {
+            if (syncRetryCountRef.current < MAX_SYNC_RETRIES) {
+              syncRetryCountRef.current += 1;
+              console.log(
+                `⏳ [wholesaler-onboarding] 인증 실패, ${SYNC_RETRY_DELAY}ms 후 재시도 (${syncRetryCountRef.current}/${MAX_SYNC_RETRIES})`,
+              );
+              setTimeout(() => {
+                checkProfile();
+              }, SYNC_RETRY_DELAY);
+              return;
+            } else {
+              console.error(
+                "❌ [wholesaler-onboarding] 동기화 최대 재시도 횟수 초과 (인증 실패)",
+              );
+              setError("인증에 실패했습니다. 페이지를 새로고침해주세요.");
+              // 인증 실패해도 폼은 표시 (사용자가 직접 시도할 수 있도록)
+              setShowForm(true);
+              return;
+            }
+          }
+
+          // 기타 오류
+          if (!syncResponse.ok) {
+            console.error("❌ [wholesaler-onboarding] 동기화 실패:", {
+              status: syncResponse.status,
+              data: syncData,
+            });
+            // 동기화 실패해도 프로필 확인은 계속 진행
+          } else {
             console.log("✅ [wholesaler-onboarding] 사용자 동기화 완료");
+            syncSuccess = true;
           }
         } catch (syncError) {
-          console.warn("⚠️ [wholesaler-onboarding] 동기화 실패 (무시하고 계속 진행):", syncError);
+          console.warn(
+            "⚠️ [wholesaler-onboarding] 동기화 예외 (무시하고 계속 진행):",
+            syncError,
+          );
+          // 동기화 실패해도 프로필 확인은 계속 진행
+        }
+
+        // 중복 가입 모달이 표시되면 여기서 종료
+        if (isDuplicate) {
+          return;
         }
 
         // 프로필 확인 (동기화 후 약간의 지연)
@@ -129,7 +218,32 @@ export default function WholesalerOnboardingClient() {
 
     // 즉시 프로필 확인 및 동기화 시도
     checkProfile();
-  }, [isLoaded, userId, router]); // router 의존성 추가
+  }, [isLoaded, userId, router]);
+
+  // 중복 가입 모달이 표시되면 모달만 렌더링
+  if (showDuplicateModal) {
+    return <DuplicateSignupModal />;
+  }
+
+  // 에러가 있으면 에러 메시지 표시
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">
+            <p className="text-lg font-semibold">오류가 발생했습니다</p>
+            <p className="text-sm mt-2">{error}</p>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            페이지 새로고침
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // 로딩 중이거나 폼을 표시할 준비가 되지 않았으면 로딩 표시
   // isLoaded가 true여야 ClerkProvider가 완전히 마운트된 상태

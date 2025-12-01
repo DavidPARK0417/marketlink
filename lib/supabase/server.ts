@@ -1,3 +1,5 @@
+"server-only";
+
 /**
  * @file server.ts
  * @description Clerk + Supabase 네이티브 통합 클라이언트 (Server Component용)
