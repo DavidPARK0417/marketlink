@@ -80,9 +80,17 @@ export async function getProducts(
   }
 
   if (filter.search) {
+    // Supabase PostgREST의 .or() 메서드는 % 와일드카드를 사용합니다
+    // 다른 파일들(inquiries.ts, product-codes.ts)과 동일한 형식 사용
+    const searchTerm = filter.search.trim();
     query = query.or(
-      `name.ilike.%${filter.search}%,standardized_name.ilike.%${filter.search}%`,
+      `name.ilike.%${searchTerm}%,standardized_name.ilike.%${searchTerm}%`,
     );
+    
+    console.log("🔍 [products-query] 검색 필터 적용", {
+      searchTerm,
+      filterQuery: `name.ilike.%${searchTerm}%,standardized_name.ilike.%${searchTerm}%`,
+    });
   }
 
   if (filter.min_price !== undefined) {
