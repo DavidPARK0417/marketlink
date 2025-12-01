@@ -99,7 +99,7 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">구분</TableHead>
+              <TableHead className="w-[80px]">구분</TableHead>
               <TableHead>품목명</TableHead>
               <TableHead className="w-[80px]">단위</TableHead>
               <TableHead className="text-right">당일가격</TableHead>
@@ -112,15 +112,7 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
           <TableBody>
             {paginatedData.map((item, index) => (
               <TableRow key={`${item.productno}-${item.productClsCode}-${index}`}>
-                <TableCell>
-                  <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                    item.productClsCode === "01" 
-                      ? "bg-blue-100 text-blue-800" 
-                      : "bg-green-100 text-green-800"
-                  }`}>
-                    {item.productClsName}
-                  </span>
-                </TableCell>
+                <TableCell className="font-medium">{item.productClsName}</TableCell>
                 <TableCell className="font-medium">{item.productName}</TableCell>
                 <TableCell>{item.unit}</TableCell>
                 <TableCell className="text-right font-semibold">

@@ -9,7 +9,147 @@
  */
 
 import { XMLParser } from "fast-xml-parser";
-import type { MarketPriceParams, DailyPriceItem, PriceItem, PriceTrendItem } from "./market-prices-types";
+import type {
+  MarketPriceParams,
+  DailyPriceItem,
+  PriceItem,
+  PriceTrendItem,
+} from "./market-prices-types";
+
+/**
+ * KAMIS dailyCountyList API 호출 함수
+ * 지역별 최근일자 도.소매가격정보 조회
+ */
+async function fetchKAMISDailyCountyList(params: {
+  certKey: string;
+  certId: string;
+  productClsCode: "01" | "02";
+  countyCode: string;
+}): Promise<DailyPriceItem[]> {
+  const baseUrl = "http://www.kamis.or.kr/service/price/xml.do";
+
+  const queryParams = new URLSearchParams({
+    action: "dailyCountyList",
+    p_cert_key: params.certKey,
+    p_cert_id: params.certId,
+    p_returntype: "xml",
+    p_countycode: params.countyCode,
+  });
+
+  const apiUrl = `${baseUrl}?${queryParams.toString()}`;
+
+  console.log(
+    "🔍 [KAMIS dailyCountyList] 호출:",
+    apiUrl.replace(params.certKey, "***"),
+  );
+
+  try {
+    const response = await fetch(apiUrl, {
+      cache: "no-store",
+      headers: {
+        Accept: "application/xml, text/xml",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`❌ [KAMIS dailyCountyList] HTTP ${response.status}`);
+      return [];
+    }
+
+    const xmlText = await response.text();
+
+    // XML 파싱
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: "@_",
+      textNodeName: "#text",
+    });
+
+    const parsedData = parser.parse(xmlText);
+
+    // 에러 코드 확인
+    const errorCode = parsedData?.document?.result_code;
+    if (errorCode && errorCode !== "0") {
+      console.warn(`⚠️ [KAMIS dailyCountyList] 에러 코드: ${errorCode}`);
+      return [];
+    }
+
+    // price.item 배열 추출
+    const items = parsedData?.document?.price?.item;
+    if (!items) {
+      console.warn(`⚠️ [KAMIS dailyCountyList] 데이터 없음`);
+      return [];
+    }
+
+    // 배열이 아닌 경우 배열로 변환
+    const itemArray = Array.isArray(items) ? items : [items];
+
+    // DailyPriceItem 형태로 변환
+    const convertedItems: DailyPriceItem[] = itemArray
+      .map((item: any) => {
+        try {
+          // 가격 문자열을 숫자로 변환 (쉼표 제거)
+          const parsePrice = (priceStr: string | undefined): number => {
+            if (!priceStr) return 0;
+            return parseFloat(String(priceStr).replace(/,/g, "")) || 0;
+          };
+
+          // 날짜 포맷팅 (YYYYMMDD -> YYYY-MM-DD)
+          const formatDate = (dateStr: string | undefined): string => {
+            if (!dateStr) return "";
+            // YYYY-MM-DD 형식이면 그대로 반환
+            if (dateStr.includes("-")) return dateStr;
+            // YYYYMMDD 형식이면 변환
+            if (dateStr.length === 8) {
+              return `${dateStr.substring(0, 4)}-${dateStr.substring(
+                4,
+                6,
+              )}-${dateStr.substring(6, 8)}`;
+            }
+            return "";
+          };
+
+          const dailyPriceItem: DailyPriceItem = {
+            productClsCode: params.productClsCode,
+            productClsName: params.productClsCode === "01" ? "소매" : "도매",
+            categoryCode: String(item.category_code || ""),
+            categoryName: String(item.category_name || ""),
+            productno: String(item.productno || ""),
+            lastestDay: formatDate(
+              item.lastest_date || item.lastest_day || item.day1,
+            ),
+            productName: String(item.productName || item.item_name || ""),
+            itemName: String(item.item_name || item.productName || ""),
+            unit: String(item.unit || ""),
+            day1: String(item.day1 || "당일"),
+            dpr1: parsePrice(item.dpr1),
+            day2: String(item.day2 || "1일전"),
+            dpr2: parsePrice(item.dpr2),
+            day3: String(item.day3 || "1개월전"),
+            dpr3: parsePrice(item.dpr3),
+            day4: String(item.day4 || "1년전"),
+            dpr4: parsePrice(item.dpr4),
+            direction: String(item.direction || "0") as "0" | "1" | "2",
+            value: parseFloat(String(item.value || "0")) || 0,
+          };
+
+          return dailyPriceItem;
+        } catch (error) {
+          console.error("❌ 항목 변환 실패:", error);
+          return null;
+        }
+      })
+      .filter((item): item is DailyPriceItem => item !== null);
+
+    console.log(
+      `✅ [KAMIS dailyCountyList] 조회 완료: ${convertedItems.length}건`,
+    );
+    return convertedItems;
+  } catch (error) {
+    console.error("❌ [KAMIS dailyCountyList] 호출 실패:", error);
+    return [];
+  }
+}
 
 /**
  * KAMIS dailySalesList API 호출 함수
@@ -20,12 +160,14 @@ async function fetchKAMISDailySales(params: {
   productClsCode?: "01" | "02" | "all";
 }): Promise<DailyPriceItem[]> {
   const baseUrl = "http://www.kamis.co.kr/service/price/xml.do";
-  
+
   // 도매/소매 구분 처리
-  const productClsCodes: ("01" | "02")[] = 
-    params.productClsCode === "01" ? ["01"] :
-    params.productClsCode === "02" ? ["02"] :
-    ["01", "02"]; // 전체인 경우 둘 다 조회
+  const productClsCodes: ("01" | "02")[] =
+    params.productClsCode === "01"
+      ? ["01"]
+      : params.productClsCode === "02"
+      ? ["02"]
+      : ["01", "02"]; // 전체인 경우 둘 다 조회
 
   const allItems: DailyPriceItem[] = [];
 
@@ -41,7 +183,10 @@ async function fetchKAMISDailySales(params: {
 
     const apiUrl = `${baseUrl}?${queryParams.toString()}`;
 
-    console.log("🔍 [KAMIS dailySalesList] 호출:", apiUrl.replace(params.certKey, "***"));
+    console.log(
+      "🔍 [KAMIS dailySalesList] 호출:",
+      apiUrl.replace(params.certKey, "***"),
+    );
 
     try {
       const response = await fetch(apiUrl, {
@@ -101,18 +246,23 @@ async function fetchKAMISDailySales(params: {
               if (dateStr.includes("-")) return dateStr;
               // YYYYMMDD 형식이면 변환
               if (dateStr.length === 8) {
-                return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
+                return `${dateStr.substring(0, 4)}-${dateStr.substring(
+                  4,
+                  6,
+                )}-${dateStr.substring(6, 8)}`;
               }
               return "";
             };
 
             const dailyPriceItem: DailyPriceItem = {
               productClsCode: (item.product_cls_code || clsCode) as "01" | "02",
-              productClsName: item.product_cls_name || (clsCode === "01" ? "소매" : "도매"),
+              productClsName:
+                item.product_cls_name || (clsCode === "01" ? "소매" : "도매"),
               categoryCode: String(item.category_code || ""),
               categoryName: String(item.category_name || ""),
               productno: String(item.productno || ""),
-              lastestDay: formatDate(item.lastest_day) || formatDate(item.regday),
+              lastestDay:
+                formatDate(item.lastest_day) || formatDate(item.regday),
               productName: String(item.productName || item.item_name || ""),
               itemName: String(item.item_name || item.productName || ""),
               unit: String(item.unit || ""),
@@ -137,7 +287,9 @@ async function fetchKAMISDailySales(params: {
         .filter((item): item is DailyPriceItem => item !== null);
 
       allItems.push(...convertedItems);
-      console.log(`✅ [KAMIS dailySalesList] ${clsCode} 조회 완료: ${convertedItems.length}건`);
+      console.log(
+        `✅ [KAMIS dailySalesList] ${clsCode} 조회 완료: ${convertedItems.length}건`,
+      );
     } catch (error) {
       console.error(`❌ [KAMIS dailySalesList] ${clsCode} 호출 실패:`, error);
     }
@@ -153,12 +305,14 @@ async function fetchKAMISProductInfo(params: {
   certKey: string;
   certId: string;
   itemName: string;
-}): Promise<Array<{
-  itemCode: string;
-  itemName: string;
-  categoryCode: string;
-  categoryName: string;
-}>> {
+}): Promise<
+  Array<{
+    itemCode: string;
+    itemName: string;
+    categoryCode: string;
+    categoryName: string;
+  }>
+> {
   const baseUrl = "http://www.kamis.co.kr/service/price/xml.do";
   const queryParams = new URLSearchParams({
     action: "productInfo",
@@ -169,7 +323,10 @@ async function fetchKAMISProductInfo(params: {
 
   const apiUrl = `${baseUrl}?${queryParams.toString()}`;
 
-  console.log("🔍 [KAMIS productInfo] 호출:", apiUrl.replace(params.certKey, "***"));
+  console.log(
+    "🔍 [KAMIS productInfo] 호출:",
+    apiUrl.replace(params.certKey, "***"),
+  );
 
   try {
     const response = await fetch(apiUrl, {
@@ -208,8 +365,12 @@ async function fetchKAMISProductInfo(params: {
       for (const item of data.info) {
         const itemCode = String(item.itemcode || item.itemCode || "");
         const itemName = String(item.itemname || item.itemName || "");
-        const categoryCode = String(item.itemcategorycode || item.itemCategoryCode || "");
-        const categoryName = String(item.itemcategoryname || item.itemCategoryName || "");
+        const categoryCode = String(
+          item.itemcategorycode || item.itemCategoryCode || "",
+        );
+        const categoryName = String(
+          item.itemcategoryname || item.itemCategoryName || "",
+        );
 
         // 검색어와 매칭되는 품목만 추가
         if (itemCode && itemName && itemName.toLowerCase().includes(keyword)) {
@@ -227,7 +388,9 @@ async function fetchKAMISProductInfo(params: {
       }
     }
 
-    console.log(`✅ [KAMIS productInfo] 품목 코드 찾기 완료: ${items.length}개`);
+    console.log(
+      `✅ [KAMIS productInfo] 품목 코드 찾기 완료: ${items.length}개`,
+    );
     return items;
   } catch (error) {
     console.error("❌ [KAMIS productInfo] 호출 실패:", error);
@@ -248,11 +411,12 @@ async function fetchKAMISPeriodProduct(params: {
   productClsCode: "01" | "02"; // "01": 소매, "02": 도매
 }): Promise<DailyPriceItem[]> {
   const baseUrl = "http://www.kamis.co.kr/service/price/xml.do";
-  
+
   // 도매/소매에 따라 다른 액션 사용
-  const action = params.productClsCode === "02" 
-    ? "periodWholesaleProductList" 
-    : "periodProductList";
+  const action =
+    params.productClsCode === "02"
+      ? "periodWholesaleProductList"
+      : "periodProductList";
 
   const queryParams = new URLSearchParams({
     action,
@@ -271,7 +435,10 @@ async function fetchKAMISPeriodProduct(params: {
 
   const apiUrl = `${baseUrl}?${queryParams.toString()}`;
 
-  console.log("🔍 [KAMIS periodProductList] 호출:", apiUrl.replace(params.certKey, "***"));
+  console.log(
+    "🔍 [KAMIS periodProductList] 호출:",
+    apiUrl.replace(params.certKey, "***"),
+  );
 
   try {
     const response = await fetch(apiUrl, {
@@ -291,7 +458,9 @@ async function fetchKAMISPeriodProduct(params: {
 
     // 에러 코드 확인
     if (data.error_code && data.error_code !== "000") {
-      console.warn(`⚠️ [KAMIS periodProductList] 에러 코드: ${data.error_code}`);
+      console.warn(
+        `⚠️ [KAMIS periodProductList] 에러 코드: ${data.error_code}`,
+      );
       return [];
     }
 
@@ -299,9 +468,11 @@ async function fetchKAMISPeriodProduct(params: {
 
     // 응답 구조 파싱 (periodProductList와 periodWholesaleProductList 구조가 다를 수 있음)
     let rawItems: any[] = [];
-    
+
     if (data.data?.item) {
-      rawItems = Array.isArray(data.data.item) ? data.data.item : [data.data.item];
+      rawItems = Array.isArray(data.data.item)
+        ? data.data.item
+        : [data.data.item];
     } else if (Array.isArray(data.data)) {
       rawItems = data.data;
     }
@@ -317,7 +488,10 @@ async function fetchKAMISPeriodProduct(params: {
       if (!dateStr) return "";
       if (dateStr.includes("-")) return dateStr;
       if (dateStr.length === 8) {
-        return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
+        return `${dateStr.substring(0, 4)}-${dateStr.substring(
+          4,
+          6,
+        )}-${dateStr.substring(6, 8)}`;
       }
       return "";
     };
@@ -385,17 +559,35 @@ export async function getDailyMarketPrices(
     );
   }
 
+  // 기본값: 도매("02")로 고정
+  const productClsCode = params.productClsCode || "02";
+
   console.log("📊 [시세 조회] 파라미터:", {
     itemName: params.itemName || "전체",
-    productClsCode: params.productClsCode || "전체",
+    productClsCode: productClsCode,
+    countyCode: params.countyCode || "없음",
   });
 
-  // 1단계: KAMIS API 호출 (오늘 거래된 상품)
-  let items = await fetchKAMISDailySales({
-    certKey,
-    certId,
-    productClsCode: params.productClsCode,
-  });
+  let items: DailyPriceItem[] = [];
+
+  // 지역 코드가 있으면 dailyCountyList 사용, 없으면 dailySalesList 사용
+  if (params.countyCode) {
+    // 도매("02")만 조회
+    const countyItems = await fetchKAMISDailyCountyList({
+      certKey,
+      certId,
+      productClsCode: "02",
+      countyCode: params.countyCode,
+    });
+    items.push(...countyItems);
+  } else {
+    // 1단계: KAMIS API 호출 (오늘 거래된 상품) - 도매만
+    items = await fetchKAMISDailySales({
+      certKey,
+      certId,
+      productClsCode: "02",
+    });
+  }
 
   // 품목명 필터링 (있는 경우)
   if (params.itemName) {
@@ -426,29 +618,22 @@ export async function getDailyMarketPrices(
       const startDay = yearAgo.toISOString().split("T")[0];
       const endDay = today.toISOString().split("T")[0];
 
-      // 도매/소매 구분 처리
-      const productClsCodes: ("01" | "02")[] = 
-        params.productClsCode === "01" ? ["01"] :
-        params.productClsCode === "02" ? ["02"] :
-        ["01", "02"];
-
       const periodItems: DailyPriceItem[] = [];
 
-      // 각 품목 코드와 도매/소매 조합으로 조회
-      for (const productInfo of productInfos.slice(0, 5)) { // 최대 5개만 시도
-        for (const clsCode of productClsCodes) {
-          const periodResults = await fetchKAMISPeriodProduct({
-            certKey,
-            certId,
-            itemCode: productInfo.itemCode,
-            categoryCode: productInfo.categoryCode,
-            startDay,
-            endDay,
-            productClsCode: clsCode,
-          });
+      // 각 품목 코드로 도매만 조회
+      for (const productInfo of productInfos.slice(0, 5)) {
+        // 최대 5개만 시도
+        const periodResults = await fetchKAMISPeriodProduct({
+          certKey,
+          certId,
+          itemCode: productInfo.itemCode,
+          categoryCode: productInfo.categoryCode,
+          startDay,
+          endDay,
+          productClsCode: "02", // 도매만
+        });
 
-          periodItems.push(...periodResults);
-        }
+        periodItems.push(...periodResults);
       }
 
       // 가장 최신 날짜의 데이터만 필터링
@@ -467,7 +652,9 @@ export async function getDailyMarketPrices(
         const latestDate = Array.from(itemsByDate.keys()).sort().reverse()[0];
         if (latestDate) {
           items = itemsByDate.get(latestDate)!;
-          console.log(`✅ [시세 조회] 최신 시세 발견: ${latestDate} (${items.length}건)`);
+          console.log(
+            `✅ [시세 조회] 최신 시세 발견: ${latestDate} (${items.length}건)`,
+          );
         }
       }
     }
@@ -492,7 +679,7 @@ export async function getMarketPrices(
 ): Promise<PriceItem[]> {
   // dailySalesList를 사용하도록 변경
   const dailyItems = await getDailyMarketPrices(params);
-  
+
   // PriceItem 형태로 변환 (기존 인터페이스 유지)
   return dailyItems.map((item) => ({
     cfmtnYmd: item.lastestDay,
@@ -549,14 +736,14 @@ export async function getDailyPriceTrend(
   try {
     // 품목명이 있으면 품목 코드 찾기
     let itemCodes: Array<{ itemCode: string; categoryCode: string }> = [];
-    
+
     if (itemName) {
       const productInfos = await fetchKAMISProductInfo({
         certKey,
         certId,
         itemName,
       });
-      
+
       itemCodes = productInfos.map((info) => ({
         itemCode: info.itemCode,
         categoryCode: info.categoryCode,
@@ -667,7 +854,9 @@ export async function getMonthlyPriceTrend(
       const dayStr = "15";
       const dateString = `${year}${month}${dayStr}`;
       const startDay = `${year}-${month}-01`;
-      const endDay = new Date(year, parseInt(month), 0).toISOString().split("T")[0];
+      const endDay = new Date(year, parseInt(month), 0)
+        .toISOString()
+        .split("T")[0];
 
       const dailyItems = await getDailyMarketPrices({
         itemName,
@@ -682,7 +871,8 @@ export async function getMonthlyPriceTrend(
 
       if (monthItems.length > 0) {
         const avgPrice =
-          monthItems.reduce((sum, item) => sum + item.dpr1, 0) / monthItems.length;
+          monthItems.reduce((sum, item) => sum + item.dpr1, 0) /
+          monthItems.length;
         results.push({
           date: monthKey,
           price: Math.round(avgPrice),
@@ -757,7 +947,8 @@ export async function getYearlyPriceTrend(
 
         if (monthItems.length > 0) {
           const avgPrice =
-            monthItems.reduce((sum, item) => sum + item.dpr1, 0) / monthItems.length;
+            monthItems.reduce((sum, item) => sum + item.dpr1, 0) /
+            monthItems.length;
           yearPrices.push(avgPrice);
         }
       }
@@ -785,4 +976,9 @@ export async function getYearlyPriceTrend(
 }
 
 // 타입 export (하위 호환성)
-export type { MarketPriceParams, DailyPriceItem, PriceItem, PriceTrendItem } from "./market-prices-types";
+export type {
+  MarketPriceParams,
+  DailyPriceItem,
+  PriceItem,
+  PriceTrendItem,
+} from "./market-prices-types";

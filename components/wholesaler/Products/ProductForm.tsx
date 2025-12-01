@@ -82,6 +82,7 @@ import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 import type { Product } from "@/types/product";
 import type { StandardizeResult } from "@/lib/api/ai-standardize";
 import Image from "next/image";
+import MarketPriceModal from "@/components/wholesaler/MarketPrices/MarketPriceModal";
 
 interface ProductFormProps {
   mode: "create" | "edit";
@@ -137,6 +138,9 @@ export default function ProductForm({
   const [standardizeDialogOpen, setStandardizeDialogOpen] = useState(false);
   const [standardizeResult, setStandardizeResult] =
     useState<StandardizeResult | null>(null);
+
+  // 시세조회 모달 상태
+  const [marketPriceModalOpen, setMarketPriceModalOpen] = useState(false);
 
   // specification 파싱 (수정 모드)
   const parsedSpec = initialData
@@ -555,7 +559,7 @@ export default function ProductForm({
                       size="icon"
                       className="md:size-auto md:px-3 md:gap-2"
                       onClick={() => {
-                        toast.info("시세 참고 기능은 준비 중입니다.");
+                        setMarketPriceModalOpen(true);
                       }}
                       disabled={isSubmitting}
                       title="시세 참고"
@@ -1206,6 +1210,13 @@ export default function ProductForm({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* 시세조회 모달 */}
+        <MarketPriceModal
+          open={marketPriceModalOpen}
+          onOpenChange={setMarketPriceModalOpen}
+          initialItemName={form.watch("name") || ""}
+        />
       </CardContent>
     </Card>
   );

@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,53 +16,71 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { kamisWholesaleCountyCodes } from "@/lib/api/market-prices-utils";
 
 export interface PriceFilterParams {
   itemName?: string;
-  productClsCode?: "01" | "02" | "all";
+  countyCode?: string;
 }
 
 interface PriceFilterProps {
   onSearch: (params: PriceFilterParams) => void;
   isLoading?: boolean;
+  /** 초기 검색어 */
+  initialItemName?: string;
 }
 
 export default function PriceFilter({
   onSearch,
   isLoading = false,
+  initialItemName = "",
 }: PriceFilterProps) {
-  const [itemName, setItemName] = useState<string>("");
-  const [productClsCode, setProductClsCode] = useState<"01" | "02" | "all">("all");
+  const [itemName, setItemName] = useState<string>(initialItemName);
+  const [countyCode, setCountyCode] = useState<string>("all");
+
+  // initialItemName이 변경되면 검색어 업데이트
+  useEffect(() => {
+    if (initialItemName) {
+      setItemName(initialItemName);
+    }
+  }, [initialItemName]);
+
+  // 도매 지역 목록
+  const availableCounties = Object.entries(kamisWholesaleCountyCodes);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const params: PriceFilterParams = {};
     if (itemName.trim()) params.itemName = itemName.trim();
-    if (productClsCode !== "all") params.productClsCode = productClsCode;
+    // "all"이 아닌 경우에만 countyCode 전달
+    if (countyCode && countyCode !== "all") params.countyCode = countyCode;
 
     onSearch(params);
   };
 
   return (
     <form onSubmit={handleSubmit} className="px-4 md:px-6 py-4 md:py-5">
-      <div className="flex flex-col md:flex-row gap-4">
-        {/* 도매/소매 구분 */}
-        <div className="flex flex-col gap-2 md:w-48">
-          <label htmlFor="productCls" className="text-sm font-medium">
-            구분
+      <div className="flex flex-col md:flex-row gap-3">
+        {/* 지역 선택 */}
+        <div className="flex flex-col gap-2 md:w-32">
+          <label htmlFor="county" className="text-sm font-medium">
+            지역
           </label>
           <Select
-            value={productClsCode}
-            onValueChange={(value) => setProductClsCode(value as "01" | "02" | "all")}
+            value={countyCode}
+            onValueChange={(value) => setCountyCode(value)}
           >
-            <SelectTrigger id="productCls">
+            <SelectTrigger id="county">
               <SelectValue placeholder="전체" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">전체</SelectItem>
-              <SelectItem value="01">소매</SelectItem>
-              <SelectItem value="02">도매</SelectItem>
+              {availableCounties.map(([name, code]) => (
+                <SelectItem key={code} value={code}>
+                  {name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

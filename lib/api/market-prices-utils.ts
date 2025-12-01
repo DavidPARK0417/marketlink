@@ -31,6 +31,54 @@ export const kamisCountryCodes = {
 } as const;
 
 /**
+ * KAMIS dailyCountyList API 지역 코드
+ * 소매가격 선택 가능 지역 (24개)
+ */
+export const kamisRetailCountyCodes = {
+  서울: "1101",
+  부산: "2100",
+  대구: "2200",
+  인천: "2300",
+  광주: "2401",
+  대전: "2501",
+  울산: "2601",
+  수원: "3111",
+  춘천: "3211",
+  강릉: "3214",
+  청주: "3311",
+  전주: "3511",
+  포항: "3711",
+  제주: "3911",
+  의정부: "3113",
+  순천: "3613",
+  안동: "3714",
+  창원: "3814",
+  용인: "3145",
+  세종: "2701",
+  성남: "3112",
+  고양: "3138",
+  천안: "3411",
+  김해: "3818",
+} as const;
+
+/**
+ * KAMIS dailyCountyList API 지역 코드
+ * 도매가격 선택 가능 지역 (5개)
+ */
+export const kamisWholesaleCountyCodes = {
+  서울: "1101",
+  부산: "2100",
+  대구: "2200",
+  광주: "2401",
+  대전: "2501",
+} as const;
+
+export type RetailCountyCode =
+  (typeof kamisRetailCountyCodes)[keyof typeof kamisRetailCountyCodes];
+export type WholesaleCountyCode =
+  (typeof kamisWholesaleCountyCodes)[keyof typeof kamisWholesaleCountyCodes];
+
+/**
  * 품목명을 대분류 코드로 매핑하는 테이블
  * 검색 키워드에 따라 자동으로 카테고리 코드를 설정하기 위해 사용
  */
@@ -216,4 +264,3 @@ export function getCategoryFromKeyword(
 
   return undefined;
 }
-

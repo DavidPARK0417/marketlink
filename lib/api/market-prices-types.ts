@@ -6,6 +6,7 @@
 export interface MarketPriceParams {
   itemName?: string; // 품목명
   productClsCode?: "01" | "02" | "all"; // "01": 소매, "02": 도매, "all": 전체
+  countyCode?: string; // 지역 코드 (dailyCountyList API용)
   countryCode?: string; // 지역 코드 (기존 호환성 유지)
   startDay?: string; // 조회 시작일 (YYYY-MM-DD) (기존 호환성 유지)
   endDay?: string; // 조회 종료일 (YYYY-MM-DD) (기존 호환성 유지)

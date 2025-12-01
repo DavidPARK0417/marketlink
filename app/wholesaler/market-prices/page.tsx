@@ -6,7 +6,9 @@
 "use client";
 
 import { useState } from "react";
-import PriceFilter, { type PriceFilterParams } from "@/components/wholesaler/MarketPrices/PriceFilter";
+import PriceFilter, {
+  type PriceFilterParams,
+} from "@/components/wholesaler/MarketPrices/PriceFilter";
 import PriceTable from "@/components/wholesaler/MarketPrices/PriceTable";
 import type { DailyPriceItem } from "@/lib/api/market-prices-types";
 
@@ -21,12 +23,15 @@ export default function MarketPricesPage() {
 
     try {
       const queryParams = new URLSearchParams();
+      // 항상 도매("02")로 고정
+      queryParams.append("productClsCode", "02");
       if (params.itemName) queryParams.append("itemName", params.itemName);
-      if (params.productClsCode && params.productClsCode !== "all") {
-        queryParams.append("productClsCode", params.productClsCode);
-      }
+      if (params.countyCode)
+        queryParams.append("countyCode", params.countyCode);
 
-      const response = await fetch(`/api/market-prices?${queryParams.toString()}`);
+      const response = await fetch(
+        `/api/market-prices?${queryParams.toString()}`,
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -36,7 +41,11 @@ export default function MarketPricesPage() {
       const result = await response.json();
       setData(result.data || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "시세 조회 중 오류가 발생했습니다.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "시세 조회 중 오류가 발생했습니다.",
+      );
       setData([]);
     } finally {
       setIsLoading(false);
@@ -70,4 +79,3 @@ export default function MarketPricesPage() {
     </div>
   );
 }
-

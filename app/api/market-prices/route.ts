@@ -13,7 +13,10 @@ export async function GET(request: Request) {
 
     const params: MarketPriceParams = {
       itemName: searchParams.get("itemName") || undefined,
-      productClsCode: (searchParams.get("productClsCode") as "01" | "02" | "all") || undefined,
+      productClsCode:
+        (searchParams.get("productClsCode") as "01" | "02" | "all") ||
+        undefined,
+      countyCode: searchParams.get("countyCode") || undefined,
     };
 
     console.log("📊 [API] 시세 조회 요청:", params);
@@ -36,4 +39,3 @@ export async function GET(request: Request) {
     );
   }
 }
-
