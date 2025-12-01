@@ -591,7 +591,7 @@ export default function ProductForm({
                       min="1"
                       step="1"
                       {...field}
-                      value={field.value === 1 ? "" : field.value ?? ""}
+                      value={field.value ?? 1}
                       onChange={(e) => {
                         const inputValue = e.target.value;
                         // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)
@@ -606,19 +606,13 @@ export default function ProductForm({
                         }
                       }}
                       onBlur={(e) => {
-                        // 포커스를 잃을 때만 기본값 적용
+                        // 포커스를 잃을 때 빈 값이면 기본값 1로 설정
                         const inputValue = e.target.value;
-                        if (
-                          inputValue === "" ||
-                          inputValue === null ||
-                          inputValue === undefined
-                        ) {
+                        if (inputValue === "" || inputValue === null || inputValue === undefined) {
                           field.onChange(1);
                         } else {
                           const value = parseInt(inputValue, 10);
-                          const safeValue = isNaN(value)
-                            ? 1
-                            : Math.max(1, value);
+                          const safeValue = isNaN(value) ? 1 : Math.max(1, value);
                           field.onChange(safeValue);
                         }
                       }}
