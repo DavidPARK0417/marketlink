@@ -27,7 +27,7 @@
 
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -39,7 +39,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import { Edit, Eye, EyeOff, ImageIcon, Trash2 } from "lucide-react";
+import { Edit, ToggleRight, ToggleLeft, ImageIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/types/product";
 import type { GetProductsResult } from "@/lib/supabase/queries/products";
@@ -91,6 +91,14 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
   const [status, setStatus] = useState(initialFilters.status ?? "all");
   const [search, setSearch] = useState(initialFilters.search ?? "");
 
+  // 상품 목록 로컬 상태 (Optimistic Update를 위한)
+  const [products, setProducts] = useState<Product[]>(initialData.products);
+
+  // initialData가 변경되면 로컬 상태 동기화
+  useEffect(() => {
+    setProducts(initialData.products);
+  }, [initialData.products]);
+
   // 삭제 확인 다이얼로그 상태
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -135,12 +143,23 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
     applyFilters();
   };
 
-  // 활성화/비활성화 토글
+  // 활성화/비활성화 토글 (Optimistic Update 적용)
   const toggleActive = useCallback(async (product: Product) => {
+    const previousProducts = [...products];
+    const newStatus = !product.is_active;
+
+    // 즉시 UI 업데이트 (Optimistic Update)
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === product.id ? { ...p, is_active: newStatus } : p
+      )
+    );
+
     try {
       console.log("🔄 [product-table] 상품 상태 변경 시작", {
         productId: product.id,
         currentStatus: product.is_active,
+        newStatus,
       });
 
       const result = await toggleProductActive(product.id);
@@ -149,15 +168,20 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
         toast.success(
           result.isActive ? "상품이 활성화되었습니다." : "상품이 비활성화되었습니다."
         );
-        router.refresh(); // 서버 데이터 새로고침
+        // 서버 데이터와 동기화 (백그라운드)
+        router.refresh();
       } else {
+        // 실패 시 이전 상태로 복원
+        setProducts(previousProducts);
         toast.error(result.error || "상품 상태 변경에 실패했습니다.");
       }
     } catch (error) {
+      // 에러 발생 시 이전 상태로 복원
+      setProducts(previousProducts);
       console.error("❌ [product-table] 상품 상태 변경 실패:", error);
       toast.error("상품 상태 변경 중 오류가 발생했습니다.");
     }
-  }, [router]);
+  }, [router, products]);
 
   // 삭제 확인 다이얼로그 열기
   const handleDeleteClick = useCallback((product: Product) => {
@@ -285,20 +309,23 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={() => toggleActive(product)}
                 title={product.is_active ? "비활성화" : "활성화"}
+                aria-label={product.is_active ? "비활성화" : "활성화"}
+                className="h-auto p-1"
               >
                 {product.is_active ? (
-                  <EyeOff className="h-4 w-4" />
+                  <ToggleRight className="h-12 w-12 text-green-600" />
                 ) : (
-                  <Eye className="h-4 w-4" />
+                  <ToggleLeft className="h-12 w-12 text-gray-500" />
                 )}
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 asChild
+                title="편집"
+                aria-label="편집"
               >
                 <Link href={`/wholesaler/products/${product.id}/edit`}>
                   <Edit className="h-4 w-4" />
@@ -309,6 +336,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 size="sm"
                 onClick={() => handleDeleteClick(product)}
                 title="삭제"
+                aria-label="삭제"
                 className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
               >
                 <Trash2 className="h-4 w-4" />
@@ -324,7 +352,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
 
   // 테이블 인스턴스 생성
   const table = useReactTable({
-    data: initialData.products,
+    data: products,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
