@@ -31,7 +31,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2, CheckCircle, Search } from "lucide-react";
+import { useClerk, useAuth } from "@clerk/nextjs";
+import { Loader2, CheckCircle, Search, ArrowLeft, LogOut } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -75,8 +76,15 @@ import type { DaumPostcodeData } from "@/types/daum";
 
 export default function WholesalerOnboardingForm() {
   const router = useRouter();
+  const { isLoaded } = useAuth();
+  // useClerk는 항상 호출해야 함 (React Hook 규칙)
+  // ClerkProvider 밖에서 호출되면 에러가 발생하지만, 
+  // 루트 레이아웃에 ClerkProvider가 있으므로 정상적으로 작동해야 함
+  const { signOut } = useClerk();
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const form = useForm<WholesalerOnboardingFormData>({
     resolver: zodResolver(wholesalerOnboardingSchema),
@@ -214,6 +222,36 @@ export default function WholesalerOnboardingForm() {
     router.push("/");
   };
 
+  // 뒤로가기 핸들러
+  const handleGoBack = () => {
+    console.log("🔙 [wholesaler-onboarding] 뒤로가기 - 로그인 페이지로 이동");
+    router.push("/sign-in/wholesaler");
+  };
+
+  // 로그아웃 핸들러
+  const handleLogout = async () => {
+    if (!isLoaded) {
+      console.warn("⚠️ [wholesaler-onboarding] Clerk가 아직 로드되지 않음");
+      // Clerk가 로드되지 않았어도 로그인 페이지로 이동
+      router.push("/sign-in/wholesaler");
+      return;
+    }
+
+    try {
+      console.log("🚪 [wholesaler-onboarding] 로그아웃 시작");
+      setIsLoggingOut(true);
+      await signOut();
+      router.push("/sign-in/wholesaler");
+      console.log("✅ [wholesaler-onboarding] 로그아웃 완료");
+    } catch (error) {
+      console.error("❌ [wholesaler-onboarding] 로그아웃 오류:", error);
+      setIsLoggingOut(false);
+      toast.error("로그아웃 중 오류가 발생했습니다.");
+      // 에러가 발생해도 강제로 로그인 페이지로 이동
+      router.push("/sign-in/wholesaler");
+    }
+  };
+
   return (
     <div className="w-full">
       {/* 완료 모달 */}
@@ -242,6 +280,40 @@ export default function WholesalerOnboardingForm() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 네비게이션 버튼 영역 */}
+      <div className="mb-6 flex items-center justify-between">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={handleGoBack}
+          disabled={isSubmitting || isLoggingOut}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="size-4" />
+          뒤로가기
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleLogout}
+          disabled={isSubmitting || isLoggingOut}
+          className="flex items-center gap-2"
+        >
+          {isLoggingOut ? (
+            <>
+              <Loader2 className="size-4 animate-spin" />
+              로그아웃 중...
+            </>
+          ) : (
+            <>
+              <LogOut className="size-4" />
+              로그아웃
+            </>
+          )}
+        </Button>
+      </div>
 
       {/* 진행 표시 */}
       <div className="mb-6 text-center">

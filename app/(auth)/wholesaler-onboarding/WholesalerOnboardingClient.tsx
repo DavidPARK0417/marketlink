@@ -76,6 +76,7 @@ export default function WholesalerOnboardingClient() {
   }, [isLoaded, userId, retryCount, router]);
 
   // 로딩 중이거나 폼을 표시할 준비가 되지 않았으면 로딩 표시
+  // isLoaded가 true여야 ClerkProvider가 완전히 마운트된 상태
   if (!isLoaded || !userId || !showForm) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
@@ -87,6 +88,8 @@ export default function WholesalerOnboardingClient() {
     );
   }
 
+  // Clerk가 완전히 로드된 후에만 폼 렌더링
+  // 이렇게 하면 useClerk가 ClerkProvider 안에서 호출됨을 보장
   return <WholesalerOnboardingForm />;
 }
 
