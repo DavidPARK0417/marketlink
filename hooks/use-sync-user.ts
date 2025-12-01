@@ -32,6 +32,7 @@ export function useSyncUser() {
   const retryCountRef = useRef(0);
   const [error, setError] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
   const MAX_RETRIES = 3;
   const RETRY_DELAY = 1000; // 1초
 
@@ -62,6 +63,19 @@ export function useSyncUser() {
         const data = await response.json();
 
         if (!response.ok) {
+          // 중복 가입 감지 (409 Conflict)
+          if (response.status === 409 && data.isDuplicate) {
+            console.log("⚠️ [use-sync-user] 중복 가입 감지됨:", {
+              message: data.message,
+              profile: data.profile,
+            });
+            // 이미 가입된 계정이므로 동기화 완료로 처리 (무한루프 방지)
+            syncedRef.current = true;
+            setIsDuplicate(true);
+            setIsSyncing(false);
+            return;
+          }
+
           const errorMessage =
             data.error || data.details || "사용자 동기화에 실패했습니다.";
           const errorCode = data.code || "UNKNOWN";
@@ -150,5 +164,5 @@ export function useSyncUser() {
     };
   }, [isLoaded, userId, isSyncing]);
 
-  return { error, isSyncing };
+  return { error, isSyncing, isDuplicate };
 }

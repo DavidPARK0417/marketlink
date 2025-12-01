@@ -48,12 +48,41 @@ export async function POST() {
 
     console.log("📝 [sync-user] profiles 테이블 upsert 시도...");
 
-    // 기존 프로필이 있는지 확인 (role 유지하기 위해)
+    // 기존 프로필이 있는지 확인 (role 유지하기 위해 + 중복 가입 감지)
     const { data: existingProfile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("id, clerk_user_id, email, role, created_at")
       .eq("clerk_user_id", clerkUser.id)
       .maybeSingle();
+
+    // 중복 가입 감지: 이미 존재하는 계정인지 확인
+    if (existingProfile) {
+      const createdAt = new Date(existingProfile.created_at);
+      const now = new Date();
+      const timeDiff = now.getTime() - createdAt.getTime();
+      const minutesDiff = timeDiff / (1000 * 60);
+
+      // 5분 이내에 생성된 계정이면 신규 가입으로 간주, 그 외는 중복 가입 시도
+      if (minutesDiff > 5) {
+        console.log("⚠️ [sync-user] 중복 가입 시도 감지:", {
+          clerkUserId: clerkUser.id,
+          email: email,
+          existingProfileId: existingProfile.id,
+          createdAt: existingProfile.created_at,
+          minutesSinceCreation: minutesDiff.toFixed(2),
+        });
+
+        return NextResponse.json(
+          {
+            success: false,
+            isDuplicate: true,
+            message: "이미 가입된 계정입니다",
+            profile: existingProfile,
+          },
+          { status: 409 }, // 409 Conflict
+        );
+      }
+    }
 
     // 기존 role이 있으면 유지, 없으면 NULL (역할 선택 페이지에서 설정)
     const role = existingProfile?.role || null;
