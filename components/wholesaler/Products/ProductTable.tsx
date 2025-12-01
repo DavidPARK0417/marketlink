@@ -378,7 +378,34 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
         </form>
 
         <div className="flex items-center gap-2">
-          <Select value={category} onValueChange={setCategory}>
+          <Select
+            value={category}
+            onValueChange={(value) => {
+              console.log("🔍 [product-table] 카테고리 선택:", value);
+              setCategory(value);
+              // 카테고리 변경 시 즉시 필터 적용
+              const params = new URLSearchParams(searchParams.toString());
+              if (value !== "all") {
+                params.set("category", value);
+              } else {
+                params.delete("category");
+              }
+              // 다른 필터는 유지
+              if (status !== "all") {
+                params.set("status", status);
+              }
+              if (search) {
+                params.set("search", search);
+              }
+              if (sorting.length > 0) {
+                params.set("sortBy", sorting[0].id);
+                params.set("sortOrder", sorting[0].desc ? "desc" : "asc");
+              }
+              params.set("page", "1");
+              console.log("✅ [product-table] 필터 적용:", params.toString());
+              router.push(`/wholesaler/products?${params.toString()}`);
+            }}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="카테고리" />
             </SelectTrigger>
@@ -392,15 +419,55 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             </SelectContent>
           </Select>
 
-          <Tabs value={status} onValueChange={setStatus}>
+          <Tabs
+            value={status}
+            onValueChange={(value) => {
+              console.log("🔍 [product-table] 상태 선택:", value);
+              setStatus(value);
+              // 상태 변경 시 즉시 필터 적용
+              const params = new URLSearchParams(searchParams.toString());
+              if (value !== "all") {
+                params.set("status", value);
+              } else {
+                params.delete("status");
+              }
+              // 다른 필터는 유지
+              if (category !== "all") {
+                params.set("category", category);
+              }
+              if (search) {
+                params.set("search", search);
+              }
+              if (sorting.length > 0) {
+                params.set("sortBy", sorting[0].id);
+                params.set("sortOrder", sorting[0].desc ? "desc" : "asc");
+              }
+              params.set("page", "1");
+              console.log("✅ [product-table] 필터 적용:", params.toString());
+              router.push(`/wholesaler/products?${params.toString()}`);
+            }}
+          >
             <TabsList>
-              <TabsTrigger value="all">전체</TabsTrigger>
-              <TabsTrigger value="active">활성</TabsTrigger>
-              <TabsTrigger value="inactive">비활성</TabsTrigger>
+              <TabsTrigger
+                value="all"
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:font-semibold"
+              >
+                전체
+              </TabsTrigger>
+              <TabsTrigger
+                value="active"
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:font-semibold"
+              >
+                활성
+              </TabsTrigger>
+              <TabsTrigger
+                value="inactive"
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:font-semibold"
+              >
+                비활성
+              </TabsTrigger>
             </TabsList>
           </Tabs>
-
-          <Button onClick={applyFilters}>적용</Button>
         </div>
       </div>
 
