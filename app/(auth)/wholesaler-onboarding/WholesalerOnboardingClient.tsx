@@ -3,24 +3,24 @@
  * @description 도매점 온보딩 클라이언트 컴포넌트 (프로필 재시도 로직)
  *
  * 회원가입 직후 프로필 동기화가 완료되지 않았을 때를 대비한 재시도 로직을 포함합니다.
- * 프로필이 없을 때 잠시 대기 후 페이지를 새로고침하여 재시도합니다.
+ * 프로필이 없을 때 잠시 대기 후 API를 다시 호출하여 재시도합니다.
+ * router.refresh() 대신 API 재호출을 사용하여 무한 루프를 방지합니다.
  *
  * @dependencies
- * - next/navigation (useRouter)
  * - @clerk/nextjs (useAuth)
  */
 
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import WholesalerOnboardingForm from "./WholesalerOnboardingForm";
 
 export default function WholesalerOnboardingClient() {
-  const router = useRouter();
   const { isLoaded, userId } = useAuth();
-  const [retryCount, setRetryCount] = useState(0);
+  const router = useRouter();
+  const retryCountRef = useRef(0);
   const [showForm, setShowForm] = useState(false);
   const MAX_RETRIES = 3;
   const RETRY_DELAY = 500; // 500ms
@@ -31,9 +31,25 @@ export default function WholesalerOnboardingClient() {
       return;
     }
 
-    // 프로필 확인을 위해 서버에 요청
+    // 프로필 확인 및 동기화 시도
     const checkProfile = async () => {
       try {
+        // 먼저 동기화 API를 호출하여 프로필 생성 시도
+        try {
+          const syncResponse = await fetch("/api/sync-user", {
+            method: "POST",
+            credentials: "include",
+          });
+          if (syncResponse.ok) {
+            console.log("✅ [wholesaler-onboarding] 사용자 동기화 완료");
+          }
+        } catch (syncError) {
+          console.warn("⚠️ [wholesaler-onboarding] 동기화 실패 (무시하고 계속 진행):", syncError);
+        }
+
+        // 프로필 확인 (동기화 후 약간의 지연)
+        await new Promise((resolve) => setTimeout(resolve, 200)); // 200ms 대기
+        
         const response = await fetch("/api/check-profile", {
           method: "GET",
           credentials: "include",
@@ -42,38 +58,78 @@ export default function WholesalerOnboardingClient() {
         if (response.ok) {
           const data = await response.json();
           if (data.profile) {
-            // 프로필이 있으면 폼 표시
             console.log("✅ [wholesaler-onboarding] 프로필 확인 완료");
+
+            // 반려 처리된 도매점 정보 확인
+            try {
+              const wholesalerResponse = await fetch("/api/check-wholesaler-status", {
+                method: "GET",
+                credentials: "include",
+              });
+
+              if (wholesalerResponse.ok) {
+                const wholesalerData = await wholesalerResponse.json();
+                
+                // rejected 상태이면 승인 대기 페이지로 리다이렉트
+                if (wholesalerData.wholesaler?.status === "rejected") {
+                  console.log("⚠️ [wholesaler-onboarding] 반려 처리된 계정, 승인 대기 페이지로 이동");
+                  router.push("/pending-approval");
+                  return;
+                }
+
+                // pending 상태이면 승인 대기 페이지로 리다이렉트
+                if (wholesalerData.wholesaler?.status === "pending") {
+                  console.log("⚠️ [wholesaler-onboarding] 승인 대기 중인 계정, 승인 대기 페이지로 이동");
+                  router.push("/pending-approval");
+                  return;
+                }
+
+                // approved 상태이면 대시보드로 리다이렉트
+                if (wholesalerData.wholesaler?.status === "approved") {
+                  console.log("✅ [wholesaler-onboarding] 이미 승인된 계정, 대시보드로 이동");
+                  router.push("/wholesaler");
+                  return;
+                }
+              }
+            } catch (wholesalerError) {
+              console.warn("⚠️ [wholesaler-onboarding] 도매점 상태 확인 실패 (무시하고 계속 진행):", wholesalerError);
+              // 도매점 상태 확인 실패해도 폼 표시 (신규 사용자일 수 있음)
+            }
+
+            // 프로필이 있고 도매점 정보가 없거나 신규인 경우 폼 표시
             setShowForm(true);
-          } else if (retryCount < MAX_RETRIES) {
+          } else if (retryCountRef.current < MAX_RETRIES) {
             // 프로필이 없고 재시도 가능하면 재시도
+            retryCountRef.current += 1;
             console.log(
-              `⏳ [wholesaler-onboarding] 프로필 없음, ${RETRY_DELAY}ms 후 재시도 (${retryCount + 1}/${MAX_RETRIES})`,
+              `⏳ [wholesaler-onboarding] 프로필 없음, ${RETRY_DELAY}ms 후 재시도 (${retryCountRef.current}/${MAX_RETRIES})`,
             );
             setTimeout(() => {
-              setRetryCount((prev) => prev + 1);
-              router.refresh(); // 페이지 새로고침
+              // API를 다시 호출하여 무한 루프 방지
+              checkProfile();
             }, RETRY_DELAY);
           } else {
-            // 최대 재시도 횟수 초과 시 폼 표시 (동기화가 진행 중일 수 있음)
-            console.log("⚠️ [wholesaler-onboarding] 최대 재시도 횟수 초과, 폼 표시");
+            // 최대 재시도 횟수 초과 시 폼 표시
+            // 프로필이 없어도 폼을 표시하여 사용자가 온보딩을 진행할 수 있도록 함
+            // 폼 제출 시 프로필이 생성되거나 업데이트됨
+            console.log("⚠️ [wholesaler-onboarding] 최대 재시도 횟수 초과, 폼 표시 (프로필 없어도 진행)");
             setShowForm(true);
           }
         } else {
-          // API 오류 시 폼 표시
+          // API 오류 시 폼 표시 (프로필 없어도 진행 가능)
           console.log("⚠️ [wholesaler-onboarding] 프로필 확인 API 오류, 폼 표시");
           setShowForm(true);
         }
       } catch (error) {
         console.error("❌ [wholesaler-onboarding] 프로필 확인 예외:", error);
-        // 오류 발생 시 폼 표시
+        // 오류 발생 시 폼 표시 (프로필 없어도 진행 가능)
         setShowForm(true);
       }
     };
 
-    // 즉시 프로필 확인
+    // 즉시 프로필 확인 및 동기화 시도
     checkProfile();
-  }, [isLoaded, userId, retryCount, router]);
+  }, [isLoaded, userId, router]); // router 의존성 추가
 
   // 로딩 중이거나 폼을 표시할 준비가 되지 않았으면 로딩 표시
   // isLoaded가 true여야 ClerkProvider가 완전히 마운트된 상태

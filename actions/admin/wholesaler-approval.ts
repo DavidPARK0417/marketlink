@@ -156,7 +156,19 @@ export async function rejectWholesaler(
     const supabase = getServiceRoleClient();
     const ipAddress = await getIpAddress();
 
-    // 도매사업자 반려 처리
+    // 1. 도매사업자 정보 조회 (profile_id 가져오기 위해)
+    const { data: wholesaler, error: fetchError } = await supabase
+      .from("wholesalers")
+      .select("profile_id")
+      .eq("id", wholesalerId)
+      .single();
+
+    if (fetchError || !wholesaler) {
+      console.error("❌ [admin] 도매사업자 조회 오류:", fetchError);
+      throw new Error("도매사업자 정보를 찾을 수 없습니다.");
+    }
+
+    // 2. 도매사업자 반려 처리
     const { error: updateError } = await supabase
       .from("wholesalers")
       .update({
@@ -173,6 +185,20 @@ export async function rejectWholesaler(
 
     console.log("✅ [admin] 도매사업자 상태 업데이트 완료");
 
+    // 3. 반려 처리 시 role을 null로 리셋 (재가입 가능하도록)
+    const { error: roleUpdateError } = await supabase
+      .from("profiles")
+      .update({ role: null })
+      .eq("id", wholesaler.profile_id);
+
+    if (roleUpdateError) {
+      console.error("❌ [admin] role 리셋 오류:", roleUpdateError);
+      // role 리셋 실패는 치명적이지 않으므로 경고만 하고 계속 진행
+      console.warn("⚠️ [admin] role 리셋 실패했지만 반려 처리는 완료됨");
+    } else {
+      console.log("✅ [admin] role 리셋 완료: null");
+    }
+
     // 감사 로그 기록
     const { error: logError } = await supabase.from("audit_logs").insert({
       user_id: adminId,
@@ -183,6 +209,7 @@ export async function rejectWholesaler(
         wholesaler_id: wholesalerId,
         rejection_reason: rejectionReason.trim(),
         rejected_at: new Date().toISOString(),
+        role_reset: true, // role 리셋 여부 기록
       },
       ip_address: ipAddress,
     });

@@ -118,7 +118,7 @@ export async function createWholesaler(
 
     const { data: existingWholesaler, error: checkError } = await supabase
       .from("wholesalers")
-      .select("id")
+      .select("id, status, rejection_reason")
       .eq("profile_id", profile.id)
       .single();
 
@@ -131,12 +131,105 @@ export async function createWholesaler(
       };
     }
 
+    // pending 또는 rejected 상태인 경우, 기존 레코드를 업데이트
     if (existingWholesaler) {
-      console.log("⚠️ [wholesaler] 이미 등록된 도매점:", existingWholesaler.id);
-      return {
-        success: false,
-        error: "이미 등록된 도매점 정보가 있습니다.",
-      };
+      if (existingWholesaler.status === "pending" || existingWholesaler.status === "rejected") {
+        console.log(
+          "🔄 [wholesaler] 기존 도매점 정보 업데이트 (재신청):",
+          existingWholesaler.id,
+        );
+
+        // 3. 사업자번호 중복 확인 (자신의 사업자번호는 제외)
+        const businessNumberDigits = formData.business_number.replace(/\D/g, "");
+
+        const { data: duplicateBusiness, error: duplicateError } = await supabase
+          .from("wholesalers")
+          .select("id")
+          .eq("business_number", businessNumberDigits)
+          .neq("id", existingWholesaler.id) // 자신의 레코드는 제외
+          .single();
+
+        if (duplicateError && duplicateError.code !== "PGRST116") {
+          console.error(
+            "❌ [wholesaler] 사업자번호 중복 확인 오류:",
+            duplicateError,
+          );
+          return {
+            success: false,
+            error: "사업자번호 확인 중 오류가 발생했습니다.",
+          };
+        }
+
+        if (duplicateBusiness) {
+          console.log("⚠️ [wholesaler] 중복된 사업자번호:", businessNumberDigits);
+          return {
+            success: false,
+            error: "이미 등록된 사업자번호입니다.",
+          };
+        }
+
+        // 4. 전화번호 포맷팅
+        const formattedPhone = formatPhone(formData.phone);
+
+        // 5. 은행명 + 계좌번호 결합
+        const bankAccount = `${formData.bank_name} ${formData.bank_account_number}`;
+
+        // 6. 기존 레코드 업데이트 (rejection_reason은 유지, status만 pending으로 변경)
+        const { data: updatedWholesaler, error: updateError } = await supabase
+          .from("wholesalers")
+          .update({
+            business_name: formData.business_name.trim(),
+            business_number: businessNumberDigits,
+            representative: formData.representative.trim(),
+            phone: formattedPhone,
+            address: formData.address.trim(),
+            address_detail: formData.address_detail?.trim() || null,
+            bank_account: bankAccount,
+            status: "pending",
+            // rejection_reason은 유지 (관리자가 이전 반려 사유를 확인할 수 있도록)
+          })
+          .eq("id", existingWholesaler.id)
+          .select("id, anonymous_code")
+          .single();
+
+        if (updateError) {
+          console.error("❌ [wholesaler] 도매점 업데이트 오류:", updateError);
+
+          // UNIQUE 제약 위반 에러 처리
+          if (updateError.code === "23505") {
+            if (updateError.message.includes("business_number")) {
+              return {
+                success: false,
+                error: "이미 등록된 사업자번호입니다.",
+              };
+            }
+          }
+
+          return {
+            success: false,
+            error: "도매점 정보 업데이트 중 오류가 발생했습니다.",
+          };
+        }
+
+        console.log("✅ [wholesaler] 도매점 정보 업데이트 완료:", updatedWholesaler.id);
+        console.log(
+          "✅ [wholesaler] anonymous_code:",
+          updatedWholesaler.anonymous_code,
+        );
+        console.groupEnd();
+
+        return {
+          success: true,
+          wholesalerId: updatedWholesaler.id,
+        };
+      } else {
+        // approved 또는 다른 상태인 경우
+        console.log("⚠️ [wholesaler] 이미 등록된 도매점:", existingWholesaler.id);
+        return {
+          success: false,
+          error: "이미 등록된 도매점 정보가 있습니다.",
+        };
+      }
     }
 
     // 3. 사업자번호 중복 확인

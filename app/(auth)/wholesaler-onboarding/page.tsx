@@ -26,7 +26,6 @@
  */
 
 import { redirect } from "next/navigation";
-import Script from "next/script";
 import { getUserProfile } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import WholesalerOnboardingForm from "./WholesalerOnboardingForm";
@@ -65,7 +64,9 @@ export default async function WholesalerOnboardingPage() {
 
   const { data: existingWholesaler, error } = await supabase
     .from("wholesalers")
-    .select("id, status")
+    .select(
+      "id, status, business_name, business_number, representative, phone, address, address_detail, bank_account",
+    )
     .eq("profile_id", profile.id)
     .maybeSingle();
 
@@ -74,7 +75,7 @@ export default async function WholesalerOnboardingPage() {
     // 에러가 발생해도 폼을 보여줌 (사용자가 다시 시도할 수 있도록)
   }
 
-  // 이미 등록된 도매점 정보가 있는 경우 상태별 리다이렉트
+  // 이미 등록된 도매점 정보가 있는 경우 상태별 처리
   if (existingWholesaler) {
     console.log(
       "✅ [wholesaler-onboarding] 이미 등록된 도매점:",
@@ -87,8 +88,43 @@ export default async function WholesalerOnboardingPage() {
         redirect("/wholesaler");
       case "pending":
       case "rejected":
-        console.log("→ 승인 대기/반려: 승인 대기 페이지로 이동");
-        redirect("/pending-approval");
+        // pending/rejected 상태인 경우 이전 데이터를 폼에 채워서 표시
+        console.log("→ 승인 대기/반려: 이전 데이터로 폼 표시");
+        
+        // bank_account 파싱 (은행명과 계좌번호 분리)
+        const bankAccountParts = existingWholesaler.bank_account
+          ? existingWholesaler.bank_account.split(" ")
+          : [];
+        const bankName = bankAccountParts[0] || "";
+        const bankAccountNumber = bankAccountParts.slice(1).join(" ") || "";
+
+        // 전화번호 포맷팅 (하이픈 추가)
+        const phoneDigits = existingWholesaler.phone?.replace(/\D/g, "") || "";
+        let formattedPhone = existingWholesaler.phone || "";
+        if (phoneDigits.length === 11) {
+          formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 7)}-${phoneDigits.slice(7)}`;
+        } else if (phoneDigits.length === 10) {
+          formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6)}`;
+        }
+
+        const previousData = {
+          business_name: existingWholesaler.business_name || "",
+          business_number: existingWholesaler.business_number || "",
+          representative: existingWholesaler.representative || "",
+          phone: formattedPhone,
+          address: existingWholesaler.address || "",
+          address_detail: existingWholesaler.address_detail || "",
+          bank_name: bankName,
+          bank_account_number: bankAccountNumber,
+        };
+
+        return (
+          <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-2xl mx-auto">
+              <WholesalerOnboardingForm previousData={previousData} />
+            </div>
+          </div>
+        );
       default:
         console.log("→ 알 수 없는 상태, 승인 대기 페이지로 이동");
         redirect("/pending-approval");
@@ -98,17 +134,10 @@ export default async function WholesalerOnboardingPage() {
   console.log("📝 [wholesaler-onboarding] 신규 사용자, 온보딩 폼 표시");
 
   return (
-    <>
-      {/* 카카오 우편번호 서비스 스크립트 로드 */}
-      <Script
-        src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        strategy="lazyOnload"
-      />
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <WholesalerOnboardingForm />
-        </div>
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        <WholesalerOnboardingForm />
       </div>
-    </>
+    </div>
   );
 }

@@ -41,15 +41,13 @@ import {
   CheckCircle,
   XCircle,
   Mail,
-  Phone,
   Building2,
   Loader2,
 } from "lucide-react";
 import type { Wholesaler } from "@/types/wholesaler";
 
 // 문의 정보 (환경 변수 또는 상수로 관리 가능)
-const CONTACT_EMAIL = "contact@yourplatform.com";
-const CONTACT_PHONE = "1588-XXXX";
+const CONTACT_EMAIL = "decidepyb@gmail.com";
 
 export default function PendingApprovalPage() {
   const { user, isLoaded: isUserLoaded } = useUser();
@@ -345,10 +343,6 @@ export default function PendingApprovalPage() {
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Mail className="w-4 h-4" />
                   <span>{CONTACT_EMAIL}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Phone className="w-4 h-4" />
-                  <span>{CONTACT_PHONE}</span>
                 </div>
               </div>
               <p className="text-xs text-gray-500 pt-2">

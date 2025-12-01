@@ -29,10 +29,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { useClerk, useAuth } from "@clerk/nextjs";
-import { Loader2, CheckCircle, Search, ArrowLeft, LogOut } from "lucide-react";
+import { Loader2, CheckCircle, Search, ArrowLeft, LogOut, AlertCircle } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -74,7 +74,13 @@ import { BANKS } from "@/lib/utils/constants";
 import { createWholesaler } from "@/actions/wholesaler/create-wholesaler";
 import type { DaumPostcodeData } from "@/types/daum";
 
-export default function WholesalerOnboardingForm() {
+interface WholesalerOnboardingFormProps {
+  previousData?: Partial<WholesalerOnboardingFormData>;
+}
+
+export default function WholesalerOnboardingForm({
+  previousData,
+}: WholesalerOnboardingFormProps) {
   const router = useRouter();
   const { isLoaded } = useAuth();
   // useClerk는 항상 호출해야 함 (React Hook 규칙)
@@ -84,19 +90,24 @@ export default function WholesalerOnboardingForm() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDaumScriptLoaded, setIsDaumScriptLoaded] = useState(false);
+  const [isLoadingScript, setIsLoadingScript] = useState(false);
+  
+  const businessNumberInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<WholesalerOnboardingFormData>({
     resolver: zodResolver(wholesalerOnboardingSchema),
     defaultValues: {
-      business_name: "",
-      business_number: "",
-      representative: "",
-      phone: "",
-      address: "",
-      address_detail: "",
-      bank_name: "",
-      bank_account_number: "",
+      business_name: previousData?.business_name || "",
+      business_number: previousData?.business_number || "",
+      representative: previousData?.representative || "",
+      phone: previousData?.phone || "",
+      address: previousData?.address || "",
+      address_detail: previousData?.address_detail || "",
+      bank_name: previousData?.bank_name || "",
+      bank_account_number: previousData?.bank_account_number || "",
     },
   });
 
@@ -124,8 +135,84 @@ export default function WholesalerOnboardingForm() {
     form.setValue("business_number", digits, { shouldValidate: true });
   };
 
+  // 카카오 우편번호 스크립트 동적 로드
+  useEffect(() => {
+    // 이미 로드되어 있는지 확인
+    if (typeof window !== "undefined" && window.daum && window.daum.Postcode) {
+      console.log("✅ [주소 검색] 카카오 우편번호 스크립트 이미 로드됨");
+      setIsDaumScriptLoaded(true);
+      return;
+    }
+
+    // 이미 스크립트 태그가 있는지 확인
+    const existingScript = document.querySelector(
+      'script[src*="postcode.v2.js"]'
+    );
+    if (existingScript) {
+      console.log("⏳ [주소 검색] 스크립트 태그 존재, 로드 대기 중...");
+      // 스크립트가 로드될 때까지 대기
+      const checkScript = (attempts = 0) => {
+        if (attempts > 50) {
+          // 최대 10초 대기 (50 * 200ms)
+          console.error("❌ [주소 검색] 스크립트 로드 타임아웃");
+          setIsLoadingScript(false);
+          return;
+        }
+        if (typeof window !== "undefined" && window.daum && window.daum.Postcode) {
+          console.log("✅ [주소 검색] 카카오 우편번호 스크립트 로드 완료");
+          setIsDaumScriptLoaded(true);
+          setIsLoadingScript(false);
+        } else {
+          setTimeout(() => checkScript(attempts + 1), 200);
+        }
+      };
+      checkScript();
+      return;
+    }
+
+    // 스크립트가 없으면 동적으로 로드
+    console.log("📥 [주소 검색] 카카오 우편번호 스크립트 로드 시작");
+    setIsLoadingScript(true);
+
+    const script = document.createElement("script");
+    script.src = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.async = true;
+    script.onload = () => {
+      console.log("✅ [주소 검색] 카카오 우편번호 스크립트 로드 완료");
+      setIsDaumScriptLoaded(true);
+      setIsLoadingScript(false);
+    };
+    script.onerror = () => {
+      console.error("❌ [주소 검색] 카카오 우편번호 스크립트 로드 실패");
+      setIsLoadingScript(false);
+      toast.error("주소 검색 기능을 불러오는 중 오류가 발생했습니다.");
+    };
+
+    document.head.appendChild(script);
+
+    // cleanup 함수
+    return () => {
+      // 컴포넌트 언마운트 시 스크립트 제거하지 않음 (다른 곳에서도 사용 가능)
+    };
+  }, []);
+
   // 카카오 주소 검색 함수
   const handleAddressSearch = () => {
+    // 스크립트가 로드되지 않았으면 에러 표시
+    if (!isDaumScriptLoaded) {
+      if (isLoadingScript) {
+        toast.info("주소 검색 기능을 불러오는 중입니다. 잠시만 기다려주세요.");
+        return;
+      }
+      console.error(
+        "❌ [주소 검색] 카카오 우편번호 스크립트가 로드되지 않았습니다.",
+      );
+      toast.error(
+        "주소 검색 기능을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.",
+      );
+      return;
+    }
+
     // window 객체에 daum이 있는지 확인
     if (typeof window !== "undefined" && window.daum && window.daum.Postcode) {
       new window.daum.Postcode({
@@ -180,7 +267,7 @@ export default function WholesalerOnboardingForm() {
         "❌ [주소 검색] 카카오 우편번호 스크립트가 로드되지 않았습니다.",
       );
       toast.error(
-        "주소 검색 기능을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        "주소 검색 기능을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.",
       );
     }
   };
@@ -196,7 +283,13 @@ export default function WholesalerOnboardingForm() {
 
       if (!result.success) {
         console.error("❌ [wholesaler-onboarding] 도매점 생성 실패:", result.error);
-        toast.error(result.error || "도매점 등록 중 오류가 발생했습니다.");
+        
+        // 사업자번호 중복 에러인지 확인
+        if (result.error === "이미 등록된 사업자번호입니다.") {
+          setShowDuplicateModal(true);
+        } else {
+          toast.error(result.error || "도매점 등록 중 오류가 발생했습니다.");
+        }
         return;
       }
 
@@ -220,6 +313,16 @@ export default function WholesalerOnboardingForm() {
   const handleSuccessConfirm = () => {
     setShowSuccessModal(false);
     router.push("/");
+  };
+
+  // 중복 모달 확인 핸들러
+  const handleDuplicateConfirm = () => {
+    setShowDuplicateModal(false);
+    // 사업자번호 필드로 포커스 이동
+    setTimeout(() => {
+      businessNumberInputRef.current?.focus();
+      businessNumberInputRef.current?.select();
+    }, 100);
   };
 
   // 뒤로가기 핸들러
@@ -281,6 +384,33 @@ export default function WholesalerOnboardingForm() {
         </DialogContent>
       </Dialog>
 
+      {/* 사업자번호 중복 안내 모달 */}
+      <Dialog open={showDuplicateModal} onOpenChange={setShowDuplicateModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex justify-center mb-4">
+              <AlertCircle className="w-16 h-16 text-orange-500" />
+            </div>
+            <DialogTitle className="text-center text-xl">
+              이미 등록된 사업자번호
+            </DialogTitle>
+            <DialogDescription className="text-center text-base pt-2">
+              입력하신 사업자번호는 이미 등록되어 있습니다.
+              <br />
+              다른 사업자번호를 입력해주세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center">
+            <Button
+              onClick={handleDuplicateConfirm}
+              className="w-full sm:w-auto min-w-[120px] bg-blue-600 hover:bg-blue-700"
+            >
+              확인
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* 네비게이션 버튼 영역 */}
       <div className="mb-6 flex items-center justify-between">
         <Button
@@ -327,9 +457,19 @@ export default function WholesalerOnboardingForm() {
         <CardHeader>
           <CardTitle>사업자 정보 입력</CardTitle>
           <CardDescription>
-            도매점 회원가입을 위해 사업자 정보를 입력해주세요.
-            <br />
-            입력하신 정보는 관리자 승인 후 활성화됩니다.
+            {previousData ? (
+              <>
+                이전에 작성하신 정보가 표시됩니다. 필요한 부분을 수정 후 재신청해주세요.
+                <br />
+                수정하신 정보는 관리자 승인 후 활성화됩니다.
+              </>
+            ) : (
+              <>
+                도매점 회원가입을 위해 사업자 정보를 입력해주세요.
+                <br />
+                입력하신 정보는 관리자 승인 후 활성화됩니다.
+              </>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -364,6 +504,7 @@ export default function WholesalerOnboardingForm() {
                     <FormLabel>사업자번호 *</FormLabel>
                     <FormControl>
                       <Input
+                        ref={businessNumberInputRef}
                         placeholder="예: 1234567890"
                         {...field}
                         onChange={(e) => {
@@ -444,11 +585,20 @@ export default function WholesalerOnboardingForm() {
                         type="button"
                         variant="outline"
                         onClick={handleAddressSearch}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isLoadingScript}
                         className="shrink-0"
                       >
-                        <Search className="mr-2 size-4" />
-                        주소 검색
+                        {isLoadingScript ? (
+                          <>
+                            <Loader2 className="mr-2 size-4 animate-spin" />
+                            로딩 중...
+                          </>
+                        ) : (
+                          <>
+                            <Search className="mr-2 size-4" />
+                            주소 검색
+                          </>
+                        )}
                       </Button>
                     </div>
                     <FormDescription>
@@ -542,10 +692,10 @@ export default function WholesalerOnboardingForm() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 size-4 animate-spin" />
-                      등록 중...
+                      {previousData ? "재신청 중..." : "등록 중..."}
                     </>
                   ) : (
-                    "등록하기"
+                    previousData ? "재신청하기" : "등록하기"
                   )}
                 </Button>
               </div>
