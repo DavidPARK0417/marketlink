@@ -9,7 +9,7 @@
  */
 
 import { XMLParser } from "fast-xml-parser";
-import type { MarketPriceParams, DailyPriceItem, PriceItem } from "./market-prices-types";
+import type { MarketPriceParams, DailyPriceItem, PriceItem, PriceTrendItem } from "./market-prices-types";
 
 /**
  * KAMIS dailySalesList API 호출 함수
@@ -504,3 +504,285 @@ export async function getMarketPrices(
     source: "kamis" as const,
   }));
 }
+
+/**
+ * 일별 시세 추이 조회
+ *
+ * @param lclsfCd - 대분류 코드 (현재는 사용하지 않지만 호환성을 위해 유지)
+ * @param mclsfCd - 중분류 코드 (선택)
+ * @param sclsfCd - 소분류 코드 (선택)
+ * @param itemName - 품목명 (선택)
+ * @param days - 조회 일수 (기본 30일)
+ * @returns 날짜별 평균 가격 배열
+ */
+export async function getDailyPriceTrend(
+  lclsfCd: string,
+  mclsfCd?: string,
+  sclsfCd?: string,
+  itemName?: string,
+  days: number = 30,
+): Promise<PriceTrendItem[]> {
+  const certId = process.env.KAMIS_CERT_ID;
+  const certKey = process.env.KAMIS_CERT_KEY?.trim().replace(
+    /^["']|["']$/g,
+    "",
+  );
+
+  if (!certId || !certKey) {
+    throw new Error(
+      "KAMIS API 인증 정보가 설정되지 않았습니다. KAMIS_CERT_ID와 KAMIS_CERT_KEY를 확인하세요.",
+    );
+  }
+
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - days);
+
+  const startDay = startDate.toISOString().split("T")[0];
+  const endDay = today.toISOString().split("T")[0];
+
+  console.group("📊 [getDailyPriceTrend] 일별 시세 추이 조회");
+  console.log("품목명:", itemName || "전체");
+  console.log("조회 일수:", days);
+  console.log("날짜 범위:", startDay, "~", endDay);
+
+  try {
+    // 품목명이 있으면 품목 코드 찾기
+    let itemCodes: Array<{ itemCode: string; categoryCode: string }> = [];
+    
+    if (itemName) {
+      const productInfos = await fetchKAMISProductInfo({
+        certKey,
+        certId,
+        itemName,
+      });
+      
+      itemCodes = productInfos.map((info) => ({
+        itemCode: info.itemCode,
+        categoryCode: info.categoryCode,
+      }));
+    }
+
+    const allItems: DailyPriceItem[] = [];
+
+    if (itemCodes.length > 0) {
+      // 품목 코드가 있으면 기간별 조회
+      for (const { itemCode, categoryCode } of itemCodes.slice(0, 5)) {
+        // 도매/소매 각각 조회
+        for (const clsCode of ["01", "02"] as const) {
+          const periodItems = await fetchKAMISPeriodProduct({
+            certKey,
+            certId,
+            itemCode,
+            categoryCode,
+            startDay,
+            endDay,
+            productClsCode: clsCode,
+          });
+          allItems.push(...periodItems);
+        }
+      }
+    } else {
+      // 품목명이 없으면 전체 조회 (오늘 거래된 상품)
+      const dailyItems = await getDailyMarketPrices({
+        itemName,
+        productClsCode: "all",
+      });
+      allItems.push(...dailyItems);
+    }
+
+    // 날짜별로 그룹화하여 평균 가격 계산
+    const priceByDate = new Map<string, number[]>();
+
+    allItems.forEach((item) => {
+      const date = item.lastestDay;
+      if (date && date >= startDay && date <= endDay) {
+        if (!priceByDate.has(date)) {
+          priceByDate.set(date, []);
+        }
+        priceByDate.get(date)!.push(item.dpr1);
+      }
+    });
+
+    const results: PriceTrendItem[] = [];
+    priceByDate.forEach((prices, date) => {
+      const avgPrice = prices.reduce((sum, p) => sum + p, 0) / prices.length;
+      results.push({
+        date,
+        price: Math.round(avgPrice),
+        source: "kamis",
+      });
+    });
+
+    // 날짜순 정렬
+    results.sort((a, b) => a.date.localeCompare(b.date));
+
+    console.log("✅ 일별 시세 추이 조회 완료:", results.length, "일");
+    console.groupEnd();
+
+    return results;
+  } catch (error) {
+    console.error("❌ 시세 추이 조회 실패:", error);
+    console.groupEnd();
+    throw error;
+  }
+}
+
+/**
+ * 월별 시세 추이 조회
+ *
+ * @param lclsfCd - 대분류 코드 (현재는 사용하지 않지만 호환성을 위해 유지)
+ * @param mclsfCd - 중분류 코드 (선택)
+ * @param sclsfCd - 소분류 코드 (선택)
+ * @param itemName - 품목명 (선택)
+ * @param months - 조회 월수 (기본 12개월)
+ * @returns 월별 평균 가격 배열
+ */
+export async function getMonthlyPriceTrend(
+  lclsfCd: string,
+  mclsfCd?: string,
+  sclsfCd?: string,
+  itemName?: string,
+  months: number = 12,
+): Promise<PriceTrendItem[]> {
+  const results: PriceTrendItem[] = [];
+  const today = new Date();
+
+  console.group("📊 [getMonthlyPriceTrend] 월별 시세 추이 조회");
+  console.log("대분류 코드:", lclsfCd);
+  console.log("조회 월수:", months);
+  console.log("품목명 필터:", itemName || "없음");
+
+  try {
+    // 각 월의 데이터 수집
+    for (let i = 0; i < months; i++) {
+      const date = new Date(today);
+      date.setMonth(date.getMonth() - i);
+
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const monthKey = `${year}-${month}`;
+
+      // 해당 월의 데이터 조회 (월 중간 날짜 기준)
+      const dayStr = "15";
+      const dateString = `${year}${month}${dayStr}`;
+      const startDay = `${year}-${month}-01`;
+      const endDay = new Date(year, parseInt(month), 0).toISOString().split("T")[0];
+
+      const dailyItems = await getDailyMarketPrices({
+        itemName,
+        productClsCode: "all",
+      });
+
+      // 해당 월의 데이터 필터링
+      const monthItems = dailyItems.filter((item) => {
+        const itemDate = item.lastestDay;
+        return itemDate >= startDay && itemDate <= endDay;
+      });
+
+      if (monthItems.length > 0) {
+        const avgPrice =
+          monthItems.reduce((sum, item) => sum + item.dpr1, 0) / monthItems.length;
+        results.push({
+          date: monthKey,
+          price: Math.round(avgPrice),
+          source: "kamis",
+        });
+      }
+    }
+
+    console.log("✅ 월별 시세 추이 조회 완료:", results.length, "개월");
+    console.groupEnd();
+
+    return results.reverse(); // 오래된 월부터 정렬
+  } catch (error) {
+    console.error("❌ 월별 시세 추이 조회 실패:", error);
+    console.groupEnd();
+    throw error;
+  }
+}
+
+/**
+ * 연별 시세 추이 조회
+ *
+ * @param lclsfCd - 대분류 코드 (현재는 사용하지 않지만 호환성을 위해 유지)
+ * @param mclsfCd - 중분류 코드 (선택)
+ * @param sclsfCd - 소분류 코드 (선택)
+ * @param itemName - 품목명 (선택)
+ * @param years - 조회 연수 (기본 5년)
+ * @returns 연별 평균 가격 배열
+ */
+export async function getYearlyPriceTrend(
+  lclsfCd: string,
+  mclsfCd?: string,
+  sclsfCd?: string,
+  itemName?: string,
+  years: number = 5,
+): Promise<PriceTrendItem[]> {
+  const results: PriceTrendItem[] = [];
+  const today = new Date();
+
+  console.group("📊 [getYearlyPriceTrend] 연별 시세 추이 조회");
+  console.log("대분류 코드:", lclsfCd);
+  console.log("조회 연수:", years);
+  console.log("품목명 필터:", itemName || "없음");
+
+  try {
+    // 각 연도의 데이터 수집
+    for (let i = 0; i < years; i++) {
+      const date = new Date(today);
+      date.setFullYear(date.getFullYear() - i);
+
+      const year = date.getFullYear();
+      const yearKey = `${year}`;
+
+      // 해당 연도의 데이터 조회 (각 월의 중간 날짜 샘플링)
+      const yearPrices: number[] = [];
+
+      for (let month = 1; month <= 12; month++) {
+        const monthStr = String(month).padStart(2, "0");
+        const startDay = `${year}-${monthStr}-01`;
+        const endDay = new Date(year, month, 0).toISOString().split("T")[0];
+
+        const dailyItems = await getDailyMarketPrices({
+          itemName,
+          productClsCode: "all",
+        });
+
+        // 해당 월의 데이터 필터링
+        const monthItems = dailyItems.filter((item) => {
+          const itemDate = item.lastestDay;
+          return itemDate >= startDay && itemDate <= endDay;
+        });
+
+        if (monthItems.length > 0) {
+          const avgPrice =
+            monthItems.reduce((sum, item) => sum + item.dpr1, 0) / monthItems.length;
+          yearPrices.push(avgPrice);
+        }
+      }
+
+      if (yearPrices.length > 0) {
+        const yearlyAvg =
+          yearPrices.reduce((sum, p) => sum + p, 0) / yearPrices.length;
+        results.push({
+          date: yearKey,
+          price: Math.round(yearlyAvg),
+          source: "kamis",
+        });
+      }
+    }
+
+    console.log("✅ 연별 시세 추이 조회 완료:", results.length, "년");
+    console.groupEnd();
+
+    return results.reverse(); // 오래된 연도부터 정렬
+  } catch (error) {
+    console.error("❌ 연별 시세 추이 조회 실패:", error);
+    console.groupEnd();
+    throw error;
+  }
+}
+
+// 타입 export (하위 호환성)
+export type { MarketPriceParams, DailyPriceItem, PriceItem, PriceTrendItem } from "./market-prices-types";

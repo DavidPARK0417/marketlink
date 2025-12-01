@@ -42,3 +42,9 @@ export interface PriceItem {
   unitName: string; // 단위명
   source: "kamis" | "public"; // 데이터 출처
 }
+
+export interface PriceTrendItem {
+  date: string; // 날짜 (YYYY-MM-DD 또는 YYYY-MM 또는 YYYY)
+  price: number; // 평균 가격 (원)
+  source: "kamis" | "public"; // 데이터 출처
+}
