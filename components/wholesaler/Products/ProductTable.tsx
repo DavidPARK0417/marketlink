@@ -212,8 +212,8 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                   className="object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gray-100">
-                  <ImageIcon className="h-6 w-6 text-gray-400" />
+                <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-gray-800">
+                  <ImageIcon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
                 </div>
               )}
             </div>
@@ -228,7 +228,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
           <div className="max-w-[200px]">
             <div className="font-medium">{row.original.name}</div>
             {row.original.standardized_name && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 {row.original.standardized_name}
               </div>
             )}
@@ -258,8 +258,8 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             <div
               className={cn(
                 "font-medium",
-                stock === 0 && "text-red-600",
-                stock > 0 && stock < 10 && "text-yellow-600"
+                stock === 0 && "text-red-600 dark:text-red-400",
+                stock > 0 && stock < 10 && "text-yellow-600 dark:text-yellow-400"
               )}
             >
               {stock.toLocaleString()}
@@ -309,7 +309,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 size="sm"
                 onClick={() => handleDeleteClick(product)}
                 title="삭제"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -426,7 +426,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       {/* 페이지네이션 */}
       {initialData.totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             총 {initialData.total}개 중{" "}
             {(initialData.page - 1) * initialData.pageSize + 1}-
             {Math.min(initialData.page * initialData.pageSize, initialData.total)}

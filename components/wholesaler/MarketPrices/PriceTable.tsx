@@ -52,7 +52,7 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
     if (direction === "1") {
       // 상승
       return (
-        <span className="flex items-center gap-1 text-red-600">
+        <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
           <ArrowUp className="size-4" />
           <span>+{value.toFixed(1)}%</span>
         </span>
@@ -60,7 +60,7 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
     } else if (direction === "2") {
       // 하락
       return (
-        <span className="flex items-center gap-1 text-blue-600">
+        <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
           <ArrowDown className="size-4" />
           <span>-{value.toFixed(1)}%</span>
         </span>
@@ -68,7 +68,7 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
     } else {
       // 보합
       return (
-        <span className="flex items-center gap-1 text-gray-500">
+        <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
           <Minus className="size-4" />
           <span>{value.toFixed(1)}%</span>
         </span>

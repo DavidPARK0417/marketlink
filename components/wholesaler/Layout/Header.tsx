@@ -125,10 +125,10 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 md:px-6">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 h-16 flex items-center justify-between px-4 md:px-6">
       {/* 페이지 제목 영역 */}
       <div className="flex items-center gap-3">
-        <h2 className="text-lg font-semibold text-gray-900 hidden md:block">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 hidden md:block">
           {pageTitle}
         </h2>
         {/* 관리자 배지 - 클릭 가능 */}
@@ -150,7 +150,7 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button
-              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+              className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
               aria-label="알림"
               disabled={isLoadingNotifications}
             >
@@ -165,18 +165,18 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
             <DropdownMenuLabel className="flex items-center justify-between">
               <span>알림</span>
               {totalUnreadCount > 0 && (
-                <span className="text-xs font-normal text-red-500">
+                <span className="text-xs font-normal text-red-500 dark:text-red-400">
                   읽지 않음 {totalUnreadCount}개
                 </span>
               )}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             {isLoadingNotifications ? (
-              <div className="p-4 text-center text-sm text-gray-500">
+              <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
                 알림을 불러오는 중...
               </div>
             ) : recentOrders.length === 0 && recentInquiries.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-500">
+              <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
                 알림이 없습니다
               </div>
             ) : (
@@ -184,10 +184,10 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
                 {/* 주문 알림 섹션 */}
                 {recentOrders.length > 0 && (
                   <>
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                       주문 알림
                       {unreadOrdersCount > 0 && (
-                        <span className="ml-2 text-red-500">
+                        <span className="ml-2 text-red-500 dark:text-red-400">
                           ({unreadOrdersCount})
                         </span>
                       )}
@@ -200,25 +200,25 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
                       >
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
-                            <Package className="w-4 h-4 text-gray-500" />
+                            <Package className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                             <span className="font-medium text-sm">
                               {order.product.name}
                             </span>
                             {!order.is_read && (
-                              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                              <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
                             )}
                           </div>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             {formatDateTime(order.created_at, "time-only")}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between w-full text-xs text-gray-600">
+                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
                           <span>주문번호: {order.order_number}</span>
                           <span className="font-medium">
                             {formatPrice(order.total_amount)}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                           <Clock className="w-3 h-3" />
                           <span>
                             {formatDateTime(order.created_at, "default")}
@@ -233,10 +233,10 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
                 {/* 문의 알림 섹션 */}
                 {recentInquiries.length > 0 && (
                   <>
-                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                       문의 알림
                       {unreadInquiriesCount > 0 && (
-                        <span className="ml-2 text-red-500">
+                        <span className="ml-2 text-red-500 dark:text-red-400">
                           ({unreadInquiriesCount})
                         </span>
                       )}
@@ -249,27 +249,27 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
                       >
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
-                            <MessageSquare className="w-4 h-4 text-gray-500" />
+                            <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                             <span className="font-medium text-sm">
                               {inquiry.title}
                             </span>
                             {inquiry.status === "open" && (
-                              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                              <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
                             )}
                           </div>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             {formatDateTime(inquiry.created_at, "time-only")}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between w-full text-xs text-gray-600">
+                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
                           {inquiry.user_anonymous_code && (
                             <span>문의자: {inquiry.user_anonymous_code}</span>
                           )}
                           <span
                             className={`text-xs px-2 py-0.5 rounded ${
                               inquiry.status === "open"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-gray-100 text-gray-700"
+                                ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
+                                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                             }`}
                           >
                             {inquiry.status === "open" ? "미답변" : "답변완료"}

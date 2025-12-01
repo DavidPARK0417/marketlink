@@ -243,8 +243,8 @@ export default function InquiryCreateForm({
                     className="relative aspect-square rounded-lg overflow-hidden border"
                   >
                     {uploadingImages.has(index) ? (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-gray-500" />
                       </div>
                     ) : (
                       <>

@@ -890,11 +890,11 @@ export default function ProductForm({
                           onChange={(e) => handleImageUpload(e.target.files)}
                           disabled={isSubmitting}
                         />
-                        <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                        <p className="text-sm text-gray-600">
+                        <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                           이미지를 드래그하거나 클릭하여 업로드
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                           JPG, PNG, WEBP (최대 5MB, 최대 5개)
                         </p>
                       </div>
@@ -908,8 +908,8 @@ export default function ProductForm({
                               className="relative aspect-square rounded-lg overflow-hidden border"
                             >
                               {uploadingImages.has(index) ? (
-                                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                                  <Loader2 className="h-6 w-6 animate-spin text-gray-400 dark:text-gray-500" />
                                 </div>
                               ) : (
                                 <>
@@ -940,7 +940,7 @@ export default function ProductForm({
                       )}
 
                       {watchedImages.length === 0 && (
-                        <div className="flex items-center justify-center p-8 border border-dashed rounded-lg text-gray-400">
+                        <div className="flex items-center justify-center p-8 border border-dashed rounded-lg text-gray-400 dark:text-gray-500">
                           <ImageIcon className="h-8 w-8 mr-2" />
                           <span className="text-sm">이미지가 없습니다</span>
                         </div>
@@ -1083,27 +1083,27 @@ export default function ProductForm({
               <div className="space-y-6 py-4">
                 {/* 원본 상품명 */}
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     원본 상품명
                   </label>
-                  <p className="mt-1 text-base text-gray-900">
+                  <p className="mt-1 text-base text-gray-900 dark:text-gray-100">
                     {standardizeResult.originalName}
                   </p>
                 </div>
 
                 {/* 표준화된 상품명 */}
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     표준화된 상품명
                   </label>
-                  <p className="mt-1 text-lg font-semibold text-blue-600">
+                  <p className="mt-1 text-lg font-semibold text-blue-600 dark:text-blue-400">
                     {standardizeResult.standardizedName}
                   </p>
                 </div>
 
                 {/* 추천 카테고리 */}
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     추천 카테고리
                   </label>
                   <div className="mt-2">
@@ -1116,7 +1116,7 @@ export default function ProductForm({
                 {/* 추천 단위 */}
                 {standardizeResult.suggestedUnit && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       추천 단위
                     </label>
                     <div className="mt-2">
@@ -1130,7 +1130,7 @@ export default function ProductForm({
                 {/* 검색 키워드 */}
                 {standardizeResult.keywords.length > 0 && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       검색 키워드
                     </label>
                     <div className="mt-2 flex flex-wrap gap-2">
@@ -1149,16 +1149,16 @@ export default function ProductForm({
 
                 {/* 신뢰도 */}
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     신뢰도
                   </label>
                   <div className="mt-2 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         {Math.round(standardizeResult.confidence * 100)}%
                       </span>
                       {standardizeResult.confidence < 0.8 && (
-                        <div className="flex items-center gap-1 text-amber-600">
+                        <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
                           <AlertCircle className="h-4 w-4" />
                           <span className="text-xs">
                             신뢰도가 낮습니다. 수동으로 확인해주세요.
@@ -1166,7 +1166,7 @@ export default function ProductForm({
                         </div>
                       )}
                     </div>
-                    <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                       <div
                         className={`h-full transition-all ${
                           standardizeResult.confidence >= 0.8

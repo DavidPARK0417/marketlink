@@ -45,47 +45,47 @@ export interface StatCardProps {
 const getCardColorConfig = (title: string) => {
   if (title.includes("오늘 주문")) {
     return {
-      bg: "bg-blue-50",
-      border: "border-blue-200",
-      icon: "text-blue-600",
-      title: "text-blue-700",
-      value: "text-blue-900",
+      bg: "bg-blue-50 dark:bg-blue-950/20",
+      border: "border-blue-200 dark:border-blue-800",
+      icon: "text-blue-600 dark:text-blue-400",
+      title: "text-blue-700 dark:text-blue-300",
+      value: "text-blue-900 dark:text-blue-100",
     };
   }
   if (title.includes("출고 예정")) {
     return {
-      bg: "bg-yellow-50",
-      border: "border-yellow-200",
-      icon: "text-yellow-600",
-      title: "text-yellow-700",
-      value: "text-yellow-900",
+      bg: "bg-yellow-50 dark:bg-yellow-950/20",
+      border: "border-yellow-200 dark:border-yellow-800",
+      icon: "text-yellow-600 dark:text-yellow-400",
+      title: "text-yellow-700 dark:text-yellow-300",
+      value: "text-yellow-900 dark:text-yellow-100",
     };
   }
   if (title.includes("정산")) {
     return {
-      bg: "bg-green-50",
-      border: "border-green-200",
-      icon: "text-green-600",
-      title: "text-green-700",
-      value: "text-green-900",
+      bg: "bg-green-50 dark:bg-green-950/20",
+      border: "border-green-200 dark:border-green-800",
+      icon: "text-green-600 dark:text-green-400",
+      title: "text-green-700 dark:text-green-300",
+      value: "text-green-900 dark:text-green-100",
     };
   }
   if (title.includes("상품")) {
     return {
-      bg: "bg-purple-50",
-      border: "border-purple-200",
-      icon: "text-purple-600",
-      title: "text-purple-700",
-      value: "text-purple-900",
+      bg: "bg-purple-50 dark:bg-purple-950/20",
+      border: "border-purple-200 dark:border-purple-800",
+      icon: "text-purple-600 dark:text-purple-400",
+      title: "text-purple-700 dark:text-purple-300",
+      value: "text-purple-900 dark:text-purple-100",
     };
   }
   // 기본 색상
   return {
-    bg: "bg-gray-50",
-    border: "border-gray-200",
-    icon: "text-gray-400",
-    title: "text-gray-600",
-    value: "text-gray-900",
+    bg: "bg-gray-50 dark:bg-gray-900/50",
+    border: "border-gray-200 dark:border-gray-800",
+    icon: "text-gray-400 dark:text-gray-500",
+    title: "text-gray-600 dark:text-gray-400",
+    value: "text-gray-900 dark:text-gray-100",
   };
 };
 
@@ -104,13 +104,13 @@ export default function StatCard({
     return (
       <Card className={cn("", className)}>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
-          <div className="h-5 w-5 animate-pulse rounded bg-gray-200" />
+          <div className="h-4 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-5 w-5 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
         </CardHeader>
         <CardContent>
-          <div className="h-8 w-32 animate-pulse rounded bg-gray-200 mb-2" />
+          <div className="h-8 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700 mb-2" />
           {trend && (
-            <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
+            <div className="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
           )}
         </CardContent>
       </Card>
@@ -139,7 +139,7 @@ export default function StatCard({
           <div
             className={cn(
               "mt-2 flex items-center gap-1 text-xs",
-              trend.isPositive ? "text-green-600" : "text-red-600",
+              trend.isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400",
             )}
           >
             {trend.isPositive ? (

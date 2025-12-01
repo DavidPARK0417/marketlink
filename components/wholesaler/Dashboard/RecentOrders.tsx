@@ -67,7 +67,7 @@ export default function RecentOrders() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+            <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-gray-500" />
           </div>
         </CardContent>
       </Card>
@@ -109,17 +109,17 @@ export default function RecentOrders() {
                   const getStatusColor = (status: string) => {
                     switch (status) {
                       case "completed":
-                        return "bg-green-50 hover:bg-green-100 border-green-200";
+                        return "bg-green-50 hover:bg-green-100 border-green-200 dark:bg-green-950/20 dark:hover:bg-green-900/30 dark:border-green-800";
                       case "shipped":
-                        return "bg-blue-50 hover:bg-blue-100 border-blue-200";
+                        return "bg-blue-50 hover:bg-blue-100 border-blue-200 dark:bg-blue-950/20 dark:hover:bg-blue-900/30 dark:border-blue-800";
                       case "confirmed":
-                        return "bg-cyan-50 hover:bg-cyan-100 border-cyan-200";
+                        return "bg-cyan-50 hover:bg-cyan-100 border-cyan-200 dark:bg-cyan-950/20 dark:hover:bg-cyan-900/30 dark:border-cyan-800";
                       case "pending":
-                        return "bg-yellow-50 hover:bg-yellow-100 border-yellow-200";
+                        return "bg-yellow-50 hover:bg-yellow-100 border-yellow-200 dark:bg-yellow-950/20 dark:hover:bg-yellow-900/30 dark:border-yellow-800";
                       case "cancelled":
-                        return "bg-red-50 hover:bg-red-100 border-red-200";
+                        return "bg-red-50 hover:bg-red-100 border-red-200 dark:bg-red-950/20 dark:hover:bg-red-900/30 dark:border-red-800";
                       default:
-                        return "bg-white hover:bg-gray-50";
+                        return "bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700";
                     }
                   };
 
