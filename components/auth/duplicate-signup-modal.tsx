@@ -101,10 +101,7 @@ export default function DuplicateSignupModal() {
             이미 가입된 계정입니다
           </DialogTitle>
           <DialogDescription className="pt-2 text-base text-center">
-            해당 계정으로 이미 가입되어 있습니다.
-            <br />
-            <br />
-            로그인 페이지로 이동하여 기존 계정으로 로그인해주세요.
+            이미 가입된 계정입니다. 로그인을 시도하세요.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-center gap-2 pt-4">
@@ -113,7 +110,7 @@ export default function DuplicateSignupModal() {
             disabled={isLoggingOut}
             className="min-w-[120px] bg-blue-600 hover:bg-blue-700"
           >
-            {isLoggingOut ? "로그아웃 중..." : "확인"}
+            {isLoggingOut ? "이동 중..." : "로그인하기"}
           </Button>
         </DialogFooter>
       </DialogContent>
