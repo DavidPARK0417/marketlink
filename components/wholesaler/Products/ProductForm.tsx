@@ -520,6 +520,51 @@ export default function ProductForm({
                         step="1"
                         {...field}
                         value={field.value === 0 ? "" : field.value ?? ""}
+                        onKeyDown={(e) => {
+                          // 숫자 키 (0-9)
+                          if (e.key >= '0' && e.key <= '9') {
+                            return; // 허용
+                          }
+                          
+                          // 특수 키 허용
+                          const allowedKeys = [
+                            'Backspace',
+                            'Delete',
+                            'Tab',
+                            'ArrowLeft',
+                            'ArrowRight',
+                            'ArrowUp',
+                            'ArrowDown',
+                            'Home',
+                            'End',
+                            'Enter',
+                          ];
+                          
+                          if (allowedKeys.includes(e.key)) {
+                            return; // 허용
+                          }
+                          
+                          // Ctrl/Cmd + A, C, V, X
+                          if (e.ctrlKey || e.metaKey) {
+                            if (['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                              return; // 허용
+                            }
+                          }
+                          
+                          // 그 외 모든 키 차단
+                          e.preventDefault();
+                        }}
+                        onPaste={(e) => {
+                          e.preventDefault();
+                          const pastedText = e.clipboardData.getData('text');
+                          const numbersOnly = pastedText.replace(/[^0-9]/g, '');
+                          if (numbersOnly) {
+                            const value = parseInt(numbersOnly, 10);
+                            if (!isNaN(value) && value >= 0) {
+                              field.onChange(value);
+                            }
+                          }
+                        }}
                         onChange={(e) => {
                           const inputValue = e.target.value;
                           // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)
@@ -592,6 +637,51 @@ export default function ProductForm({
                       step="1"
                       {...field}
                       value={field.value ?? 1}
+                      onKeyDown={(e) => {
+                        // 숫자 키 (0-9)
+                        if (e.key >= '0' && e.key <= '9') {
+                          return; // 허용
+                        }
+                        
+                        // 특수 키 허용
+                        const allowedKeys = [
+                          'Backspace',
+                          'Delete',
+                          'Tab',
+                          'ArrowLeft',
+                          'ArrowRight',
+                          'ArrowUp',
+                          'ArrowDown',
+                          'Home',
+                          'End',
+                          'Enter',
+                        ];
+                        
+                        if (allowedKeys.includes(e.key)) {
+                          return; // 허용
+                        }
+                        
+                        // Ctrl/Cmd + A, C, V, X
+                        if (e.ctrlKey || e.metaKey) {
+                          if (['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                            return; // 허용
+                          }
+                        }
+                        
+                        // 그 외 모든 키 차단
+                        e.preventDefault();
+                      }}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        const pastedText = e.clipboardData.getData('text');
+                        const numbersOnly = pastedText.replace(/[^0-9]/g, '');
+                        if (numbersOnly) {
+                          const value = parseInt(numbersOnly, 10);
+                          if (!isNaN(value) && value >= 1) {
+                            field.onChange(value);
+                          }
+                        }
+                      }}
                       onChange={(e) => {
                         const inputValue = e.target.value;
                         // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)
@@ -642,6 +732,51 @@ export default function ProductForm({
                       step="1"
                       {...field}
                       value={field.value === 0 ? "" : field.value ?? ""}
+                      onKeyDown={(e) => {
+                        // 숫자 키 (0-9)
+                        if (e.key >= '0' && e.key <= '9') {
+                          return; // 허용
+                        }
+                        
+                        // 특수 키 허용
+                        const allowedKeys = [
+                          'Backspace',
+                          'Delete',
+                          'Tab',
+                          'ArrowLeft',
+                          'ArrowRight',
+                          'ArrowUp',
+                          'ArrowDown',
+                          'Home',
+                          'End',
+                          'Enter',
+                        ];
+                        
+                        if (allowedKeys.includes(e.key)) {
+                          return; // 허용
+                        }
+                        
+                        // Ctrl/Cmd + A, C, V, X
+                        if (e.ctrlKey || e.metaKey) {
+                          if (['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                            return; // 허용
+                          }
+                        }
+                        
+                        // 그 외 모든 키 차단
+                        e.preventDefault();
+                      }}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        const pastedText = e.clipboardData.getData('text');
+                        const numbersOnly = pastedText.replace(/[^0-9]/g, '');
+                        if (numbersOnly) {
+                          const value = parseInt(numbersOnly, 10);
+                          if (!isNaN(value) && value >= 0) {
+                            field.onChange(value);
+                          }
+                        }
+                      }}
                       onChange={(e) => {
                         const inputValue = e.target.value;
                         // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)
@@ -751,6 +886,51 @@ export default function ProductForm({
                       step="1"
                       {...field}
                       value={field.value === 0 ? "" : field.value ?? ""}
+                      onKeyDown={(e) => {
+                        // 숫자 키 (0-9)
+                        if (e.key >= '0' && e.key <= '9') {
+                          return; // 허용
+                        }
+                        
+                        // 특수 키 허용
+                        const allowedKeys = [
+                          'Backspace',
+                          'Delete',
+                          'Tab',
+                          'ArrowLeft',
+                          'ArrowRight',
+                          'ArrowUp',
+                          'ArrowDown',
+                          'Home',
+                          'End',
+                          'Enter',
+                        ];
+                        
+                        if (allowedKeys.includes(e.key)) {
+                          return; // 허용
+                        }
+                        
+                        // Ctrl/Cmd + A, C, V, X
+                        if (e.ctrlKey || e.metaKey) {
+                          if (['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                            return; // 허용
+                          }
+                        }
+                        
+                        // 그 외 모든 키 차단
+                        e.preventDefault();
+                      }}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        const pastedText = e.clipboardData.getData('text');
+                        const numbersOnly = pastedText.replace(/[^0-9]/g, '');
+                        if (numbersOnly) {
+                          const value = parseInt(numbersOnly, 10);
+                          if (!isNaN(value) && value >= 0) {
+                            field.onChange(value);
+                          }
+                        }
+                      }}
                       onChange={(e) => {
                         const inputValue = e.target.value;
                         // 빈 문자열이면 빈 문자열로 유지 (입력 중에는 허용)

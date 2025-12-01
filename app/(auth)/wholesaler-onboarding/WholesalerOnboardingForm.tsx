@@ -507,6 +507,54 @@ export default function WholesalerOnboardingForm({
                         ref={businessNumberInputRef}
                         placeholder="예: 1234567890"
                         {...field}
+                        onKeyDown={(e) => {
+                          // 숫자 키 (0-9)
+                          if (e.key >= '0' && e.key <= '9') {
+                            // 최대 10자리 제한 확인
+                            const currentValue = field.value || '';
+                            if (currentValue.length >= 10) {
+                              e.preventDefault();
+                              return;
+                            }
+                            return; // 허용
+                          }
+                          
+                          // 특수 키 허용
+                          const allowedKeys = [
+                            'Backspace',
+                            'Delete',
+                            'Tab',
+                            'ArrowLeft',
+                            'ArrowRight',
+                            'ArrowUp',
+                            'ArrowDown',
+                            'Home',
+                            'End',
+                            'Enter',
+                          ];
+                          
+                          if (allowedKeys.includes(e.key)) {
+                            return; // 허용
+                          }
+                          
+                          // Ctrl/Cmd + A, C, V, X
+                          if (e.ctrlKey || e.metaKey) {
+                            if (['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+                              return; // 허용
+                            }
+                          }
+                          
+                          // 그 외 모든 키 차단
+                          e.preventDefault();
+                        }}
+                        onPaste={(e) => {
+                          e.preventDefault();
+                          const pastedText = e.clipboardData.getData('text');
+                          const numbersOnly = pastedText.replace(/[^0-9]/g, '').slice(0, 10); // 최대 10자리
+                          if (numbersOnly) {
+                            handleBusinessNumberChange(numbersOnly);
+                          }
+                        }}
                         onChange={(e) => {
                           handleBusinessNumberChange(e.target.value);
                         }}
