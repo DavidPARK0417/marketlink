@@ -65,10 +65,28 @@ export async function getProducts(
     filter,
   });
 
+  // 현재 도매점 ID 확인
+  const profile = await getUserProfile();
+  if (!profile || profile.role !== "wholesaler") {
+    throw new Error("도매점 권한이 없습니다.");
+  }
+
+  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+  if (!wholesalers || wholesalers.length === 0) {
+    throw new Error("도매점 정보를 찾을 수 없습니다.");
+  }
+
+  const currentWholesalerId = wholesalers[0].id;
+  console.log("✅ [products-query] 현재 도매점 ID:", currentWholesalerId);
+
   const supabase = createClerkSupabaseClient();
 
-  // 기본 쿼리 생성
-  let query = supabase.from("products").select("*", { count: "exact" });
+  // 기본 쿼리 생성 (현재 도매점의 상품만 조회)
+  // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
+  let query = supabase
+    .from("products")
+    .select("*", { count: "exact" })
+    .eq("wholesaler_id", currentWholesalerId);
 
   // 필터 적용
   if (filter.category) {
@@ -180,12 +198,28 @@ export async function getProductById(
 ): Promise<Product | null> {
   console.log("🔍 [products-query] 상품 조회 시작", { productId });
 
+  // 현재 도매점 ID 확인
+  const profile = await getUserProfile();
+  if (!profile || profile.role !== "wholesaler") {
+    throw new Error("도매점 권한이 없습니다.");
+  }
+
+  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+  if (!wholesalers || wholesalers.length === 0) {
+    throw new Error("도매점 정보를 찾을 수 없습니다.");
+  }
+
+  const currentWholesalerId = wholesalers[0].id;
+  console.log("✅ [products-query] 현재 도매점 ID:", currentWholesalerId);
+
   const supabase = createClerkSupabaseClient();
 
+  // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
   const { data, error } = await supabase
     .from("products")
     .select("*")
     .eq("id", productId)
+    .eq("wholesaler_id", currentWholesalerId)
     .single();
 
   if (error) {

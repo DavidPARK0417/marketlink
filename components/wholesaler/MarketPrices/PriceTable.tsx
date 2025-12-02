@@ -78,16 +78,24 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">로딩 중...</div>
+      <div className="space-y-4">
+        <div className="rounded-md border">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-muted-foreground">로딩 중...</div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">조회된 데이터가 없습니다.</div>
+      <div className="space-y-4">
+        <div className="rounded-md border">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-muted-foreground">조회된 데이터가 없습니다.</div>
+          </div>
+        </div>
       </div>
     );
   }
