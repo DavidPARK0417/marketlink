@@ -169,13 +169,21 @@ export default async function AdminCSPage({ searchParams }: CSPageProps) {
                       ? (thread.profiles as { email: string; role: string | null })
                       : null;
 
+                  // role 타입 가드: 유효한 role 값인지 확인
+                  const validRole =
+                    profileData?.role === "wholesaler" ||
+                    profileData?.role === "retailer" ||
+                    profileData?.role === "admin"
+                      ? (profileData.role as "wholesaler" | "retailer" | "admin")
+                      : null;
+
                   return (
                     <CSTableRow
                       key={thread.id}
                       id={thread.id}
                       title={thread.title}
                       email={profileData?.email || "-"}
-                      role={profileData?.role || null}
+                      role={validRole}
                       status={thread.status}
                       created_at={thread.created_at}
                     />
