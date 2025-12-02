@@ -95,7 +95,7 @@ async function getAuditLogDetail(logId: string) {
     profiles: {
       id: string;
       email: string;
-    };
+    }[];
   };
 }
 
@@ -121,7 +121,7 @@ export default async function AuditLogDetailPage({
     notFound();
   }
 
-  const adminEmail = log.profiles?.email || "-";
+  const adminEmail = log.profiles[0]?.email || "-";
   const formattedDate = format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss", {
     locale: ko,
   });
