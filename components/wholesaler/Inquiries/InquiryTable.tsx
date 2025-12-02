@@ -89,7 +89,6 @@ export default function InquiryTable({
             </div>
           );
         },
-        size: 180, // 고정 너비 (약 20%)
       },
       {
         accessorKey: "title",
@@ -114,7 +113,6 @@ export default function InquiryTable({
           const status = row.original.status;
           return <InquiryStatusBadge status={status} />;
         },
-        size: 120, // 고정 너비 (약 15%)
       },
     ],
     [basePath], // basePath를 의존성에 추가
@@ -172,7 +170,7 @@ export default function InquiryTable({
     <div className="space-y-4">
       {/* 테이블 */}
       <div className="rounded-md border">
-        <Table className="table-fixed">
+        <Table className="table-auto">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -180,11 +178,11 @@ export default function InquiryTable({
                   const columnId = header.column.id;
                   let widthClass = "";
                   if (columnId === "created_at") {
-                    widthClass = "w-[20%]";
+                    widthClass = "min-w-[160px]";
                   } else if (columnId === "title") {
-                    widthClass = "w-[60%]";
+                    widthClass = "min-w-[200px]";
                   } else if (columnId === "status") {
-                    widthClass = "w-[20%]";
+                    widthClass = "min-w-[100px]";
                   }
                   return (
                     <TableHead key={header.id} className={widthClass}>
@@ -208,11 +206,11 @@ export default function InquiryTable({
                     const columnId = cell.column.id;
                     let widthClass = "";
                     if (columnId === "created_at") {
-                      widthClass = "w-[20%]";
+                      widthClass = "min-w-[160px]";
                     } else if (columnId === "title") {
-                      widthClass = "w-[60%]";
+                      widthClass = "min-w-[200px]";
                     } else if (columnId === "status") {
-                      widthClass = "w-[20%]";
+                      widthClass = "min-w-[100px]";
                     }
                     return (
                       <TableCell key={cell.id} className={widthClass}>
