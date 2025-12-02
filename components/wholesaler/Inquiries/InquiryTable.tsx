@@ -26,7 +26,7 @@ import {
 } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -84,11 +84,12 @@ export default function InquiryTable({
         cell: ({ row }) => {
           const date = row.original.created_at;
           return (
-            <div className="font-medium">
+            <div className="font-medium whitespace-nowrap">
               {format(new Date(date), "yyyy-MM-dd HH:mm", { locale: ko })}
             </div>
           );
         },
+        size: 180, // 고정 너비 (약 20%)
       },
       {
         accessorKey: "title",
@@ -99,19 +100,11 @@ export default function InquiryTable({
           return (
             <Link
               href={`${basePath}/${inquiryId}`}
-              className="max-w-[300px] truncate font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+              className="block truncate font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
             >
               {title}
             </Link>
           );
-        },
-      },
-      {
-        accessorKey: "user_anonymous_code",
-        header: "문의자",
-        cell: ({ row }) => {
-          const code = row.original.user_anonymous_code;
-          return <div className="font-medium">{code || "알 수 없음"}</div>;
         },
       },
       {
@@ -121,21 +114,7 @@ export default function InquiryTable({
           const status = row.original.status;
           return <InquiryStatusBadge status={status} />;
         },
-      },
-      {
-        id: "actions",
-        header: "액션",
-        cell: ({ row }) => {
-          const inquiry = row.original;
-          return (
-            <Link href={`${basePath}/${inquiry.id}`}>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <Eye className="h-4 w-4" />
-                <span className="sr-only">상세보기</span>
-              </Button>
-            </Link>
-          );
-        },
+        size: 120, // 고정 너비 (약 15%)
       },
     ],
     [basePath], // basePath를 의존성에 추가
@@ -166,9 +145,7 @@ export default function InquiryTable({
             <TableRow>
               <TableHead>문의일</TableHead>
               <TableHead>제목</TableHead>
-              <TableHead>문의자</TableHead>
               <TableHead>상태</TableHead>
-              <TableHead>액션</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -179,12 +156,6 @@ export default function InquiryTable({
                 </TableCell>
                 <TableCell>
                   <div className="h-4 w-48 animate-pulse rounded bg-gray-200" />
-                </TableCell>
-                <TableCell>
-                  <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
-                </TableCell>
-                <TableCell>
-                  <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
                 </TableCell>
                 <TableCell>
                   <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
@@ -201,20 +172,31 @@ export default function InquiryTable({
     <div className="space-y-4">
       {/* 테이블 */}
       <div className="rounded-md border">
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const columnId = header.column.id;
+                  let widthClass = "";
+                  if (columnId === "created_at") {
+                    widthClass = "w-[20%]";
+                  } else if (columnId === "title") {
+                    widthClass = "w-[60%]";
+                  } else if (columnId === "status") {
+                    widthClass = "w-[20%]";
+                  }
+                  return (
+                    <TableHead key={header.id} className={widthClass}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
@@ -222,14 +204,25 @@ export default function InquiryTable({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const columnId = cell.column.id;
+                    let widthClass = "";
+                    if (columnId === "created_at") {
+                      widthClass = "w-[20%]";
+                    } else if (columnId === "title") {
+                      widthClass = "w-[60%]";
+                    } else if (columnId === "status") {
+                      widthClass = "w-[20%]";
+                    }
+                    return (
+                      <TableCell key={cell.id} className={widthClass}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
