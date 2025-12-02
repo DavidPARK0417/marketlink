@@ -76,25 +76,33 @@ export async function getInquiries(
     );
   }
 
-  if (profile.role !== "wholesaler") {
-    console.error("❌ [inquiries] 도매점 권한 없음", { role: profile.role });
-    throw new Error("도매점 권한이 필요합니다.");
+  // 관리자 또는 도매점 권한 확인
+  if (profile.role !== "wholesaler" && profile.role !== "admin") {
+    console.error("❌ [inquiries] 권한 없음", { role: profile.role });
+    throw new Error("도매점 또는 관리자 권한이 필요합니다.");
   }
 
-  // 도매점 정보 조회
   const supabase = createClerkSupabaseClient();
-  const { data: wholesaler, error: wholesalerError } = await supabase
-    .from("wholesalers")
-    .select("id")
-    .eq("profile_id", profile.id)
-    .single();
+  let wholesalerId: string | null = null;
 
-  if (wholesalerError || !wholesaler) {
-    console.error("❌ [inquiries] 도매점 정보 조회 오류:", wholesalerError);
-    throw new Error("도매점 정보를 찾을 수 없습니다.");
+  // 도매점인 경우에만 도매점 정보 조회
+  if (profile.role === "wholesaler") {
+    const { data: wholesaler, error: wholesalerError } = await supabase
+      .from("wholesalers")
+      .select("id")
+      .eq("profile_id", profile.id)
+      .single();
+
+    if (wholesalerError || !wholesaler) {
+      console.error("❌ [inquiries] 도매점 정보 조회 오류:", wholesalerError);
+      throw new Error("도매점 정보를 찾을 수 없습니다.");
+    }
+
+    wholesalerId = wholesaler.id;
+    console.log("✅ [inquiries] 도매점 ID 확인:", wholesalerId);
+  } else {
+    console.log("👑 [inquiries] 관리자 접근 - 모든 도매점 문의 조회");
   }
-
-  console.log("✅ [inquiries] 도매점 ID 확인:", wholesaler.id);
 
   // 쿼리 빌더 시작
   let query = supabase
@@ -109,8 +117,12 @@ export async function getInquiries(
     `,
       { count: "exact" },
     )
-    .eq("inquiry_type", "retailer_to_wholesaler")
-    .eq("wholesaler_id", wholesaler.id);
+    .eq("inquiry_type", "retailer_to_wholesaler");
+
+  // 도매점인 경우에만 자신의 문의만 필터링, 관리자는 모든 문의 조회
+  if (wholesalerId) {
+    query = query.eq("wholesaler_id", wholesalerId);
+  }
 
   // 필터 적용
   if (filter.status) {

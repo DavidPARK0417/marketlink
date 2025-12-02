@@ -29,18 +29,22 @@ export async function GET(request: Request) {
     const mclsfCd = searchParams.get("mclsfCd") || undefined;
     const sclsfCd = searchParams.get("sclsfCd") || undefined;
     const itemName = searchParams.get("itemName") || undefined;
+    const productno = searchParams.get("productno") || undefined; // 테이블 데이터에서 추출한 품목 코드
+    const categoryCode = searchParams.get("categoryCode") || undefined; // 테이블 데이터에서 추출한 카테고리 코드
     const period = searchParams.get("period") || "daily"; // daily, monthly, yearly
 
-    if (!lclsfCd) {
+    // lclsfCd 또는 productno 중 하나는 필수
+    if (!lclsfCd && !productno) {
       console.warn(`⚠️ [api/market-prices/trend] 필수 파라미터 누락 [${requestId}]:`, {
         요청URL: request.url,
         lclsfCd: lclsfCd || "없음",
+        productno: productno || "없음",
       });
 
       return NextResponse.json(
         {
           success: false,
-          error: "대분류 코드(lclsfCd)가 필요합니다.",
+          error: "대분류 코드(lclsfCd) 또는 품목 코드(productno)가 필요합니다.",
           requestId,
         },
         { status: 400 },
@@ -49,24 +53,59 @@ export async function GET(request: Request) {
 
     console.group(`📈 [api/market-prices/trend] 시세 추이 조회 요청 [${requestId}]`);
     console.log("요청 URL:", request.url);
-    console.log("파라미터:", JSON.stringify({ lclsfCd, mclsfCd, sclsfCd, itemName, period }, null, 2));
+    console.log("파라미터:", JSON.stringify({ lclsfCd, mclsfCd, sclsfCd, itemName, productno, categoryCode, period }, null, 2));
     console.log("타임스탬프:", new Date().toISOString());
 
     const startTime = Date.now();
     let data;
 
+    // productno와 categoryCode가 있으면 직접 사용, 없으면 기존 방식 사용
+    const effectiveLclsfCd = lclsfCd || "10"; // 기본값 (채소류)
+    
     switch (period) {
       case "daily":
-        data = await getDailyPriceTrend(lclsfCd, mclsfCd, sclsfCd, itemName, 30);
+        data = await getDailyPriceTrend(
+          effectiveLclsfCd, 
+          mclsfCd, 
+          sclsfCd, 
+          itemName, 
+          30,
+          productno, // 추가 파라미터
+          categoryCode // 추가 파라미터
+        );
         break;
       case "monthly":
-        data = await getMonthlyPriceTrend(lclsfCd, mclsfCd, sclsfCd, itemName, 12);
+        data = await getMonthlyPriceTrend(
+          effectiveLclsfCd, 
+          mclsfCd, 
+          sclsfCd, 
+          itemName, 
+          12,
+          productno,
+          categoryCode
+        );
         break;
       case "yearly":
-        data = await getYearlyPriceTrend(lclsfCd, mclsfCd, sclsfCd, itemName, 5);
+        data = await getYearlyPriceTrend(
+          effectiveLclsfCd, 
+          mclsfCd, 
+          sclsfCd, 
+          itemName, 
+          5,
+          productno,
+          categoryCode
+        );
         break;
       default:
-        data = await getDailyPriceTrend(lclsfCd, mclsfCd, sclsfCd, itemName, 30);
+        data = await getDailyPriceTrend(
+          effectiveLclsfCd, 
+          mclsfCd, 
+          sclsfCd, 
+          itemName, 
+          30,
+          productno,
+          categoryCode
+        );
     }
 
     const duration = Date.now() - startTime;

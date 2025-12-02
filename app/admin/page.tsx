@@ -32,8 +32,7 @@ export default async function AdminPage() {
     <div className="space-y-8">
       {/* 페이지 헤더 */}
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">관리자 대시보드</h2>
-        <p className="mt-2 text-gray-600">
+        <p className="text-gray-600">
           관리자 페이지에 오신 것을 환영합니다.
         </p>
       </div>

@@ -105,6 +105,11 @@ const Navbar = () => {
     return null;
   }
 
+  // 관리자 페이지에서도 Navbar를 표시하지 않음
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <header className="flex justify-between items-center p-4 gap-4 h-16 max-w-7xl mx-auto">
       <Link

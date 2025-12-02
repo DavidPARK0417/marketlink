@@ -66,11 +66,24 @@ export default function PriceTrendChart({
 
   // 차트 데이터 포맷팅
   const chartData = useMemo(() => {
-    return currentData.map((item) => ({
+    const formatted = currentData.map((item) => ({
       date: item.date,
       가격: item.price,
     }));
-  }, [currentData]);
+    
+    // 디버깅: 차트 데이터 확인
+    if (formatted.length > 0) {
+      console.log(`📊 [PriceTrendChart] ${period} 차트 데이터:`, {
+        period,
+        itemName,
+        dataCount: formatted.length,
+        firstItem: formatted[0],
+        lastItem: formatted[formatted.length - 1],
+      });
+    }
+    
+    return formatted;
+  }, [currentData, period, itemName]);
 
   // 가격 포맷팅 함수
   const formatPrice = (value: number) => {
@@ -153,7 +166,7 @@ export default function PriceTrendChart({
         </Tabs>
       </div>
 
-      <div className="w-full h-64 md:h-80">
+      <div className="w-full" style={{ minHeight: "256px", height: "256px" }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />

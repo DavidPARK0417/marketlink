@@ -1,6 +1,13 @@
 /**
  * @file app/wholesaler/market-prices/page.tsx
  * @description 시세 조회 페이지
+ *
+ * 주요 기능:
+ * 1. 실시간 시세 조회 (테이블)
+ *
+ * @dependencies
+ * - components/wholesaler/MarketPrices/PriceFilter.tsx
+ * - components/wholesaler/MarketPrices/PriceTable.tsx
  */
 
 "use client";

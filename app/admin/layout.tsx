@@ -19,8 +19,8 @@
  */
 
 import { requireAdmin } from "@/lib/clerk/auth";
-import { UserButton } from "@clerk/nextjs";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 export default async function AdminLayout({
   children,
@@ -43,14 +43,7 @@ export default async function AdminLayout({
       {/* 메인 컨텐츠 영역 */}
       <div className="flex-1 flex flex-col">
         {/* 헤더 */}
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{profile.email}</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <UserButton />
-          </div>
-        </header>
+        <AdminHeader />
 
         {/* 메인 컨텐츠 */}
         <main className="flex-1 p-6">{children}</main>

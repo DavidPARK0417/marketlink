@@ -41,7 +41,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // 현재 도매점 ID 확인
   const profile = await getUserProfile();
 
-  if (!profile || profile.role !== "wholesaler") {
+  if (!profile || (profile.role !== "wholesaler" && profile.role !== "admin")) {
     throw new Error("도매점 권한이 없습니다.");
   }
 

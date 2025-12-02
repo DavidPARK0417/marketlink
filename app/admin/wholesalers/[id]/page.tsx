@@ -132,10 +132,7 @@ export default async function WholesalerDetailPage({
           <ArrowLeft className="h-4 w-4" />
           목록으로
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">
-          도매사업자 상세 정보
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="text-sm text-gray-500">
           도매사업자의 상세 정보를 확인하고 승인 또는 반려 처리를 진행하세요.
         </p>
       </div>

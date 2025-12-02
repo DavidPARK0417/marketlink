@@ -6,9 +6,10 @@
  * Clerk SignIn 컴포넌트를 사용하며, 역할 표시 배너와 회원가입 안내를 포함합니다.
  *
  * 개선 사항 (v2):
- * - 로그인 후 온보딩 페이지로 이동 (자동 승인 상태 체크)
+ * - 로그인 후 루트 페이지로 이동 (역할 확인 후 적절한 대시보드로 리다이렉트)
  * - 회원가입 링크에 역할 구분 파라미터 추가
  * - 소매점 계정 차단 모달 추가
+ * - 관리자 계정은 관리자 대시보드로 자동 리다이렉트
  */
 
 import Link from "next/link";
@@ -66,8 +67,8 @@ export default async function WholesalerSignInPage({
                 }}
                 path="/sign-in/wholesaler"
                 signUpUrl="/sign-up?type=wholesaler"
-                fallbackRedirectUrl="/wholesaler-onboarding"
-                forceRedirectUrl="/wholesaler-onboarding"
+                fallbackRedirectUrl="/"
+                forceRedirectUrl="/"
                 redirectToSignUpUrl="/sign-up?type=wholesaler"
                 onboardingUrl="/wholesaler-onboarding"
               />

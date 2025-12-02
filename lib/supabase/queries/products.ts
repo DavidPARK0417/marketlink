@@ -5,7 +5,9 @@
  * @description 상품 조회 쿼리 함수
  *
  * 도매점의 상품을 조회하는 Supabase 쿼리 함수들을 제공합니다.
- * RLS 정책을 통해 현재 도매점의 상품만 조회됩니다.
+ * - 도매점(wholesaler): 자신의 상품만 조회
+ * - 관리자(admin): 모든 상품 조회 가능
+ * RLS 정책을 통해 권한별로 적절한 데이터만 조회됩니다.
  *
  * @dependencies
  * - lib/supabase/server.ts
@@ -39,9 +41,11 @@ export interface GetProductsResult {
 }
 
 /**
- * 현재 도매점의 상품 목록 조회
+ * 상품 목록 조회
  *
- * RLS 정책을 통해 현재 로그인한 도매점의 상품만 조회됩니다.
+ * - 도매점(wholesaler): 자신의 상품만 조회
+ * - 관리자(admin): 모든 상품 조회
+ * RLS 정책을 통해 권한별로 적절한 데이터만 조회됩니다.
  *
  * @param options 조회 옵션
  * @returns 상품 목록 및 페이지네이션 정보
@@ -65,28 +69,32 @@ export async function getProducts(
     filter,
   });
 
-  // 현재 도매점 ID 확인
+  // 현재 사용자 프로필 확인
   const profile = await getUserProfile();
-  if (!profile || profile.role !== "wholesaler") {
-    throw new Error("도매점 권한이 없습니다.");
+  if (!profile || !["wholesaler", "admin"].includes(profile.role)) {
+    throw new Error("도매점 또는 관리자 권한이 없습니다.");
   }
-
-  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
-    throw new Error("도매점 정보를 찾을 수 없습니다.");
-  }
-
-  const currentWholesalerId = wholesalers[0].id;
-  console.log("✅ [products-query] 현재 도매점 ID:", currentWholesalerId);
 
   const supabase = createClerkSupabaseClient();
 
-  // 기본 쿼리 생성 (현재 도매점의 상품만 조회)
-  // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
-  let query = supabase
-    .from("products")
-    .select("*", { count: "exact" })
-    .eq("wholesaler_id", currentWholesalerId);
+  // 기본 쿼리 생성
+  // 관리자는 모든 상품 조회, 도매점은 자신의 상품만 조회
+  let query = supabase.from("products").select("*", { count: "exact" });
+
+  // 도매점인 경우 자신의 상품만 조회하도록 필터 추가
+  if (profile.role === "wholesaler") {
+    const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+    if (!wholesalers || wholesalers.length === 0) {
+      throw new Error("도매점 정보를 찾을 수 없습니다.");
+    }
+
+    const currentWholesalerId = wholesalers[0].id;
+    console.log("✅ [products-query] 현재 도매점 ID:", currentWholesalerId);
+    // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
+    query = query.eq("wholesaler_id", currentWholesalerId);
+  } else {
+    console.log("✅ [products-query] 관리자 권한으로 모든 상품 조회");
+  }
 
   // 필터 적용
   if (filter.category) {
@@ -198,29 +206,33 @@ export async function getProductById(
 ): Promise<Product | null> {
   console.log("🔍 [products-query] 상품 조회 시작", { productId });
 
-  // 현재 도매점 ID 확인
+  // 현재 사용자 프로필 확인
   const profile = await getUserProfile();
-  if (!profile || profile.role !== "wholesaler") {
-    throw new Error("도매점 권한이 없습니다.");
+  if (!profile || !["wholesaler", "admin"].includes(profile.role)) {
+    throw new Error("도매점 또는 관리자 권한이 없습니다.");
   }
-
-  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
-    throw new Error("도매점 정보를 찾을 수 없습니다.");
-  }
-
-  const currentWholesalerId = wholesalers[0].id;
-  console.log("✅ [products-query] 현재 도매점 ID:", currentWholesalerId);
 
   const supabase = createClerkSupabaseClient();
 
-  // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", productId)
-    .eq("wholesaler_id", currentWholesalerId)
-    .single();
+  // 기본 쿼리 생성
+  let query = supabase.from("products").select("*").eq("id", productId);
+
+  // 도매점인 경우 자신의 상품만 조회하도록 필터 추가
+  if (profile.role === "wholesaler") {
+    const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+    if (!wholesalers || wholesalers.length === 0) {
+      throw new Error("도매점 정보를 찾을 수 없습니다.");
+    }
+
+    const currentWholesalerId = wholesalers[0].id;
+    console.log("✅ [products-query] 현재 도매점 ID:", currentWholesalerId);
+    // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
+    query = query.eq("wholesaler_id", currentWholesalerId);
+  } else {
+    console.log("✅ [products-query] 관리자 권한으로 상품 조회");
+  }
+
+  const { data, error } = await query.single();
 
   if (error) {
     if (error.code === "PGRST116") {
@@ -248,30 +260,39 @@ export async function getProductById(
 export async function getLowStockProducts(): Promise<Product[]> {
   console.log("🔍 [products-query] 재고 부족 상품 조회 시작");
 
-  // 현재 도매점 ID 확인
+  // 현재 사용자 프로필 확인
   const profile = await getUserProfile();
-  if (!profile || profile.role !== "wholesaler") {
-    throw new Error("도매점 권한이 없습니다.");
+  if (!profile || !["wholesaler", "admin"].includes(profile.role)) {
+    throw new Error("도매점 또는 관리자 권한이 없습니다.");
   }
-
-  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
-    throw new Error("도매점 정보를 찾을 수 없습니다.");
-  }
-
-  const currentWholesalerId = wholesalers[0].id;
 
   const supabase = createClerkSupabaseClient();
 
-  // 재고 10개 이하 상품 조회
-  const { data, error } = await supabase
+  // 기본 쿼리 생성
+  let query = supabase
     .from("products")
     .select("*")
-    .eq("wholesaler_id", currentWholesalerId)
     .eq("is_active", true)
     .lte("stock", 10)
     .order("stock", { ascending: true })
     .limit(10);
+
+  // 도매점인 경우 자신의 상품만 조회하도록 필터 추가
+  if (profile.role === "wholesaler") {
+    const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+    if (!wholesalers || wholesalers.length === 0) {
+      throw new Error("도매점 정보를 찾을 수 없습니다.");
+    }
+
+    const currentWholesalerId = wholesalers[0].id;
+    console.log("✅ [products-query] 현재 도매점 ID:", currentWholesalerId);
+    // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
+    query = query.eq("wholesaler_id", currentWholesalerId);
+  } else {
+    console.log("✅ [products-query] 관리자 권한으로 모든 재고 부족 상품 조회");
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("❌ [products-query] 재고 부족 상품 조회 오류:", error);

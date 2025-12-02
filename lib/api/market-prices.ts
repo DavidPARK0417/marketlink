@@ -708,6 +708,8 @@ export async function getDailyPriceTrend(
   sclsfCd?: string,
   itemName?: string,
   days: number = 30,
+  productno?: string, // 테이블 데이터에서 추출한 품목 코드
+  categoryCode?: string, // 테이블 데이터에서 추출한 카테고리 코드
 ): Promise<PriceTrendItem[]> {
   const certId = process.env.KAMIS_CERT_ID;
   const certKey = process.env.KAMIS_CERT_KEY?.trim().replace(
@@ -734,10 +736,18 @@ export async function getDailyPriceTrend(
   console.log("날짜 범위:", startDay, "~", endDay);
 
   try {
-    // 품목명이 있으면 품목 코드 찾기
+    // 품목 코드 찾기 (우선순위: 전달받은 productno > 품목명으로 검색)
     let itemCodes: Array<{ itemCode: string; categoryCode: string }> = [];
 
-    if (itemName) {
+    if (productno && categoryCode) {
+      // 테이블 데이터에서 추출한 정보 사용
+      console.log("📊 [getDailyPriceTrend] 테이블 데이터의 품목 정보 사용:", {
+        productno,
+        categoryCode,
+      });
+      itemCodes = [{ itemCode: productno, categoryCode }];
+    } else if (itemName) {
+      // 품목명으로 검색
       const productInfos = await fetchKAMISProductInfo({
         certKey,
         certId,
@@ -831,6 +841,8 @@ export async function getMonthlyPriceTrend(
   sclsfCd?: string,
   itemName?: string,
   months: number = 12,
+  productno?: string, // 테이블 데이터에서 추출한 품목 코드
+  categoryCode?: string, // 테이블 데이터에서 추출한 카테고리 코드
 ): Promise<PriceTrendItem[]> {
   const results: PriceTrendItem[] = [];
   const today = new Date();
@@ -908,6 +920,8 @@ export async function getYearlyPriceTrend(
   sclsfCd?: string,
   itemName?: string,
   years: number = 5,
+  productno?: string, // 테이블 데이터에서 추출한 품목 코드
+  categoryCode?: string, // 테이블 데이터에서 추출한 카테고리 코드
 ): Promise<PriceTrendItem[]> {
   const results: PriceTrendItem[] = [];
   const today = new Date();

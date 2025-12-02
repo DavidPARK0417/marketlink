@@ -124,7 +124,7 @@ export async function getOrders(
     );
   }
 
-  if (profile.role !== "wholesaler") {
+  if (profile.role !== "wholesaler" && profile.role !== "admin") {
     console.error("❌ [orders-query] 도매점 권한 없음", { role: profile.role });
     throw new Error("도매점 권한이 없습니다.");
   }

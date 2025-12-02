@@ -111,7 +111,7 @@ export default function AdminInquiriesPage() {
     <div className="space-y-6">
       {/* 페이지 헤더 */}
       <PageHeader
-        title="도매 문의 관리"
+        hideTitle
         description="도매사업자로부터 받은 문의를 조회하고 답변할 수 있습니다."
       />
 
