@@ -17,9 +17,9 @@ import { cn } from "@/lib/utils";
 
 export interface PageHeaderProps {
   /**
-   * 페이지 제목 (필수)
+   * 페이지 제목 (hideTitle이 true가 아닐 때 필수)
    */
-  title: string;
+  title?: string;
   /**
    * 페이지 설명 (선택적)
    */
