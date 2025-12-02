@@ -89,20 +89,35 @@ export default function AdminInquiryDetailPage({
   // 현재 사용자의 profile ID 조회
   React.useEffect(() => {
     const fetchProfileId = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log("⚠️ [admin-inquiry-detail-page] user가 없음");
+        return;
+      }
 
       try {
-        const { data: profile } = await supabase
+        console.log("🔍 [admin-inquiry-detail-page] 프로필 조회 시작", {
+          clerkUserId: user.id,
+        });
+
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("id")
           .eq("clerk_user_id", user.id)
           .single();
 
+        if (profileError) {
+          console.error("❌ [admin-inquiry-detail-page] 프로필 조회 오류:", profileError);
+          return;
+        }
+
         if (profile) {
+          console.log("✅ [admin-inquiry-detail-page] 프로필 조회 성공:", profile.id);
           setCurrentProfileId(profile.id);
+        } else {
+          console.warn("⚠️ [admin-inquiry-detail-page] 프로필 없음");
         }
       } catch (error) {
-        console.error("❌ [admin-inquiry-detail-page] 프로필 조회 오류:", error);
+        console.error("❌ [admin-inquiry-detail-page] 프로필 조회 예외:", error);
       }
     };
 
@@ -150,6 +165,43 @@ export default function AdminInquiryDetailPage({
     queryClient.invalidateQueries({ queryKey: ["admin-inquiry", inquiryId] });
     queryClient.invalidateQueries({ queryKey: ["admin-inquiries"] });
     queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
+  };
+
+  // 메시지 삭제 핸들러
+  const handleDeleteMessage = async (message: InquiryMessage) => {
+    if (
+      !confirm(
+        "정말 이 메시지를 삭제하시겠습니까?\n삭제된 메시지는 복구할 수 없습니다.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      console.log("🗑️ [admin-inquiry-detail-page] 메시지 삭제 요청:", message.id);
+
+      const response = await fetch(
+        `/api/admin/inquiries/messages/${message.id}`,
+        { method: "DELETE" },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "메시지 삭제 실패");
+      }
+
+      console.log("✅ [admin-inquiry-detail-page] 메시지 삭제 성공");
+      toast.success("메시지가 삭제되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-inquiry", inquiryId] });
+    } catch (error) {
+      console.error("❌ [admin-inquiry-detail-page] 메시지 삭제 오류:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "메시지 삭제 중 오류가 발생했습니다.",
+      );
+    }
   };
 
   // 에러 처리
@@ -310,7 +362,15 @@ export default function AdminInquiryDetailPage({
               messages={messagesData || []}
               userEmail={inquiry.user_anonymous_code || undefined}
               currentUserId={currentProfileId || undefined}
-              onEdit={setEditingMessage}
+              onEdit={(message) => {
+                console.log("✏️ [admin-inquiry-detail-page] 수정 버튼 클릭:", {
+                  messageId: message.id,
+                  sender_id: message.sender_id,
+                  currentProfileId: currentProfileId,
+                });
+                setEditingMessage(message);
+              }}
+              onDelete={handleDeleteMessage}
             />
           )}
         </CardContent>

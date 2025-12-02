@@ -1165,3 +1165,72 @@ export async function updateInquiryMessage(
 
   return updatedMessage as InquiryMessage;
 }
+
+/**
+ * 문의 메시지 삭제
+ * 자신이 작성한 메시지만 삭제 가능하며, 종료된 문의의 메시지는 삭제 불가
+ * 
+ * @param {string} messageId - 삭제할 메시지 ID
+ * @returns {Promise<void>}
+ */
+export async function deleteInquiryMessage(messageId: string): Promise<void> {
+  console.group("🗑️ [inquiries] 문의 메시지 삭제 시작");
+  console.log("messageId:", messageId);
+
+  const profile = await getUserProfile();
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  const supabase = createClerkSupabaseClient();
+
+  // 1. 메시지 정보 조회
+  const { data: message, error: messageError } = await supabase
+    .from("inquiry_messages")
+    .select("id, inquiry_id, sender_id, content")
+    .eq("id", messageId)
+    .single();
+
+  if (messageError || !message) {
+    console.error("❌ [inquiries] 메시지 조회 오류:", messageError);
+    throw new Error("메시지를 찾을 수 없습니다.");
+  }
+
+  // 2. 권한 확인: 자신이 작성한 메시지만 삭제 가능
+  if (message.sender_id !== profile.id) {
+    console.error("❌ [inquiries] 권한 없음 - 다른 사용자의 메시지");
+    throw new Error("본인이 작성한 메시지만 삭제할 수 있습니다.");
+  }
+
+  // 3. 문의 상태 확인: 종료된 문의는 삭제 불가
+  const { data: inquiry, error: inquiryError } = await supabase
+    .from("inquiries")
+    .select("status")
+    .eq("id", message.inquiry_id)
+    .single();
+
+  if (inquiryError || !inquiry) {
+    console.error("❌ [inquiries] 문의 조회 오류:", inquiryError);
+    throw new Error("문의를 찾을 수 없습니다.");
+  }
+
+  if (inquiry.status === "closed") {
+    console.error("❌ [inquiries] 종료된 문의의 메시지는 삭제 불가");
+    throw new Error("종료된 문의의 메시지는 삭제할 수 없습니다.");
+  }
+
+  // 4. 메시지 삭제
+  const { error: deleteError } = await supabase
+    .from("inquiry_messages")
+    .delete()
+    .eq("id", messageId);
+
+  if (deleteError) {
+    console.error("❌ [inquiries] 메시지 삭제 오류:", deleteError);
+    throw new Error("메시지를 삭제하는 중 오류가 발생했습니다.");
+  }
+
+  console.log("✅ [inquiries] 메시지 삭제 완료");
+  console.groupEnd();
+}

@@ -19,6 +19,7 @@
 
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { Trash2 } from "lucide-react";
 import type {
   InquiryMessage,
   InquiryMessageSenderType,
@@ -31,6 +32,7 @@ interface InquiryMessageListProps {
   userEmail?: string; // 사용자 이메일 (사용자 메시지 표시용)
   currentUserId?: string; // 현재 사용자 ID (수정 권한 확인용)
   onEdit?: (message: InquiryMessage) => void; // 수정 핸들러
+  onDelete?: (message: InquiryMessage) => void; // 삭제 핸들러
 }
 
 /**
@@ -73,15 +75,30 @@ function InquiryMessageItem({
   userEmail,
   currentUserId,
   onEdit,
+  onDelete,
 }: {
   message: InquiryMessage;
   userEmail?: string;
   currentUserId?: string;
   onEdit?: (message: InquiryMessage) => void;
+  onDelete?: (message: InquiryMessage) => void;
 }) {
   const style = getMessageStyle(message.sender_type);
   const canEdit = message.sender_id === currentUserId; // 자신이 작성한 메시지만 수정 가능
   const isEdited = message.edited_at !== null; // 수정된 메시지 표시
+
+  // 디버깅 로그 (개발 환경에서만)
+  if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+    console.log("🔍 [InquiryMessageItem] 수정 버튼 체크:", {
+      messageId: message.id,
+      sender_type: message.sender_type,
+      sender_id: message.sender_id,
+      currentUserId: currentUserId,
+      canEdit: canEdit,
+      hasOnEdit: !!onEdit,
+      isEdited: isEdited,
+    });
+  }
 
   // 날짜 포맷팅 (2025-01-15 14:30 형식)
   const formattedDate = format(new Date(message.created_at), "yyyy-MM-dd HH:mm", {
@@ -105,15 +122,29 @@ function InquiryMessageItem({
               <span className="ml-1 text-gray-400">(수정됨)</span>
             )}
           </span>
-          {canEdit && onEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs"
-              onClick={() => onEdit(message)}
-            >
-              수정
-            </Button>
+          {canEdit && (
+            <div className="flex gap-1">
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  onClick={() => onEdit(message)}
+                >
+                  수정
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={() => onDelete(message)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
           )}
         </div>
 
@@ -141,6 +172,7 @@ export default function InquiryMessageList({
   userEmail,
   currentUserId,
   onEdit,
+  onDelete,
 }: InquiryMessageListProps) {
   if (messages.length === 0) {
     return (
@@ -159,6 +191,7 @@ export default function InquiryMessageList({
           userEmail={userEmail}
           currentUserId={currentUserId}
           onEdit={onEdit}
+          onDelete={onDelete}
         />
       ))}
     </div>

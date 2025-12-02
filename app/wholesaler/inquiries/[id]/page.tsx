@@ -87,20 +87,35 @@ export default function InquiryDetailPage({
   // 현재 사용자의 profile ID 조회
   React.useEffect(() => {
     const fetchProfileId = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log("⚠️ [inquiry-detail-page] user가 없음");
+        return;
+      }
 
       try {
-        const { data: profile } = await supabase
+        console.log("🔍 [inquiry-detail-page] 프로필 조회 시작", {
+          clerkUserId: user.id,
+        });
+
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("id")
           .eq("clerk_user_id", user.id)
           .single();
 
+        if (profileError) {
+          console.error("❌ [inquiry-detail-page] 프로필 조회 오류:", profileError);
+          return;
+        }
+
         if (profile) {
+          console.log("✅ [inquiry-detail-page] 프로필 조회 성공:", profile.id);
           setCurrentProfileId(profile.id);
+        } else {
+          console.warn("⚠️ [inquiry-detail-page] 프로필 없음");
         }
       } catch (error) {
-        console.error("❌ [inquiry-detail-page] 프로필 조회 오류:", error);
+        console.error("❌ [inquiry-detail-page] 프로필 조회 예외:", error);
       }
     };
 
@@ -150,6 +165,43 @@ export default function InquiryDetailPage({
     queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
   };
 
+  // 메시지 삭제 핸들러
+  const handleDeleteMessage = async (message: InquiryMessage) => {
+    if (
+      !confirm(
+        "정말 이 메시지를 삭제하시겠습니까?\n삭제된 메시지는 복구할 수 없습니다.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      console.log("🗑️ [inquiry-detail-page] 메시지 삭제 요청:", message.id);
+
+      const response = await fetch(
+        `/api/wholesaler/inquiries/messages/${message.id}`,
+        { method: "DELETE" },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "메시지 삭제 실패");
+      }
+
+      console.log("✅ [inquiry-detail-page] 메시지 삭제 성공");
+      toast.success("메시지가 삭제되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
+      queryClient.invalidateQueries({ queryKey: ["inquiry", inquiryId] });
+    } catch (error) {
+      console.error("❌ [inquiry-detail-page] 메시지 삭제 오류:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "메시지 삭제 중 오류가 발생했습니다.",
+      );
+    }
+  };
+
   // 에러 처리
   React.useEffect(() => {
     if (error) {
@@ -182,6 +234,12 @@ export default function InquiryDetailPage({
     );
   }
 
+  // 문의 타입에 따른 목록 페이지 경로 결정
+  // inquiry가 없으면 기본값 사용 (에러 상태)
+  const backPath = inquiry?.inquiry_type === "wholesaler_to_admin"
+    ? "/wholesaler/support"
+    : "/wholesaler/inquiries";
+
   if (error || !inquiry) {
     return (
       <div className="space-y-6">
@@ -208,7 +266,7 @@ export default function InquiryDetailPage({
   return (
     <div className="space-y-6">
       {/* 뒤로가기 버튼 */}
-      <Link href="/wholesaler/inquiries">
+      <Link href={backPath}>
         <Button variant="ghost" size="sm">
           <ArrowLeft className="mr-2 h-4 w-4" />
           목록으로
@@ -303,7 +361,15 @@ export default function InquiryDetailPage({
               messages={messagesData || []}
               userEmail={inquiry.user_anonymous_code || undefined}
               currentUserId={currentProfileId || undefined}
-              onEdit={setEditingMessage}
+              onEdit={(message) => {
+                console.log("✏️ [inquiry-detail-page] 수정 버튼 클릭:", {
+                  messageId: message.id,
+                  sender_id: message.sender_id,
+                  currentProfileId: currentProfileId,
+                });
+                setEditingMessage(message);
+              }}
+              onDelete={handleDeleteMessage}
             />
           )}
         </CardContent>

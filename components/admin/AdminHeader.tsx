@@ -77,7 +77,7 @@ export default function AdminHeader() {
       <div className="flex items-center gap-4">
         {/* 사용자 드롭다운 메뉴 - 클라이언트 사이드에서만 렌더링 */}
         {mounted && isLoaded && (
-          <UserButton />
+          <UserButton afterSignOutUrl="/sign-in" />
         )}
       </div>
     </header>
