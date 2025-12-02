@@ -525,24 +525,24 @@ CS 상세 및 답변 페이지를 만들어줘.
 
 **파일**: `actions/admin/cs-reply.ts`
 
-- [ ] **replyToCS() 함수**
+- [x] **replyToCS() 함수**
 
-  - [ ] `cs_messages` 테이블에 답변 삽입
-    - [ ] `thread_id`: CS 스레드 ID
-    - [ ] `sender_type`: `'admin'`
-    - [ ] `sender_id`: 관리자 ID
-    - [ ] `content`: 답변 내용
-  - [ ] `cs_threads.status`를 `'answered'`로 업데이트
-  - [ ] `audit_logs`에 기록
-  - [ ] IP 주소 기록
-  - [ ] 에러 처리 및 로깅
+  - [x] `cs_messages` 테이블에 답변 삽입
+    - [x] `thread_id`: CS 스레드 ID
+    - [x] `sender_type`: `'admin'`
+    - [x] `sender_id`: 관리자 ID
+    - [x] `content`: 답변 내용
+  - [x] `cs_threads.status`를 `'answered'`로 업데이트
+  - [x] `audit_logs`에 기록
+  - [x] IP 주소 기록
+  - [x] 에러 처리 및 로깅
 
-- [ ] **closeCSThread() 함수**
-  - [ ] `cs_threads.status`를 `'closed'`로 업데이트
-  - [ ] `closed_at` 현재 시간으로 설정
-  - [ ] `audit_logs`에 기록
-  - [ ] IP 주소 기록
-  - [ ] 에러 처리 및 로깅
+- [x] **closeCSThread() 함수**
+  - [x] `cs_threads.status`를 `'closed'`로 업데이트
+  - [x] `closed_at` 현재 시간으로 설정
+  - [x] `audit_logs`에 기록
+  - [x] IP 주소 기록
+  - [x] 에러 처리 및 로깅
 
 **커서 AI 프롬프트:**
 
