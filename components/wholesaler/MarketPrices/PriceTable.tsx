@@ -21,9 +21,14 @@ import type { DailyPriceItem } from "@/lib/api/market-prices-types";
 interface PriceTableProps {
   data: DailyPriceItem[];
   isLoading?: boolean;
+  onRowClick?: (item: DailyPriceItem) => void;
 }
 
-export default function PriceTable({ data, isLoading = false }: PriceTableProps) {
+export default function PriceTable({
+  data,
+  isLoading = false,
+  onRowClick,
+}: PriceTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 30;
 
@@ -140,7 +145,7 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
   return (
     <div className="space-y-4">
       {/* 테이블 */}
-      <div className="rounded-md border min-h-[400px] w-full max-w-full overflow-hidden">
+      <div className="rounded-md border w-full max-w-full overflow-hidden">
         <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow>
@@ -156,7 +161,11 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
           </TableHeader>
           <TableBody>
             {paginatedData.map((item, index) => (
-              <TableRow key={`${item.productno}-${item.productClsCode}-${index}`}>
+              <TableRow
+                key={`${item.productno}-${item.productClsCode}-${index}`}
+                className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
+                onClick={() => onRowClick?.(item)}
+              >
                 <TableCell className="font-medium truncate">{item.productClsName}</TableCell>
                 <TableCell className="font-medium truncate">{item.productName}</TableCell>
                 <TableCell className="truncate">{item.unit}</TableCell>

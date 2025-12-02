@@ -4,10 +4,12 @@
  *
  * 주요 기능:
  * 1. 실시간 시세 조회 (테이블)
+ * 2. 4개 시점 가격 비교 차트
  *
  * @dependencies
  * - components/wholesaler/MarketPrices/PriceFilter.tsx
  * - components/wholesaler/MarketPrices/PriceTable.tsx
+ * - components/wholesaler/MarketPrices/PriceComparisonChart.tsx
  */
 
 "use client";
@@ -17,10 +19,12 @@ import PriceFilter, {
   type PriceFilterParams,
 } from "@/components/wholesaler/MarketPrices/PriceFilter";
 import PriceTable from "@/components/wholesaler/MarketPrices/PriceTable";
+import PriceComparisonChart from "@/components/wholesaler/MarketPrices/PriceComparisonChart";
 import type { DailyPriceItem } from "@/lib/api/market-prices-types";
 
 export default function MarketPricesPage() {
   const [data, setData] = useState<DailyPriceItem[]>([]);
+  const [selectedItem, setSelectedItem] = useState<DailyPriceItem | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +50,14 @@ export default function MarketPricesPage() {
       }
 
       const result = await response.json();
-      setData(result.data || []);
+      const newData = result.data || [];
+      setData(newData);
+      // 첫 번째 항목을 기본 선택
+      if (newData.length > 0) {
+        setSelectedItem(newData[0]);
+      } else {
+        setSelectedItem(null);
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -54,6 +65,7 @@ export default function MarketPricesPage() {
           : "시세 조회 중 오류가 발생했습니다.",
       );
       setData([]);
+      setSelectedItem(null);
     } finally {
       setIsLoading(false);
     }
@@ -81,8 +93,19 @@ export default function MarketPricesPage() {
 
       {/* 테이블 */}
       <div className="bg-card rounded-lg border p-4 md:p-6">
-        <PriceTable data={data} isLoading={isLoading} />
+        <PriceTable
+          data={data}
+          isLoading={isLoading}
+          onRowClick={setSelectedItem}
+        />
       </div>
+
+      {/* 차트 (선택된 항목이 있을 때만 표시) */}
+      {selectedItem && !isLoading && (
+        <div className="bg-card rounded-lg border">
+          <PriceComparisonChart data={selectedItem} isLoading={isLoading} />
+        </div>
+      )}
     </div>
   );
 }
