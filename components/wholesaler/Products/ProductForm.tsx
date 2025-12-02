@@ -857,13 +857,15 @@ export default function ProductForm({
                     <FormLabel>규격 값</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="예: 10"
+                        type="number"
+                        step="any"
+                        placeholder="예: 10 또는 1.5"
                         {...field}
                         disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormDescription>
-                      단위와 함께 저장됩니다 (예: 10kg)
+                      숫자만 입력 가능합니다 (소수점 가능). 단위와 함께 저장됩니다 (예: 10kg, 1.5kg)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

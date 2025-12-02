@@ -88,7 +88,13 @@ export const productSchema = z.object({
       message: "올바른 단위를 선택해주세요",
     }),
 
-  specification_value: z.string().optional(), // 단위와 함께 저장될 값
+  specification_value: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || /^\d+(\.\d+)?$/.test(val),
+      { message: "숫자만 입력해주세요 (소수점 가능)" }
+    ), // 단위와 함께 저장될 값 (소수점 포함 숫자만 허용)
 
   delivery_fee: z
     .number({
