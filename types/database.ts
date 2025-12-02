@@ -46,7 +46,7 @@ export type SettlementStatus = "pending" | "completed";
 /**
  * CS 스레드 상태 타입
  */
-export type CsThreadStatus = "open" | "bot_handled" | "escalated" | "closed";
+export type CsThreadStatus = "open" | "bot_handled" | "escalated" | "answered" | "closed";
 
 /**
  * CS 메시지 발신자 타입

@@ -32,6 +32,10 @@ const statusConfig: Record<
     label: "에스컬레이션",
     className: "bg-orange-100 text-orange-800 hover:bg-orange-200",
   },
+  answered: {
+    label: "답변완료",
+    className: "bg-green-100 text-green-800 hover:bg-green-200",
+  },
   closed: {
     label: "종료",
     className: "bg-gray-100 text-gray-800 hover:bg-gray-200",
