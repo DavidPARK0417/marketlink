@@ -38,6 +38,13 @@ import {
 import InquiryStatusBadge from "@/components/wholesaler/Inquiries/InquiryStatusBadge";
 import InquiryReplyForm from "@/components/wholesaler/Inquiries/InquiryReplyForm";
 import InquiryImageModal from "@/components/admin/InquiryImageModal";
+import CloseInquiryButton from "@/components/admin/CloseInquiryButton";
+import InquiryMessageList from "@/components/wholesaler/Inquiries/InquiryMessageList";
+import InquiryFollowUpForm from "@/components/wholesaler/Inquiries/InquiryFollowUpForm";
+import InquiryMessageEditForm from "@/components/wholesaler/Inquiries/InquiryMessageEditForm";
+import { useUser } from "@clerk/nextjs";
+import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
+import type { InquiryMessage } from "@/types/database";
 
 // 관리자용 문의 상세 조회 함수
 async function fetchInquiryDetail(inquiryId: string) {
@@ -73,7 +80,34 @@ export default function AdminInquiryDetailPage({
   const [inquiryId, setInquiryId] = React.useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = React.useState<number>(0);
   const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
+  const [editingMessage, setEditingMessage] = React.useState<InquiryMessage | null>(null);
+  const [currentProfileId, setCurrentProfileId] = React.useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { user } = useUser();
+  const supabase = useClerkSupabaseClient();
+
+  // 현재 사용자의 profile ID 조회
+  React.useEffect(() => {
+    const fetchProfileId = async () => {
+      if (!user) return;
+
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("clerk_user_id", user.id)
+          .single();
+
+        if (profile) {
+          setCurrentProfileId(profile.id);
+        }
+      } catch (error) {
+        console.error("❌ [admin-inquiry-detail-page] 프로필 조회 오류:", error);
+      }
+    };
+
+    fetchProfileId();
+  }, [user, supabase]);
 
   // params가 Promise이므로 await 처리
   React.useEffect(() => {
@@ -92,11 +126,30 @@ export default function AdminInquiryDetailPage({
     staleTime: 30 * 1000, // 30초
   });
 
+  // 대화 히스토리 조회
+  const {
+    data: messagesData,
+    isLoading: isMessagesLoading,
+  } = useQuery({
+    queryKey: ["inquiry-messages", inquiryId],
+    queryFn: async () => {
+      const response = await fetch(`/api/admin/inquiries/${inquiryId}/messages`);
+      if (!response.ok) {
+        throw new Error("대화 히스토리를 불러올 수 없습니다.");
+      }
+      const data = await response.json();
+      return data.messages as InquiryMessage[];
+    },
+    enabled: !!inquiryId,
+    staleTime: 10 * 1000, // 10초
+  });
+
   // 답변 작성 성공 핸들러
   const handleReplySuccess = () => {
     // 문의 상세 정보 갱신
     queryClient.invalidateQueries({ queryKey: ["admin-inquiry", inquiryId] });
     queryClient.invalidateQueries({ queryKey: ["admin-inquiries"] });
+    queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
   };
 
   // 에러 처리
@@ -237,36 +290,43 @@ export default function AdminInquiryDetailPage({
         />
       )}
 
-      {/* 기존 답변 표시 */}
-      {inquiry.admin_reply && (
-        <Card>
-          <CardHeader>
-            <CardTitle>답변</CardTitle>
-            <CardDescription>
-              {inquiry.replied_at &&
-                `답변일: ${format(
-                  new Date(inquiry.replied_at),
-                  "yyyy-MM-dd HH:mm",
-                  { locale: ko },
-                )}`}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="whitespace-pre-wrap text-gray-700">
-              {inquiry.admin_reply}
+      {/* 대화 이력 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>대화 이력</CardTitle>
+          <CardDescription>
+            {isMessagesLoading
+              ? "로딩 중..."
+              : `총 ${messagesData?.length ?? 0}개의 메시지`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {isMessagesLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <InquiryMessageList
+              messages={messagesData || []}
+              userEmail={inquiry.user_anonymous_code || undefined}
+              currentUserId={currentProfileId || undefined}
+              onEdit={setEditingMessage}
+            />
+          )}
+        </CardContent>
+      </Card>
 
-      {/* 답변 작성 폼 (status가 'open'인 경우만) */}
-      {inquiry.status === "open" && (
+      {/* 답변 작성 폼 (status가 'open'인 경우 또는 추가 답변) */}
+      {inquiry.status !== "closed" && (
         <Card>
           <CardHeader>
-            <CardTitle>답변 작성</CardTitle>
+            <CardTitle>
+              {inquiry.status === "open" ? "답변 작성" : "추가 답변 작성"}
+            </CardTitle>
             <CardDescription>
-              문의에 대한 답변을 작성해주세요. 답변 작성 후 상태가
-              &quot;답변완료&quot;로 변경됩니다.
+              {inquiry.status === "open"
+                ? "문의에 대한 답변을 작성해주세요. 답변 작성 후 상태가 &quot;답변완료&quot;로 변경됩니다."
+                : "추가 답변이 필요한 경우 작성해주세요."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -275,6 +335,48 @@ export default function AdminInquiryDetailPage({
               onSuccess={handleReplySuccess}
               apiEndpoint="/api/admin/inquiries/reply"
             />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 문의 종료 버튼 (답변 완료된 경우 또는 답변 불가능한 경우) */}
+      {inquiry.status !== "open" && inquiry.status !== "closed" && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-end">
+              <CloseInquiryButton
+                inquiryId={inquiry.id}
+                currentStatus={inquiry.status}
+                apiEndpoint="/api/admin/inquiries/close"
+                onSuccess={handleReplySuccess}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 이미 답변 완료된 경우 안내 */}
+      {inquiry.status === "answered" && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-sm text-green-800">
+                답변이 완료되었습니다. 필요시 문의를 종료할 수 있습니다.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 이미 종료된 경우 안내 */}
+      {inquiry.status === "closed" && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <p className="text-sm text-gray-800">
+                이 문의는 종료되었습니다.
+              </p>
+            </div>
           </CardContent>
         </Card>
       )}

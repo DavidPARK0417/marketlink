@@ -44,11 +44,13 @@ import type { InquiryDetail } from "@/types/inquiry";
 interface InquiryTableProps {
   inquiries: InquiryDetail[];
   isLoading?: boolean;
+  basePath?: string; // 상세 페이지 기본 경로
 }
 
 export default function InquiryTable({
   inquiries,
   isLoading = false,
+  basePath = "/wholesaler/inquiries", // 기본값은 도매사업자 경로
 }: InquiryTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "created_at", desc: true },
@@ -93,8 +95,14 @@ export default function InquiryTable({
         header: "제목",
         cell: ({ row }) => {
           const title = row.original.title;
+          const inquiryId = row.original.id;
           return (
-            <div className="max-w-[300px] truncate font-medium">{title}</div>
+            <Link
+              href={`${basePath}/${inquiryId}`}
+              className="max-w-[300px] truncate font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+            >
+              {title}
+            </Link>
           );
         },
       },
@@ -120,7 +128,7 @@ export default function InquiryTable({
         cell: ({ row }) => {
           const inquiry = row.original;
           return (
-            <Link href={`/wholesaler/inquiries/${inquiry.id}`}>
+            <Link href={`${basePath}/${inquiry.id}`}>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                 <Eye className="h-4 w-4" />
                 <span className="sr-only">상세보기</span>
@@ -130,7 +138,7 @@ export default function InquiryTable({
         },
       },
     ],
-    [],
+    [basePath], // basePath를 의존성에 추가
   );
 
   const table = useReactTable({

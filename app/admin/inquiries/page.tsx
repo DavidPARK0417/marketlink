@@ -133,6 +133,7 @@ export default function AdminInquiriesPage() {
           <InquiryTable
             inquiries={data?.inquiries || []}
             isLoading={isLoading}
+            basePath="/admin/inquiries"
           />
 
           {/* 통계 정보 */}

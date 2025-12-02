@@ -155,6 +155,26 @@ export async function createInquiry(formData: {
       };
     }
 
+    // 4. inquiry_messages 테이블에 초기 메시지 추가
+    const { error: messageError } = await supabase
+      .from("inquiry_messages")
+      .insert({
+        inquiry_id: newInquiry.id,
+        sender_type: "user", // 도매사업자가 관리자에게 보낸 문의이므로 'user'
+        sender_id: profile.id,
+        content: content.trim(),
+      });
+
+    if (messageError) {
+      console.warn(
+        "⚠️ [inquiry] inquiry_messages 저장 실패 (무시):",
+        messageError,
+      );
+      // 메시지 저장 실패는 치명적이지 않으므로 계속 진행
+    } else {
+      console.log("✅ [inquiry] inquiry_messages 저장 완료");
+    }
+
     console.log("✅ [inquiry] 문의 작성 성공:", newInquiry.id);
     console.groupEnd();
 

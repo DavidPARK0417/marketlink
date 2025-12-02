@@ -21,7 +21,7 @@ import type {
   InquiryFilter,
   ReplyInquiryRequest,
 } from "@/types/inquiry";
-import type { InquiryStatus } from "@/types/database";
+import type { InquiryStatus, InquiryMessage } from "@/types/database";
 
 /**
  * 문의 목록 조회 옵션
@@ -707,12 +707,13 @@ export async function replyToInquiry(
   }
 
   // 답변 업데이트
+  const repliedAt = new Date().toISOString();
   const { data: updatedInquiry, error: updateError } = await supabase
     .from("inquiries")
     .update({
       admin_reply: request.admin_reply,
       status: "answered" as InquiryStatus,
-      replied_at: new Date().toISOString(),
+      replied_at: repliedAt,
     })
     .eq("id", request.inquiry_id)
     .select()
@@ -725,7 +726,140 @@ export async function replyToInquiry(
     );
   }
 
+  // inquiry_messages 테이블에 답변 메시지 추가
+  // 문의 타입에 따라 sender_type 결정
+  const { data: inquiryInfo } = await supabase
+    .from("inquiries")
+    .select("inquiry_type")
+    .eq("id", request.inquiry_id)
+    .single();
+
+  const senderType =
+    inquiryInfo?.inquiry_type === "retailer_to_wholesaler"
+      ? "wholesaler"
+      : "admin";
+
+  const { error: messageError } = await supabase
+    .from("inquiry_messages")
+    .insert({
+      inquiry_id: request.inquiry_id,
+      sender_type: senderType,
+      sender_id: profile.id,
+      content: request.admin_reply.trim(),
+    });
+
+  if (messageError) {
+    console.warn(
+      "⚠️ [inquiries] inquiry_messages 저장 실패 (무시):",
+      messageError,
+    );
+    // 메시지 저장 실패는 치명적이지 않으므로 계속 진행
+  } else {
+    console.log("✅ [inquiries] inquiry_messages 저장 완료");
+  }
+
   console.log("✅ [inquiries] 답변 작성 완료");
+  console.groupEnd();
+
+  return updatedInquiry;
+}
+
+/**
+ * 문의 종료
+ * 관리자 또는 도매사업자가 문의를 종료합니다.
+ * 
+ * @param {string} inquiryId - 문의 ID
+ * @returns {Promise<Inquiry>} 종료된 문의 정보
+ */
+export async function closeInquiry(inquiryId: string): Promise<Inquiry> {
+  console.group("🔒 [inquiries] 문의 종료 시작");
+  console.log("inquiryId:", inquiryId);
+
+  // 사용자 프로필 조회
+  const profile = await getUserProfile();
+
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  if (profile.role !== "wholesaler" && profile.role !== "admin") {
+    console.error("❌ [inquiries] 권한 없음", { role: profile.role });
+    throw new Error("문의 종료 권한이 없습니다.");
+  }
+
+  const supabase = createClerkSupabaseClient();
+
+  // 1. 문의 정보 조회 (현재 상태 확인)
+  const { data: inquiry, error: inquiryError } = await supabase
+    .from("inquiries")
+    .select("id, status, wholesaler_id, inquiry_type, user_id")
+    .eq("id", inquiryId)
+    .single();
+
+  if (inquiryError || !inquiry) {
+    console.error("❌ [inquiries] 문의 조회 오류:", inquiryError);
+    throw new Error("문의를 찾을 수 없습니다.");
+  }
+
+  if (inquiry.status === "closed") {
+    throw new Error("이미 종료된 문의입니다.");
+  }
+
+  console.log("✅ [inquiries] 문의 확인:", inquiry.status);
+
+  // 2. 권한 확인
+  // 도매사업자인 경우 자신의 문의만 종료 가능
+  if (profile.role === "wholesaler") {
+    if (inquiry.inquiry_type === "wholesaler_to_admin") {
+      // 자신이 보낸 문의인지 확인 (user_id로 확인)
+      if (inquiry.user_id !== profile.id) {
+        console.error("❌ [inquiries] 권한 없음 - 다른 사용자의 문의");
+        throw new Error("이 문의를 종료할 권한이 없습니다.");
+      }
+    } else if (inquiry.inquiry_type === "retailer_to_wholesaler") {
+      // 소매점이 보낸 문의인 경우, 자신의 도매점 문의인지 확인
+      // 도매사업자 정보 조회
+      const { data: wholesaler, error: wholesalerError } = await supabase
+        .from("wholesalers")
+        .select("id")
+        .eq("profile_id", profile.id)
+        .single();
+
+      if (wholesalerError || !wholesaler) {
+        console.error("❌ [inquiries] 도매점 정보 조회 오류:", wholesalerError);
+        throw new Error("도매점 정보를 찾을 수 없습니다.");
+      }
+
+      if (inquiry.wholesaler_id !== wholesaler.id) {
+        console.error("❌ [inquiries] 권한 없음 - 다른 도매점의 문의");
+        throw new Error("이 문의를 종료할 권한이 없습니다.");
+      }
+    } else {
+      throw new Error("이 문의를 종료할 권한이 없습니다.");
+    }
+  }
+
+  // 3. 문의 상태를 'closed'로 업데이트
+  const closedAt = new Date().toISOString();
+  const { data: updatedInquiry, error: updateError } = await supabase
+    .from("inquiries")
+    .update({
+      status: "closed" as InquiryStatus,
+      updated_at: closedAt,
+    })
+    .eq("id", inquiryId)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error("❌ [inquiries] 문의 상태 업데이트 오류:", updateError);
+    throw new Error(
+      `문의를 종료하는 중 오류가 발생했습니다: ${updateError.message}`,
+    );
+  }
+
+  console.log("✅ [inquiries] 문의 종료 완료");
   console.groupEnd();
 
   return updatedInquiry;
@@ -812,4 +946,222 @@ export async function getInquiryStats(): Promise<{
   console.groupEnd();
 
   return stats;
+}
+
+/**
+ * 문의 대화 히스토리 조회
+ * 
+ * @param {string} inquiryId - 문의 ID
+ * @returns {Promise<InquiryMessage[]>} 대화 히스토리 메시지 배열
+ */
+export async function getInquiryMessages(
+  inquiryId: string,
+): Promise<InquiryMessage[]> {
+  console.group("🔍 [inquiries] 문의 대화 히스토리 조회 시작");
+  console.log("inquiryId:", inquiryId);
+
+  const supabase = createClerkSupabaseClient();
+
+  // 대화 히스토리 조회 (시간순 정렬)
+  const { data: messages, error } = await supabase
+    .from("inquiry_messages")
+    .select("*")
+    .eq("inquiry_id", inquiryId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("❌ [inquiries] 대화 히스토리 조회 오류:", error);
+    throw new Error("대화 히스토리를 조회하는 중 오류가 발생했습니다.");
+  }
+
+  console.log("✅ [inquiries] 대화 히스토리 조회 완료", {
+    messageCount: messages?.length ?? 0,
+  });
+  console.groupEnd();
+
+  return (messages as InquiryMessage[]) || [];
+}
+
+/**
+ * 문의 메시지 추가 (추가 질문 또는 답변)
+ * 
+ * @param {string} inquiryId - 문의 ID
+ * @param {string} content - 메시지 내용
+ * @param {string} senderType - 발신자 타입 ('user', 'admin', 'wholesaler')
+ * @returns {Promise<InquiryMessage>} 생성된 메시지
+ */
+export async function addInquiryMessage(
+  inquiryId: string,
+  content: string,
+  senderType: "user" | "admin" | "wholesaler" = "user",
+): Promise<InquiryMessage> {
+  console.group("📝 [inquiries] 문의 메시지 추가 시작");
+  console.log("inquiryId:", inquiryId, "senderType:", senderType);
+
+  // 사용자 프로필 조회
+  const profile = await getUserProfile();
+
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  // 권한 확인
+  if (senderType === "user") {
+    // 문의자가 추가 질문하는 경우
+    // 문의의 user_id와 현재 사용자 ID가 일치해야 함
+    const supabase = createClerkSupabaseClient();
+    const { data: inquiry, error: inquiryError } = await supabase
+      .from("inquiries")
+      .select("user_id, status")
+      .eq("id", inquiryId)
+      .single();
+
+    if (inquiryError || !inquiry) {
+      console.error("❌ [inquiries] 문의 조회 오류:", inquiryError);
+      throw new Error("문의를 찾을 수 없습니다.");
+    }
+
+    if (inquiry.user_id !== profile.id) {
+      console.error("❌ [inquiries] 권한 없음 - 다른 사용자의 문의");
+      throw new Error("이 문의에 추가 질문할 권한이 없습니다.");
+    }
+
+    // 문의 상태를 'open'으로 변경 (추가 질문이 있으면 다시 열림)
+    if (inquiry.status === "answered" || inquiry.status === "closed") {
+      await supabase
+        .from("inquiries")
+        .update({ status: "open" as InquiryStatus })
+        .eq("id", inquiryId);
+    }
+  } else if (senderType === "admin" || senderType === "wholesaler") {
+    // 관리자 또는 도매사업자가 답변하는 경우
+    if (profile.role !== "admin" && profile.role !== "wholesaler") {
+      console.error("❌ [inquiries] 권한 없음", { role: profile.role });
+      throw new Error("답변 작성 권한이 없습니다.");
+    }
+
+    // 답변 작성 시 상태를 'answered'로 변경
+    const supabase = createClerkSupabaseClient();
+    await supabase
+      .from("inquiries")
+      .update({
+        status: "answered" as InquiryStatus,
+        replied_at: new Date().toISOString(),
+      })
+      .eq("id", inquiryId);
+  }
+
+  const supabase = createClerkSupabaseClient();
+
+  // 메시지 추가
+  const { data: message, error: messageError } = await supabase
+    .from("inquiry_messages")
+    .insert({
+      inquiry_id: inquiryId,
+      sender_type: senderType,
+      sender_id: profile.id,
+      content: content.trim(),
+    })
+    .select()
+    .single();
+
+  if (messageError) {
+    console.error("❌ [inquiries] 메시지 추가 오류:", messageError);
+    throw new Error("메시지를 추가하는 중 오류가 발생했습니다.");
+  }
+
+  console.log("✅ [inquiries] 메시지 추가 완료:", message.id);
+  console.groupEnd();
+
+  return message as InquiryMessage;
+}
+
+/**
+ * 문의 메시지 수정
+ * 자신이 작성한 메시지만 수정 가능하며, 종료된 문의의 메시지는 수정 불가
+ * 
+ * @param {string} messageId - 수정할 메시지 ID
+ * @param {string} newContent - 새로운 내용
+ * @returns {Promise<InquiryMessage>} 수정된 메시지
+ */
+export async function updateInquiryMessage(
+  messageId: string,
+  newContent: string,
+): Promise<InquiryMessage> {
+  console.group("✏️ [inquiries] 문의 메시지 수정 시작");
+  console.log("messageId:", messageId);
+
+  const profile = await getUserProfile();
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  const supabase = createClerkSupabaseClient();
+
+  // 1. 메시지 정보 조회
+  const { data: message, error: messageError } = await supabase
+    .from("inquiry_messages")
+    .select("id, inquiry_id, sender_id, content")
+    .eq("id", messageId)
+    .single();
+
+  if (messageError || !message) {
+    console.error("❌ [inquiries] 메시지 조회 오류:", messageError);
+    throw new Error("메시지를 찾을 수 없습니다.");
+  }
+
+  // 2. 권한 확인: 자신이 작성한 메시지만 수정 가능
+  if (message.sender_id !== profile.id) {
+    console.error("❌ [inquiries] 권한 없음 - 다른 사용자의 메시지");
+    throw new Error("본인이 작성한 메시지만 수정할 수 있습니다.");
+  }
+
+  // 3. 문의 상태 확인: 종료된 문의는 수정 불가
+  const { data: inquiry, error: inquiryError } = await supabase
+    .from("inquiries")
+    .select("status")
+    .eq("id", message.inquiry_id)
+    .single();
+
+  if (inquiryError || !inquiry) {
+    console.error("❌ [inquiries] 문의 조회 오류:", inquiryError);
+    throw new Error("문의를 찾을 수 없습니다.");
+  }
+
+  if (inquiry.status === "closed") {
+    console.error("❌ [inquiries] 종료된 문의의 메시지는 수정 불가");
+    throw new Error("종료된 문의의 메시지는 수정할 수 없습니다.");
+  }
+
+  // 4. 내용 검증
+  const trimmedContent = newContent.trim();
+  if (trimmedContent.length < 10) {
+    throw new Error("내용은 최소 10자 이상 입력해주세요.");
+  }
+  if (trimmedContent.length > 5000) {
+    throw new Error("내용은 최대 5000자까지 입력할 수 있습니다.");
+  }
+
+  // 5. 메시지 업데이트
+  const { data: updatedMessage, error: updateError } = await supabase
+    .from("inquiry_messages")
+    .update({
+      content: trimmedContent,
+      edited_at: new Date().toISOString(),
+    })
+    .eq("id", messageId)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error("❌ [inquiries] 메시지 수정 오류:", updateError);
+    throw new Error("메시지를 수정하는 중 오류가 발생했습니다.");
+  }
+
+  console.log("✅ [inquiries] 메시지 수정 완료");
+  console.groupEnd();
+
+  return updatedMessage as InquiryMessage;
 }

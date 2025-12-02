@@ -128,6 +128,7 @@ export default function InquiriesPage() {
           <InquiryTable
             inquiries={data?.inquiries || []}
             isLoading={isLoading}
+            basePath="/wholesaler/inquiries"
           />
 
           {/* 통계 정보 */}

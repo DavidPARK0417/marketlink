@@ -53,6 +53,8 @@ export type CsThreadStatus = "open" | "bot_handled" | "escalated" | "answered" |
  */
 export type CsMessageSenderType = "user" | "bot" | "admin";
 
+export type InquiryMessageSenderType = "user" | "admin" | "wholesaler";
+
 /**
  * 문의 상태 타입
  */
@@ -165,6 +167,19 @@ export interface CsMessage {
   sender_id: string | null; // profiles 테이블 참조 (nullable)
   content: string;
   created_at: string;
+}
+
+/**
+ * 문의 메시지 테이블 타입
+ */
+export interface InquiryMessage {
+  id: string;
+  inquiry_id: string;
+  sender_type: InquiryMessageSenderType;
+  sender_id: string | null; // profiles 테이블 참조 (nullable)
+  content: string;
+  created_at: string;
+  edited_at: string | null; // 수정 시간 (null이면 수정되지 않음)
 }
 
 /**
