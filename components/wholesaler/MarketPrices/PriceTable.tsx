@@ -79,22 +79,59 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="rounded-md border">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-muted-foreground">로딩 중...</div>
-          </div>
+        <div className="rounded-md border min-h-[400px] w-full max-w-full overflow-hidden">
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[8%]">구분</TableHead>
+                <TableHead className="w-[20%]">품목명</TableHead>
+                <TableHead className="w-[8%]">단위</TableHead>
+                <TableHead className="w-[14%] text-right">당일가격</TableHead>
+                <TableHead className="w-[14%] text-right">1일전</TableHead>
+                <TableHead className="w-[14%] text-right">1개월전</TableHead>
+                <TableHead className="w-[14%] text-right">1년전</TableHead>
+                <TableHead className="w-[8%] text-center">증감률</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-12">
+                  <div className="text-muted-foreground">로딩 중...</div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       </div>
     );
   }
 
+  // 데이터가 없을 때도 테이블 헤더를 표시하여 공간 확보
   if (data.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="rounded-md border">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-muted-foreground">조회된 데이터가 없습니다.</div>
-          </div>
+        <div className="rounded-md border min-h-[400px] w-full max-w-full overflow-hidden">
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[8%]">구분</TableHead>
+                <TableHead className="w-[20%]">품목명</TableHead>
+                <TableHead className="w-[8%]">단위</TableHead>
+                <TableHead className="w-[14%] text-right">당일가격</TableHead>
+                <TableHead className="w-[14%] text-right">1일전</TableHead>
+                <TableHead className="w-[14%] text-right">1개월전</TableHead>
+                <TableHead className="w-[14%] text-right">1년전</TableHead>
+                <TableHead className="w-[8%] text-center">증감률</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-12">
+                  <div className="text-muted-foreground">조회된 데이터가 없습니다.</div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
       </div>
     );
@@ -103,36 +140,36 @@ export default function PriceTable({ data, isLoading = false }: PriceTableProps)
   return (
     <div className="space-y-4">
       {/* 테이블 */}
-      <div className="rounded-md border">
-        <Table>
+      <div className="rounded-md border min-h-[400px] w-full max-w-full overflow-hidden">
+        <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[80px]">구분</TableHead>
-              <TableHead>품목명</TableHead>
-              <TableHead className="w-[80px]">단위</TableHead>
-              <TableHead className="text-right">당일가격</TableHead>
-              <TableHead className="text-right">1일전</TableHead>
-              <TableHead className="text-right">1개월전</TableHead>
-              <TableHead className="text-right">1년전</TableHead>
-              <TableHead className="text-center">증감률</TableHead>
+              <TableHead className="w-[8%]">구분</TableHead>
+              <TableHead className="w-[20%]">품목명</TableHead>
+              <TableHead className="w-[8%]">단위</TableHead>
+              <TableHead className="w-[14%] text-right">당일가격</TableHead>
+              <TableHead className="w-[14%] text-right">1일전</TableHead>
+              <TableHead className="w-[14%] text-right">1개월전</TableHead>
+              <TableHead className="w-[14%] text-right">1년전</TableHead>
+              <TableHead className="w-[8%] text-center">증감률</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedData.map((item, index) => (
               <TableRow key={`${item.productno}-${item.productClsCode}-${index}`}>
-                <TableCell className="font-medium">{item.productClsName}</TableCell>
-                <TableCell className="font-medium">{item.productName}</TableCell>
-                <TableCell>{item.unit}</TableCell>
-                <TableCell className="text-right font-semibold">
+                <TableCell className="font-medium truncate">{item.productClsName}</TableCell>
+                <TableCell className="font-medium truncate">{item.productName}</TableCell>
+                <TableCell className="truncate">{item.unit}</TableCell>
+                <TableCell className="text-right font-semibold truncate">
                   {formatPrice(item.dpr1)}원
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right text-muted-foreground truncate">
                   {formatPrice(item.dpr2)}원
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right text-muted-foreground truncate">
                   {formatPrice(item.dpr3)}원
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
+                <TableCell className="text-right text-muted-foreground truncate">
                   {formatPrice(item.dpr4)}원
                 </TableCell>
                 <TableCell className="text-center">
