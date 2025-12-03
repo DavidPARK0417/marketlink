@@ -85,9 +85,9 @@ const menuItems = [
   },
   {
     href: "/wholesaler/support",
-    label: "고객지원",
+    label: "고객센터",
     icon: HelpCircle,
-    breakPoint: 2, // "고객"과 "지원" 사이
+    breakPoint: 2, // "고객"과 "센터" 사이
   },
   {
     href: "/wholesaler/settings",

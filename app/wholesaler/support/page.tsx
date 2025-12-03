@@ -124,7 +124,7 @@ export default function SupportPage() {
     <div className="space-y-6">
       {/* 페이지 헤더 */}
       <PageHeader
-        title="고객지원"
+        title="고객센터"
         description="관리자에게 문의를 작성하고, 내가 보낸 문의를 확인할 수 있습니다."
         hideTitle={true}
       />
