@@ -1,18 +1,19 @@
 /**
- * @file app/wholesaler/inquiries/[id]/page.tsx
- * @description 문의 상세 페이지
+ * @file app/wholesaler/support/[id]/page.tsx
+ * @description 고객지원 문의 상세 페이지
  *
- * 문의 상세 정보를 표시하고 답변을 작성할 수 있는 페이지입니다.
+ * 도매사업자가 관리자에게 보낸 문의의 상세 정보를 표시하는 페이지입니다.
  *
  * 주요 기능:
  * 1. 문의 상세 정보 표시
- * 2. 문의자 익명 코드 표시 (실명/연락처 노출 금지)
- * 3. 답변 작성 폼 (status가 'open'인 경우만)
- * 4. 기존 답변 표시
+ * 2. 대화 히스토리 표시
+ * 3. 추가 질문 작성
+ * 4. 문의 종료
+ * 5. 문의 삭제
  *
  * @dependencies
  * - lib/supabase/queries/inquiries.ts
- * - components/wholesaler/Inquiries/InquiryReplyForm.tsx
+ * - components/wholesaler/Inquiries/InquiryFollowUpForm.tsx
  * - components/wholesaler/Inquiries/InquiryStatusBadge.tsx
  */
 
@@ -25,7 +26,7 @@ import { ko } from "date-fns/locale";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import InquiryStatusBadge from "@/components/wholesaler/Inquiries/InquiryStatusBadge";
-import InquiryReplyForm from "@/components/wholesaler/Inquiries/InquiryReplyForm";
 import InquiryImageModal from "@/components/admin/InquiryImageModal";
 import CloseInquiryButton from "@/components/admin/CloseInquiryButton";
 import InquiryMessageList from "@/components/wholesaler/Inquiries/InquiryMessageList";
@@ -49,7 +49,7 @@ import type { InquiryMessage } from "@/types/database";
 
 // 문의 상세 조회 함수
 async function fetchInquiryDetail(inquiryId: string) {
-  console.log("🔍 [inquiry-detail-page] 문의 상세 조회 요청", { inquiryId });
+  console.log("🔍 [support-inquiry-detail-page] 문의 상세 조회 요청", { inquiryId });
 
   const response = await fetch(`/api/wholesaler/inquiries/${inquiryId}`);
 
@@ -58,20 +58,20 @@ async function fetchInquiryDetail(inquiryId: string) {
     try {
       const errorData = await response.json();
       errorMessage = errorData.error || errorMessage;
-      console.error("❌ [inquiry-detail-page] API 에러 응답:", errorData);
+      console.error("❌ [support-inquiry-detail-page] API 에러 응답:", errorData);
     } catch (e) {
-      console.error("❌ [inquiry-detail-page] 에러 응답 파싱 실패:", e);
+      console.error("❌ [support-inquiry-detail-page] 에러 응답 파싱 실패:", e);
     }
 
     throw new Error(errorMessage);
   }
 
   const data = await response.json();
-  console.log("✅ [inquiry-detail-page] 문의 상세 조회 성공");
+  console.log("✅ [support-inquiry-detail-page] 문의 상세 조회 성공");
   return data;
 }
 
-export default function InquiryDetailPage({
+export default function SupportInquiryDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -83,29 +83,19 @@ export default function InquiryDetailPage({
   const [currentProfileId, setCurrentProfileId] = React.useState<string | null>(null);
   const queryClient = useQueryClient();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user } = useUser();
   const supabase = useClerkSupabaseClient();
-
-  // URL 쿼리 파라미터에서 문의 타입 확인
-  const inquiryTypeFromUrl = React.useMemo(() => {
-    const type = searchParams.get("type");
-    if (type) {
-      console.log("🔍 [inquiry-detail-page] URL에서 문의 타입 확인:", type);
-    }
-    return type;
-  }, [searchParams]);
 
   // 현재 사용자의 profile ID 조회
   React.useEffect(() => {
     const fetchProfileId = async () => {
       if (!user) {
-        console.log("⚠️ [inquiry-detail-page] user가 없음");
+        console.log("⚠️ [support-inquiry-detail-page] user가 없음");
         return;
       }
 
       try {
-        console.log("🔍 [inquiry-detail-page] 프로필 조회 시작", {
+        console.log("🔍 [support-inquiry-detail-page] 프로필 조회 시작", {
           clerkUserId: user.id,
         });
 
@@ -116,18 +106,18 @@ export default function InquiryDetailPage({
           .single();
 
         if (profileError) {
-          console.error("❌ [inquiry-detail-page] 프로필 조회 오류:", profileError);
+          console.error("❌ [support-inquiry-detail-page] 프로필 조회 오류:", profileError);
           return;
         }
 
         if (profile) {
-          console.log("✅ [inquiry-detail-page] 프로필 조회 성공:", profile.id);
+          console.log("✅ [support-inquiry-detail-page] 프로필 조회 성공:", profile.id);
           setCurrentProfileId(profile.id);
         } else {
-          console.warn("⚠️ [inquiry-detail-page] 프로필 없음");
+          console.warn("⚠️ [support-inquiry-detail-page] 프로필 없음");
         }
       } catch (error) {
-        console.error("❌ [inquiry-detail-page] 프로필 조회 예외:", error);
+        console.error("❌ [support-inquiry-detail-page] 프로필 조회 예외:", error);
       }
     };
 
@@ -173,7 +163,7 @@ export default function InquiryDetailPage({
   const handleReplySuccess = () => {
     // 문의 상세 정보 갱신
     queryClient.invalidateQueries({ queryKey: ["inquiry", inquiryId] });
-    queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+    queryClient.invalidateQueries({ queryKey: ["inquiries-to-admin"] });
     queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
   };
 
@@ -188,7 +178,7 @@ export default function InquiryDetailPage({
     }
 
     try {
-      console.log("🗑️ [inquiry-detail-page] 문의글 삭제 요청:", inquiryId);
+      console.log("🗑️ [support-inquiry-detail-page] 문의글 삭제 요청:", inquiryId);
 
       const response = await fetch(`/api/wholesaler/inquiries/${inquiryId}`, {
         method: "DELETE",
@@ -199,16 +189,13 @@ export default function InquiryDetailPage({
         throw new Error(errorData.error || "문의 삭제 실패");
       }
 
-      console.log("✅ [inquiry-detail-page] 문의글 삭제 성공");
+      console.log("✅ [support-inquiry-detail-page] 문의글 삭제 성공");
       toast.success("문의가 삭제되었습니다.");
       
-      // 목록 페이지로 이동 (도매→관리자 문의는 support 페이지로)
-      const redirectPath = inquiry?.inquiry_type === "wholesaler_to_admin"
-        ? "/wholesaler/support"
-        : "/wholesaler/inquiries";
-      router.push(redirectPath);
+      // 고객지원 페이지로 이동
+      router.push("/wholesaler/support");
     } catch (error) {
-      console.error("❌ [inquiry-detail-page] 문의글 삭제 오류:", error);
+      console.error("❌ [support-inquiry-detail-page] 문의글 삭제 오류:", error);
       toast.error(
         error instanceof Error
           ? error.message
@@ -228,7 +215,7 @@ export default function InquiryDetailPage({
     }
 
     try {
-      console.log("🗑️ [inquiry-detail-page] 메시지 삭제 요청:", message.id);
+      console.log("🗑️ [support-inquiry-detail-page] 메시지 삭제 요청:", message.id);
 
       const response = await fetch(
         `/api/wholesaler/inquiries/messages/${message.id}`,
@@ -240,12 +227,12 @@ export default function InquiryDetailPage({
         throw new Error(errorData.error || "메시지 삭제 실패");
       }
 
-      console.log("✅ [inquiry-detail-page] 메시지 삭제 성공");
+      console.log("✅ [support-inquiry-detail-page] 메시지 삭제 성공");
       toast.success("메시지가 삭제되었습니다.");
       queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
       queryClient.invalidateQueries({ queryKey: ["inquiry", inquiryId] });
     } catch (error) {
-      console.error("❌ [inquiry-detail-page] 메시지 삭제 오류:", error);
+      console.error("❌ [support-inquiry-detail-page] 메시지 삭제 오류:", error);
       toast.error(
         error instanceof Error
           ? error.message
@@ -257,7 +244,7 @@ export default function InquiryDetailPage({
   // 에러 처리
   React.useEffect(() => {
     if (error) {
-      console.error("❌ [inquiry-detail-page] 문의 상세 조회 오류:", error);
+      console.error("❌ [support-inquiry-detail-page] 문의 상세 조회 오류:", error);
       toast.error(
         error instanceof Error
           ? error.message
@@ -286,21 +273,13 @@ export default function InquiryDetailPage({
     );
   }
 
-  // 문의 타입에 따른 목록 페이지 경로 결정
-  // URL 쿼리 파라미터 우선, 없으면 inquiry 객체에서 확인
-  const backPath = inquiryTypeFromUrl === "wholesaler_to_admin" || inquiry?.inquiry_type === "wholesaler_to_admin"
-    ? "/wholesaler/support"
-    : "/wholesaler/inquiries";
+  // 고객지원 페이지로 돌아가기
+  const backPath = "/wholesaler/support";
 
   if (error || !inquiry) {
-    // 에러 상태에서도 URL 파라미터로 경로 결정
-    const errorBackPath = inquiryTypeFromUrl === "wholesaler_to_admin"
-      ? "/wholesaler/support"
-      : "/wholesaler/inquiries";
-    
     return (
       <div className="space-y-6">
-        <Link href={errorBackPath}>
+        <Link href={backPath}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
             목록으로
@@ -313,6 +292,28 @@ export default function InquiryDetailPage({
               {error instanceof Error
                 ? error.message
                 : "문의를 찾을 수 없습니다."}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  // 도매→관리자 문의가 아니면 에러
+  if (inquiry.inquiry_type !== "wholesaler_to_admin") {
+    return (
+      <div className="space-y-6">
+        <Link href={backPath}>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            목록으로
+          </Button>
+        </Link>
+        <Card>
+          <CardHeader>
+            <CardTitle>잘못된 문의 유형</CardTitle>
+            <CardDescription>
+              이 문의는 고객지원 페이지에서 조회할 수 없습니다.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -343,28 +344,20 @@ export default function InquiryDetailPage({
                     locale: ko,
                   })}
                 </span>
-                {inquiry.user_anonymous_code && (
-                  <span>문의자: {inquiry.user_anonymous_code}</span>
-                )}
-                {inquiry.order && (
-                  <span>주문번호: {inquiry.order.order_number}</span>
-                )}
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <InquiryStatusBadge status={inquiry.status} />
               {/* 도매→관리자 문의인 경우에만 삭제 버튼 표시 */}
-              {inquiry.inquiry_type === "wholesaler_to_admin" && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDeleteInquiry}
-                  className="ml-2"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  삭제
-                </Button>
-              )}
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDeleteInquiry}
+                className="ml-2"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                삭제
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -430,10 +423,10 @@ export default function InquiryDetailPage({
           ) : (
             <InquiryMessageList
               messages={messagesData || []}
-              userEmail={inquiry.user_anonymous_code || undefined}
+              userEmail={undefined}
               currentUserId={currentProfileId || undefined}
               onEdit={(message) => {
-                console.log("✏️ [inquiry-detail-page] 수정 버튼 클릭:", {
+                console.log("✏️ [support-inquiry-detail-page] 수정 버튼 클릭:", {
                   messageId: message.id,
                   sender_id: message.sender_id,
                   currentProfileId: currentProfileId,
@@ -446,27 +439,7 @@ export default function InquiryDetailPage({
         </CardContent>
       </Card>
 
-      {/* 답변 작성 폼 (소매→도매 문의인 경우, status가 'open'인 경우만) */}
-      {inquiry.inquiry_type === "retailer_to_wholesaler" &&
-        inquiry.status === "open" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>답변 작성</CardTitle>
-              <CardDescription>
-                문의에 대한 답변을 작성해주세요. 답변 작성 후 상태가
-                &quot;답변완료&quot;로 변경됩니다.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <InquiryReplyForm
-                inquiryId={inquiry.id}
-                onSuccess={handleReplySuccess}
-              />
-            </CardContent>
-          </Card>
-        )}
-
-      {/* 추가 질문 폼 (도매→관리자 문의인 경우, 답변이 완료된 경우) */}
+      {/* 추가 질문 폼 (도매→관리자 문의인 경우) */}
       {inquiry.inquiry_type === "wholesaler_to_admin" &&
         inquiry.status !== "closed" && (
           <Card>
@@ -494,7 +467,7 @@ export default function InquiryDetailPage({
           </Card>
         )}
 
-      {/* 문의 종료 버튼 (답변 완료된 경우 또는 답변 불가능한 경우) */}
+      {/* 문의 종료 버튼 */}
       {inquiry.status !== "open" && inquiry.status !== "closed" && (
         <Card>
           <CardContent className="pt-6">
@@ -547,3 +520,4 @@ export default function InquiryDetailPage({
     </div>
   );
 }
+

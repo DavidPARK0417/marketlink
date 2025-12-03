@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getInquiryById } from "@/lib/supabase/queries/inquiries";
+import { getInquiryById, deleteInquiry } from "@/lib/supabase/queries/inquiries";
 
 export async function GET(
   request: NextRequest,
@@ -41,6 +41,39 @@ export async function GET(
       error instanceof Error
         ? error.message
         : "문의를 불러오는 중 오류가 발생했습니다.";
+
+    return NextResponse.json(
+      {
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : undefined,
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+    console.group("🗑️ [api/wholesaler/inquiries/[id]] 문의글 삭제 API 시작");
+    console.log("문의 ID:", id);
+
+    await deleteInquiry(id);
+
+    console.log("✅ [api/wholesaler/inquiries/[id]] 문의글 삭제 성공");
+    console.groupEnd();
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("❌ [api/wholesaler/inquiries/[id]] 문의글 삭제 오류:", error);
+
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "문의를 삭제하는 중 오류가 발생했습니다.";
 
     return NextResponse.json(
       {

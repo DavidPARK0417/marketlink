@@ -1234,3 +1234,112 @@ export async function deleteInquiryMessage(messageId: string): Promise<void> {
   console.log("✅ [inquiries] 메시지 삭제 완료");
   console.groupEnd();
 }
+
+/**
+ * 문의글 전체 삭제
+ * 자신이 작성한 문의만 삭제 가능
+ * 관련 메시지와 첨부파일도 함께 삭제됨 (CASCADE)
+ * 
+ * @param {string} inquiryId - 삭제할 문의 ID
+ * @returns {Promise<void>}
+ */
+export async function deleteInquiry(inquiryId: string): Promise<void> {
+  console.group("🗑️ [inquiries] 문의글 삭제 시작");
+  console.log("inquiryId:", inquiryId);
+
+  const profile = await getUserProfile();
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  const supabase = createClerkSupabaseClient();
+
+  // 1. 문의 정보 조회
+  const { data: inquiry, error: inquiryError } = await supabase
+    .from("inquiries")
+    .select("id, user_id, inquiry_type, attachment_urls")
+    .eq("id", inquiryId)
+    .single();
+
+  if (inquiryError || !inquiry) {
+    console.error("❌ [inquiries] 문의 조회 오류:", inquiryError);
+    throw new Error("문의를 찾을 수 없습니다.");
+  }
+
+  // 2. 권한 확인: 자신이 작성한 문의만 삭제 가능
+  if (inquiry.user_id !== profile.id) {
+    console.error("❌ [inquiries] 권한 없음 - 다른 사용자의 문의");
+    throw new Error("본인이 작성한 문의만 삭제할 수 있습니다.");
+  }
+
+  // 3. 도매→관리자 문의만 삭제 가능 (소매→도매 문의는 삭제 불가)
+  if (inquiry.inquiry_type !== "wholesaler_to_admin") {
+    console.error("❌ [inquiries] 삭제 불가능한 문의 타입:", inquiry.inquiry_type);
+    throw new Error("이 문의는 삭제할 수 없습니다.");
+  }
+
+  // 4. 첨부파일 삭제 (Storage에서)
+  if (inquiry.attachment_urls && Array.isArray(inquiry.attachment_urls) && inquiry.attachment_urls.length > 0) {
+    console.log("📎 [inquiries] 첨부파일 삭제 시작:", inquiry.attachment_urls.length, "개");
+    
+    const storageClient = createClerkSupabaseClient();
+    const bucketName = "product-images"; // 문의 첨부파일은 product-images 버킷에 저장됨
+    
+    for (const url of inquiry.attachment_urls) {
+      try {
+        // Public URL에서 파일 경로 추출
+        // 예: https://xxx.supabase.co/storage/v1/object/public/product-images/user_id/inquiries/file.jpg
+        // → user_id/inquiries/file.jpg
+        let filePath: string;
+        
+        if (url.includes("/storage/v1/object/public/")) {
+          // Public URL인 경우 경로 추출
+          const urlParts = url.split("/storage/v1/object/public/");
+          if (urlParts.length < 2) {
+            throw new Error("올바른 이미지 URL 형식이 아닙니다.");
+          }
+          const pathParts = urlParts[1].split("/");
+          if (pathParts.length < 2) {
+            throw new Error("올바른 이미지 경로가 아닙니다.");
+          }
+          // 버킷 이름 제거하고 나머지 경로만 사용
+          filePath = pathParts.slice(1).join("/");
+        } else {
+          // 이미 경로인 경우 그대로 사용
+          filePath = url;
+        }
+        
+        if (filePath) {
+          const { error: deleteFileError } = await storageClient.storage
+            .from(bucketName)
+            .remove([filePath]);
+          
+          if (deleteFileError) {
+            console.warn("⚠️ [inquiries] 첨부파일 삭제 실패:", filePath, deleteFileError);
+            // 첨부파일 삭제 실패해도 문의 삭제는 계속 진행
+          } else {
+            console.log("✅ [inquiries] 첨부파일 삭제 성공:", filePath);
+          }
+        }
+      } catch (error) {
+        console.warn("⚠️ [inquiries] 첨부파일 URL 파싱 실패:", url, error);
+        // URL 파싱 실패해도 문의 삭제는 계속 진행
+      }
+    }
+  }
+
+  // 5. 문의 삭제 (CASCADE로 관련 메시지도 자동 삭제됨)
+  const { error: deleteError } = await supabase
+    .from("inquiries")
+    .delete()
+    .eq("id", inquiryId);
+
+  if (deleteError) {
+    console.error("❌ [inquiries] 문의 삭제 오류:", deleteError);
+    throw new Error("문의를 삭제하는 중 오류가 발생했습니다.");
+  }
+
+  console.log("✅ [inquiries] 문의글 삭제 완료");
+  console.groupEnd();
+}

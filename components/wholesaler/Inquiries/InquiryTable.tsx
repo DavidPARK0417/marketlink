@@ -96,9 +96,14 @@ export default function InquiryTable({
         cell: ({ row }) => {
           const title = row.original.title;
           const inquiryId = row.original.id;
+          const inquiryType = row.original.inquiry_type;
+          // 문의 타입에 따라 쿼리 파라미터 추가
+          const href = inquiryType === "wholesaler_to_admin"
+            ? `${basePath}/${inquiryId}?type=wholesaler_to_admin`
+            : `${basePath}/${inquiryId}`;
           return (
             <Link
-              href={`${basePath}/${inquiryId}`}
+              href={href}
               className="block truncate font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
             >
               {title}

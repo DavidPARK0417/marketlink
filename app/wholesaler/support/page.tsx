@@ -163,7 +163,7 @@ export default function SupportPage() {
             <InquiryTable
               inquiries={data?.inquiries || []}
               isLoading={isLoading}
-              basePath="/wholesaler/inquiries"
+              basePath="/wholesaler/support"
             />
           )}
 
