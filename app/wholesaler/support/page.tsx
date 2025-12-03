@@ -1,19 +1,23 @@
 /**
  * @file app/wholesaler/support/page.tsx
- * @description 고객지원 페이지
+ * @description 고객센터 페이지
  *
- * 도매사업자가 관리자에게 문의를 작성하고, 자신이 보낸 문의를 조회하는 페이지입니다.
+ * 도매사업자가 고객센터 기능을 이용하는 메인 페이지입니다.
  *
  * 주요 기능:
- * 1. 관리자에게 문의 작성
- * 2. 내가 보낸 문의 목록 조회
- * 3. 문의 상태 필터링 (탭 UI)
- * 4. 날짜 범위 필터링
- * 5. 제목/내용 검색
+ * 1. 상단 파란색 배너 (FAQ 검색 포함)
+ * 2. 탭 구성: 문의내역, 자주묻는질문, 고객의 소리, 공지사항
+ * 3. 문의 작성 모달
+ * 4. FAQ 목록 (아코디언)
+ * 5. 공지사항 목록
+ * 6. 고객의 소리 제출 폼
  *
  * @dependencies
- * - lib/supabase/queries/inquiries.ts
- * - components/wholesaler/Support/InquiryCreateForm.tsx
+ * - components/wholesaler/Support/SupportBanner.tsx
+ * - components/wholesaler/Support/InquiryCreateModal.tsx
+ * - components/wholesaler/Support/FAQList.tsx
+ * - components/wholesaler/Support/AnnouncementList.tsx
+ * - components/wholesaler/Support/VOCForm.tsx
  * - components/wholesaler/Inquiries/InquiryTable.tsx
  * - components/wholesaler/Inquiries/InquiryFilter.tsx
  */
@@ -22,17 +26,25 @@
 
 import * as React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
-import PageHeader from "@/components/common/PageHeader";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import InquiryCreateForm from "@/components/wholesaler/Support/InquiryCreateForm";
+import SupportBanner from "@/components/wholesaler/Support/SupportBanner";
+import InquiryCreateModal from "@/components/wholesaler/Support/InquiryCreateModal";
+import FAQList from "@/components/wholesaler/Support/FAQList";
+import AnnouncementList from "@/components/wholesaler/Support/AnnouncementList";
+import VOCForm from "@/components/wholesaler/Support/VOCForm";
 import InquiryTable from "@/components/wholesaler/Inquiries/InquiryTable";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
 import type { InquiryFilter as InquiryFilterType } from "@/types/inquiry";
 import type { InquiryStatus } from "@/types/database";
+import type { FAQ } from "@/types/faq";
+import type { Announcement } from "@/types/announcement";
 
-// 관리자 문의 목록 조회 함수 (클라이언트에서 직접 호출)
+// 관리자 문의 목록 조회 함수
 async function fetchInquiriesToAdmin(filter: InquiryFilterType = {}) {
   console.log("🔍 [support-page] 관리자 문의 목록 조회 요청", { filter });
 
@@ -64,117 +76,242 @@ async function fetchInquiriesToAdmin(filter: InquiryFilterType = {}) {
   return data;
 }
 
+// FAQ 목록 조회 함수
+async function fetchFAQs(searchQuery?: string) {
+  console.log("🔍 [support-page] FAQ 목록 조회 요청", { searchQuery });
+
+  const params = new URLSearchParams();
+  if (searchQuery) {
+    params.append("search", searchQuery);
+  }
+
+  const response = await fetch(`/api/wholesaler/faqs?${params.toString()}`);
+
+  if (!response.ok) {
+    throw new Error("FAQ 목록 조회 실패");
+  }
+
+  const data = await response.json();
+  console.log("✅ [support-page] FAQ 목록 조회 성공", {
+    faqsCount: data.faqs?.length ?? 0,
+  });
+
+  return data.faqs as FAQ[];
+}
+
+// 공지사항 목록 조회 함수
+async function fetchAnnouncements() {
+  console.log("🔍 [support-page] 공지사항 목록 조회 요청");
+
+  const response = await fetch("/api/wholesaler/announcements");
+
+  if (!response.ok) {
+    throw new Error("공지사항 목록 조회 실패");
+  }
+
+  const data = await response.json();
+  console.log("✅ [support-page] 공지사항 목록 조회 성공", {
+    announcementsCount: data.announcements?.length ?? 0,
+  });
+
+  return data.announcements as Announcement[];
+}
+
 export default function SupportPage() {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // 필터 상태
-  const [activeTab, setActiveTab] = React.useState<string>("create");
+  // URL 쿼리 파라미터에서 탭 및 검색어 읽기
+  const initialTab = searchParams.get("tab") || "inquiry";
+  const initialSearch = searchParams.get("search") || "";
+
+  // 상태 관리
+  const [activeTab, setActiveTab] = React.useState<string>(initialTab);
+  const [searchQuery, setSearchQuery] = React.useState<string>(initialSearch);
+  const [isInquiryModalOpen, setIsInquiryModalOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<InquiryFilterType>({});
 
-  // 탭 변경 시 필터 업데이트
+  // URL 쿼리 파라미터 업데이트
   React.useEffect(() => {
-    if (activeTab === "create") {
-      // 문의 작성 탭에서는 필터 초기화
-      setFilter({});
+    const params = new URLSearchParams();
+    if (activeTab !== "inquiry") {
+      params.set("tab", activeTab);
+    }
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    }
+    const newUrl = params.toString()
+      ? `/wholesaler/support?${params.toString()}`
+      : "/wholesaler/support";
+    router.replace(newUrl, { scroll: false });
+  }, [activeTab, searchQuery, router]);
+
+  // 탭 변경 시 필터 업데이트 (문의내역 탭만)
+  React.useEffect(() => {
+    if (activeTab !== "inquiry") {
       return;
     }
 
     const statusMap: Record<string, InquiryStatus | undefined> = {
-      all: undefined,
+      inquiry: undefined,
       open: "open",
       answered: "answered",
       closed: "closed",
     };
 
-    setFilter((prev) => ({
-      ...prev,
-      status: statusMap[activeTab],
-    }));
-  }, [activeTab]);
+    // URL에서 상태 읽기 (필요시)
+    const statusParam = searchParams.get("status");
+    if (statusParam && statusMap[statusParam]) {
+      setFilter((prev) => ({
+        ...prev,
+        status: statusMap[statusParam] as InquiryStatus,
+      }));
+    }
+  }, [activeTab, searchParams]);
 
-  // 관리자 문의 목록 조회 (내가 보낸 문의 탭에서만)
-  const { data, isLoading, error } = useQuery({
+  // FAQ 검색 핸들러 (FAQ 탭으로 이동)
+  const handleFAQSearch = React.useCallback((query: string) => {
+    setSearchQuery(query);
+    setActiveTab("faq");
+  }, []);
+
+  // 관리자 문의 목록 조회 (문의내역 탭에서만)
+  const {
+    data: inquiriesData,
+    isLoading: isInquiriesLoading,
+    error: inquiriesError,
+  } = useQuery({
     queryKey: ["inquiries-to-admin", filter],
     queryFn: () => fetchInquiriesToAdmin(filter),
-    enabled: activeTab !== "create", // 문의 작성 탭에서는 조회하지 않음
-    staleTime: 30 * 1000, // 30초
+    enabled: activeTab === "inquiry",
+    staleTime: 30 * 1000,
   });
+
+  // FAQ 목록 조회
+  const { data: faqs = [], isLoading: isFAQsLoading } = useQuery({
+    queryKey: ["faqs", searchQuery],
+    queryFn: () => fetchFAQs(searchQuery),
+    enabled: activeTab === "faq",
+    staleTime: 60 * 1000,
+  });
+
+  // 공지사항 목록 조회
+  const { data: announcements = [], isLoading: isAnnouncementsLoading } =
+    useQuery({
+      queryKey: ["announcements"],
+      queryFn: fetchAnnouncements,
+      enabled: activeTab === "announcements",
+      staleTime: 60 * 1000,
+    });
 
   // 에러 처리
   React.useEffect(() => {
-    if (error) {
-      console.error("❌ [support-page] 관리자 문의 목록 조회 오류:", error);
+    if (inquiriesError) {
+      console.error(
+        "❌ [support-page] 관리자 문의 목록 조회 오류:",
+        inquiriesError,
+      );
       toast.error(
-        error instanceof Error
-          ? error.message
+        inquiriesError instanceof Error
+          ? inquiriesError.message
           : "문의 목록을 불러오는 중 오류가 발생했습니다.",
       );
     }
-  }, [error]);
+  }, [inquiriesError]);
 
   // 문의 작성 성공 핸들러
   const handleInquiryCreated = () => {
-    // 내가 보낸 문의 탭으로 전환
-    setActiveTab("all");
+    // 문의내역 탭으로 전환
+    setActiveTab("inquiry");
     // 문의 목록 갱신
     queryClient.invalidateQueries({ queryKey: ["inquiries-to-admin"] });
   };
 
+  // VOC 제출 성공 핸들러
+  const handleVOCSubmitted = () => {
+    // 성공 메시지는 VOCForm 내부에서 처리됨
+    console.log("✅ [support-page] VOC 제출 완료");
+  };
+
   return (
     <div className="space-y-6">
-      {/* 페이지 헤더 */}
-      <PageHeader
-        title="고객센터"
-        description="관리자에게 문의를 작성하고, 내가 보낸 문의를 확인할 수 있습니다."
-        hideTitle={true}
+      {/* 상단 배너 */}
+      <SupportBanner
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSearch={handleFAQSearch}
       />
 
       {/* 탭 UI */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="create">문의 작성</TabsTrigger>
-          <TabsTrigger value="all">내가 보낸 문의</TabsTrigger>
-          <TabsTrigger value="open">미답변</TabsTrigger>
-          <TabsTrigger value="answered">답변완료</TabsTrigger>
-          <TabsTrigger value="closed">종료</TabsTrigger>
+          <TabsTrigger value="inquiry">문의내역</TabsTrigger>
+          <TabsTrigger value="faq">자주묻는질문</TabsTrigger>
+          <TabsTrigger value="voc">고객의 소리</TabsTrigger>
+          <TabsTrigger value="announcements">공지사항</TabsTrigger>
         </TabsList>
 
-        {/* 문의 작성 탭 */}
-        <TabsContent value="create" className="space-y-6">
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold">관리자에게 문의하기</h2>
-            <p className="mb-6 text-sm text-gray-600">
-              정산, 계정, 기술 지원 등 어떤 내용이든 문의해주세요. 관리자가 확인
-              후 답변드리겠습니다.
-            </p>
-            <InquiryCreateForm onSuccess={handleInquiryCreated} />
+        {/* 문의내역 탭 */}
+        <TabsContent value="inquiry" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">1:1 문의 내역</h2>
+            <Button onClick={() => setIsInquiryModalOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              문의하기
+            </Button>
           </div>
-        </TabsContent>
 
-        {/* 내가 보낸 문의 탭들 */}
-        <TabsContent value={activeTab} className="space-y-4">
           {/* 필터 */}
-          {activeTab !== "create" && (
-            <InquiryFilter filter={filter} onFilterChange={setFilter} />
-          )}
+          <InquiryFilter filter={filter} onFilterChange={setFilter} />
 
           {/* 문의 테이블 */}
-          {activeTab !== "create" && (
-            <InquiryTable
-              inquiries={data?.inquiries || []}
-              isLoading={isLoading}
-              basePath="/wholesaler/support"
-            />
-          )}
+          <InquiryTable
+            inquiries={inquiriesData?.inquiries || []}
+            isLoading={isInquiriesLoading}
+            basePath="/wholesaler/support"
+          />
 
           {/* 통계 정보 */}
-          {activeTab !== "create" && data && (
+          {inquiriesData && (
             <div className="text-sm text-gray-600">
-              총 {data.total}개의 문의 (페이지 {data.page} / {data.totalPages})
+              총 {inquiriesData.total}개의 문의 (페이지 {inquiriesData.page} /{" "}
+              {inquiriesData.totalPages})
             </div>
           )}
         </TabsContent>
+
+        {/* 자주묻는질문 탭 */}
+        <TabsContent value="faq" className="space-y-4">
+          <h2 className="text-lg font-semibold">자주 묻는 질문</h2>
+          <FAQList
+            faqs={faqs}
+            isLoading={isFAQsLoading}
+            searchQuery={searchQuery}
+          />
+        </TabsContent>
+
+        {/* 고객의 소리 탭 */}
+        <TabsContent value="voc" className="space-y-4">
+          <VOCForm onSuccess={handleVOCSubmitted} />
+        </TabsContent>
+
+        {/* 공지사항 탭 */}
+        <TabsContent value="announcements" className="space-y-4">
+          <h2 className="text-lg font-semibold">공지사항</h2>
+          <AnnouncementList
+            announcements={announcements}
+            isLoading={isAnnouncementsLoading}
+          />
+        </TabsContent>
       </Tabs>
+
+      {/* 문의 작성 모달 */}
+      <InquiryCreateModal
+        open={isInquiryModalOpen}
+        onOpenChange={setIsInquiryModalOpen}
+        onSuccess={handleInquiryCreated}
+      />
     </div>
   );
 }

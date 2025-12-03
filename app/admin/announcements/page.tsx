@@ -1,0 +1,64 @@
+/**
+ * @file app/admin/announcements/page.tsx
+ * @description 공지사항 관리 페이지
+ *
+ * 관리자가 공지사항을 관리하는 페이지입니다.
+ * 공지사항 목록을 표시하고, 생성, 수정, 삭제 기능을 제공합니다.
+ *
+ * 주요 기능:
+ * 1. 공지사항 목록 표시 (최신순)
+ * 2. 공지사항 생성
+ * 3. 공지사항 수정
+ * 4. 공지사항 삭제
+ *
+ * @dependencies
+ * - lib/clerk/auth.ts (requireAdmin)
+ * - lib/supabase/server.ts (createClerkSupabaseClient)
+ * - actions/admin/announcements.ts
+ */
+
+import { requireAdmin } from "@/lib/clerk/auth";
+import { createClerkSupabaseClient } from "@/lib/supabase/server";
+import AnnouncementManagementClient from "@/components/admin/AnnouncementManagementClient";
+import type { Announcement } from "@/types/announcement";
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminAnnouncementsPage() {
+  // 관리자 권한 확인
+  const profile = await requireAdmin();
+
+  console.log("✅ [admin/announcements] 관리자 권한 확인됨", {
+    email: profile.email,
+    role: profile.role,
+  });
+
+  // 공지사항 목록 조회
+  const supabase = await createClerkSupabaseClient();
+  const { data: announcements, error } = await supabase
+    .from("announcements")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("❌ [admin/announcements] 공지사항 목록 조회 오류:", error);
+  }
+
+  const typedAnnouncements = (announcements || []) as Announcement[];
+
+  return (
+    <div className="space-y-6">
+      {/* 페이지 헤더 */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">공지사항 관리</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          공지사항을 작성하고 관리합니다. 추가, 수정, 삭제할 수 있습니다.
+        </p>
+      </div>
+
+      {/* 공지사항 관리 클라이언트 컴포넌트 */}
+      <AnnouncementManagementClient initialAnnouncements={typedAnnouncements} />
+    </div>
+  );
+}
+

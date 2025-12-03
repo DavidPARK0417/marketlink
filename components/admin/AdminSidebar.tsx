@@ -25,6 +25,9 @@ import {
   FileText,
   MessageSquare,
   Home,
+  HelpCircle,
+  Megaphone,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +46,21 @@ const menuItems = [
     href: "/admin/inquiries",
     label: "도매 문의 관리",
     icon: MessageSquare,
+  },
+  {
+    href: "/admin/faqs",
+    label: "FAQ 관리",
+    icon: HelpCircle,
+  },
+  {
+    href: "/admin/announcements",
+    label: "공지사항 관리",
+    icon: Megaphone,
+  },
+  {
+    href: "/admin/voc",
+    label: "고객의 소리",
+    icon: MessageCircle,
   },
   {
     href: "/admin/audit-logs",
