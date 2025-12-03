@@ -79,9 +79,9 @@ const menuItems = [
   },
   {
     href: "/wholesaler/inquiries",
-    label: "문의 관리",
+    label: "상품 문의",
     icon: MessageSquare,
-    breakPoint: 2, // "문의"와 "관리" 사이
+    breakPoint: 2, // "상품"과 "문의" 사이
   },
   {
     href: "/wholesaler/support",

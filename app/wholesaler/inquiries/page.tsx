@@ -1,6 +1,6 @@
 /**
  * @file app/wholesaler/inquiries/page.tsx
- * @description 문의 관리 페이지
+ * @description 상품 문의 페이지
  *
  * 소매점으로부터 들어온 문의를 관리하는 페이지입니다.
  * 문의 목록, 필터링, 답변 등의 기능을 제공합니다.
@@ -106,7 +106,7 @@ export default function InquiriesPage() {
     <div className="space-y-6">
       {/* 페이지 헤더 */}
       <PageHeader
-        title="문의 관리"
+        title="상품 문의"
         description="소매점으로부터 들어온 문의를 확인하고 답변할 수 있습니다."
         hideTitle={true}
       />

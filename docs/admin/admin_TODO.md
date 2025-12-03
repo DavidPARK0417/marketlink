@@ -570,53 +570,53 @@ CS 답변 및 티켓 종료 Server Action을 만들어줘.
 
 ---
 
-### 8단계: 통합 감사 로그 🔴 진행 예정
+### 8단계: 통합 감사 로그 ✅ 완료
 
 **목적**: 모든 관리자 액션을 추적하고 조회
 
 **파일**: `app/admin/audit-logs/page.tsx`
 
-- [ ] **페이지 기본 구조**
+- [x] **페이지 기본 구조**
 
-  - [ ] `requireAdmin()`으로 권한 체크
-  - [ ] 페이지 타이틀
+  - [x] `requireAdmin()`으로 권한 체크
+  - [x] 페이지 타이틀
 
-- [ ] **데이터 조회**
+- [x] **데이터 조회**
 
-  - [ ] `audit_logs` 테이블에서 모든 로그 조회
-  - [ ] `profiles` 테이블과 조인하여 관리자 정보 포함
-  - [ ] 정렬: `created_at DESC`
-  - [ ] 페이지네이션 (limit 100)
+  - [x] `audit_logs` 테이블에서 모든 로그 조회
+  - [x] `profiles` 테이블과 조인하여 관리자 정보 포함
+  - [x] 정렬: `created_at DESC`
+  - [x] 페이지네이션 (limit 20, TODO에는 100으로 명시되어 있으나 실제 구현은 20)
 
-- [ ] **필터 기능**
+- [x] **필터 기능**
 
-  - [ ] 액션 유형 필터
-    - [ ] wholesaler_approve
-    - [ ] wholesaler_reject
-    - [ ] account_suspend
-    - [ ] account_unsuspend
-    - [ ] cs_reply
-    - [ ] cs_close
-  - [ ] 날짜 범위 필터
-  - [ ] 관리자 필터 (user_id)
+  - [x] 액션 유형 필터 (동적으로 모든 액션 타입 지원)
+    - [x] wholesaler_approve
+    - [x] wholesaler_reject
+    - [x] account_suspend
+    - [x] account_unsuspend
+    - [x] cs_reply
+    - [x] cs_close
+  - [x] 날짜 범위 필터
+  - [x] 관리자 필터 (user_id)
 
-- [ ] **UI 구현**
+- [x] **UI 구현**
 
-  - [ ] 테이블 형태로 표시
-    - [ ] 관리자 (이메일)
-    - [ ] 액션
-    - [ ] 대상 타입
-    - [ ] 대상 ID
-    - [ ] IP 주소
-    - [ ] 날짜/시간
-    - [ ] 상세 보기 버튼
-  - [ ] 빈 목록 처리
-  - [ ] 로딩 상태 처리
+  - [x] 테이블 형태로 표시
+    - [x] 관리자 (이메일)
+    - [x] 액션
+    - [x] 대상 타입
+    - [x] 대상 ID
+    - [x] IP 주소
+    - [x] 날짜/시간
+    - [x] 상세 보기 (행 클릭으로 구현, 별도 페이지로 이동)
+  - [x] 빈 목록 처리
+  - [x] 로딩 상태 처리 (에러 처리 포함)
 
-- [ ] **로그 상세 모달**
-  - [ ] `details` JSONB 내용 표시
-  - [ ] JSON 포맷팅
-  - [ ] 모달 닫기
+- [x] **로그 상세 페이지** (모달이 아닌 별도 페이지로 구현)
+  - [x] `details` JSONB 내용 표시
+  - [x] JSON 포맷팅
+  - [x] 페이지 닫기 (뒤로가기 버튼)
 
 **커서 AI 프롬프트:**
 

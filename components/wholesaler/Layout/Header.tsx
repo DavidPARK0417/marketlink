@@ -45,7 +45,7 @@ const pageTitleMap: Record<string, string> = {
   "/wholesaler/market-prices": "시세 조회",
   "/wholesaler/orders": "주문 관리",
   "/wholesaler/settlements": "정산 관리",
-  "/wholesaler/inquiries": "문의 관리",
+  "/wholesaler/inquiries": "상품 문의",
   "/wholesaler/support": "고객 지원",
   "/wholesaler/settings": "설정",
 };
