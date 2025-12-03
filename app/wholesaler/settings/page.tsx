@@ -27,7 +27,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUser, UserButton } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { Loader2, Search, Mail, Bell } from "lucide-react";
+import { Loader2, Search, Mail, Bell, Trash2 } from "lucide-react";
 import PageHeader from "@/components/common/PageHeader";
 import {
   Card,
@@ -72,6 +72,7 @@ import { getWholesalerStatusLabel } from "@/lib/utils/constants";
 import type { DaumPostcodeData } from "@/types/daum";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import DeleteAccountModal from "@/components/wholesaler/DeleteAccountModal";
 
 export default function SettingsPage() {
   const { user } = useUser();
@@ -79,6 +80,8 @@ export default function SettingsPage() {
   const [isSubmittingWholesaler, setIsSubmittingWholesaler] = useState(false);
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
   const [isSubmittingNotifications, setIsSubmittingNotifications] =
+    useState(false);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] =
     useState(false);
 
   // 사업자 정보 수정 폼
@@ -841,7 +844,50 @@ export default function SettingsPage() {
             </Form>
           </CardContent>
         </Card>
+
+        {/* 6. 회원탈퇴 */}
+        <Card className="border-red-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 className="h-5 w-5" />
+              회원탈퇴
+            </CardTitle>
+            <CardDescription>
+              계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수
+              없습니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="rounded-lg bg-red-50 p-4 border border-red-200">
+                <h4 className="text-sm font-semibold text-red-900 mb-2">
+                  탈퇴 전 확인사항
+                </h4>
+                <ul className="text-sm text-red-800 space-y-1 list-disc list-inside">
+                  <li>모든 상품 정보가 삭제됩니다.</li>
+                  <li>주문이나 정산 내역이 있으면 탈퇴할 수 없습니다.</li>
+                  <li>탈퇴 후 데이터 복구가 불가능합니다.</li>
+                </ul>
+              </div>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => setIsDeleteAccountModalOpen(true)}
+                className="w-full"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                회원탈퇴
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* 회원탈퇴 모달 */}
+      <DeleteAccountModal
+        open={isDeleteAccountModalOpen}
+        onOpenChange={setIsDeleteAccountModalOpen}
+      />
     </>
   );
 }

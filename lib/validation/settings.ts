@@ -126,3 +126,40 @@ export const updateNotificationPreferencesSchema = z.object({
 export type UpdateNotificationPreferencesFormData = z.infer<
   typeof updateNotificationPreferencesSchema
 >;
+
+/**
+ * 탈퇴 사유 옵션 상수
+ */
+export const DELETE_REASON_OPTIONS = [
+  "서비스가 필요 없어졌습니다",
+  "이용 빈도가 낮습니다",
+  "다른 서비스를 이용하게 되었습니다",
+  "서비스 품질에 불만이 있습니다",
+  "개인정보 보호가 우려됩니다",
+  "기타",
+] as const;
+
+/**
+ * 회원탈퇴 폼 데이터 스키마
+ */
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, "비밀번호를 입력해주세요."),
+  reason: z
+    .string()
+    .min(1, "탈퇴 사유를 선택해주세요.")
+    .refine(
+      (val) => DELETE_REASON_OPTIONS.includes(val as (typeof DELETE_REASON_OPTIONS)[number]),
+      {
+        message: "올바른 탈퇴 사유를 선택해주세요.",
+      },
+    ),
+  feedback: z
+    .string()
+    .max(500, "추가 설명은 500글자 이하로 입력해주세요.")
+    .optional(),
+});
+
+/**
+ * 회원탈퇴 폼 데이터 타입
+ */
+export type DeleteAccountFormData = z.infer<typeof deleteAccountSchema>;
