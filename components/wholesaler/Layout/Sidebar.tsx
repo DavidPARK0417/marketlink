@@ -6,11 +6,12 @@
  * 현재 경로를 하이라이트하고, 도매 메뉴를 제공합니다.
  *
  * 주요 기능:
- * 1. 사용자 프로필 영역 표시 (아바타, 도매 회원사, 이메일)
- * 2. 도매 메뉴 항목 표시
- * 3. 현재 경로 하이라이트
- * 4. 아이콘과 함께 메뉴 표시
- * 5. 하단 새 상품 등록하기 버튼
+ * 1. 도매 메뉴 항목 표시 (대시보드, 상품 관리, 시세 조회, 주문 관리, 정산 관리, 상품 문의)
+ * 2. 현재 경로 하이라이트
+ * 3. 아이콘과 함께 메뉴 표시
+ * 4. 하단 새 상품 등록하기 버튼
+ * 5. 하단 사용자 프로필 영역 (아바타, 도매 회원사, 이메일)
+ * 6. 하단 로그아웃 버튼
  *
  * @dependencies
  * - @clerk/nextjs (useUser)
@@ -23,8 +24,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { usePathname, useRouter } from "next/navigation";
+import { useUser, useClerk } from "@clerk/nextjs";
 import Image from "next/image";
 import {
   LayoutDashboard,
@@ -33,9 +34,8 @@ import {
   ShoppingCart,
   DollarSign,
   MessageSquare,
-  HelpCircle,
-  Settings,
   Plus,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWholesaler } from "@/hooks/useWholesaler";
@@ -83,25 +83,16 @@ const menuItems = [
     icon: MessageSquare,
     breakPoint: 2, // "상품"과 "문의" 사이
   },
-  {
-    href: "/wholesaler/support",
-    label: "고객센터",
-    icon: HelpCircle,
-    breakPoint: 2, // "고객"과 "센터" 사이
-  },
-  {
-    href: "/wholesaler/settings",
-    label: "설정",
-    icon: Settings,
-    breakPoint: null, // 줄바꿈 불필요
-  },
 ];
 
 export default function WholesalerSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
   const { data: wholesaler, isLoading, error } = useWholesaler();
   const [mounted, setMounted] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
   useEffect(() => {
@@ -133,6 +124,22 @@ export default function WholesalerSidebar() {
   const userName = user?.fullName || user?.firstName || null;
   const userEmail = user?.primaryEmailAddress?.emailAddress || null;
 
+  // 로그아웃 처리
+  const handleLogout = async () => {
+    try {
+      console.log("🚪 [wholesaler-sidebar] 로그아웃 시작");
+      setIsLoggingOut(true);
+      await signOut();
+      router.push("/sign-in/wholesaler");
+      console.log("✅ [wholesaler-sidebar] 로그아웃 완료");
+    } catch (error) {
+      console.error("❌ [wholesaler-sidebar] 로그아웃 오류:", error);
+      setIsLoggingOut(false);
+      // 에러가 발생해도 강제로 로그인 페이지로 이동
+      router.push("/sign-in/wholesaler");
+    }
+  };
+
   return (
     <TooltipProvider delayDuration={300}>
       <aside className="w-16 md:w-64 h-screen bg-white border-r border-gray-200 flex flex-col transition-all duration-300">
@@ -155,57 +162,6 @@ export default function WholesalerSidebar() {
             </div>
           </Link>
         </div>
-
-        {/* 사용자 프로필 영역 */}
-        {/* Hydration 오류 방지: mounted 상태 확인 후 렌더링 */}
-        {mounted && isLoaded && user && (
-          <div className="p-2 md:p-4 border-b border-gray-200">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 md:gap-3">
-                  {/* 아바타 */}
-                  <div className="relative flex-shrink-0">
-                    {avatarUrl ? (
-                      <Image
-                        src={avatarUrl}
-                        alt={userName || "사용자"}
-                        width={48}
-                        height={48}
-                        className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold text-sm md:text-lg">
-                        {getInitials(userName)}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 사용자 정보 - 데스크톱에서만 표시 */}
-                  <div className="hidden md:block flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {isLoading
-                        ? "로딩 중..."
-                        : wholesaler?.business_name || "도매 회원사"}
-                    </p>
-                    {userEmail && (
-                      <p className="text-xs text-gray-500 truncate">
-                        {userEmail}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="md:hidden">
-                <p className="font-medium">
-                  {isLoading
-                    ? "로딩 중..."
-                    : wholesaler?.business_name || "도매 회원사"}
-                </p>
-                {userEmail && <p className="text-xs opacity-80">{userEmail}</p>}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        )}
 
         {/* 메뉴 네비게이션 */}
         <nav className="flex-1 p-2 md:p-4 overflow-y-auto">
@@ -276,8 +232,9 @@ export default function WholesalerSidebar() {
           </div>
         </nav>
 
-        {/* 하단 새 상품 등록하기 버튼 */}
-        <div className="p-2 md:p-4 border-t border-gray-200">
+        {/* 하단 영역: 새 상품 등록 + 프로필 + 로그아웃 */}
+        <div className="border-t border-gray-200 space-y-2 p-2 md:p-4">
+          {/* 새 상품 등록하기 버튼 */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
@@ -296,6 +253,71 @@ export default function WholesalerSidebar() {
               <p>새 상품 등록하기</p>
             </TooltipContent>
           </Tooltip>
+
+          {/* 프로필 영역 - 하단으로 이동 */}
+          {mounted && isLoaded && user && (
+            <div className="pt-2 border-t border-gray-200">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2 md:gap-3">
+                    {/* 아바타 */}
+                    <div className="relative flex-shrink-0">
+                      {avatarUrl ? (
+                        <Image
+                          src={avatarUrl}
+                          alt={userName || "사용자"}
+                          width={48}
+                          height={48}
+                          className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold text-sm md:text-lg">
+                          {getInitials(userName)}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 사용자 정보 - 데스크톱에서만 표시 */}
+                    <div className="hidden md:block flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {isLoading
+                          ? "로딩 중..."
+                          : wholesaler?.business_name || "도매 회원사"}
+                      </p>
+                      {userEmail && (
+                        <p className="text-xs text-gray-500 truncate">
+                          {userEmail}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="md:hidden">
+                  <p className="font-medium">
+                    {isLoading
+                      ? "로딩 중..."
+                      : wholesaler?.business_name || "도매 회원사"}
+                  </p>
+                  {userEmail && <p className="text-xs opacity-80">{userEmail}</p>}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* 로그아웃 버튼 */}
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="w-full mt-2 px-2 md:px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors flex items-center justify-center md:justify-start gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <LogOut className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden md:inline">
+                  {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+                </span>
+                <span className="md:hidden">
+                  {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+                </span>
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </TooltipProvider>

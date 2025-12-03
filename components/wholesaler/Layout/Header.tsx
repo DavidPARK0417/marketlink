@@ -24,7 +24,7 @@
 import { UserButton, useUser } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bell, Shield, Package, Clock, MessageSquare } from "lucide-react";
+import { Bell, Shield, Package, Clock, MessageSquare, Settings, HelpCircle, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { UserRole } from "@/types/database";
 import { useWholesalerNotifications } from "@/hooks/use-wholesaler-notifications";
@@ -46,15 +46,22 @@ const pageTitleMap: Record<string, string> = {
   "/wholesaler/orders": "주문 관리",
   "/wholesaler/settlements": "정산 관리",
   "/wholesaler/inquiries": "상품 문의",
-  "/wholesaler/support": "고객 지원",
+  "/wholesaler/support": "고객센터",
   "/wholesaler/settings": "설정",
 };
 
+
 interface WholesalerHeaderProps {
   role?: UserRole;
+  onMobileMenuToggle?: () => void;
+  isMobileMenuOpen?: boolean;
 }
 
-export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
+export default function WholesalerHeader({ 
+  role, 
+  onMobileMenuToggle,
+  isMobileMenuOpen = false 
+}: WholesalerHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { isLoaded } = useUser();
@@ -126,11 +133,21 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
 
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 h-16 flex items-center justify-between px-4 md:px-6">
-      {/* 페이지 제목 영역 */}
+      {/* 왼쪽: 모바일 햄버거 메뉴 + 페이지 제목 */}
       <div className="flex items-center gap-3">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 hidden md:block">
+        {/* 모바일 햄버거 메뉴 버튼 */}
+        <button
+          className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          onClick={onMobileMenuToggle}
+          aria-label="메뉴"
+        >
+          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {pageTitle}
         </h2>
+        
         {/* 관리자 배지 - 클릭 가능 */}
         {role === "admin" && (
           <Link
@@ -144,8 +161,8 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
         )}
       </div>
 
-      {/* 오른쪽 영역: 알림 + 사용자 메뉴 */}
-      <div className="flex items-center gap-4">
+      {/* 오른쪽 영역: 알림 + 설정 + 고객센터 + 사용자 메뉴 */}
+      <div className="flex items-center gap-2 md:gap-4">
         {/* 알림 드롭다운 메뉴 */}
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
@@ -319,6 +336,24 @@ export default function WholesalerHeader({ role }: WholesalerHeaderProps) {
             )}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        {/* 설정 메뉴 */}
+        <Link
+          href="/wholesaler/settings"
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          aria-label="설정"
+        >
+          <Settings className="w-5 h-5" />
+        </Link>
+
+        {/* 고객센터 메뉴 */}
+        <Link
+          href="/wholesaler/support"
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          aria-label="고객센터"
+        >
+          <HelpCircle className="w-5 h-5" />
+        </Link>
 
         {/* 사용자 드롭다운 메뉴 - 클라이언트 사이드에서만 렌더링 */}
         {mounted && isLoaded && (

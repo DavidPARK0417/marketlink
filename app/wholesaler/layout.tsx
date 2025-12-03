@@ -19,15 +19,13 @@
  * - @clerk/nextjs/server (auth)
  * - lib/clerk/auth.ts (getUserProfile)
  * - lib/supabase/server.ts (createClerkSupabaseClient)
- * - components/wholesaler/Layout/Sidebar.tsx
- * - components/wholesaler/Layout/Header.tsx
+ * - components/wholesaler/Layout/WholesalerLayoutClient.tsx
  */
 
 import { redirect } from "next/navigation";
 import { requireWholesaler } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
-import WholesalerSidebar from "@/components/wholesaler/Layout/Sidebar";
-import WholesalerHeader from "@/components/wholesaler/Layout/Header";
+import WholesalerLayoutClient from "@/components/wholesaler/Layout/WholesalerLayoutClient";
 
 export default async function WholesalerLayout({
   children,
@@ -47,19 +45,9 @@ export default async function WholesalerLayout({
   if (profile.role === "admin") {
     console.log("👑 [wholesaler-layout] 관리자 접근 - wholesaler 체크 건너뜀");
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        {/* 사이드바 */}
-        <WholesalerSidebar />
-
-        {/* 메인 컨텐츠 영역 */}
-        <div className="flex-1 flex flex-col">
-          {/* 헤더 - 관리자 role 전달 */}
-          <WholesalerHeader role={profile.role} />
-
-          {/* 메인 컨텐츠 */}
-          <main className="flex-1 p-6 bg-gray-50">{children}</main>
-        </div>
-      </div>
+      <WholesalerLayoutClient role={profile.role}>
+        {children}
+      </WholesalerLayoutClient>
     );
   }
 
@@ -114,18 +102,8 @@ export default async function WholesalerLayout({
   console.log("✅ [wholesaler-layout] 승인된 도매점, 레이아웃 렌더링");
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* 사이드바 */}
-      <WholesalerSidebar />
-
-      {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex flex-col">
-        {/* 헤더 - role 정보 전달 */}
-        <WholesalerHeader role={profile.role} />
-
-        {/* 메인 컨텐츠 */}
-        <main className="flex-1 p-6 bg-gray-50">{children}</main>
-      </div>
-    </div>
+    <WholesalerLayoutClient role={profile.role}>
+      {children}
+    </WholesalerLayoutClient>
   );
 }
