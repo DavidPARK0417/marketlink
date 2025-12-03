@@ -244,7 +244,7 @@ export default function SupportPage() {
       />
 
       {/* 탭 UI */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="inquiry">문의내역</TabsTrigger>
           <TabsTrigger value="faq">자주묻는질문</TabsTrigger>
@@ -253,8 +253,8 @@ export default function SupportPage() {
         </TabsList>
 
         {/* 문의내역 탭 */}
-        <TabsContent value="inquiry" className="space-y-4">
-          <div className="flex items-center justify-between">
+        <TabsContent value="inquiry" className="space-y-4 w-full max-w-full">
+          <div className="flex items-center justify-between w-full">
             <h2 className="text-lg font-semibold">1:1 문의 내역</h2>
             <Button onClick={() => setIsInquiryModalOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
@@ -274,7 +274,7 @@ export default function SupportPage() {
 
           {/* 통계 정보 */}
           {inquiriesData && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 w-full">
               총 {inquiriesData.total}개의 문의 (페이지 {inquiriesData.page} /{" "}
               {inquiriesData.totalPages})
             </div>
@@ -282,8 +282,8 @@ export default function SupportPage() {
         </TabsContent>
 
         {/* 자주묻는질문 탭 */}
-        <TabsContent value="faq" className="space-y-4">
-          <h2 className="text-lg font-semibold">자주 묻는 질문</h2>
+        <TabsContent value="faq" className="space-y-4 w-full max-w-full">
+          <h2 className="text-lg font-semibold w-full">자주 묻는 질문</h2>
           <FAQList
             faqs={faqs}
             isLoading={isFAQsLoading}
@@ -292,13 +292,16 @@ export default function SupportPage() {
         </TabsContent>
 
         {/* 고객의 소리 탭 */}
-        <TabsContent value="voc" className="space-y-4">
+        <TabsContent value="voc" className="space-y-4 w-full max-w-full">
           <VOCForm onSuccess={handleVOCSubmitted} />
         </TabsContent>
 
         {/* 공지사항 탭 */}
-        <TabsContent value="announcements" className="space-y-4">
-          <h2 className="text-lg font-semibold">공지사항</h2>
+        <TabsContent
+          value="announcements"
+          className="space-y-4 w-full max-w-full"
+        >
+          <h2 className="text-lg font-semibold w-full">공지사항</h2>
           <AnnouncementList
             announcements={announcements}
             isLoading={isAnnouncementsLoading}

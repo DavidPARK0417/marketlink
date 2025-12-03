@@ -50,11 +50,11 @@ export default function AnnouncementList({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-20 animate-pulse rounded-lg bg-gray-200"
+            className="h-20 w-full animate-pulse rounded-lg bg-gray-200"
           />
         ))}
       </div>
@@ -63,21 +63,21 @@ export default function AnnouncementList({
 
   if (announcements.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12 w-full">
         <p className="text-gray-500">등록된 공지사항이 없습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       {announcements.map((announcement) => {
         const newLabel = isNew(announcement.created_at);
         return (
           <Link
             key={announcement.id}
             href={`/wholesaler/support/announcements/${announcement.id}`}
-            className="block rounded-lg border bg-white p-4 hover:bg-gray-50 transition-colors"
+            className="block w-full rounded-lg border bg-white p-4 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">

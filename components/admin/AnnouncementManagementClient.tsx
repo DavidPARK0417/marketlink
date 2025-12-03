@@ -113,7 +113,10 @@ export default function AnnouncementManagementClient({
 
   // 공지사항 생성
   const handleCreate = async (data: AnnouncementFormData) => {
-    const result = await createAnnouncement(data);
+    const result = await createAnnouncement({
+      title: data.title,
+      content: data.content,
+    });
     if (result.success) {
       toast.success("공지사항이 생성되었습니다.");
       setIsCreateModalOpen(false);

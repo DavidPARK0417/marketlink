@@ -67,11 +67,11 @@ export default function FAQList({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-20 animate-pulse rounded-lg bg-gray-200"
+            className="h-20 w-full animate-pulse rounded-lg bg-gray-200"
           />
         ))}
       </div>
@@ -80,7 +80,7 @@ export default function FAQList({
 
   if (sortedFAQs.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12 w-full">
         <p className="text-gray-500">
           {searchQuery
             ? "검색 결과가 없습니다."
@@ -91,20 +91,22 @@ export default function FAQList({
   }
 
   return (
-    <Accordion type="single" collapsible className="w-full">
-      {sortedFAQs.map((faq) => (
-        <AccordionItem key={faq.id} value={faq.id}>
-          <AccordionTrigger className="text-left">
-            <span className="font-medium">{faq.question}</span>
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="whitespace-pre-wrap text-gray-700 pt-2">
-              {faq.answer}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
+    <div className="w-full">
+      <Accordion type="single" collapsible className="w-full">
+        {sortedFAQs.map((faq) => (
+          <AccordionItem key={faq.id} value={faq.id} className="w-full">
+            <AccordionTrigger className="text-left w-full">
+              <span className="font-medium">{faq.question}</span>
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="whitespace-pre-wrap text-gray-700 pt-2">
+                {faq.answer}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </div>
   );
 }
 

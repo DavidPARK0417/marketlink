@@ -109,90 +109,88 @@ export default function VOCForm({ onSuccess }: VOCFormProps) {
   };
 
   return (
-    <div className="rounded-lg border bg-white p-6 md:p-8">
-      <div className="max-w-2xl mx-auto">
-        {/* 아이콘 및 제목 */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
-            <Send className="w-8 h-8 text-blue-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            고객의 소리(VOC)
-          </h2>
-          <p className="text-gray-600">
-            서비스 이용 중 불편하셨던 점이나 개선할 점을 들려주세요.
-            <br />
-            고객님의 소중한 의견을 귀담아듣고 더 나은 서비스를 만들겠습니다.
-          </p>
+    <div className="w-full">
+      {/* 아이콘 및 제목 */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+          <Send className="w-8 h-8 text-blue-600" />
         </div>
-
-        {/* 폼 */}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>제목</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="피드백 제목을 입력해주세요"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {field.value.length} / 200자
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>내용</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="피드백 내용을 상세히 적어주세요"
-                      rows={8}
-                      className="resize-none"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {field.value.length} / 2000자
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="min-w-[120px]"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    제출 중...
-                  </>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" />
-                    의견 보내기
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          고객의 소리(VOC)
+        </h2>
+        <p className="text-gray-600">
+          서비스 이용 중 불편하셨던 점이나 개선할 점을 들려주세요.
+          <br />
+          고객님의 소중한 의견을 귀담아듣고 더 나은 서비스를 만들겠습니다.
+        </p>
       </div>
+
+      {/* 폼 */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>제목</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="피드백 제목을 입력해주세요"
+                  />
+                </FormControl>
+                <FormDescription>
+                  {field.value.length} / 200자
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>내용</FormLabel>
+                <FormControl>
+                  <Textarea
+                    {...field}
+                    placeholder="피드백 내용을 상세히 적어주세요"
+                    rows={8}
+                    className="resize-none"
+                  />
+                </FormControl>
+                <FormDescription>
+                  {field.value.length} / 2000자
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="min-w-[120px]"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  제출 중...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  의견 보내기
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }
