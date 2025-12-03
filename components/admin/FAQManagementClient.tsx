@@ -115,7 +115,12 @@ export default function FAQManagementClient({
 
   // FAQ 생성
   const handleCreate = async (data: FAQFormData) => {
-    const result = await createFAQ(data);
+    // FAQFormData는 폼 검증을 통과했으므로 question과 answer가 반드시 존재함
+    const result = await createFAQ({
+      question: data.question,
+      answer: data.answer,
+      display_order: data.display_order,
+    });
     if (result.success) {
       toast.success("FAQ가 생성되었습니다.");
       setIsCreateModalOpen(false);

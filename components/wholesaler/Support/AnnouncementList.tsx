@@ -63,47 +63,51 @@ export default function AnnouncementList({
 
   if (announcements.length === 0) {
     return (
-      <div className="text-center py-12 w-full">
-        <p className="text-gray-500">등록된 공지사항이 없습니다.</p>
+      <div className="w-full rounded-md border bg-white">
+        <div className="text-center py-12 w-full">
+          <p className="text-gray-500">등록된 공지사항이 없습니다.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 w-full">
-      {announcements.map((announcement) => {
-        const newLabel = isNew(announcement.created_at);
-        return (
-          <Link
-            key={announcement.id}
-            href={`/wholesaler/support/announcements/${announcement.id}`}
-            className="block w-full rounded-lg border bg-white p-4 hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  {newLabel && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                      NEW
-                    </span>
-                  )}
-                  <h3 className="font-semibold text-gray-900 truncate">
-                    {announcement.title}
-                  </h3>
+    <div className="w-full rounded-md border bg-white">
+      <div className="divide-y">
+        {announcements.map((announcement) => {
+          const newLabel = isNew(announcement.created_at);
+          return (
+            <Link
+              key={announcement.id}
+              href={`/wholesaler/support/announcements/${announcement.id}`}
+              className="block w-full p-4 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    {newLabel && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                        NEW
+                      </span>
+                    )}
+                    <h3 className="font-semibold text-gray-900 truncate">
+                      {announcement.title}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {announcement.content}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {announcement.content}
-                </p>
+                <div className="text-sm text-gray-500 whitespace-nowrap">
+                  {format(new Date(announcement.created_at), "yyyy-MM-dd", {
+                    locale: ko,
+                  })}
+                </div>
               </div>
-              <div className="text-sm text-gray-500 whitespace-nowrap">
-                {format(new Date(announcement.created_at), "yyyy-MM-dd", {
-                  locale: ko,
-                })}
-              </div>
-            </div>
-          </Link>
-        );
-      })}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

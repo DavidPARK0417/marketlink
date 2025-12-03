@@ -80,18 +80,20 @@ export default function FAQList({
 
   if (sortedFAQs.length === 0) {
     return (
-      <div className="text-center py-12 w-full">
-        <p className="text-gray-500">
-          {searchQuery
-            ? "검색 결과가 없습니다."
-            : "등록된 FAQ가 없습니다."}
-        </p>
+      <div className="w-full rounded-md border bg-white">
+        <div className="text-center py-12 w-full">
+          <p className="text-gray-500">
+            {searchQuery
+              ? "검색 결과가 없습니다."
+              : "등록된 FAQ가 없습니다."}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full rounded-md border bg-white">
       <Accordion type="single" collapsible className="w-full">
         {sortedFAQs.map((faq) => (
           <AccordionItem key={faq.id} value={faq.id} className="w-full">

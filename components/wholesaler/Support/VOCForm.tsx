@@ -109,7 +109,7 @@ export default function VOCForm({ onSuccess }: VOCFormProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full rounded-md border bg-white p-6 md:p-8">
       {/* 아이콘 및 제목 */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
