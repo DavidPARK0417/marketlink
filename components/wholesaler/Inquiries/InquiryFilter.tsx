@@ -90,7 +90,7 @@ export default function InquiryFilter({
   };
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between w-full">
       {/* 검색 및 필터 */}
       <div className="flex flex-1 flex-col gap-4 md:flex-row md:items-center">
         {/* 검색 입력 */}

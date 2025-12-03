@@ -71,7 +71,7 @@ export default function WholesalerLayoutClient({
       </aside>
 
       {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex flex-col w-full md:w-auto">
+      <div className="flex-1 flex flex-col w-full">
         {/* 헤더 */}
         <WholesalerHeader
           role={role}

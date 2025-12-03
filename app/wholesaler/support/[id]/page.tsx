@@ -266,7 +266,7 @@ export default function SupportInquiryDetailPage({
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 w-full max-w-full">
         <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
         <div className="h-64 animate-pulse rounded bg-gray-200" />
       </div>
@@ -278,7 +278,7 @@ export default function SupportInquiryDetailPage({
 
   if (error || !inquiry) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 w-full max-w-full">
         <Link href={backPath}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -302,7 +302,7 @@ export default function SupportInquiryDetailPage({
   // 도매→관리자 문의가 아니면 에러
   if (inquiry.inquiry_type !== "wholesaler_to_admin") {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 w-full max-w-full">
         <Link href={backPath}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -322,7 +322,7 @@ export default function SupportInquiryDetailPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full">
       {/* 뒤로가기 버튼 */}
       <Link href={backPath}>
         <Button variant="ghost" size="sm">

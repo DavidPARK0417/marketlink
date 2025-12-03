@@ -235,7 +235,7 @@ export default function SupportPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {/* 상단 배너 */}
       <SupportBanner
         searchQuery={searchQuery}

@@ -142,8 +142,8 @@ export default function InquiryTable({
 
   if (isLoading) {
     return (
-      <div className="rounded-md border">
-        <Table>
+      <div className="rounded-md border max-w-full overflow-hidden min-w-0">
+        <Table className="w-full">
           <TableHeader>
             <TableRow>
               <TableHead>문의일</TableHead>
@@ -172,10 +172,10 @@ export default function InquiryTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       {/* 테이블 */}
-      <div className="rounded-md border">
-        <Table className="table-auto">
+      <div className="rounded-md border max-w-full overflow-hidden min-w-0">
+        <Table className="w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
