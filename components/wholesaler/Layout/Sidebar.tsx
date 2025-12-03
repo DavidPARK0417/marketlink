@@ -222,7 +222,13 @@ export default function WholesalerSidebar() {
                 : false;
 
               // 줄바꿈 위치 설정 (한글 단어 단위로 줄바꿈)
+              // Hydration 오류 방지: mounted 상태 확인 후에만 <wbr /> 사용
               const renderLabel = () => {
+                // 마운트되지 않았으면 단순 텍스트만 반환 (서버와 클라이언트 일치)
+                if (!mounted) {
+                  return item.label;
+                }
+                
                 if (item.breakPoint) {
                   const before = item.label.slice(0, item.breakPoint);
                   const after = item.label.slice(item.breakPoint);
