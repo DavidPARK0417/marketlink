@@ -131,29 +131,34 @@ export default function InquiryMessageEditForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>메시지 수정</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>내용</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} rows={6} className="resize-none" />
-                  </FormControl>
-                  <FormMessage />
-                  <div className="text-sm text-gray-500">
-                    {field.value.length} / 5000자
-                  </div>
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end gap-2">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col flex-1 min-h-0"
+          >
+            <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>내용</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} rows={6} className="resize-none" />
+                    </FormControl>
+                    <FormMessage />
+                    <div className="text-sm text-gray-500">
+                      {field.value.length} / 5000자
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex justify-end gap-2 flex-shrink-0 pt-4 mt-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
                 취소
               </Button>

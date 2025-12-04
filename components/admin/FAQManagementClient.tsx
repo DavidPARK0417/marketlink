@@ -284,7 +284,7 @@ export default function FAQManagementClient({
 
       {/* 생성 모달 */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>FAQ 추가</DialogTitle>
             <DialogDescription>
@@ -294,46 +294,48 @@ export default function FAQManagementClient({
           <Form {...createForm}>
             <form
               onSubmit={createForm.handleSubmit(handleCreate)}
-              className="space-y-4"
+              className="flex flex-col flex-1 min-h-0"
             >
-              <FormField
-                control={createForm.control}
-                name="question"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>질문</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="질문을 입력해주세요" />
-                    </FormControl>
-                    <FormDescription>
-                      {field.value.length} / 500자
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={createForm.control}
-                name="answer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>답변</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="답변을 입력해주세요"
-                        rows={8}
-                        className="resize-none"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {field.value.length} / 5000자
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
+              <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                <FormField
+                  control={createForm.control}
+                  name="question"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>질문</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="질문을 입력해주세요" />
+                      </FormControl>
+                      <FormDescription>
+                        {field.value.length} / 500자
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={createForm.control}
+                  name="answer"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>답변</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="답변을 입력해주세요"
+                          rows={8}
+                          className="resize-none"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {field.value.length} / 5000자
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <DialogFooter className="flex-shrink-0 pt-4 mt-4 border-t">
                 <Button
                   type="button"
                   variant="outline"
@@ -350,7 +352,7 @@ export default function FAQManagementClient({
 
       {/* 수정 모달 */}
       <Dialog open={!!editingFAQ} onOpenChange={(open) => !open && setEditingFAQ(null)}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>FAQ 수정</DialogTitle>
             <DialogDescription>
@@ -360,46 +362,48 @@ export default function FAQManagementClient({
           <Form {...editForm}>
             <form
               onSubmit={editForm.handleSubmit(handleUpdate)}
-              className="space-y-4"
+              className="flex flex-col flex-1 min-h-0"
             >
-              <FormField
-                control={editForm.control}
-                name="question"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>질문</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="질문을 입력해주세요" />
-                    </FormControl>
-                    <FormDescription>
-                      {field.value.length} / 500자
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editForm.control}
-                name="answer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>답변</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="답변을 입력해주세요"
-                        rows={8}
-                        className="resize-none"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {field.value.length} / 5000자
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
+              <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                <FormField
+                  control={editForm.control}
+                  name="question"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>질문</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="질문을 입력해주세요" />
+                      </FormControl>
+                      <FormDescription>
+                        {field.value.length} / 500자
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editForm.control}
+                  name="answer"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>답변</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder="답변을 입력해주세요"
+                          rows={8}
+                          className="resize-none"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {field.value.length} / 5000자
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <DialogFooter className="flex-shrink-0 pt-4 mt-4 border-t">
                 <Button
                   type="button"
                   variant="outline"

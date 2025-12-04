@@ -63,13 +63,14 @@ export function useSyncUser() {
         const data = await response.json();
 
         if (!response.ok) {
-          // 중복 가입 감지 (409 Conflict)
+          // 중복 가입 감지 (409 Conflict) - 정상적인 상황이므로 조용히 처리
           if (response.status === 409 && data.isDuplicate) {
-            console.log("⚠️ [use-sync-user] 중복 가입 감지됨:", {
-              message: data.message,
-              profile: data.profile,
-            });
             // 이미 가입된 계정이므로 동기화 완료로 처리 (무한루프 방지)
+            // 정상적인 상황이므로 console.log로 조용히 처리 (에러 아님)
+            console.log("ℹ️ [use-sync-user] 기존 계정 확인됨 (정상):", {
+              message: data.message,
+              profileId: data.profile?.id,
+            });
             syncedRef.current = true;
             setIsDuplicate(true);
             setIsSyncing(false);

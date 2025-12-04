@@ -300,7 +300,7 @@ export default function InquiryCreateForm({
           </div>
         </FormItem>
 
-        <div className="flex justify-end gap-2 max-w-2xl">
+        <div className="flex justify-end gap-2 max-w-2xl pt-4 mt-4 border-t">
           <Button
             type="button"
             variant="outline"

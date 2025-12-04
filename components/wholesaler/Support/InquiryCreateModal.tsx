@@ -56,7 +56,7 @@ export default function InquiryCreateModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>새 문의 작성</DialogTitle>
           <DialogDescription>
@@ -64,7 +64,7 @@ export default function InquiryCreateModal({
             내용이든 문의해주세요.
           </DialogDescription>
         </DialogHeader>
-        <div className="mt-4">
+        <div className="flex-1 overflow-y-auto min-h-0 mt-4">
           <InquiryCreateForm onSuccess={handleSuccess} />
         </div>
       </DialogContent>

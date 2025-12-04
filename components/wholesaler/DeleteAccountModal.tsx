@@ -174,7 +174,7 @@ export default function DeleteAccountModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col">
           <DialogHeader>
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="w-6 h-6 text-red-600" />
@@ -193,88 +193,93 @@ export default function DeleteAccountModal({
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* 비밀번호 입력 */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>비밀번호 확인 *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="비밀번호를 입력해주세요"
-                        {...field}
-                        disabled={isSubmitting}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      탈퇴를 확인하기 위해 비밀번호를 입력해주세요.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* 탈퇴 사유 선택 */}
-              <FormField
-                control={form.control}
-                name="reason"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>탈퇴 사유 *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      disabled={isSubmitting}
-                    >
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col flex-1 min-h-0"
+            >
+              <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+                {/* 비밀번호 입력 */}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>비밀번호 확인 *</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="탈퇴 사유를 선택해주세요" />
-                        </SelectTrigger>
+                        <Input
+                          type="password"
+                          placeholder="비밀번호를 입력해주세요"
+                          {...field}
+                          disabled={isSubmitting}
+                        />
                       </FormControl>
-                      <SelectContent>
-                        {DELETE_REASON_OPTIONS.map((reason) => (
-                          <SelectItem key={reason} value={reason}>
-                            {reason}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      탈퇴 사유를 선택해주세요.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormDescription>
+                        탈퇴를 확인하기 위해 비밀번호를 입력해주세요.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {/* 추가 설명 */}
-              <FormField
-                control={form.control}
-                name="feedback"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>추가 설명 (선택)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="추가로 전달하고 싶은 내용이 있으시면 입력해주세요"
-                        className="resize-none"
-                        rows={4}
-                        {...field}
+                {/* 탈퇴 사유 선택 */}
+                <FormField
+                  control={form.control}
+                  name="reason"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>탈퇴 사유 *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
                         disabled={isSubmitting}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      서비스 개선을 위해 의견을 남겨주시면 감사하겠습니다.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="탈퇴 사유를 선택해주세요" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {DELETE_REASON_OPTIONS.map((reason) => (
+                            <SelectItem key={reason} value={reason}>
+                              {reason}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        탈퇴 사유를 선택해주세요.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <DialogFooter className="gap-2 pt-4">
+                {/* 추가 설명 */}
+                <FormField
+                  control={form.control}
+                  name="feedback"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>추가 설명 (선택)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="추가로 전달하고 싶은 내용이 있으시면 입력해주세요"
+                          className="resize-none"
+                          rows={4}
+                          {...field}
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        서비스 개선을 위해 의견을 남겨주시면 감사하겠습니다.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <DialogFooter className="flex-shrink-0 gap-2 pt-4 mt-4 border-t">
                 <Button
                   type="button"
                   variant="outline"
