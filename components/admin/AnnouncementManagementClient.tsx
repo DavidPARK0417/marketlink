@@ -89,6 +89,8 @@ export default function AnnouncementManagementClient({
   const [editingAnnouncement, setEditingAnnouncement] =
     React.useState<Announcement | null>(null);
   const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
+  const [viewingAnnouncement, setViewingAnnouncement] =
+    React.useState<Announcement | null>(null);
 
   const createForm = useForm<AnnouncementFormData>({
     resolver: zodResolver(announcementSchema),
@@ -211,13 +213,13 @@ export default function AnnouncementManagementClient({
                             NEW
                           </span>
                         )}
-                        <h3 className="font-semibold text-gray-900">
+                        <button
+                          onClick={() => setViewingAnnouncement(announcement)}
+                          className="font-semibold text-gray-900 hover:text-blue-600 transition-colors text-left"
+                        >
                           {announcement.title}
-                        </h3>
+                        </button>
                       </div>
-                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                        {announcement.content}
-                      </p>
                       <p className="text-xs text-gray-500">
                         {format(
                           new Date(announcement.created_at),
@@ -318,6 +320,40 @@ export default function AnnouncementManagementClient({
               </DialogFooter>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* 상세 보기 모달 */}
+      <Dialog
+        open={!!viewingAnnouncement}
+        onOpenChange={(open) => !open && setViewingAnnouncement(null)}
+      >
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{viewingAnnouncement?.title}</DialogTitle>
+            <DialogDescription>
+              작성일:{" "}
+              {viewingAnnouncement &&
+                format(
+                  new Date(viewingAnnouncement.created_at),
+                  "yyyy년 MM월 dd일 HH:mm",
+                  { locale: ko },
+                )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <div className="whitespace-pre-wrap text-gray-700">
+              {viewingAnnouncement?.content}
+            </div>
+          </div>
+          <DialogFooter className="flex-shrink-0 pt-4 mt-4 border-t">
+            <Button
+              type="button"
+              onClick={() => setViewingAnnouncement(null)}
+            >
+              닫기
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -84,7 +84,7 @@ export default function AnnouncementList({
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2">
                     {newLabel && (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
                         NEW
@@ -94,9 +94,6 @@ export default function AnnouncementList({
                       {announcement.title}
                     </h3>
                   </div>
-                  <p className="text-sm text-gray-600 line-clamp-2">
-                    {announcement.content}
-                  </p>
                 </div>
                 <div className="text-sm text-gray-500 whitespace-nowrap">
                   {format(new Date(announcement.created_at), "yyyy-MM-dd", {
