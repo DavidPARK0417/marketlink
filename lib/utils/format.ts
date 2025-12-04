@@ -240,3 +240,40 @@ export function formatPhone(phone: string): string {
   console.warn("⚠️ [format] 전화번호 형식이 올바르지 않습니다:", phone);
   return phone;
 }
+
+/**
+ * 사업자번호 포맷 함수
+ *
+ * 사업자번호를 표준 형식(123-45-67890)으로 포맷팅합니다.
+ *
+ * @param {string} businessNumber - 포맷팅할 사업자번호 (10자리 숫자)
+ * @returns {string} 포맷팅된 사업자번호 (예: "123-45-67890")
+ *
+ * @example
+ * ```tsx
+ * formatBusinessNumber('1234567890'); // "123-45-67890"
+ * formatBusinessNumber('123-45-67890'); // "123-45-67890"
+ * ```
+ */
+export function formatBusinessNumber(businessNumber: string): string {
+  if (!businessNumber) {
+    return "";
+  }
+
+  // 숫자만 추출
+  const digits = businessNumber.replace(/\D/g, "");
+
+  // 10자리 숫자인지 확인
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5)}`;
+  }
+
+  // 이미 포맷팅된 경우 그대로 반환
+  if (businessNumber.includes("-")) {
+    return businessNumber;
+  }
+
+  // 형식이 맞지 않으면 원본 반환
+  console.warn("⚠️ [format] 사업자번호 형식이 올바르지 않습니다:", businessNumber);
+  return businessNumber;
+}

@@ -20,6 +20,7 @@
 import { useState, useEffect } from "react";
 import WholesalerSidebar from "@/components/wholesaler/Layout/Sidebar";
 import WholesalerHeader from "@/components/wholesaler/Layout/Header";
+import Footer from "@/components/Footer";
 import type { UserRole } from "@/types/database";
 
 interface WholesalerLayoutClientProps {
@@ -64,41 +65,48 @@ export default function WholesalerLayoutClient({
   }, [isMobileMenuOpen]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* 데스크톱 사이드바 - 항상 표시 */}
-      <aside className="hidden md:block">
-        <WholesalerSidebar />
-      </aside>
+    <div className="flex min-h-screen flex-col bg-gray-50">
+      <div className="flex flex-1">
+        {/* 데스크톱 사이드바 - 항상 표시 */}
+        <aside className="hidden md:block">
+          <WholesalerSidebar />
+        </aside>
 
-      {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex flex-col w-full">
-        {/* 헤더 */}
-        <WholesalerHeader
-          role={role}
-          onMobileMenuToggle={handleMobileMenuToggle}
-          isMobileMenuOpen={isMobileMenuOpen}
-        />
-
-        {/* 메인 컨텐츠 */}
-        <main className="flex-1 w-full max-w-full p-4 md:p-6 bg-gray-50 overflow-x-hidden">{children}</main>
-      </div>
-
-      {/* 모바일 사이드바 오버레이 */}
-      {mounted && isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          {/* 오버레이 배경 */}
-          <div
-            className="absolute inset-0 bg-black/50 transition-opacity"
-            onClick={handleCloseMobileMenu}
-            aria-hidden="true"
+        {/* 메인 컨텐츠 영역 */}
+        <div className="flex flex-1 flex-col w-full">
+          {/* 헤더 */}
+          <WholesalerHeader
+            role={role}
+            onMobileMenuToggle={handleMobileMenuToggle}
+            isMobileMenuOpen={isMobileMenuOpen}
           />
 
-          {/* 사이드바 */}
-          <div className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl transform transition-transform">
-            <WholesalerSidebar />
-          </div>
+          {/* 메인 컨텐츠 */}
+          <main className="flex-1 w-full max-w-full p-4 md:p-6 bg-gray-50 overflow-x-hidden">
+            {children}
+          </main>
         </div>
-      )}
+
+        {/* 모바일 사이드바 오버레이 */}
+        {mounted && isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            {/* 오버레이 배경 */}
+            <div
+              className="absolute inset-0 bg-black/50 transition-opacity"
+              onClick={handleCloseMobileMenu}
+              aria-hidden="true"
+            />
+
+            {/* 사이드바 */}
+            <div className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl transform transition-transform">
+              <WholesalerSidebar />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
