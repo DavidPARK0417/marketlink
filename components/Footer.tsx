@@ -18,12 +18,17 @@
 
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useWholesaler } from "@/hooks/useWholesaler";
 import { formatBusinessNumber } from "@/lib/utils/format";
+import TermsModal from "@/components/TermsModal";
+import PrivacyModal from "@/components/PrivacyModal";
 
 export default function Footer() {
   const { data: wholesaler, isLoading } = useWholesaler();
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   // 로딩 중이거나 사업자 정보가 없으면 Footer 숨김
   if (isLoading || !wholesaler) {
@@ -80,18 +85,18 @@ export default function Footer() {
               바로가기
             </h3>
             <nav className="space-y-1">
-              <Link
-                href="/terms"
-                className="block text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
+              <button
+                onClick={() => setIsTermsModalOpen(true)}
+                className="block text-left text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
               >
                 이용약관
-              </Link>
-              <Link
-                href="/privacy"
-                className="block text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
+              </button>
+              <button
+                onClick={() => setIsPrivacyModalOpen(true)}
+                className="block text-left text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
               >
                 개인정보처리방침
-              </Link>
+              </button>
               <Link
                 href="/wholesaler/support?tab=faq"
                 className="block text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
@@ -108,6 +113,9 @@ export default function Footer() {
           </div>
         </div>
       </div>
+      
+      <TermsModal open={isTermsModalOpen} onOpenChange={setIsTermsModalOpen} />
+      <PrivacyModal open={isPrivacyModalOpen} onOpenChange={setIsPrivacyModalOpen} />
     </footer>
   );
 }
