@@ -69,6 +69,7 @@ import {
 } from "@/lib/validation/settings";
 import { BANKS } from "@/lib/utils/constants";
 import { getWholesalerStatusLabel } from "@/lib/utils/constants";
+import { formatBusinessNumber } from "@/lib/utils/format";
 import type { DaumPostcodeData } from "@/types/daum";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -123,19 +124,27 @@ export default function SettingsPage() {
         wholesaler,
       );
 
+      // 계좌번호 파싱 (첫 번째 공백 기준 분리)
+      console.log("🏦 [settings] bank_account 원본:", wholesaler.bank_account);
+      
+      const parsedBankName = wholesaler.bank_account
+        ? wholesaler.bank_account.split(" ")[0]?.trim() || ""
+        : "";
+      const parsedAccountNumber = wholesaler.bank_account
+        ? wholesaler.bank_account.split(" ").slice(1).join(" ").trim() || ""
+        : "";
+      
+      console.log("🏦 [settings] 파싱된 bank_name:", parsedBankName);
+      console.log("🏦 [settings] 파싱된 bank_account_number:", parsedAccountNumber);
+
       // 사업자 정보 폼 초기화
       wholesalerForm.reset({
         business_name: wholesaler.business_name || "",
         phone: wholesaler.phone || "",
         address: wholesaler.address || "",
         address_detail: wholesaler.address_detail || "",
-        // 계좌번호 파싱 (첫 번째 공백 기준 분리)
-        bank_name: wholesaler.bank_account
-          ? wholesaler.bank_account.split(" ")[0] || ""
-          : "",
-        bank_account_number: wholesaler.bank_account
-          ? wholesaler.bank_account.split(" ").slice(1).join(" ") || ""
-          : "",
+        bank_name: parsedBankName,
+        bank_account_number: parsedAccountNumber,
       });
 
       // 알림 설정 폼 초기화
@@ -364,7 +373,7 @@ export default function SettingsPage() {
                   사업자번호
                 </label>
                 <p className="mt-1 text-sm text-gray-900">
-                  {wholesaler.business_number}
+                  {formatBusinessNumber(wholesaler.business_number)}
                 </p>
               </div>
               <div>
@@ -543,7 +552,7 @@ export default function SettingsPage() {
                       <FormLabel>은행명 *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value || ""}
                         disabled={isSubmittingWholesaler}
                       >
                         <FormControl>
