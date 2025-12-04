@@ -112,7 +112,7 @@ export async function getProducts(
     query = query.or(
       `name.ilike.%${searchTerm}%,standardized_name.ilike.%${searchTerm}%`,
     );
-    
+
     console.log("🔍 [products-query] 검색 필터 적용", {
       searchTerm,
       filterQuery: `name.ilike.%${searchTerm}%,standardized_name.ilike.%${searchTerm}%`,
@@ -273,8 +273,8 @@ export async function getLowStockProducts(): Promise<Product[]> {
     .from("products")
     .select("*")
     .eq("is_active", true)
-    .lte("stock", 10)
-    .order("stock", { ascending: true })
+    .lte("stock_quantity", 10)
+    .order("stock_quantity", { ascending: true })
     .limit(10);
 
   // 도매점인 경우 자신의 상품만 조회하도록 필터 추가

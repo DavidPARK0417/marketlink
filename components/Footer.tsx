@@ -44,7 +44,7 @@ export default function Footer() {
     : wholesaler.address;
 
   return (
-    <footer className="border-t border-gray-200 bg-gray-50 dark:bg-gray-900">
+    <footer className="mt-8 md:mt-12 border-t border-gray-200 bg-gray-50 dark:bg-gray-900">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* 왼쪽 컬럼: 회사 정보 */}
