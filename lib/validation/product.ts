@@ -13,7 +13,7 @@
  * - 재고: 0 이상 (정수)
  * - 단위: 기본값 "ea"
  * - 배송비: 0 이상
- * - 배송 방법: enum (courier/direct/quick/freight/pickup), 기본값 courier
+ * - 배송 방법: enum (courier/direct/quick/freight/dawn), 기본값 courier
  * - 납기: 선택
  * - 규격 정보: 객체 (weight, size, origin, storage) - 모두 선택
  * - 이미지: 문자열 배열 (최대 5개) - 선택
@@ -105,7 +105,7 @@ export const productSchema = z.object({
     .min(0, "배송비는 0 이상이어야 합니다"),
 
   delivery_method: z
-    .enum(["courier", "direct", "quick", "freight", "pickup"], {
+    .enum(["courier", "direct", "quick", "freight", "dawn"], {
       errorMap: () => ({ message: "배송 방법을 선택해주세요" }),
     })
     .default("courier"),
