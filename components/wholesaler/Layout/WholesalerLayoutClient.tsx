@@ -85,6 +85,9 @@ export default function WholesalerLayoutClient({
           <main className="flex-1 w-full max-w-full p-4 md:p-6 bg-gray-50 overflow-x-hidden">
             {children}
           </main>
+
+          {/* Footer - 항상 main 아래에 표시 */}
+          <Footer />
         </div>
 
         {/* 모바일 사이드바 오버레이 */}
@@ -104,9 +107,6 @@ export default function WholesalerLayoutClient({
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }
