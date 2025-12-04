@@ -5,14 +5,16 @@
  * VOC 피드백 목록을 표시하고, 검색 및 필터링 기능을 제공하는 클라이언트 컴포넌트입니다.
  *
  * 주요 기능:
- * 1. VOC 피드백 목록 표시
+ * 1. VOC 피드백 목록 표시 (테이블 형태, 번호 및 제목만 표시)
  * 2. 검색 기능
  * 3. 날짜 범위 필터링
+ * 4. 제목 클릭 시 상세 내용 모달 표시
  *
  * @dependencies
  * - actions/admin/voc.ts
  * - components/ui/input.tsx
  * - components/ui/button.tsx
+ * - components/ui/dialog.tsx
  */
 
 "use client";
@@ -26,6 +28,14 @@ import { DateRange } from "react-day-picker";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import OrderDateRangePicker from "@/components/wholesaler/Orders/OrderDateRangePicker";
 import type { VOCFeedbackFilter } from "@/types/voc";
 import type { VOCFeedback } from "@/types/voc";
@@ -34,6 +44,8 @@ export default function VOCManagementClient() {
   const [filter, setFilter] = React.useState<VOCFeedbackFilter>({});
   const [searchTerm, setSearchTerm] = React.useState("");
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
+  const [viewingFeedback, setViewingFeedback] =
+    React.useState<VOCFeedback | null>(null);
 
   // 검색어 변경 핸들러
   const handleSearchChange = (value: string) => {
@@ -134,37 +146,38 @@ export default function VOCManagementClient() {
             등록된 피드백이 없습니다.
           </div>
         ) : (
-          <div className="divide-y">
-            {feedbacks.map((feedback: VOCFeedback) => (
-              <div
-                key={feedback.id}
-                className="p-4 hover:bg-gray-50 transition-colors"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 mb-1">
-                        {feedback.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 line-clamp-3">
-                        {feedback.content}
-                      </p>
-                    </div>
-                    <div className="text-sm text-gray-500 whitespace-nowrap">
-                      {format(new Date(feedback.created_at), "yyyy-MM-dd HH:mm", {
-                        locale: ko,
-                      })}
-                    </div>
-                  </div>
-                  {feedback.profile && (
-                    <div className="text-xs text-gray-500">
-                      제출자: {feedback.profile.email} ({feedback.profile.role})
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b bg-gray-50">
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 w-16">
+                  번호
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                  제목
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {feedbacks.map((feedback: VOCFeedback, index: number) => (
+                <tr
+                  key={feedback.id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-4 py-3 text-sm text-gray-600 text-center">
+                    {feedbacks.length - index}
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => setViewingFeedback(feedback)}
+                      className="font-semibold text-gray-900 hover:text-blue-600 transition-colors text-left"
+                    >
+                      {feedback.title}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 
@@ -174,6 +187,47 @@ export default function VOCManagementClient() {
           총 {feedbacks.length}개의 피드백
         </div>
       )}
+
+      {/* 상세 보기 모달 */}
+      <Dialog
+        open={!!viewingFeedback}
+        onOpenChange={(open) => !open && setViewingFeedback(null)}
+      >
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{viewingFeedback?.title}</DialogTitle>
+            <DialogDescription>
+              작성일:{" "}
+              {viewingFeedback &&
+                format(
+                  new Date(viewingFeedback.created_at),
+                  "yyyy년 MM월 dd일 HH:mm",
+                  { locale: ko },
+                )}
+              {viewingFeedback?.profile && (
+                <>
+                  <br />
+                  제출자: {viewingFeedback.profile.email} (
+                  {viewingFeedback.profile.role})
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <div className="whitespace-pre-wrap text-gray-700">
+              {viewingFeedback?.content}
+            </div>
+          </div>
+          <DialogFooter className="flex-shrink-0 pt-4 mt-4 border-t">
+            <Button
+              type="button"
+              onClick={() => setViewingFeedback(null)}
+            >
+              닫기
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

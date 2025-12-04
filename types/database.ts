@@ -69,11 +69,11 @@ export type InquiryType = "retailer_to_wholesaler" | "wholesaler_to_admin";
  * 배송 방법 타입
  */
 export type DeliveryMethod =
-  | "courier"
   | "direct"
+  | "dawn"
   | "quick"
   | "freight"
-  | "pickup";
+  | "courier";
 
 /**
  * 프로필 테이블 타입

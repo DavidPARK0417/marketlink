@@ -82,11 +82,11 @@ export const WHOLESALER_STATUS = {
  * 각 항목은 value(DB 값)와 label(화면 표시용)을 포함합니다.
  */
 export const DELIVERY_METHODS = {
-  COURIER: { value: "courier", label: "택배" },
   DIRECT: { value: "direct", label: "직배송" },
+  DAWN: { value: "dawn", label: "새벽배송" },
   QUICK: { value: "quick", label: "퀵서비스" },
   FREIGHT: { value: "freight", label: "화물" },
-  PICKUP: { value: "pickup", label: "픽업" },
+  COURIER: { value: "courier", label: "택배" },
 } as const satisfies Record<string, { value: DeliveryMethod; label: string }>;
 
 /**
