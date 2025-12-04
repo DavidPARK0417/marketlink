@@ -147,6 +147,14 @@ export default function SettingsPage() {
         bank_account_number: parsedAccountNumber,
       });
 
+      // Select 컴포넌트가 업데이트되도록 명시적으로 setValue 호출
+      if (parsedBankName) {
+        wholesalerForm.setValue("bank_name", parsedBankName, {
+          shouldValidate: false,
+          shouldDirty: false,
+        });
+      }
+
       // 알림 설정 폼 초기화
       if (wholesaler.notification_preferences) {
         notificationForm.reset(wholesaler.notification_preferences);
@@ -551,6 +559,7 @@ export default function SettingsPage() {
                     <FormItem>
                       <FormLabel>은행명 *</FormLabel>
                       <Select
+                        key={field.value || "empty"}
                         onValueChange={field.onChange}
                         value={field.value || ""}
                         disabled={isSubmittingWholesaler}
