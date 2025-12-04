@@ -57,7 +57,7 @@ export default function Footer() {
               <p>주소: {fullAddress}</p>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              © 2024 Farm to Biz. All rights reserved.
+              © 2025 Farm to Biz. All rights reserved.
             </p>
           </div>
 
