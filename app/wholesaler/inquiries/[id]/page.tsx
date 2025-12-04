@@ -306,7 +306,7 @@ export default function InquiryDetailPage({
             목록으로
           </Button>
         </Link>
-        <Card>
+        <Card className="w-full max-w-full">
           <CardHeader>
             <CardTitle>문의를 불러올 수 없습니다</CardTitle>
             <CardDescription>
@@ -321,7 +321,7 @@ export default function InquiryDetailPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-full space-y-6">
       {/* 뒤로가기 버튼 */}
       <Link href={backPath}>
         <Button variant="ghost" size="sm">
@@ -331,12 +331,12 @@ export default function InquiryDetailPage({
       </Link>
 
       {/* 문의 정보 */}
-      <Card>
+      <Card className="w-full max-w-full">
         <CardHeader>
           <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <CardTitle className="mb-2">{inquiry.title}</CardTitle>
-              <CardDescription className="flex items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="mb-2 break-words">{inquiry.title}</CardTitle>
+              <CardDescription className="flex flex-wrap items-center gap-4 break-words">
                 <span>
                   문의일:{" "}
                   {format(new Date(inquiry.created_at), "yyyy-MM-dd HH:mm", {
@@ -369,7 +369,7 @@ export default function InquiryDetailPage({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="whitespace-pre-wrap text-gray-700 mb-4">
+          <div className="whitespace-pre-wrap break-words text-gray-700 mb-4 w-full max-w-full overflow-x-hidden">
             {inquiry.content}
           </div>
 
@@ -413,7 +413,7 @@ export default function InquiryDetailPage({
       )}
 
       {/* 대화 이력 */}
-      <Card>
+      <Card className="w-full max-w-full">
         <CardHeader>
           <CardTitle>대화 이력</CardTitle>
           <CardDescription>
@@ -449,7 +449,7 @@ export default function InquiryDetailPage({
       {/* 답변 작성 폼 (소매→도매 문의인 경우, status가 'open'인 경우만) */}
       {inquiry.inquiry_type === "retailer_to_wholesaler" &&
         inquiry.status === "open" && (
-          <Card>
+          <Card className="w-full max-w-full">
             <CardHeader>
               <CardTitle>답변 작성</CardTitle>
               <CardDescription>
@@ -469,7 +469,7 @@ export default function InquiryDetailPage({
       {/* 추가 질문 폼 (도매→관리자 문의인 경우, 답변이 완료된 경우) */}
       {inquiry.inquiry_type === "wholesaler_to_admin" &&
         inquiry.status !== "closed" && (
-          <Card>
+          <Card className="w-full max-w-full">
             <CardHeader>
               <CardTitle>
                 {inquiry.status === "open"
@@ -496,7 +496,7 @@ export default function InquiryDetailPage({
 
       {/* 문의 종료 버튼 (답변 완료된 경우 또는 답변 불가능한 경우) */}
       {inquiry.status !== "open" && inquiry.status !== "closed" && (
-        <Card>
+        <Card className="w-full max-w-full">
           <CardContent className="pt-6">
             <div className="flex justify-end">
               <CloseInquiryButton
@@ -512,7 +512,7 @@ export default function InquiryDetailPage({
 
       {/* 이미 답변 완료된 경우 안내 */}
       {inquiry.status === "answered" && (
-        <Card>
+        <Card className="w-full max-w-full">
           <CardContent className="pt-6">
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-sm text-green-800">
@@ -525,7 +525,7 @@ export default function InquiryDetailPage({
 
       {/* 이미 종료된 경우 안내 */}
       {inquiry.status === "closed" && (
-        <Card>
+        <Card className="w-full max-w-full">
           <CardContent className="pt-6">
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <p className="text-sm text-gray-800">

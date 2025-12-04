@@ -172,9 +172,9 @@ export default function InquiryTable({
   }
 
   return (
-    <div className="space-y-4 w-full">
+    <div className="space-y-4 w-full max-w-full min-w-0">
       {/* 테이블 */}
-      <div className="rounded-md border max-w-full overflow-hidden min-w-0">
+      <div className="rounded-md border max-w-full overflow-hidden min-w-0 w-full">
         <Table className="w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

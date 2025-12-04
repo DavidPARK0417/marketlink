@@ -80,7 +80,7 @@ export default function WholesalerLayoutClient({
         />
 
         {/* 메인 컨텐츠 */}
-        <main className="flex-1 p-4 md:p-6 bg-gray-50">{children}</main>
+        <main className="flex-1 w-full max-w-full p-4 md:p-6 bg-gray-50 overflow-x-hidden">{children}</main>
       </div>
 
       {/* 모바일 사이드바 오버레이 */}

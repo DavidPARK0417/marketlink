@@ -183,7 +183,7 @@ export default function InquiryMessageList({
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 md:p-6">
+    <div className="flex flex-col gap-4 p-4 md:p-6 w-full max-w-full overflow-x-hidden">
       {messages.map((message) => (
         <InquiryMessageItem
           key={message.id}
