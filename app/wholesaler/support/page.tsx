@@ -246,10 +246,30 @@ export default function SupportPage() {
       {/* 탭 UI */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
-          <TabsTrigger value="inquiry">문의내역</TabsTrigger>
-          <TabsTrigger value="faq">자주묻는질문</TabsTrigger>
-          <TabsTrigger value="voc">고객의 소리</TabsTrigger>
-          <TabsTrigger value="announcements">공지사항</TabsTrigger>
+          <TabsTrigger 
+            value="inquiry"
+            className="data-[state=active]:text-blue-600"
+          >
+            문의내역
+          </TabsTrigger>
+          <TabsTrigger 
+            value="faq"
+            className="data-[state=active]:text-blue-600"
+          >
+            자주묻는질문
+          </TabsTrigger>
+          <TabsTrigger 
+            value="voc"
+            className="data-[state=active]:text-blue-600"
+          >
+            고객의 소리
+          </TabsTrigger>
+          <TabsTrigger 
+            value="announcements"
+            className="data-[state=active]:text-blue-600"
+          >
+            공지사항
+          </TabsTrigger>
         </TabsList>
 
         {/* 문의내역 탭 */}
