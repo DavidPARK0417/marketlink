@@ -167,11 +167,12 @@ export default function WholesalerHeader({
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button
-              className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="relative flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
               aria-label="알림"
               disabled={isLoadingNotifications}
             >
               <Bell className="w-5 h-5" />
+              <span className="text-sm">알림</span>
               {/* 알림 배지 (새 알림이 있을 때만 표시) */}
               {hasNewNotifications && (
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -340,19 +341,21 @@ export default function WholesalerHeader({
         {/* 설정 메뉴 */}
         <Link
           href="/wholesaler/settings"
-          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
           aria-label="설정"
         >
           <Settings className="w-5 h-5" />
+          <span className="text-sm">설정</span>
         </Link>
 
         {/* 고객센터 메뉴 */}
         <Link
           href="/wholesaler/support"
-          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
           aria-label="고객센터"
         >
           <HelpCircle className="w-5 h-5" />
+          <span className="text-sm">고객센터</span>
         </Link>
 
         {/* 사용자 드롭다운 메뉴 - 클라이언트 사이드에서만 렌더링 */}
