@@ -38,6 +38,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatBusinessNumber } from "@/lib/utils/format";
 import { useWholesaler } from "@/hooks/useWholesaler";
 import {
   Tooltip,
@@ -122,7 +123,6 @@ export default function WholesalerSidebar() {
   // 아바타 이미지 URL 또는 null
   const avatarUrl = user?.imageUrl || null;
   const userName = user?.fullName || user?.firstName || null;
-  const userEmail = user?.primaryEmailAddress?.emailAddress || null;
 
   // 로그아웃 처리
   const handleLogout = async () => {
@@ -284,9 +284,9 @@ export default function WholesalerSidebar() {
                           ? "로딩 중..."
                           : wholesaler?.business_name || "도매 회원사"}
                       </p>
-                      {userEmail && (
+                      {wholesaler?.business_number && (
                         <p className="text-xs text-gray-500 truncate">
-                          {userEmail}
+                          {formatBusinessNumber(wholesaler.business_number)}
                         </p>
                       )}
                     </div>
@@ -298,7 +298,11 @@ export default function WholesalerSidebar() {
                       ? "로딩 중..."
                       : wholesaler?.business_name || "도매 회원사"}
                   </p>
-                  {userEmail && <p className="text-xs opacity-80">{userEmail}</p>}
+                  {wholesaler?.business_number && (
+                    <p className="text-xs opacity-80">
+                      {formatBusinessNumber(wholesaler.business_number)}
+                    </p>
+                  )}
                 </TooltipContent>
               </Tooltip>
 
