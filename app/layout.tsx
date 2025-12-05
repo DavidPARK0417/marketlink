@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { koKR } from "@clerk/localizations";
-import { Geist, Geist_Mono } from "next/font/google";
+// Geist 폰트는 Pretendard Variable로 교체됨
+// import { Geist, Geist_Mono } from "next/font/google";
 
 import Navbar from "@/components/Navbar";
 import { SyncUserProvider } from "@/components/providers/sync-user-provider";
@@ -15,15 +16,16 @@ const customKoKR = {
   socialButtonsBlockButton: "FarmToBiz로 계속",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// Geist 폰트는 Pretendard Variable로 교체됨 (globals.css에서 CDN으로 로드)
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
 
 export const metadata: Metadata = {
   title: "FarmToBiz - 도매 사업자 전용 플랫폼",
@@ -64,9 +66,7 @@ export default function RootLayout({
   return (
     <ClerkProvider localization={customKoKR}>
       <html lang="ko" suppressHydrationWarning>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+        <body className="antialiased">
           <ThemeProvider>
             <QueryProvider>
               <SyncUserProvider>
