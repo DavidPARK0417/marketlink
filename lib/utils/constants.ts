@@ -99,8 +99,7 @@ export const CATEGORIES = [
   "과일",
   "채소",
   "수산물",
-  "곡물",
-  "견과류",
+  "곡물/견과류",
   "기타",
 ] as const;
 
