@@ -352,6 +352,8 @@ export default function SupportPage() {
           <AnnouncementList
             announcements={announcements}
             isLoading={isAnnouncementsLoading}
+            startNumber={1}
+            total={announcements.length}
           />
         )}
       </div>

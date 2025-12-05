@@ -18,13 +18,14 @@ export async function POST(request: NextRequest) {
     console.group("🔍 [api/admin/inquiries] 관리자용 문의 목록 조회 API 시작");
 
     const body = await request.json();
-    const { filter = {}, page = 1, pageSize = 20 } = body;
+    const { filter = {}, page = 1, pageSize = 20, sortOrder = "desc" } = body;
 
-    console.log("요청 파라미터:", { filter, page, pageSize });
+    console.log("요청 파라미터:", { filter, page, pageSize, sortOrder });
 
     const options: GetInquiriesOptions = {
       page,
       pageSize,
+      sortOrder,
       filter: filter as InquiryFilter,
     };
 

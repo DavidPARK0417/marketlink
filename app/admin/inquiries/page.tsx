@@ -40,7 +40,10 @@ async function fetchInquiriesForAdmin(filter: InquiryFilterType = {}) {
   const response = await fetch("/api/admin/inquiries", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filter }),
+    body: JSON.stringify({ 
+      filter,
+      sortOrder: "desc", // 최신 글이 위에 (내림차순)
+    }),
   });
 
   if (!response.ok) {
@@ -134,6 +137,12 @@ export default function AdminInquiriesPage() {
             inquiries={data?.inquiries || []}
             isLoading={isLoading}
             basePath="/admin/inquiries"
+            startNumber={
+              data
+                ? (data.page - 1) * (data.pageSize || 20) + 1
+                : 1
+            }
+            total={data?.total}
           />
 
           {/* 통계 정보 */}

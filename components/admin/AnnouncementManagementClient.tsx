@@ -198,8 +198,11 @@ export default function AnnouncementManagementClient({
           </div>
         ) : (
           <div className="divide-y">
-            {announcements.map((announcement) => {
+            {announcements.map((announcement, index) => {
               const newLabel = isNew(announcement.created_at);
+              // 먼저 작성한 글이 1번이 되도록 번호 계산
+              // 내림차순 정렬이므로 역순으로 계산: total - index
+              const number = announcements.length - index;
               return (
                 <div
                   key={announcement.id}
@@ -208,6 +211,9 @@ export default function AnnouncementManagementClient({
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-medium text-gray-500 min-w-[2rem]">
+                          {number}
+                        </span>
                         {newLabel && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
                             NEW

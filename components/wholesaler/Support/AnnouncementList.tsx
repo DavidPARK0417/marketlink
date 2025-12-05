@@ -33,11 +33,21 @@ interface AnnouncementListProps {
    * 로딩 상태
    */
   isLoading?: boolean;
+  /**
+   * 시작 번호 (기본값: 1)
+   */
+  startNumber?: number;
+  /**
+   * 전체 개수 (번호 역순 계산용)
+   */
+  total?: number;
 }
 
 export default function AnnouncementList({
   announcements,
   isLoading = false,
+  startNumber = 1,
+  total,
 }: AnnouncementListProps) {
   // 7일 이내 작성된 공지사항인지 확인
   const isNew = (createdAt: string) => {
@@ -76,8 +86,13 @@ export default function AnnouncementList({
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-gray-900">공지사항</h2>
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
-        {announcements.map((announcement) => {
+        {announcements.map((announcement, index) => {
           const newLabel = isNew(announcement.created_at);
+          // 먼저 작성한 글이 1번이 되도록 번호 계산
+          // 내림차순 정렬이므로 역순으로 계산: total - (startNumber + index - 1)
+          const number = total 
+            ? total - (startNumber + index - 1)
+            : startNumber + index;
           return (
             <Link
               key={announcement.id}
@@ -85,6 +100,9 @@ export default function AnnouncementList({
               className="block p-5 flex items-center justify-between hover:bg-gray-50 transition-colors group"
             >
               <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-gray-500 min-w-[2rem]">
+                  {number}
+                </span>
                 {newLabel && (
                   <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded">
                     NEW
