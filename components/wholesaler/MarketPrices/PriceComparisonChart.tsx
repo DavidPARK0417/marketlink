@@ -29,7 +29,7 @@ import {
   Legend,
   Cell,
 } from "recharts";
-import { ArrowUp, ArrowDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { DailyPriceItem } from "@/lib/api/market-prices-types";
 
 interface PriceComparisonChartProps {
@@ -111,31 +111,32 @@ export default function PriceComparisonChart({
     return dateStr;
   };
 
-  // 증감률 표시 컴포넌트
+  // 증감률 표시 컴포넌트 (한국 관행: 상승=빨강, 하락=파랑)
+  // 절댓값 + 아이콘으로 부호 구분, 보합은 "-" 표시
   const PriceChangeIndicator = () => {
     const { direction, value } = data;
     if (direction === "1") {
-      // 상승
+      // 상승 - 빨강, 절댓값 표시
       return (
-        <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
-          <ArrowUp className="size-4" />
-          <span className="font-semibold">+{value.toFixed(1)}%</span>
+        <span className="flex items-center gap-1 text-red-500" role="status" aria-label={`상승 ${Math.abs(value).toFixed(1)}%`}>
+          <TrendingUp className="w-4 h-4" aria-hidden="true" />
+          <span className="font-semibold">{Math.abs(value).toFixed(1)}%</span>
         </span>
       );
     } else if (direction === "2") {
-      // 하락
+      // 하락 - 파랑, 절댓값 표시
       return (
-        <span className="flex items-center gap-1 text-[#10B981] dark:text-emerald-400">
-          <ArrowDown className="size-4" />
-          <span className="font-semibold">-{value.toFixed(1)}%</span>
+        <span className="flex items-center gap-1 text-blue-500" role="status" aria-label={`하락 ${Math.abs(value).toFixed(1)}%`}>
+          <TrendingDown className="w-4 h-4" aria-hidden="true" />
+          <span className="font-semibold">{Math.abs(value).toFixed(1)}%</span>
         </span>
       );
     } else {
-      // 보합
+      // 보합 - 회색, "-" 표시
       return (
-        <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-          <Minus className="size-4" />
-          <span className="font-semibold">{value.toFixed(1)}%</span>
+        <span className="flex items-center gap-1 text-gray-500" role="status" aria-label="보합">
+          <Minus className="w-4 h-4" aria-hidden="true" />
+          <span className="font-semibold">-</span>
         </span>
       );
     }
@@ -165,12 +166,12 @@ export default function PriceComparisonChart({
       {/* 제목 및 정보 */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-xl font-semibold text-[#111827]">
             {data.productName} 가격 비교
           </h3>
           <PriceChangeIndicator />
         </div>
-        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+        <div className="flex flex-wrap gap-4 text-sm text-[#6B7280]">
           <span>구분: {data.productClsName}</span>
           <span>단위: {data.unit}</span>
           <span>카테고리: {data.categoryName}</span>
@@ -219,11 +220,11 @@ export default function PriceComparisonChart({
         {chartData.map((item) => (
           <div
             key={item.period}
-            className="flex flex-col gap-1 p-3 rounded-lg border bg-card"
+            className="flex flex-col gap-1 p-3 rounded-xl border border-gray-100 bg-white"
           >
-            <div className="text-xs text-muted-foreground">{item.label}</div>
-            <div className="text-sm font-semibold">{formatPrice(item.price)}</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-xs text-[#6B7280]">{item.label}</div>
+            <div className="text-sm font-semibold text-[#111827]">{formatPrice(item.price)}</div>
+            <div className="text-xs text-[#6B7280]">
               {formatDate(item.date)}
             </div>
           </div>

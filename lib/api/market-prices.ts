@@ -109,6 +109,32 @@ async function fetchKAMISDailyCountyList(params: {
             return "";
           };
 
+          // 가격 파싱
+          const dpr1 = parsePrice(item.dpr1);
+          const dpr2 = parsePrice(item.dpr2);
+
+          // direction과 value 계산
+          let direction: "0" | "1" | "2" = String(item.direction || "0") as "0" | "1" | "2";
+          let value = parseFloat(String(item.value || "0")) || 0;
+
+          // 가격 데이터가 있으면 항상 실제 가격 비교로 계산 (API 값보다 우선)
+          if (dpr1 > 0 && dpr2 > 0) {
+            const changeRate = ((dpr1 - dpr2) / dpr2) * 100;
+            if (Math.abs(changeRate) < 0.01) {
+              // 변화가 거의 없으면 보합 (0.01% 미만)
+              direction = "0";
+              value = 0;
+            } else if (changeRate > 0) {
+              // 상승
+              direction = "1";
+              value = Math.abs(changeRate);
+            } else {
+              // 하락
+              direction = "2";
+              value = Math.abs(changeRate);
+            }
+          }
+
           const dailyPriceItem: DailyPriceItem = {
             productClsCode: params.productClsCode,
             productClsName: params.productClsCode === "01" ? "소매" : "도매",
@@ -122,15 +148,15 @@ async function fetchKAMISDailyCountyList(params: {
             itemName: String(item.item_name || item.productName || ""),
             unit: String(item.unit || ""),
             day1: String(item.day1 || "당일"),
-            dpr1: parsePrice(item.dpr1),
+            dpr1,
             day2: String(item.day2 || "1일전"),
-            dpr2: parsePrice(item.dpr2),
+            dpr2,
             day3: String(item.day3 || "1개월전"),
             dpr3: parsePrice(item.dpr3),
             day4: String(item.day4 || "1년전"),
             dpr4: parsePrice(item.dpr4),
-            direction: String(item.direction || "0") as "0" | "1" | "2",
-            value: parseFloat(String(item.value || "0")) || 0,
+            direction,
+            value,
           };
 
           return dailyPriceItem;
@@ -254,6 +280,32 @@ async function fetchKAMISDailySales(params: {
               return "";
             };
 
+            // 가격 파싱
+            const dpr1 = parsePrice(item.dpr1);
+            const dpr2 = parsePrice(item.dpr2);
+
+            // direction과 value 계산
+            let direction: "0" | "1" | "2" = String(item.direction || "0") as "0" | "1" | "2";
+            let value = parseFloat(String(item.value || "0")) || 0;
+
+            // 가격 데이터가 있으면 항상 실제 가격 비교로 계산 (API 값보다 우선)
+            if (dpr1 > 0 && dpr2 > 0) {
+              const changeRate = ((dpr1 - dpr2) / dpr2) * 100;
+              if (Math.abs(changeRate) < 0.01) {
+                // 변화가 거의 없으면 보합 (0.01% 미만)
+                direction = "0";
+                value = 0;
+              } else if (changeRate > 0) {
+                // 상승
+                direction = "1";
+                value = Math.abs(changeRate);
+              } else {
+                // 하락
+                direction = "2";
+                value = Math.abs(changeRate);
+              }
+            }
+
             const dailyPriceItem: DailyPriceItem = {
               productClsCode: (item.product_cls_code || clsCode) as "01" | "02",
               productClsName:
@@ -267,15 +319,15 @@ async function fetchKAMISDailySales(params: {
               itemName: String(item.item_name || item.productName || ""),
               unit: String(item.unit || ""),
               day1: String(item.day1 || "당일"),
-              dpr1: parsePrice(item.dpr1),
+              dpr1,
               day2: String(item.day2 || "1일전"),
-              dpr2: parsePrice(item.dpr2),
+              dpr2,
               day3: String(item.day3 || "1개월전"),
               dpr3: parsePrice(item.dpr3),
               day4: String(item.day4 || "1년전"),
               dpr4: parsePrice(item.dpr4),
-              direction: String(item.direction || "0") as "0" | "1" | "2",
-              value: parseFloat(String(item.value || "0")) || 0,
+              direction,
+              value,
             };
 
             return dailyPriceItem;

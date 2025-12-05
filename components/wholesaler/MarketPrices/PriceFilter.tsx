@@ -7,15 +7,6 @@
 
 import { useState, useEffect, FormEvent } from "react";
 import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { kamisWholesaleCountyCodes } from "@/lib/api/market-prices-utils";
 
 export interface PriceFilterParams {
@@ -60,57 +51,52 @@ export default function PriceFilter({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="px-4 md:px-6 py-4 md:py-5">
-      <div className="flex flex-col md:flex-row gap-3">
-        {/* 지역 선택 */}
-        <div className="flex flex-col gap-2 md:w-32">
-          <label htmlFor="county" className="text-sm font-medium">
-            지역
-          </label>
-          <Select
-            value={countyCode}
-            onValueChange={(value) => setCountyCode(value)}
-          >
-            <SelectTrigger id="county">
-              <SelectValue placeholder="전체" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">전체</SelectItem>
+    <form onSubmit={handleSubmit}>
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+          {/* 지역 선택 */}
+          <div className="relative min-w-[140px]">
+            <select
+              value={countyCode}
+              onChange={(e) => setCountyCode(e.target.value)}
+              disabled={isLoading}
+              className="w-full appearance-none px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all pr-8 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="all">전체</option>
               {availableCounties.map(([name, code]) => (
-                <SelectItem key={code} value={code}>
+                <option key={code} value={code}>
                   {name}
-                </SelectItem>
+                </option>
               ))}
-            </SelectContent>
-          </Select>
-        </div>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
 
-        {/* 품목명 검색 */}
-        <div className="flex-1 flex flex-col gap-2">
-          <label htmlFor="search" className="text-sm font-medium">
-            품목명
-          </label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              id="search"
+          {/* 품목명 검색 */}
+          <div className="relative w-full md:w-80">
+            <input
               type="text"
-              placeholder="예: 사과, 배추, 레몬"
+              placeholder="품목명 검색 (예: 사과, 배)"
               value={itemName}
               onChange={(e) => setItemName(e.target.value)}
-              className="pl-10"
+              disabled={isLoading}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
         </div>
-
-        {/* 조회 버튼 */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium opacity-0">버튼</label>
-          <Button type="submit" disabled={isLoading} className="h-10 px-6">
-            <Search className="mr-2 size-4" />
-            {isLoading ? "조회 중..." : "시세 조회"}
-          </Button>
-        </div>
+        
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full md:w-auto px-6 py-2.5 bg-[#10B981] text-white font-semibold rounded-xl hover:bg-[#059669] transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? "조회 중..." : "조회하기"}
+        </button>
       </div>
     </form>
   );
