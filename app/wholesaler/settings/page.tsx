@@ -27,7 +27,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { Loader2, Search, Mail, Bell } from "lucide-react";
+import { Loader2, Search, Mail, Bell, Info } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -47,6 +47,14 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useWholesaler } from "@/hooks/useWholesaler";
 import { updateWholesaler } from "@/actions/wholesaler/update-wholesaler";
 import { updateEmail } from "@/actions/wholesaler/update-email";
@@ -76,6 +84,7 @@ export default function SettingsPage() {
     useState(false);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] =
     useState(false);
+  const [isEmailSameModalOpen, setIsEmailSameModalOpen] = useState(false);
 
   // 사업자 정보 수정 폼
   const wholesalerForm = useForm<UpdateWholesalerFormData>({
@@ -266,6 +275,14 @@ export default function SettingsPage() {
 
   // 이메일 변경 제출
   const onSubmitEmail = async (data: UpdateEmailFormData) => {
+    // 현재 이메일과 동일한지 확인
+    const currentEmail = user?.emailAddresses[0]?.emailAddress;
+    if (currentEmail && data.email.toLowerCase().trim() === currentEmail.toLowerCase().trim()) {
+      console.log("ℹ️ [settings] 기존 이메일과 동일한 이메일 입력");
+      setIsEmailSameModalOpen(true);
+      return;
+    }
+
     setIsSubmittingEmail(true);
 
     try {
@@ -895,6 +912,34 @@ export default function SettingsPage() {
         open={isDeleteAccountModalOpen}
         onOpenChange={setIsDeleteAccountModalOpen}
       />
+
+      {/* 이메일 동일 안내 모달 */}
+      <Dialog open={isEmailSameModalOpen} onOpenChange={setIsEmailSameModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Info className="w-6 h-6 text-blue-600" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-center">
+              이메일 변경 안내
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-base text-center">
+              입력하신 이메일 주소가 현재 사용 중인 이메일과 동일합니다.
+              <br />
+              <br />
+              다른 이메일 주소를 입력해주세요.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center gap-2 pt-4">
+            <Button
+              onClick={() => setIsEmailSameModalOpen(false)}
+              className="px-8 py-2.5 bg-[#10B981] text-white font-semibold rounded-lg hover:bg-[#059669] transition-colors shadow-sm"
+            >
+              확인
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
