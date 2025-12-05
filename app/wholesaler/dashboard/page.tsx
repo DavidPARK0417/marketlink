@@ -262,11 +262,6 @@ export default function DashboardPage() {
 
       {/* 최근 주문 및 재고 부족 알림 */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* 최근 주문 */}
-        <Suspense fallback={<RecentOrdersSkeleton />}>
-          <RecentOrders />
-        </Suspense>
-
         {/* 재고 부족 알림 */}
         <Suspense
           fallback={
@@ -281,6 +276,11 @@ export default function DashboardPage() {
           }
         >
           <LowStockAlert />
+        </Suspense>
+
+        {/* 최근 주문 */}
+        <Suspense fallback={<RecentOrdersSkeleton />}>
+          <RecentOrders />
         </Suspense>
       </div>
     </div>
