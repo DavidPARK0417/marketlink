@@ -36,17 +36,19 @@ export default async function AdminLayout({
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-white flex">
       {/* 사이드바 */}
       <AdminSidebar />
 
       {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col lg:pl-64 min-h-screen transition-all duration-300">
         {/* 헤더 */}
         <AdminHeader />
 
         {/* 메인 컨텐츠 */}
-        <main className="flex-1 w-full max-w-full p-6 overflow-x-hidden">{children}</main>
+        <main className="flex-1 w-full max-w-full p-6 lg:p-8 overflow-x-hidden bg-white">
+          {children}
+        </main>
       </div>
     </div>
   );
