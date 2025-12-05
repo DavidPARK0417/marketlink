@@ -206,7 +206,7 @@ export default function StorageTestPage() {
       <div className="mb-8">
         <Link
           href="/"
-          className="text-blue-600 hover:underline mb-4 inline-block"
+          className="text-[#10B981] hover:underline mb-4 inline-block"
         >
           ← 홈으로 돌아가기
         </Link>

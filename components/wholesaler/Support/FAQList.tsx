@@ -99,7 +99,7 @@ export default function FAQList({
           <AccordionItem key={faq.id} value={faq.id} className="w-full">
             <AccordionTrigger className="text-left w-full">
               <span className="font-medium">
-                <span className="text-blue-600">Q.</span> {faq.question}
+                <span className="text-[#10B981]">Q.</span> {faq.question}
               </span>
             </AccordionTrigger>
             <AccordionContent>

@@ -33,15 +33,15 @@
 
 **작업 내용**:
 
-- [ ] Pretendard Variable CDN 추가
-- [ ] `--font-sans` 변수를 Pretendard로 변경
-- [ ] Geist 폰트 관련 코드 제거 또는 주석 처리
+- [x] Pretendard Variable CDN 추가
+- [x] `--font-sans` 변수를 Pretendard로 변경
+- [x] Geist 폰트 관련 코드 제거 또는 주석 처리
 
 **체크리스트**:
 
-- [ ] `globals.css`에 Pretendard Variable CDN 추가 확인
-- [ ] 빌드 후 폰트 적용 확인 (`pnpm run build`)
-- [ ] 브라우저에서 폰트 로딩 확인
+- [x] `globals.css`에 Pretendard Variable CDN 추가 확인
+- [x] 빌드 후 폰트 적용 확인 (`pnpm run build`)
+- [ ] 브라우저에서 폰트 로딩 확인 (개발 서버 실행 후 확인 필요)
 
 **참고 코드**:
 

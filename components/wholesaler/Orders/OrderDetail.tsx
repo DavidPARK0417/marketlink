@@ -402,7 +402,7 @@ export default function OrderDetail({ order }: OrderDetailProps) {
               <div className="border-t pt-3">
                 <div className="flex justify-between">
                   <p className="text-lg font-semibold">총 금액</p>
-                  <p className="text-lg font-bold text-blue-600">
+                  <p className="text-lg font-bold text-[#10B981]">
                     {formatPrice(order.total_amount)}
                   </p>
                 </div>

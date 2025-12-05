@@ -35,7 +35,7 @@ function getMessageStyle(senderType: CsMessageSenderType) {
     case "user":
       return {
         container: "flex justify-start",
-        bubble: "bg-blue-500 text-white",
+        bubble: "bg-[#10B981] text-white",
         label: "사용자",
       };
     case "bot":

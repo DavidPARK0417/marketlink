@@ -53,12 +53,12 @@ export default function SupportBanner({
   };
 
   return (
-    <div className="bg-blue-600 rounded-lg p-6 md:p-8 text-white">
+    <div className="bg-[#10B981] rounded-lg p-6 md:p-8 text-white">
       <div className="space-y-4">
         {/* 제목 및 설명 */}
         <div>
           <h1 className="text-2xl md:text-3xl font-bold mb-2">고객센터</h1>
-          <p className="text-blue-100 text-sm md:text-base">
+          <p className="text-emerald-100 text-sm md:text-base">
             무엇을 도와드릴까요? 궁금한 점을 검색해보세요.
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function SupportBanner({
           />
           <button
             onClick={handleSearchClick}
-            className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
+            className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium rounded transition-colors"
           >
             검색
           </button>

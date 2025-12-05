@@ -1278,7 +1278,7 @@ export default function ProductForm({
                   <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     표준화된 상품명
                   </label>
-                  <p className="mt-1 text-lg font-semibold text-blue-600 dark:text-blue-400">
+                  <p className="mt-1 text-lg font-semibold text-[#10B981] dark:text-emerald-400">
                     {standardizeResult.standardizedName}
                   </p>
                 </div>

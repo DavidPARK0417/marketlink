@@ -169,7 +169,7 @@ export default function VOCManagementClient() {
                   <td className="px-4 py-3">
                     <button
                       onClick={() => setViewingFeedback(feedback)}
-                      className="font-semibold text-gray-900 hover:text-blue-600 transition-colors text-left"
+                      className="font-semibold text-gray-900 hover:text-[#10B981] transition-colors text-left"
                     >
                       {feedback.title}
                     </button>

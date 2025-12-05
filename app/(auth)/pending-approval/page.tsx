@@ -214,7 +214,7 @@ export default function PendingApprovalPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-500" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-[#10B981]" />
           <p className="text-gray-600">로딩 중...</p>
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function PendingApprovalPage() {
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">승인 완료!</h2>
             <p className="text-gray-600 mb-4">도매 페이지로 이동합니다...</p>
-            <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" />
+            <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#10B981]" />
           </CardContent>
         </Card>
       </div>
@@ -261,7 +261,7 @@ export default function PendingApprovalPage() {
   // 승인 반려 상태
   if (status === "rejected") {
     return (
-      <div className="min-h-screen bg-blue-50 flex flex-col">
+      <div className="min-h-screen bg-emerald-50 flex flex-col">
         {/* 헤더 */}
         <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ export default function PendingApprovalPage() {
             variant="default"
             size="sm"
             onClick={handleLogout}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-[#10B981] hover:bg-[#059669]"
           >
             로그아웃
           </Button>
@@ -301,7 +301,7 @@ export default function PendingApprovalPage() {
               )}
               <Button
                 onClick={() => router.push("/wholesaler-onboarding")}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-[#10B981] hover:bg-[#059669]"
                 size="lg"
               >
                 정보 수정 후 재신청
@@ -331,8 +331,8 @@ export default function PendingApprovalPage() {
               정보를 확인 후 신속하게 승인 처리해 드리겠습니다.
             </DialogDescription>
             <div className="space-y-4 pt-2">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800 text-center">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                <p className="text-sm text-emerald-800 text-center">
                   <strong>예상 소요 시간: 영업일 기준 1~2일</strong>
                 </p>
               </div>
@@ -353,7 +353,7 @@ export default function PendingApprovalPage() {
           <DialogFooter className="sm:justify-center">
             <Button
               onClick={handlePendingConfirm}
-              className="w-full sm:w-auto min-w-[120px] bg-blue-600 hover:bg-blue-700"
+              className="w-full sm:w-auto min-w-[120px] bg-[#10B981] hover:bg-[#059669]"
             >
               확인
             </Button>
@@ -363,7 +363,7 @@ export default function PendingApprovalPage() {
 
       {/* 배경 페이지 (메인 페이지로 리다이렉트) */}
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#10B981]" />
       </div>
     </>
   );

@@ -98,7 +98,7 @@ export default function AdminSidebar() {
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                   isActive
-                    ? "bg-blue-50 text-blue-600 font-medium"
+                    ? "bg-emerald-50 text-[#10B981] font-medium"
                     : "text-gray-700 hover:bg-gray-50",
                 )}
               >

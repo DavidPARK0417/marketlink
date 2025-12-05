@@ -35,7 +35,7 @@ function formatJson(data: unknown): string {
 function formatJsonToHtml(jsonString: string): string {
   // 기본적인 JSON 구문 강조 (간단한 버전)
   return jsonString
-    .replace(/(".*?"):/g, '<span class="text-blue-600 font-semibold">$1</span>:')
+    .replace(/(".*?"):/g, '<span class="text-[#10B981] font-semibold">$1</span>:')
     .replace(/:\s*(".*?")/g, ': <span class="text-green-600">$1</span>')
     .replace(/:\s*(\d+)/g, ': <span class="text-purple-600">$1</span>')
     .replace(/:\s*(true|false|null)/g, ': <span class="text-orange-600">$1</span>');

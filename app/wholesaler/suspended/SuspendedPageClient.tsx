@@ -72,14 +72,14 @@ export function SuspendedPageClient({
           )}
 
           {/* 고객센터 연락처 */}
-          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
             <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">고객센터 문의</h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                 <Mail className="w-4 h-4" />
                 <a
                   href={`mailto:${contactEmail}`}
-                  className="hover:text-blue-600 dark:hover:text-blue-400 underline"
+                  className="hover:text-[#10B981] dark:hover:text-emerald-400 underline"
                 >
                   {contactEmail}
                 </a>
@@ -88,7 +88,7 @@ export function SuspendedPageClient({
                 <Phone className="w-4 h-4" />
                 <a
                   href={`tel:${contactPhone}`}
-                  className="hover:text-blue-600 dark:hover:text-blue-400 underline"
+                  className="hover:text-[#10B981] dark:hover:text-emerald-400 underline"
                 >
                   {contactPhone}
                 </a>

@@ -65,7 +65,7 @@ export default function PriceTable({
     } else if (direction === "2") {
       // 하락
       return (
-        <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+        <span className="flex items-center gap-1 text-[#10B981] dark:text-emerald-400">
           <ArrowDown className="size-4" />
           <span>-{value.toFixed(1)}%</span>
         </span>

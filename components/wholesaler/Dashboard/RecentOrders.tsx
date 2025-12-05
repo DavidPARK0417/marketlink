@@ -111,7 +111,7 @@ export default function RecentOrders() {
                       case "completed":
                         return "bg-green-50 hover:bg-green-100 border-green-200 dark:bg-green-950/20 dark:hover:bg-green-900/30 dark:border-green-800";
                       case "shipped":
-                        return "bg-blue-50 hover:bg-blue-100 border-blue-200 dark:bg-blue-950/20 dark:hover:bg-blue-900/30 dark:border-blue-800";
+                        return "bg-emerald-50 hover:bg-emerald-100 border-emerald-200 dark:bg-emerald-950/20 dark:hover:bg-emerald-900/30 dark:border-emerald-800";
                       case "confirmed":
                         return "bg-cyan-50 hover:bg-cyan-100 border-cyan-200 dark:bg-cyan-950/20 dark:hover:bg-cyan-900/30 dark:border-cyan-800";
                       case "pending":

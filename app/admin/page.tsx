@@ -61,11 +61,11 @@ export default async function AdminPage() {
           {/* 도매 페이지 */}
           <Link
             href="/wholesaler/dashboard"
-            className="block p-6 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all"
+            className="block p-6 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-emerald-300 transition-all"
           >
             <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Store className="w-6 h-6 text-blue-600" />
+              <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <Store className="w-6 h-6 text-[#10B981]" />
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-gray-900">
@@ -112,9 +112,9 @@ export default async function AdminPage() {
           className="block p-6 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
         >
           <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-blue-600"
+                className="w-6 h-6 text-[#10B981]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

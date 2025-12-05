@@ -26,7 +26,7 @@ const statusConfig: Record<
   },
   confirmed: {
     label: "접수 확인",
-    className: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+    className: "bg-emerald-100 text-emerald-800 hover:bg-emerald-200",
   },
   shipped: {
     label: "출고 완료",

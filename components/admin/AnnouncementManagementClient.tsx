@@ -215,7 +215,7 @@ export default function AnnouncementManagementClient({
                         )}
                         <button
                           onClick={() => setViewingAnnouncement(announcement)}
-                          className="font-semibold text-gray-900 hover:text-blue-600 transition-colors text-left"
+                          className="font-semibold text-gray-900 hover:text-[#10B981] transition-colors text-left"
                         >
                           {announcement.title}
                         </button>

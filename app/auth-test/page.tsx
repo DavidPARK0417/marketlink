@@ -203,7 +203,7 @@ export default function AuthTestPage() {
       <div className="mb-8">
         <Link
           href="/"
-          className="text-blue-600 hover:underline mb-4 inline-block"
+          className="text-[#10B981] hover:underline mb-4 inline-block"
         >
           ← 홈으로 돌아가기
         </Link>
@@ -271,8 +271,8 @@ export default function AuthTestPage() {
           )}
           {connectionStatus === "testing" && (
             <>
-              <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-blue-600">연결 테스트 중...</span>
+              <div className="w-3 h-3 rounded-full bg-[#10B981] animate-pulse" />
+              <span className="text-[#10B981]">연결 테스트 중...</span>
             </>
           )}
           {connectionStatus === "success" && (
@@ -337,8 +337,8 @@ export default function AuthTestPage() {
           ) : profileData && userData ? (
             <div className="space-y-6">
               {/* Profiles 테이블 데이터 */}
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="text-lg font-bold mb-3 text-blue-900">
+              <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <h3 className="text-lg font-bold mb-3 text-emerald-900">
                   📋 Profiles 테이블 (인증 + 역할)
                 </h3>
                 <div className="space-y-3">
@@ -364,7 +364,7 @@ export default function AuthTestPage() {
                   </div>
                   <div className="flex gap-2">
                     <span className="font-semibold min-w-[150px]">Role:</span>
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-sm font-medium">
+                    <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-sm font-medium">
                       {profileData.role}
                     </span>
                   </div>
@@ -494,9 +494,9 @@ export default function AuthTestPage() {
       </div>
 
       {/* 설명 */}
-      <div className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="mt-8 p-6 bg-emerald-50 border border-emerald-200 rounded-lg">
         <h3 className="font-bold mb-2">💡 이 페이지의 작동 원리</h3>
-        <ul className="text-sm text-blue-900 space-y-1 list-disc list-inside">
+        <ul className="text-sm text-emerald-900 space-y-1 list-disc list-inside">
           <li>Clerk로 인증된 사용자 정보를 가져옵니다</li>
           <li>
             Clerk의 JWT 토큰을 Supabase에 전달합니다 (2025 네이티브 통합 방식)

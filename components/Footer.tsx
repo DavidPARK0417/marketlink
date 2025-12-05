@@ -49,7 +49,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* 왼쪽 컬럼: 회사 정보 */}
           <div className="space-y-3">
-            <h3 className="text-lg font-bold text-[#137fec]">Farm to Biz</h3>
+            <h3 className="text-lg font-bold text-[#10B981]">Farm to Biz</h3>
             <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
               <p>상호명: {wholesaler.business_name}</p>
               <p>대표자: {wholesaler.representative}</p>
@@ -68,7 +68,7 @@ export default function Footer() {
             </h3>
             <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
               <p>
-                <span className="text-lg font-bold text-[#137fec]">1588-0000</span>
+                <span className="text-lg font-bold text-[#10B981]">1588-0000</span>
               </p>
               <p>이메일: decidepyb@gmail.com</p>
               <div className="space-y-0.5 pt-2">
@@ -87,25 +87,25 @@ export default function Footer() {
             <nav className="space-y-1">
               <button
                 onClick={() => setIsTermsModalOpen(true)}
-                className="block text-left text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
+                className="block text-left text-sm text-gray-700 transition-colors hover:text-[#10B981] dark:text-gray-300 dark:hover:text-[#10B981]"
               >
                 이용약관
               </button>
               <button
                 onClick={() => setIsPrivacyModalOpen(true)}
-                className="block text-left text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
+                className="block text-left text-sm text-gray-700 transition-colors hover:text-[#10B981] dark:text-gray-300 dark:hover:text-[#10B981]"
               >
                 개인정보처리방침
               </button>
               <Link
                 href="/wholesaler/support?tab=faq"
-                className="block text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
+                className="block text-sm text-gray-700 transition-colors hover:text-[#10B981] dark:text-gray-300 dark:hover:text-[#10B981]"
               >
                 자주 묻는 질문
               </Link>
               <Link
                 href="/wholesaler/support?tab=announcements"
-                className="block text-sm text-gray-700 transition-colors hover:text-[#137fec] dark:text-gray-300 dark:hover:text-[#137fec]"
+                className="block text-sm text-gray-700 transition-colors hover:text-[#10B981] dark:text-gray-300 dark:hover:text-[#10B981]"
               >
                 공지사항
               </Link>

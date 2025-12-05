@@ -94,7 +94,7 @@ export default function RetailerSignupBlockModal() {
           <Button
             onClick={handleConfirm}
             disabled={isRedirecting}
-            className="min-w-[120px] bg-blue-600 hover:bg-blue-700"
+            className="min-w-[120px] bg-[#10B981] hover:bg-[#059669]"
           >
             {isRedirecting ? "이동 중..." : "확인"}
           </Button>

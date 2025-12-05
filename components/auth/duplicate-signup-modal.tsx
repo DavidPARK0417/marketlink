@@ -108,7 +108,7 @@ export default function DuplicateSignupModal() {
           <Button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="min-w-[120px] bg-blue-600 hover:bg-blue-700"
+            className="min-w-[120px] bg-[#10B981] hover:bg-[#059669]"
           >
             {isLoggingOut ? "이동 중..." : "로그인하기"}
           </Button>

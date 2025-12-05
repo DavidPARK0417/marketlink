@@ -376,7 +376,7 @@ export default function WholesalerOnboardingForm({
           <DialogFooter className="sm:justify-center">
             <Button
               onClick={handleSuccessConfirm}
-              className="w-full sm:w-auto min-w-[120px] bg-blue-600 hover:bg-blue-700"
+              className="w-full sm:w-auto min-w-[120px] bg-[#10B981] hover:bg-[#059669]"
             >
               확인
             </Button>
@@ -403,7 +403,7 @@ export default function WholesalerOnboardingForm({
           <DialogFooter className="sm:justify-center">
             <Button
               onClick={handleDuplicateConfirm}
-              className="w-full sm:w-auto min-w-[120px] bg-blue-600 hover:bg-blue-700"
+              className="w-full sm:w-auto min-w-[120px] bg-[#10B981] hover:bg-[#059669]"
             >
               확인
             </Button>
@@ -447,9 +447,9 @@ export default function WholesalerOnboardingForm({
 
       {/* 진행 표시 */}
       <div className="mb-6 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
           <span>2/3 단계</span>
-          <span className="text-blue-600 dark:text-blue-400">사업자 정보 입력</span>
+          <span className="text-[#10B981] dark:text-emerald-400">사업자 정보 입력</span>
         </div>
       </div>
 

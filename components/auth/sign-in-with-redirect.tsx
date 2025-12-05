@@ -650,7 +650,7 @@ export default function SignInWithRedirect({
             </Button>
             <Button
               onClick={handleSignUpConfirm}
-              className="min-w-[80px] bg-blue-600 hover:bg-blue-700"
+              className="min-w-[80px] bg-[#10B981] hover:bg-[#059669]"
             >
               확인
             </Button>

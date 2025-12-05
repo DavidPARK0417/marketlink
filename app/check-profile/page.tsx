@@ -64,7 +64,7 @@ export default async function CheckProfilePage() {
                     profile.role === "admin"
                       ? "text-green-600"
                       : profile.role === "wholesaler"
-                      ? "text-blue-600"
+                      ? "text-[#10B981]"
                       : profile.role === "retailer"
                       ? "text-purple-600"
                       : "text-red-600"

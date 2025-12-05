@@ -450,19 +450,19 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             <TabsList>
               <TabsTrigger
                 value="all"
-                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:font-semibold"
+                className="data-[state=active]:bg-[#10B981] data-[state=active]:text-white data-[state=active]:font-semibold"
               >
                 전체
               </TabsTrigger>
               <TabsTrigger
                 value="active"
-                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:font-semibold"
+                className="data-[state=active]:bg-[#10B981] data-[state=active]:text-white data-[state=active]:font-semibold"
               >
                 활성
               </TabsTrigger>
               <TabsTrigger
                 value="inactive"
-                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:font-semibold"
+                className="data-[state=active]:bg-[#10B981] data-[state=active]:text-white data-[state=active]:font-semibold"
               >
                 비활성
               </TabsTrigger>

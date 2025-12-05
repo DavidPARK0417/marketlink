@@ -115,7 +115,7 @@ export default function RetailerBlockModal() {
           <Button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="min-w-[120px] bg-blue-600 hover:bg-blue-700"
+            className="min-w-[120px] bg-[#10B981] hover:bg-[#059669]"
           >
             {isLoggingOut ? "로그아웃 중..." : "확인"}
           </Button>

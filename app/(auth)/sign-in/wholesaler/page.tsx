@@ -75,21 +75,21 @@ export default async function WholesalerSignInPage({
             </div>
 
             {/* 신규 회원 안내 카드 */}
-            <Card className="border-blue-200 bg-blue-50/50">
+            <Card className="border-emerald-200 bg-emerald-50/50">
               <CardHeader className="text-center py-3">
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  <UserPlus className="w-4 h-4 text-blue-600" />
+                  <UserPlus className="w-4 h-4 text-[#10B981]" />
                   <CardTitle className="text-base">
                     아직 회원이 아니신가요?
                   </CardTitle>
                 </div>
-                <CardDescription className="text-blue-900/70 mb-2 text-sm">
+                <CardDescription className="text-emerald-900/70 mb-2 text-sm">
                   지금 바로 회원가입하고 도매 비즈니스를 시작하세요!
                 </CardDescription>
                 <Link href="/sign-up?type=wholesaler">
                   <Button
                     variant="default"
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    className="w-full bg-[#10B981] hover:bg-[#059669]"
                   >
                     회원가입하기
                   </Button>

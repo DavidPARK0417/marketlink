@@ -149,7 +149,7 @@ export default function PrivacyModal({ open, onOpenChange }: PrivacyModalProps) 
         <DialogFooter>
           <Button
             onClick={() => onOpenChange(false)}
-            className="bg-[#137fec] text-white hover:bg-[#0f6bc7]"
+            className="bg-[#10B981] text-white hover:bg-[#059669]"
           >
             확인
           </Button>

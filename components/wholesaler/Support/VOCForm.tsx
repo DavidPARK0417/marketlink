@@ -112,8 +112,8 @@ export default function VOCForm({ onSuccess }: VOCFormProps) {
     <div className="w-full rounded-md border bg-white p-6 md:p-8">
       {/* 아이콘 및 제목 */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
-          <Send className="w-8 h-8 text-blue-600" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-4">
+          <Send className="w-8 h-8 text-[#10B981]" />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           고객의 소리(VOC)

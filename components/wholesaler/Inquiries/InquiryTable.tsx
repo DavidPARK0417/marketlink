@@ -104,7 +104,7 @@ export default function InquiryTable({
           return (
             <Link
               href={href}
-              className="block truncate font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+              className="block truncate font-medium text-[#10B981] hover:text-emerald-800 hover:underline cursor-pointer"
             >
               {title}
             </Link>

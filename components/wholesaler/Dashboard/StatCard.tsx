@@ -45,11 +45,11 @@ export interface StatCardProps {
 const getCardColorConfig = (title: string) => {
   if (title.includes("오늘 주문")) {
     return {
-      bg: "bg-blue-50 dark:bg-blue-950/20",
-      border: "border-blue-200 dark:border-blue-800",
-      icon: "text-blue-600 dark:text-blue-400",
-      title: "text-blue-700 dark:text-blue-300",
-      value: "text-blue-900 dark:text-blue-100",
+      bg: "bg-emerald-50 dark:bg-emerald-950/20",
+      border: "border-emerald-200 dark:border-emerald-800",
+      icon: "text-[#10B981] dark:text-emerald-400",
+      title: "text-emerald-700 dark:text-emerald-300",
+      value: "text-emerald-900 dark:text-emerald-100",
     };
   }
   if (title.includes("출고 예정")) {

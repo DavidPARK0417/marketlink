@@ -156,7 +156,7 @@ export default function WholesalerSidebar() {
             />
             {/* 모바일용 작은 로고 */}
             <div className="md:hidden flex items-center justify-center">
-              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+              <div className="w-8 h-8 bg-[#10B981] rounded flex items-center justify-center">
                 <span className="text-white font-bold text-xs">F</span>
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function WholesalerSidebar() {
               const menuLinkClassName = cn(
                 "flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-lg transition-colors",
                 isActive
-                  ? "bg-blue-50 text-blue-600 font-medium"
+                  ? "bg-emerald-50 text-[#10B981] font-medium"
                   : "text-gray-700 hover:bg-gray-50",
               );
 
@@ -239,7 +239,7 @@ export default function WholesalerSidebar() {
             <TooltipTrigger asChild>
               <Link
                 href="/wholesaler/products/new"
-                className="flex items-center justify-center gap-2 w-full px-2 md:px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="flex items-center justify-center gap-2 w-full px-2 md:px-4 py-3 bg-[#10B981] text-white rounded-lg hover:bg-[#059669] transition-colors font-medium"
               >
                 <Plus className="w-5 h-5 flex-shrink-0" />
                 <span className="hidden md:inline break-keep">
