@@ -20,8 +20,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import PageHeader from "@/components/common/PageHeader";
-import { Button } from "@/components/ui/button";
 import { ProductTable } from "@/components/wholesaler/Products/ProductTable";
 import { ProductTableSkeleton } from "@/components/wholesaler/Products/ProductTableSkeleton";
 import { getProducts } from "@/lib/supabase/queries/products";
@@ -95,20 +93,23 @@ export default async function ProductsPage({
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="상품 관리"
-        description="등록한 상품을 관리하고 수정하세요."
-        hideTitle={true}
-        actions={
-          <Button asChild>
-            <Link href="/wholesaler/products/new">
-              <Plus className="mr-2 h-4 w-4" />
-              상품 등록
-            </Link>
-          </Button>
-        }
-      />
+    <div className="space-y-6 lg:space-y-8">
+      {/* 페이지 헤더 - 디자인 핸드오프 스타일 */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-[#111827]">상품 관리</h1>
+          <p className="mt-2 text-sm lg:text-base text-[#6B7280]">
+            등록된 상품 {productsData.total}개를 관리하세요.
+          </p>
+        </div>
+        <Link
+          href="/wholesaler/products/new"
+          className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#10B981] to-[#059669] text-white px-5 lg:px-6 py-3 rounded-xl font-semibold hover:shadow-[0_8px_30px_rgba(16,185,129,0.4)] transition-all duration-300 shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:-translate-y-1 active:translate-y-0"
+        >
+          <Plus className="w-5 h-5" />
+          <span>상품 등록</span>
+        </Link>
+      </div>
 
       <Suspense fallback={<ProductTableSkeleton />}>
         <ProductTable

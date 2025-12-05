@@ -27,7 +27,7 @@
 
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -39,18 +39,13 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import { Edit, ToggleRight, ToggleLeft, ImageIcon, Trash2 } from "lucide-react";
+import { Edit2, Eye, ImageIcon, Trash2, Search, ChevronDown, Package } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/types/product";
 import type { GetProductsResult } from "@/lib/supabase/queries/products";
 import { toggleProductActive } from "@/actions/wholesaler/toggle-product-active";
 import { deleteProduct } from "@/actions/wholesaler/delete-product";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -90,6 +85,29 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
   const [category, setCategory] = useState(initialFilters.category ?? "all");
   const [status, setStatus] = useState(initialFilters.status ?? "all");
   const [search, setSearch] = useState(initialFilters.search ?? "");
+
+  // 드롭다운 상태
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 외부 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setIsCategoryDropdownOpen(false);
+      }
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target as Node)) {
+        setIsStatusDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // 상품 목록 로컬 상태 (Optimistic Update를 위한)
   const [products, setProducts] = useState<Product[]>(initialData.products);
@@ -227,18 +245,18 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
         cell: ({ row }) => {
           const imageUrl = row.original.image_url;
           return (
-            <div className="relative h-12 w-12 overflow-hidden rounded-md border">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex items-center justify-center group-hover:from-[#10B981]/10 group-hover:to-[#059669]/10 transition-all shadow-sm">
               {imageUrl ? (
-                <Image
-                  src={imageUrl}
-                  alt={row.original.name}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gray-100 dark:bg-gray-800">
-                  <ImageIcon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+                <div className="relative w-full h-full overflow-hidden rounded-xl">
+                  <Image
+                    src={imageUrl}
+                    alt={row.original.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
+              ) : (
+                <Package className="w-8 h-8 text-gray-400 group-hover:text-[#10B981] group-hover:scale-110 transition-all" />
               )}
             </div>
           );
@@ -248,29 +266,41 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       {
         accessorKey: "name",
         header: "상품명",
-        cell: ({ row }) => (
-          <div className="max-w-[200px]">
-            <div className="font-medium">{row.original.name}</div>
-            {row.original.standardized_name && (
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {row.original.standardized_name}
-              </div>
-            )}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const product = row.original;
+          // specification 파싱 (예: "1박스 (10kg)" -> "1박스 · 10kg")
+          const specDisplay = product.specification 
+            ? product.specification.replace(/[()]/g, '').replace(/\s+/g, ' · ')
+            : null;
+          
+          return (
+            <div>
+              <div className="font-bold text-gray-900 text-sm">{product.name}</div>
+              {specDisplay && (
+                <div className="text-xs text-gray-500 mt-1">{specDisplay}</div>
+              )}
+            </div>
+          );
+        },
       },
       {
         accessorKey: "category",
         header: "카테고리",
         cell: ({ row }) => (
-          <Badge variant="outline">{row.original.category}</Badge>
+          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-[#10B981]/10 to-[#059669]/10 text-[#059669] border border-[#10B981]/20">
+            {row.original.category}
+          </span>
         ),
       },
       {
         accessorKey: "price",
         header: "가격",
         cell: ({ row }) => (
-          <div className="font-medium">{formatPrice(row.original.price)}</div>
+          <div className="text-right">
+            <span className="font-bold text-[#10B981] text-sm">
+              {formatPrice(row.original.price)}
+            </span>
+          </div>
         ),
       },
       {
@@ -279,14 +309,11 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
         cell: ({ row }) => {
           const stock = row.original.stock_quantity;
           return (
-            <div
-              className={cn(
-                "font-medium",
-                stock === 0 && "text-red-600 dark:text-red-400",
-                stock > 0 && stock < 10 && "text-yellow-600 dark:text-yellow-400"
-              )}
-            >
-              {stock.toLocaleString()}
+            <div className="text-center">
+              <span className="font-semibold text-gray-900 text-sm">
+                {stock.toLocaleString()}
+              </span>
+              <span className="text-gray-500 text-xs ml-1">박스</span>
             </div>
           );
         },
@@ -294,11 +321,20 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       {
         accessorKey: "is_active",
         header: "상태",
-        cell: ({ row }) => (
-          <Badge variant={row.original.is_active ? "default" : "secondary"}>
-            {row.original.is_active ? "활성" : "비활성"}
-          </Badge>
-        ),
+        cell: ({ row }) => {
+          const isActive = row.original.is_active;
+          return (
+            <div className="text-center">
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                isActive
+                  ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                  : 'bg-gray-100 text-gray-600 border border-gray-200'
+              }`}>
+                {isActive ? '활성' : '비활성'}
+              </span>
+            </div>
+          );
+        },
       },
       {
         id: "actions",
@@ -306,41 +342,32 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
         cell: ({ row }) => {
           const product = row.original;
           return (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
+            <div className="flex items-center justify-center gap-2">
+              <button
                 onClick={() => toggleActive(product)}
-                title={product.is_active ? "비활성화" : "활성화"}
-                aria-label={product.is_active ? "비활성화" : "활성화"}
-                className="h-auto p-1"
+                className={`p-2 rounded-lg transition-all duration-200 group/btn ${
+                  product.is_active
+                    ? 'bg-green-50 text-green-600 hover:bg-green-100'
+                    : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                }`}
+                title={product.is_active ? '활성 (클릭하여 비활성화)' : '비활성 (클릭하여 활성화)'}
               >
-                {product.is_active ? (
-                  <ToggleRight className="h-12 w-12 text-green-600" />
-                ) : (
-                  <ToggleLeft className="h-12 w-12 text-gray-500" />
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                title="편집"
-                aria-label="편집"
+                <Eye className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+              </button>
+              <Link
+                href={`/wholesaler/products/${product.id}/edit`}
+                className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all duration-200 group/btn"
+                title="수정"
               >
-                <Link href={`/wholesaler/products/${product.id}/edit`}>
-                  <Edit className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
+                <Edit2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+              </Link>
+              <button
                 onClick={() => handleDeleteClick(product)}
+                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200 group/btn"
                 title="삭제"
-                aria-label="삭제"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
               >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+                <Trash2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+              </button>
             </div>
           );
         },
@@ -363,159 +390,206 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
     manualSorting: true, // 서버 사이드 정렬
   });
 
+  // 카테고리 옵션 (전체 포함)
+  const categoryOptions = ["전체", ...CATEGORIES];
+  const statusOptions = ["전체", "활성", "비활성"];
+
+  // 카테고리 변경 핸들러
+  const handleCategoryChange = (value: string) => {
+    const categoryValue = value === "전체" ? "all" : value;
+    setCategory(categoryValue);
+    setIsCategoryDropdownOpen(false);
+    
+    const params = new URLSearchParams(searchParams.toString());
+    if (categoryValue !== "all") {
+      params.set("category", categoryValue);
+    } else {
+      params.delete("category");
+    }
+    if (status !== "all") {
+      params.set("status", status);
+    }
+    if (search) {
+      params.set("search", search);
+    }
+    if (sorting.length > 0) {
+      params.set("sortBy", sorting[0].id);
+      params.set("sortOrder", sorting[0].desc ? "desc" : "asc");
+    }
+    params.set("page", "1");
+    router.push(`/wholesaler/products?${params.toString()}`);
+  };
+
+  // 상태 변경 핸들러
+  const handleStatusChange = (value: string) => {
+    const statusValue = value === "전체" ? "all" : value === "활성" ? "active" : "inactive";
+    setStatus(statusValue);
+    setIsStatusDropdownOpen(false);
+    
+    const params = new URLSearchParams(searchParams.toString());
+    if (statusValue !== "all") {
+      params.set("status", statusValue);
+    } else {
+      params.delete("status");
+    }
+    if (category !== "all") {
+      params.set("category", category);
+    }
+    if (search) {
+      params.set("search", search);
+    }
+    if (sorting.length > 0) {
+      params.set("sortBy", sorting[0].id);
+      params.set("sortOrder", sorting[0].desc ? "desc" : "asc");
+    }
+    params.set("page", "1");
+    router.push(`/wholesaler/products?${params.toString()}`);
+  };
+
+  // 현재 선택된 카테고리 표시 텍스트
+  const categoryDisplayText = category === "all" ? "전체 카테고리" : category;
+  const statusDisplayText = status === "all" ? "상태 전체" : status === "active" ? "활성" : "비활성";
+
   return (
     <div className="space-y-4">
-      {/* 필터 UI */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <form onSubmit={handleSearch} className="flex flex-1 gap-2">
-          <Input
-            placeholder="상품명 검색..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-sm"
-          />
-          <Button type="submit">검색</Button>
-        </form>
+      {/* 필터 UI - 디자인 핸드오프 스타일 */}
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+        {/* 검색창 */}
+        <div className="relative w-full md:w-96">
+          <form onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="상품명을 검색하세요"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          </form>
+        </div>
 
-        <div className="flex items-center gap-2">
-          <Select
-            value={category}
-            onValueChange={(value) => {
-              console.log("🔍 [product-table] 카테고리 선택:", value);
-              setCategory(value);
-              // 카테고리 변경 시 즉시 필터 적용
-              const params = new URLSearchParams(searchParams.toString());
-              if (value !== "all") {
-                params.set("category", value);
-              } else {
-                params.delete("category");
-              }
-              // 다른 필터는 유지
-              if (status !== "all") {
-                params.set("status", status);
-              }
-              if (search) {
-                params.set("search", search);
-              }
-              if (sorting.length > 0) {
-                params.set("sortBy", sorting[0].id);
-                params.set("sortOrder", sorting[0].desc ? "desc" : "asc");
-              }
-              params.set("page", "1");
-              console.log("✅ [product-table] 필터 적용:", params.toString());
-              router.push(`/wholesaler/products?${params.toString()}`);
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="카테고리" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">전체 카테고리</SelectItem>
-              {CATEGORIES.map((cat) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* 필터 그룹 */}
+        <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+          {/* 카테고리 드롭다운 */}
+          <div className="relative w-full md:w-40" ref={categoryDropdownRef}>
+            <button
+              onClick={() => {
+                setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
+                setIsStatusDropdownOpen(false);
+              }}
+              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl flex items-center justify-between text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#10B981]/20"
+            >
+              <span className="truncate">{categoryDisplayText}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-          <Tabs
-            value={status}
-            onValueChange={(value) => {
-              console.log("🔍 [product-table] 상태 선택:", value);
-              setStatus(value);
-              // 상태 변경 시 즉시 필터 적용
-              const params = new URLSearchParams(searchParams.toString());
-              if (value !== "all") {
-                params.set("status", value);
-              } else {
-                params.delete("status");
-              }
-              // 다른 필터는 유지
-              if (category !== "all") {
-                params.set("category", category);
-              }
-              if (search) {
-                params.set("search", search);
-              }
-              if (sorting.length > 0) {
-                params.set("sortBy", sorting[0].id);
-                params.set("sortOrder", sorting[0].desc ? "desc" : "asc");
-              }
-              params.set("page", "1");
-              console.log("✅ [product-table] 필터 적용:", params.toString());
-              router.push(`/wholesaler/products?${params.toString()}`);
-            }}
-          >
-            <TabsList>
-              <TabsTrigger
-                value="all"
-                className="data-[state=active]:bg-[#10B981] data-[state=active]:text-white data-[state=active]:font-semibold"
-              >
-                전체
-              </TabsTrigger>
-              <TabsTrigger
-                value="active"
-                className="data-[state=active]:bg-[#10B981] data-[state=active]:text-white data-[state=active]:font-semibold"
-              >
-                활성
-              </TabsTrigger>
-              <TabsTrigger
-                value="inactive"
-                className="data-[state=active]:bg-[#10B981] data-[state=active]:text-white data-[state=active]:font-semibold"
-              >
-                비활성
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+            {isCategoryDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-lg z-30 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                {categoryOptions.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryChange(cat)}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#F8F9FA] ${
+                      (cat === "전체" && category === "all") || (cat === category)
+                        ? 'text-[#10B981] font-bold bg-[#F8F9FA]'
+                        : 'text-gray-600 font-medium'
+                    }`}
+                  >
+                    {cat === "전체" ? "전체 카테고리" : cat}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 상태 드롭다운 */}
+          <div className="relative w-full md:w-32" ref={statusDropdownRef}>
+            <button
+              onClick={() => {
+                setIsStatusDropdownOpen(!isStatusDropdownOpen);
+                setIsCategoryDropdownOpen(false);
+              }}
+              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl flex items-center justify-between text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#10B981]/20"
+            >
+              <span>{statusDisplayText}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isStatusDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-lg z-30 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                {statusOptions.map((statusOption) => (
+                  <button
+                    key={statusOption}
+                    onClick={() => handleStatusChange(statusOption)}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#F8F9FA] ${
+                      (statusOption === "전체" && status === "all") ||
+                      (statusOption === "활성" && status === "active") ||
+                      (statusOption === "비활성" && status === "inactive")
+                        ? 'text-[#10B981] font-bold bg-[#F8F9FA]'
+                        : 'text-gray-600 font-medium'
+                    }`}
+                  >
+                    {statusOption === "전체" ? "상태 전체" : statusOption}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* 테이블 */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
+      {/* 테이블 - 디자인 핸드오프 스타일 */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {table.getRowModel().rows?.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id} className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                    {headerGroup.headers.map((header) => (
+                      <th
+                        key={header.id}
+                        className={`px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider ${
+                          header.id === "price" ? "text-right" : 
+                          header.id === "stock_quantity" || header.id === "is_active" || header.id === "actions" ? "text-center" : 
+                          "text-left"
+                        }`}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </th>
+                    ))}
+                  </tr>
                 ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  등록된 상품이 없습니다.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="hover:bg-gradient-to-r hover:from-[#10B981]/5 hover:to-transparent transition-all duration-200 group"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id} className="px-6 py-4">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="py-12 text-center text-gray-500">
+            검색 결과가 없습니다.
+          </div>
+        )}
       </div>
 
       {/* 페이지네이션 */}
