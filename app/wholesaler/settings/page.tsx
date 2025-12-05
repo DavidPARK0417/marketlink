@@ -11,12 +11,12 @@
  * 4. 알림 설정: 새 주문, 정산 완료, 문의 답변 알림 설정
  *
  * @dependencies
- * - components/common/PageHeader.tsx
- * - components/ui: Card, Form, Input, Select, Button, Checkbox
+ * - components/ui: Form, Input, Select, Button, Checkbox
+ * - components/wholesaler/DeleteAccountModal.tsx
  * - hooks/useWholesaler.ts
  * - actions/wholesaler: updateWholesaler, updateEmail, updateNotificationPreferences
  * - lib/validation/settings.ts
- * - @clerk/nextjs (useUser, UserButton)
+ * - @clerk/nextjs (useUser)
  */
 
 "use client";
@@ -25,17 +25,9 @@ import { useState, useEffect } from "react";
 import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUser, UserButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { Loader2, Search, Mail, Bell, Trash2 } from "lucide-react";
-import PageHeader from "@/components/common/PageHeader";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Loader2, Search, Mail, Bell } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -334,19 +326,12 @@ export default function SettingsPage() {
 
   if (!wholesaler) {
     return (
-      <div className="space-y-6">
-        <PageHeader
-          title="설정"
-          description="계정 및 사업자 정보를 관리하세요."
-          hideTitle={true}
-        />
-        <Card>
-          <CardContent className="py-12">
-            <p className="text-center text-gray-600">
-              도매점 정보를 찾을 수 없습니다.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="max-w-2xl mx-auto w-full space-y-6 pb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <p className="text-center text-gray-600">
+            도매점 정보를 찾을 수 없습니다.
+          </p>
+        </div>
       </div>
     );
   }
@@ -359,112 +344,104 @@ export default function SettingsPage() {
         strategy="lazyOnload"
       />
 
-      <div className="space-y-6">
-        <PageHeader
-          title="설정"
-          description="계정 및 사업자 정보를 관리하세요."
-          hideTitle={true}
-        />
-
+      <div className="max-w-2xl mx-auto w-full space-y-6 pb-12">
         {/* 1. 계정 정보 (읽기 전용) */}
-        <Card>
-          <CardHeader>
-            <CardTitle>계정 정보</CardTitle>
-            <CardDescription>
-              사업자 등록 정보입니다. 수정할 수 없습니다.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  사업자번호
-                </label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {formatBusinessNumber(wholesaler.business_number)}
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  대표자명
-                </label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {wholesaler.representative}
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  익명 코드
-                </label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {wholesaler.anonymous_code}
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  승인 상태
-                </label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {getWholesalerStatusLabel(wholesaler.status)}
-                </p>
-              </div>
-              {wholesaler.approved_at && (
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    승인일
-                  </label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {format(
-                      new Date(wholesaler.approved_at),
-                      "yyyy년 MM월 dd일",
-                      { locale: ko },
-                    )}
-                  </p>
-                </div>
-              )}
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  가입일
-                </label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {format(new Date(wholesaler.created_at), "yyyy년 MM월 dd일", {
-                    locale: ko,
-                  })}
-                </p>
-              </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">계정 정보</h2>
+          <p className="text-sm text-gray-500 mb-6">
+            사업자 등록 정보입니다. 수정할 수 없습니다.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">
+                사업자번호
+              </p>
+              <p className="text-base text-gray-900 font-medium">
+                {formatBusinessNumber(wholesaler.business_number)}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">
+                대표자명
+              </p>
+              <p className="text-base text-gray-900 font-medium">
+                {wholesaler.representative}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">
+                익명 코드
+              </p>
+              <p className="text-base text-gray-900 font-medium">
+                {wholesaler.anonymous_code}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">
+                승인 상태
+              </p>
+              <p className="text-base text-gray-900 font-medium">
+                {getWholesalerStatusLabel(wholesaler.status)}
+              </p>
+            </div>
+            {wholesaler.approved_at && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1">
+                  승인일
+                </p>
+                <p className="text-base text-gray-900 font-medium">
+                  {format(
+                    new Date(wholesaler.approved_at),
+                    "yyyy년 MM월 dd일",
+                    { locale: ko },
+                  )}
+                </p>
+              </div>
+            )}
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-1">가입일</p>
+              <p className="text-base text-gray-900 font-medium">
+                {format(new Date(wholesaler.created_at), "yyyy년 MM월 dd일", {
+                  locale: ko,
+                })}
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* 2. 사업자 정보 수정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>사업자 정보 수정</CardTitle>
-            <CardDescription>
-              상호명, 연락처, 주소, 계좌번호를 수정할 수 있습니다.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...wholesalerForm}>
-              <form
-                onSubmit={wholesalerForm.handleSubmit(onSubmitWholesaler)}
-                className="space-y-6"
-              >
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">
+            사업자 정보 수정
+          </h2>
+          <p className="text-sm text-gray-500 mb-6">
+            상호명, 연락처, 주소, 계좌번호를 수정할 수 있습니다.
+          </p>
+
+          <Form {...wholesalerForm}>
+            <form
+              onSubmit={wholesalerForm.handleSubmit(onSubmitWholesaler)}
+              className="space-y-5"
+            >
                 {/* 상호명 */}
                 <FormField
                   control={wholesalerForm.control}
                   name="business_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>상호명 *</FormLabel>
+                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                        상호명 <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="예: 농산물도매상사"
                           {...field}
                           disabled={isSubmittingWholesaler}
+                          className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-xs text-gray-400 mt-1.5">
                         사업자 등록증에 기재된 상호명을 입력해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -478,16 +455,19 @@ export default function SettingsPage() {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>연락처 *</FormLabel>
+                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                        연락처 <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="예: 010-1234-5678"
                           {...field}
                           onChange={(e) => handlePhoneChange(e.target.value)}
                           disabled={isSubmittingWholesaler}
+                          className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-xs text-gray-400 mt-1.5">
                         연락 가능한 전화번호를 입력해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -501,14 +481,17 @@ export default function SettingsPage() {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>주소 *</FormLabel>
-                      <div className="flex gap-2">
+                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                        주소 <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <div className="flex gap-2 mb-2">
                         <FormControl>
                           <Input
                             placeholder="주소를 검색해주세요"
                             {...field}
                             disabled={isSubmittingWholesaler}
                             readOnly
+                            className="flex-1 px-4 py-3 rounded-xl border-gray-200 bg-gray-50 text-gray-600"
                           />
                         </FormControl>
                         <Button
@@ -516,12 +499,13 @@ export default function SettingsPage() {
                           variant="outline"
                           onClick={handleAddressSearch}
                           disabled={isSubmittingWholesaler}
+                          className="px-4 py-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap"
                         >
-                          <Search className="h-4 w-4 mr-2" />
+                          <Search className="w-4 h-4" />
                           주소 검색
                         </Button>
                       </div>
-                      <FormDescription>
+                      <FormDescription className="text-xs text-gray-400 mb-3">
                         주소 검색 버튼을 클릭하여 주소를 검색해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -535,15 +519,18 @@ export default function SettingsPage() {
                   name="address_detail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>상세주소</FormLabel>
+                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                        상세주소
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="예: 101호, 2층 (선택사항)"
                           {...field}
                           disabled={isSubmittingWholesaler}
+                          className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-xs text-gray-400 mt-1.5">
                         상세주소를 입력해주세요 (선택사항)
                       </FormDescription>
                       <FormMessage />
@@ -557,7 +544,9 @@ export default function SettingsPage() {
                   name="bank_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>은행명 *</FormLabel>
+                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                        은행명 <span className="text-red-500">*</span>
+                      </FormLabel>
                       <Select
                         key={field.value || "empty"}
                         onValueChange={field.onChange}
@@ -565,7 +554,7 @@ export default function SettingsPage() {
                         disabled={isSubmittingWholesaler}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="px-4 py-3 h-auto rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all">
                             <SelectValue placeholder="은행을 선택해주세요" />
                           </SelectTrigger>
                         </FormControl>
@@ -577,7 +566,7 @@ export default function SettingsPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormDescription>
+                      <FormDescription className="text-xs text-gray-400 mt-1.5">
                         정산을 받을 은행을 선택해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -591,15 +580,18 @@ export default function SettingsPage() {
                   name="bank_account_number"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>계좌번호 *</FormLabel>
+                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                        계좌번호 <span className="text-red-500">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="예: 123-456-789"
                           {...field}
                           disabled={isSubmittingWholesaler}
+                          className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                         />
                       </FormControl>
-                      <FormDescription>
+                      <FormDescription className="text-xs text-gray-400 mt-1.5">
                         선택한 은행의 계좌번호를 입력해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -608,8 +600,12 @@ export default function SettingsPage() {
                 />
 
                 {/* 제출 버튼 */}
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={isSubmittingWholesaler}>
+                <div className="flex justify-end pt-4">
+                  <Button
+                    type="submit"
+                    disabled={isSubmittingWholesaler}
+                    className="px-8 py-3 bg-[#10B981] text-white font-semibold rounded-lg hover:bg-[#059669] transition-colors shadow-sm"
+                  >
                     {isSubmittingWholesaler ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -622,104 +618,111 @@ export default function SettingsPage() {
                 </div>
               </form>
             </Form>
-          </CardContent>
-        </Card>
+          </div>
 
         {/* 3. 이메일 변경 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              이메일 변경
-            </CardTitle>
-            <CardDescription>
-              이메일을 변경하면 새 이메일로 인증 링크가 발송됩니다.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...emailForm}>
-              <form
-                onSubmit={emailForm.handleSubmit(onSubmitEmail)}
-                className="space-y-6"
-              >
-                <FormField
-                  control={emailForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>새 이메일 주소</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="예: new@example.com"
-                          {...field}
-                          disabled={isSubmittingEmail}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        새 이메일 주소를 입력하면 인증 이메일이 발송됩니다.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div className="flex items-center gap-2 mb-1">
+            <Mail className="w-5 h-5 text-gray-900" />
+            <h2 className="text-lg font-bold text-gray-900">이메일 변경</h2>
+          </div>
+          <p className="text-sm text-gray-500 mb-6 pl-7">
+            이메일을 변경하면 새 이메일로 인증 링크가 발송됩니다.
+          </p>
 
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={isSubmittingEmail}>
-                    {isSubmittingEmail ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        요청 중...
-                      </>
-                    ) : (
-                      "변경 요청"
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+          <Form {...emailForm}>
+            <form
+              onSubmit={emailForm.handleSubmit(onSubmitEmail)}
+              className="space-y-4 pl-7"
+            >
+              <FormField
+                control={emailForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                      새 이메일 주소
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="예: new@example.com"
+                        {...field}
+                        disabled={isSubmittingEmail}
+                        className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs text-gray-400 mt-1.5">
+                      새 이메일 주소를 입력하면 인증 이메일이 발송됩니다.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={isSubmittingEmail}
+                  className="px-6 py-2.5 bg-[#10B981] text-white font-semibold rounded-lg hover:bg-[#059669] transition-colors shadow-sm"
+                >
+                  {isSubmittingEmail ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      요청 중...
+                    </>
+                  ) : (
+                    "변경 요청"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
 
         {/* 4. 비밀번호 변경 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>비밀번호 변경</CardTitle>
-            <CardDescription>
-              비밀번호를 변경하려면 아래 버튼을 사용하세요.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <UserButton />
-              <div className="flex-1">
-                <p className="text-sm text-gray-600">
-                  사용자 메뉴에서 비밀번호를 변경할 수 있습니다.
-                </p>
-              </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">
+            비밀번호 변경
+          </h2>
+          <p className="text-sm text-gray-500 mb-6">
+            비밀번호를 변경하려면 아래 버튼을 사용하세요.
+          </p>
+
+          <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl">
+            <div className="bg-[#10B981] text-white text-xs font-bold px-2 py-1 rounded-full mt-0.5 shrink-0">
+              {user?.firstName?.[0]?.toUpperCase() || 
+               user?.lastName?.[0]?.toUpperCase() || 
+               user?.emailAddresses[0]?.emailAddress?.[0]?.toUpperCase() || 
+               'U'}
             </div>
-          </CardContent>
-        </Card>
+            <p className="text-sm text-gray-600 pt-0.5">
+              사용자 메뉴에서 비밀번호를 변경할 수 있습니다.
+            </p>
+          </div>
+        </div>
 
         {/* 5. 알림 설정 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              알림 설정
-            </CardTitle>
-            <CardDescription>받고 싶은 알림을 선택하세요.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...notificationForm}>
-              <form
-                onSubmit={notificationForm.handleSubmit(onSubmitNotifications)}
-                className="space-y-6"
-              >
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div className="flex items-center gap-2 mb-1">
+            <Bell className="w-5 h-5 text-gray-900" />
+            <h2 className="text-lg font-bold text-gray-900">알림 설정</h2>
+          </div>
+          <p className="text-sm text-gray-500 mb-6 pl-7">
+            받고 싶은 알림을 선택하세요.
+          </p>
+
+          <Form {...notificationForm}>
+            <form
+              onSubmit={notificationForm.handleSubmit(onSubmitNotifications)}
+              className="space-y-6 pl-7"
+            >
                 {/* 새 주문 알림 */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium">새 주문 알림</h4>
-                  <div className="space-y-3 pl-4">
+                <div>
+                  <p className="text-sm font-bold text-gray-900 mb-3">
+                    새 주문 알림
+                  </p>
+                  <div className="space-y-2">
                     <FormField
                       control={notificationForm.control}
                       name="new_order.email"
@@ -730,9 +733,10 @@ export default function SettingsPage() {
                               checked={field.value}
                               onCheckedChange={field.onChange}
                               disabled={isSubmittingNotifications}
+                              className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="font-normal cursor-pointer">
+                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
                             이메일 알림
                           </FormLabel>
                         </FormItem>
@@ -748,9 +752,10 @@ export default function SettingsPage() {
                               checked={field.value}
                               onCheckedChange={field.onChange}
                               disabled={isSubmittingNotifications}
+                              className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="font-normal cursor-pointer">
+                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
                             푸시 알림
                           </FormLabel>
                         </FormItem>
@@ -760,9 +765,11 @@ export default function SettingsPage() {
                 </div>
 
                 {/* 정산 완료 알림 */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium">정산 완료 알림</h4>
-                  <div className="space-y-3 pl-4">
+                <div>
+                  <p className="text-sm font-bold text-gray-900 mb-3">
+                    정산 완료 알림
+                  </p>
+                  <div className="space-y-2">
                     <FormField
                       control={notificationForm.control}
                       name="settlement_completed.email"
@@ -773,9 +780,10 @@ export default function SettingsPage() {
                               checked={field.value}
                               onCheckedChange={field.onChange}
                               disabled={isSubmittingNotifications}
+                              className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="font-normal cursor-pointer">
+                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
                             이메일 알림
                           </FormLabel>
                         </FormItem>
@@ -791,9 +799,10 @@ export default function SettingsPage() {
                               checked={field.value}
                               onCheckedChange={field.onChange}
                               disabled={isSubmittingNotifications}
+                              className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="font-normal cursor-pointer">
+                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
                             푸시 알림
                           </FormLabel>
                         </FormItem>
@@ -803,9 +812,11 @@ export default function SettingsPage() {
                 </div>
 
                 {/* 문의 답변 알림 */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium">문의 답변 알림</h4>
-                  <div className="space-y-3 pl-4">
+                <div>
+                  <p className="text-sm font-bold text-gray-900 mb-3">
+                    문의 답변 알림
+                  </p>
+                  <div className="space-y-2">
                     <FormField
                       control={notificationForm.control}
                       name="inquiry_answered.email"
@@ -816,9 +827,10 @@ export default function SettingsPage() {
                               checked={field.value}
                               onCheckedChange={field.onChange}
                               disabled={isSubmittingNotifications}
+                              className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="font-normal cursor-pointer">
+                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
                             이메일 알림
                           </FormLabel>
                         </FormItem>
@@ -834,9 +846,10 @@ export default function SettingsPage() {
                               checked={field.value}
                               onCheckedChange={field.onChange}
                               disabled={isSubmittingNotifications}
+                              className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="font-normal cursor-pointer">
+                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
                             푸시 알림
                           </FormLabel>
                         </FormItem>
@@ -846,8 +859,12 @@ export default function SettingsPage() {
                 </div>
 
                 {/* 제출 버튼 */}
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={isSubmittingNotifications}>
+                <div className="flex justify-end pt-4">
+                  <Button
+                    type="submit"
+                    disabled={isSubmittingNotifications}
+                    className="px-8 py-3 bg-[#10B981] text-white font-semibold rounded-lg hover:bg-[#059669] transition-colors shadow-sm"
+                  >
                     {isSubmittingNotifications ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -860,45 +877,17 @@ export default function SettingsPage() {
                 </div>
               </form>
             </Form>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* 6. 회원탈퇴 */}
-        <Card className="border-red-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-600">
-              <Trash2 className="h-5 w-5" />
-              회원탈퇴
-            </CardTitle>
-            <CardDescription>
-              계정을 삭제하면 모든 데이터가 영구적으로 삭제되며 복구할 수
-              없습니다.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="rounded-lg bg-red-50 p-4 border border-red-200">
-                <h4 className="text-sm font-semibold text-red-900 mb-2">
-                  탈퇴 전 확인사항
-                </h4>
-                <ul className="text-sm text-red-800 space-y-1 list-disc list-inside">
-                  <li>모든 상품 정보가 삭제됩니다.</li>
-                  <li>주문이나 정산 내역이 있으면 탈퇴할 수 없습니다.</li>
-                  <li>탈퇴 후 데이터 복구가 불가능합니다.</li>
-                </ul>
-              </div>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => setIsDeleteAccountModalOpen(true)}
-                className="w-full"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                회원탈퇴
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* 6. 회원 탈퇴 */}
+        <div className="flex justify-center pt-8 pb-4">
+          <button
+            onClick={() => setIsDeleteAccountModalOpen(true)}
+            className="text-sm text-red-500 underline decoration-red-300 hover:text-red-600 hover:decoration-red-600 transition-colors font-medium"
+          >
+            회원 탈퇴
+          </button>
+        </div>
       </div>
 
       {/* 회원탈퇴 모달 */}
