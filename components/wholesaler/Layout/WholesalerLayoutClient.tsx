@@ -511,21 +511,16 @@ function WholesalerLayoutContent({
               {/* Mobile Logo */}
               <Link
                 href="/wholesaler/dashboard"
-                className="flex items-center gap-2"
+                className="flex items-center"
               >
-                <div className="w-8 h-8 bg-[#10B981] rounded flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">F</span>
-                </div>
-                <div className="flex flex-col -space-y-0.5">
-                  <h1 className="text-lg font-black tracking-tight">
-                    <span className="text-[#111827]">Farm</span>
-                    <span className="text-[#10B981]">to</span>
-                    <span className="text-[#111827]">Biz</span>
-                  </h1>
-                  <span className="text-[10px] text-[#6B7280] font-medium">
-                    신선한 농산물 직거래
-                  </span>
-                </div>
+                <Image
+                  src="/farmtobiz_logo.png"
+                  alt="FarmToBiz"
+                  width={120}
+                  height={46}
+                  className="h-8 w-auto object-contain"
+                  priority
+                />
               </Link>
 
               {/* Mobile Search & Menu */}
