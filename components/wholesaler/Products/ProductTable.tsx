@@ -250,6 +250,23 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
   const columns: ColumnDef<Product>[] = useMemo(
     () => [
       {
+        id: "number",
+        header: "번호",
+        cell: ({ row }) => {
+          // 페이지네이션을 고려한 번호 계산
+          const rowIndex = row.index;
+          const pageNumber = (initialData.page - 1) * initialData.pageSize + rowIndex + 1;
+          return (
+            <div className="text-center">
+              <span className="font-semibold text-gray-700 text-sm">
+                {pageNumber}
+              </span>
+            </div>
+          );
+        },
+        enableSorting: false,
+      },
+      {
         accessorKey: "image_url",
         header: "이미지",
         cell: ({ row }) => {
