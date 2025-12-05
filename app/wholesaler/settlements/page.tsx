@@ -5,18 +5,19 @@
  * 정산 예정 및 완료 내역을 조회하는 페이지입니다.
  *
  * 주요 기능:
- * 1. 정산 목록 표시 (예정/완료 탭)
+ * 1. 정산 목록 표시 (예정/완료 필터)
  * 2. 정산 상태 필터링
  * 3. 날짜 범위 필터링
  * 4. 정산 상세 조회 (Dialog)
  * 5. 총 정산 예정 금액 표시
+ * 6. 정산 통계 카드 표시
+ * 7. 정렬 기능
+ * 8. 페이지네이션
  *
  * @dependencies
  * - lib/supabase/queries/settlements.ts
- * - components/wholesaler/Settlements/SettlementTable.tsx
+ * - components/wholesaler/Settlements/SettlementDetailDialog.tsx
  * - components/wholesaler/Orders/OrderDateRangePicker.tsx
- * - components/common/PageHeader.tsx
- * - components/common/EmptyState.tsx
  */
 
 "use client";
@@ -24,27 +25,19 @@
 import * as React from "react";
 import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-import { X, Receipt } from "lucide-react";
+import { X, Calendar, ArrowUp, ArrowDown, ArrowUpDown, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import PageHeader from "@/components/common/PageHeader";
-import EmptyState from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SettlementTable from "@/components/wholesaler/Settlements/SettlementTable";
 import SettlementTableSkeleton from "@/components/wholesaler/Settlements/SettlementTableSkeleton";
+import SettlementDetailDialog from "@/components/wholesaler/Settlements/SettlementDetailDialog";
 import OrderDateRangePicker from "@/components/wholesaler/Orders/OrderDateRangePicker";
 import { useWholesaler } from "@/hooks/useWholesaler";
 import type { SettlementFilter } from "@/types/settlement";
 import type { SettlementStatus } from "@/types/database";
+import { formatPrice } from "@/lib/utils/format";
+import type { SettlementWithOrder } from "@/lib/supabase/queries/settlements";
 
 // 정산 목록 조회 함수
 async function fetchSettlements(
@@ -118,6 +111,9 @@ async function fetchSettlementStats() {
   return data;
 }
 
+type SortField = "scheduled_payout_at" | "order_amount";
+type SortOrder = "asc" | "desc";
+
 export default function SettlementsPage() {
   const {
     data: wholesaler,
@@ -126,24 +122,29 @@ export default function SettlementsPage() {
   } = useWholesaler();
 
   // 필터 상태
-  const [activeTab, setActiveTab] = React.useState<string>("pending");
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
   const [statusFilter, setStatusFilter] = React.useState<
     SettlementStatus | "all"
   >("all");
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
+
+  // 정렬 상태
+  const [sortBy, setSortBy] = React.useState<SortField>("scheduled_payout_at");
+  const [sortOrder, setSortOrder] = React.useState<SortOrder>("asc");
+
+  // 페이지네이션 상태
+  const [page, setPage] = React.useState(1);
+  const pageSize = 20;
+
+  // Dialog 상태
+  const [selectedSettlement, setSelectedSettlement] =
+    React.useState<SettlementWithOrder | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   // 필터 객체 생성
   const filter: SettlementFilter = React.useMemo(() => {
     const filterObj: SettlementFilter = {};
 
-    // 탭에 따른 상태 필터
-    if (activeTab === "pending") {
-      filterObj.status = "pending";
-    } else if (activeTab === "completed") {
-      filterObj.status = "completed";
-    }
-
-    // 추가 상태 필터 (Select에서 선택한 경우)
+    // 상태 필터
     if (statusFilter !== "all") {
       filterObj.status = statusFilter;
     }
@@ -157,7 +158,7 @@ export default function SettlementsPage() {
     }
 
     return filterObj;
-  }, [activeTab, dateRange, statusFilter]);
+  }, [dateRange, statusFilter]);
 
   // 정산 목록 조회
   const {
@@ -165,8 +166,8 @@ export default function SettlementsPage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["settlements", filter],
-    queryFn: () => fetchSettlements(filter),
+    queryKey: ["settlements", filter, page, pageSize, sortBy, sortOrder],
+    queryFn: () => fetchSettlements(filter, page, pageSize, sortBy, sortOrder),
     enabled: !!wholesaler?.id,
   });
 
@@ -200,11 +201,36 @@ export default function SettlementsPage() {
     }
   }, [error]);
 
+  // 필터 변경 시 페이지 초기화
+  React.useEffect(() => {
+    setPage(1);
+  }, [filter, sortBy, sortOrder]);
+
   // 필터 초기화
   const handleResetFilters = () => {
     setDateRange(undefined);
     setStatusFilter("all");
-    setActiveTab("pending");
+    setSortBy("scheduled_payout_at");
+    setSortOrder("asc");
+    setPage(1);
+  };
+
+  // 정렬 핸들러
+  const handleSort = (field: SortField) => {
+    if (sortBy === field) {
+      // 같은 필드면 정렬 순서 토글
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      // 다른 필드면 새로 설정하고 오름차순으로
+      setSortBy(field);
+      setSortOrder("asc");
+    }
+  };
+
+  // 상세보기 핸들러
+  const handleViewDetail = (settlement: SettlementWithOrder) => {
+    setSelectedSettlement(settlement);
+    setIsDialogOpen(true);
   };
 
   const wholesalerId = wholesaler?.id ?? null;
@@ -233,101 +259,451 @@ export default function SettlementsPage() {
     );
   }
 
-  // 총 정산 예정 금액 (pending 상태만)
-  const totalPendingAmount = statsData?.pending_amount ?? 0;
+  // 통계 데이터 계산
+  const stats = statsData ?? {
+    total_amount: 0,
+    total_platform_fee: 0,
+    total_wholesaler_amount: 0,
+    pending_amount: 0,
+    completed_amount: 0,
+    pending_count: 0,
+    completed_count: 0,
+  };
+
+  // 필터링된 정산 목록 (클라이언트 사이드 필터링은 하지 않음, 서버에서 필터링됨)
+  const filteredSettlements = settlementsData?.settlements ?? [];
+  const totalCount = settlementsData?.total ?? 0;
+  const totalPages = settlementsData?.totalPages ?? 1;
+
+  // 통계 카드는 항상 전체 통계를 표시
+  const totalAmount = stats.total_wholesaler_amount; // 전체 정산 금액
+  const pendingCount = stats.pending_count; // 전체 정산 대기 건수
+  const completedCount = stats.completed_count; // 전체 정산 완료 건수
+
+  // 필터 버튼의 건수는 필터에 맞는 전체 개수
+  // totalCount는 서버에서 필터를 적용한 후 반환된 전체 개수
+  const allCount = totalCount; // 서버에서 반환된 전체 개수 (필터 적용됨)
+  const pendingCountForFilter =
+    statusFilter === "pending"
+      ? totalCount // 필터가 pending이면 서버에서 반환된 전체 개수
+      : stats.pending_count; // 그 외에는 전체 통계
+  const completedCountForFilter =
+    statusFilter === "completed"
+      ? totalCount // 필터가 completed이면 서버에서 반환된 전체 개수
+      : stats.completed_count; // 그 외에는 전체 통계
+
+  // 상태 텍스트 및 색상 함수
+  const getStatusText = (status: SettlementStatus) => {
+    return status === "pending" ? "정산 대기" : "정산 완료";
+  };
+
+  const getStatusColor = (status: SettlementStatus) => {
+    return status === "pending"
+      ? "bg-[#fbbf24] text-white"
+      : "bg-[#10B981] text-white";
+  };
+
+  // 정렬 아이콘 렌더링
+  const renderSortIcon = (field: SortField) => {
+    if (sortBy !== field) {
+      return <ArrowUpDown className="ml-2 h-4 w-4 text-gray-400" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
+    );
+  };
+
+  // 페이지 번호 배열 생성 (최대 5개, 현재 페이지 중심)
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxPages = 5;
+    const currentPage = page;
+
+    if (totalPages <= maxPages) {
+      // 전체 페이지가 5개 이하면 모두 표시
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // 현재 페이지 중심으로 5개 표시
+      if (currentPage <= 3) {
+        // 앞부분
+        for (let i = 1; i <= 5; i++) {
+          pages.push(i);
+        }
+        if (totalPages > 5) pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // 뒷부분
+        pages.push(1);
+        if (totalPages > 5) pages.push("...");
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        // 중간
+        pages.push(1);
+        pages.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
+
+  const pageNumbers = getPageNumbers();
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="정산 관리"
-        description={
-          totalPendingAmount > 0
-            ? `총 정산 예정 금액: ${new Intl.NumberFormat("ko-KR").format(
-                totalPendingAmount,
-              )}원`
-            : "정산 예정 및 완료 내역을 확인하세요."
-        }
-        hideTitle={true}
-      />
+    <div className="space-y-8">
+      {/* 페이지 헤더 */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">정산 관리</h1>
+        <p className="mt-2 text-gray-600">
+          투명한 정산 내역을 확인하고 관리하세요.
+        </p>
+      </div>
 
-      {/* 탭 UI */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="pending">정산 예정</TabsTrigger>
-          <TabsTrigger value="completed">정산 완료</TabsTrigger>
-        </TabsList>
+      {/* 정산 통계 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <p className="text-sm text-gray-600 font-medium">총 정산 금액</p>
+          <p className="text-3xl font-bold text-[#10B981] mt-2">
+            {totalAmount.toLocaleString()}원
+          </p>
+        </div>
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <p className="text-sm text-gray-600 font-medium">정산 대기</p>
+          <p className="text-3xl font-bold text-[#fbbf24] mt-2">
+            {pendingCount}건
+          </p>
+        </div>
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <p className="text-sm text-gray-600 font-medium">정산 완료</p>
+          <p className="text-3xl font-bold text-[#10B981] mt-2">
+            {completedCount}건
+          </p>
+        </div>
+      </div>
 
-        <TabsContent value={activeTab} className="space-y-4">
-          {/* 필터 UI */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            {/* 날짜 범위 선택 */}
-            <OrderDateRangePicker
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-            />
+      {/* 필터 */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center">
+        {/* 필터 버튼 */}
+        <div className="flex items-center gap-4 flex-wrap">
+          <button
+            onClick={() => setStatusFilter("all")}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+              statusFilter === "all"
+                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
+                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            }`}
+          >
+            전체 ({allCount})
+          </button>
+          <button
+            onClick={() => setStatusFilter("pending")}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+              statusFilter === "pending"
+                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
+                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            }`}
+          >
+            정산 대기 ({pendingCountForFilter})
+          </button>
+          <button
+            onClick={() => setStatusFilter("completed")}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+              statusFilter === "completed"
+                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
+                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            }`}
+          >
+            정산 완료 ({completedCountForFilter})
+          </button>
+        </div>
 
-            {/* 상태 선택 */}
-            <Select
-              value={statusFilter}
-              onValueChange={(value) =>
-                setStatusFilter(value as SettlementStatus | "all")
-              }
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="상태 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체 상태</SelectItem>
-                <SelectItem value="pending">정산 예정</SelectItem>
-                <SelectItem value="completed">정산 완료</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* 날짜 범위 선택 */}
+        <div className="flex items-center gap-4 flex-wrap">
+          <OrderDateRangePicker
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+          />
 
-            {/* 필터 초기화 */}
-            <Button
-              variant="outline"
-              onClick={handleResetFilters}
-              className="md:w-auto"
-            >
-              <X className="h-4 w-4 mr-2" />
-              초기화
-            </Button>
-          </div>
+          {/* 필터 초기화 */}
+          <Button
+            variant="outline"
+            onClick={handleResetFilters}
+            className="md:w-auto"
+          >
+            <X className="h-4 w-4 mr-2" />
+            초기화
+          </Button>
+        </div>
+      </div>
 
-          {/* 정산 테이블 */}
-          {error ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-destructive">
-                정산 목록을 불러오는 중 오류가 발생했습니다.
-              </div>
+      {/* 정산 내역 테이블 */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-100">
+        {error ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-destructive">
+              정산 목록을 불러오는 중 오류가 발생했습니다.
             </div>
-          ) : isLoading ? (
-            <SettlementTableSkeleton />
-          ) : settlementsData?.settlements.length === 0 ? (
-            <EmptyState
-              message={
-                activeTab === "pending"
-                  ? "정산 예정 내역이 없습니다"
-                  : "정산 완료 내역이 없습니다"
-              }
-              description={
-                activeTab === "pending"
-                  ? "정산 예정인 주문이 없습니다."
-                  : "정산 완료된 주문이 없습니다."
-              }
-              icon={Receipt}
-            />
-          ) : (
-            <SettlementTable
-              settlements={settlementsData?.settlements ?? []}
-              isLoading={isLoading}
-              totalPendingAmount={
-                activeTab === "pending" ? totalPendingAmount : 0
-              }
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+          </div>
+        ) : isLoading ? (
+          <SettlementTableSkeleton />
+        ) : filteredSettlements.length === 0 ? (
+          <div className="py-12 text-center text-gray-500">
+            해당 조건의 정산 내역이 없습니다.
+          </div>
+        ) : (
+          <>
+            {/* 데스크톱 테이블 */}
+            <div className="hidden lg:block overflow-x-auto rounded-xl">
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-white border-b border-gray-100">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                      주문번호
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                      <button
+                        onClick={() => handleSort("order_amount")}
+                        className="flex items-center hover:text-gray-700 transition-colors"
+                      >
+                        판매금액
+                        {renderSortIcon("order_amount")}
+                      </button>
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                      플랫폼 수수료 (5%)
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                      최종 지급액
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                      <button
+                        onClick={() => handleSort("scheduled_payout_at")}
+                        className="flex items-center hover:text-gray-700 transition-colors"
+                      >
+                        정산일
+                        {renderSortIcon("scheduled_payout_at")}
+                      </button>
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                      상태
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredSettlements.map((settlement) => (
+                    <tr
+                      key={settlement.id}
+                      className="hover:bg-gray-50 cursor-pointer transition-colors"
+                      onClick={() => handleViewDetail(settlement)}
+                    >
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        {settlement.orders?.order_number || "-"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {formatPrice(settlement.order_amount)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-red-600">
+                        -{formatPrice(settlement.platform_fee)}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-bold text-[#10B981]">
+                        {formatPrice(settlement.wholesaler_amount)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {settlement.completed_at
+                          ? format(new Date(settlement.completed_at), "yyyy-MM-dd")
+                          : settlement.scheduled_payout_at
+                            ? format(
+                                new Date(settlement.scheduled_payout_at),
+                                "yyyy-MM-dd",
+                              )
+                            : "-"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                            settlement.status,
+                          )}`}
+                        >
+                          {getStatusText(settlement.status)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 모바일 카드 리스트 */}
+            <div className="lg:hidden divide-y divide-gray-200">
+              {filteredSettlements.map((settlement) => (
+                <div
+                  key={settlement.id}
+                  className="p-5 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <span className="text-xs text-gray-500 block mb-1">
+                        {settlement.completed_at
+                          ? format(new Date(settlement.completed_at), "yyyy-MM-dd")
+                          : settlement.scheduled_payout_at
+                            ? format(
+                                new Date(settlement.scheduled_payout_at),
+                                "yyyy-MM-dd",
+                              )
+                            : "정산 예정"}
+                      </span>
+                      <span className="text-xs font-mono text-gray-500">
+                        {settlement.orders?.order_number || "-"}
+                      </span>
+                    </div>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                        settlement.status,
+                      )}`}
+                    >
+                      {getStatusText(settlement.status)}
+                    </span>
+                  </div>
+
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">판매금액</span>
+                      <span className="text-gray-900">
+                        {formatPrice(settlement.order_amount)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-red-500">
+                      <span>수수료 (5%)</span>
+                      <span>-{formatPrice(settlement.platform_fee)}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t border-gray-200 font-bold text-[#10B981]">
+                      <span>최종 지급액</span>
+                      <span>{formatPrice(settlement.wholesaler_amount)}</span>
+                    </div>
+                  </div>
+
+                  {/* 모바일 상세보기 버튼 */}
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewDetail(settlement)}
+                      className="w-full"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      상세보기
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 페이지네이션 */}
+            {totalPages > 1 && (
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-6 py-4 border-t border-gray-200">
+                {/* 총 개수 정보 */}
+                <div className="text-sm text-gray-600">
+                  총 {totalCount}개 중{" "}
+                  {Math.min((page - 1) * pageSize + 1, totalCount)}-
+                  {Math.min(page * pageSize, totalCount)}개 표시
+                </div>
+
+                {/* 페이지네이션 컨트롤 */}
+                <div className="flex items-center gap-2">
+                  {/* 이전 버튼 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    이전
+                  </Button>
+
+                  {/* 페이지 번호 */}
+                  <div className="flex items-center gap-1">
+                    {pageNumbers.map((pageNum, index) => {
+                      if (pageNum === "...") {
+                        return (
+                          <span
+                            key={`ellipsis-${index}`}
+                            className="px-2 text-sm text-gray-500"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+
+                      const pageNumber = pageNum as number;
+                      const isCurrentPage = pageNumber === page;
+
+                      return (
+                        <Button
+                          key={pageNumber}
+                          variant={isCurrentPage ? "default" : "outline"}
+                          size="sm"
+                          className="min-w-[2.5rem]"
+                          onClick={() => setPage(pageNumber)}
+                          disabled={isCurrentPage}
+                        >
+                          {pageNumber}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 다음 버튼 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                  >
+                    다음
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* 정산 안내 */}
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+        <div className="flex items-start gap-3">
+          <Calendar className="w-5 h-5 text-[#10B981] mt-0.5" />
+          <div>
+            <h3 className="font-bold text-gray-900 mb-2">정산 안내</h3>
+            <ul className="text-sm text-gray-700 space-y-1">
+              <li>• 정산은 주문 완료 후 익일 자동으로 처리됩니다.</li>
+              <li>
+                • 플랫폼 수수료는 판매금액의 5%이며, 투명하게 공개됩니다.
+              </li>
+              <li>• 정산 내역은 언제든지 확인 가능합니다.</li>
+              <li>
+                • 정산 관련 문의사항은 고객센터를 통해 접수해주시기 바랍니다.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* 정산 상세 Dialog */}
+      <SettlementDetailDialog
+        settlement={selectedSettlement}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
     </div>
   );
 }

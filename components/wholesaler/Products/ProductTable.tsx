@@ -39,7 +39,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import { Edit2, Eye, ImageIcon, Trash2, Search, ChevronDown, Package } from "lucide-react";
+import { Edit2, Eye, ImageIcon, Trash2, Search, ChevronDown, Package, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/types/product";
 import type { GetProductsResult } from "@/lib/supabase/queries/products";
@@ -57,6 +57,7 @@ import {
 import { CATEGORIES } from "@/lib/utils/constants";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/common/EmptyState";
 
 interface ProductTableProps {
   initialData: GetProductsResult;
@@ -80,6 +81,15 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       ? [{ id: initialFilters.sortBy, desc: initialFilters.sortOrder === "desc" }]
       : []
   );
+
+  // URL 파라미터 변경 시 sorting 상태 동기화
+  useEffect(() => {
+    if (initialFilters.sortBy) {
+      setSorting([{ id: initialFilters.sortBy, desc: initialFilters.sortOrder === "desc" }]);
+    } else {
+      setSorting([]);
+    }
+  }, [initialFilters.sortBy, initialFilters.sortOrder]);
 
   // 필터 상태
   const [category, setCategory] = useState(initialFilters.category ?? "all");
@@ -265,7 +275,31 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       },
       {
         accessorKey: "name",
-        header: "상품명",
+        header: ({ column }) => {
+          const isSorted = column.getIsSorted();
+          return (
+            <button
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                const newSortOrder = isSorted === "asc" ? "desc" : "asc";
+                params.set("sortBy", "name");
+                params.set("sortOrder", newSortOrder);
+                params.set("page", "1");
+                router.push(`/wholesaler/products?${params.toString()}`);
+              }}
+              className="flex items-center gap-1.5 hover:text-[#10B981] transition-colors group w-full text-left"
+            >
+              <span className={cn(isSorted && "text-[#10B981] font-bold")}>상품명</span>
+              {isSorted === "asc" ? (
+                <ArrowUp className="w-3.5 h-3.5 text-[#10B981]" />
+              ) : isSorted === "desc" ? (
+                <ArrowDown className="w-3.5 h-3.5 text-[#10B981]" />
+              ) : (
+                <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#10B981] opacity-60" />
+              )}
+            </button>
+          );
+        },
         cell: ({ row }) => {
           const product = row.original;
           // specification 파싱 (예: "1박스 (10kg)" -> "1박스 · 10kg")
@@ -285,7 +319,31 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       },
       {
         accessorKey: "category",
-        header: "카테고리",
+        header: ({ column }) => {
+          const isSorted = column.getIsSorted();
+          return (
+            <button
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                const newSortOrder = isSorted === "asc" ? "desc" : "asc";
+                params.set("sortBy", "category");
+                params.set("sortOrder", newSortOrder);
+                params.set("page", "1");
+                router.push(`/wholesaler/products?${params.toString()}`);
+              }}
+              className="flex items-center gap-1.5 hover:text-[#10B981] transition-colors group w-full text-left"
+            >
+              <span className={cn(isSorted && "text-[#10B981] font-bold")}>카테고리</span>
+              {isSorted === "asc" ? (
+                <ArrowUp className="w-3.5 h-3.5 text-[#10B981]" />
+              ) : isSorted === "desc" ? (
+                <ArrowDown className="w-3.5 h-3.5 text-[#10B981]" />
+              ) : (
+                <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#10B981] opacity-60" />
+              )}
+            </button>
+          );
+        },
         cell: ({ row }) => (
           <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-[#10B981]/10 to-[#059669]/10 text-[#059669] border border-[#10B981]/20">
             {row.original.category}
@@ -294,7 +352,31 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       },
       {
         accessorKey: "price",
-        header: "가격",
+        header: ({ column }) => {
+          const isSorted = column.getIsSorted();
+          return (
+            <button
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                const newSortOrder = isSorted === "asc" ? "desc" : "asc";
+                params.set("sortBy", "price");
+                params.set("sortOrder", newSortOrder);
+                params.set("page", "1");
+                router.push(`/wholesaler/products?${params.toString()}`);
+              }}
+              className="flex items-center gap-1.5 hover:text-[#10B981] transition-colors group ml-auto"
+            >
+              <span className={cn(isSorted && "text-[#10B981] font-bold")}>가격</span>
+              {isSorted === "asc" ? (
+                <ArrowUp className="w-3.5 h-3.5 text-[#10B981]" />
+              ) : isSorted === "desc" ? (
+                <ArrowDown className="w-3.5 h-3.5 text-[#10B981]" />
+              ) : (
+                <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#10B981] opacity-60" />
+              )}
+            </button>
+          );
+        },
         cell: ({ row }) => (
           <div className="text-right">
             <span className="font-bold text-[#10B981] text-sm">
@@ -305,7 +387,31 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       },
       {
         accessorKey: "stock_quantity",
-        header: "재고",
+        header: ({ column }) => {
+          const isSorted = column.getIsSorted();
+          return (
+            <button
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                const newSortOrder = isSorted === "asc" ? "desc" : "asc";
+                params.set("sortBy", "stock_quantity");
+                params.set("sortOrder", newSortOrder);
+                params.set("page", "1");
+                router.push(`/wholesaler/products?${params.toString()}`);
+              }}
+              className="flex items-center gap-1.5 hover:text-[#10B981] transition-colors group mx-auto"
+            >
+              <span className={cn(isSorted && "text-[#10B981] font-bold")}>재고</span>
+              {isSorted === "asc" ? (
+                <ArrowUp className="w-3.5 h-3.5 text-[#10B981]" />
+              ) : isSorted === "desc" ? (
+                <ArrowDown className="w-3.5 h-3.5 text-[#10B981]" />
+              ) : (
+                <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#10B981] opacity-60" />
+              )}
+            </button>
+          );
+        },
         cell: ({ row }) => {
           const stock = row.original.stock_quantity;
           return (
@@ -546,23 +652,28 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id} className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className={`px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider ${
-                          header.id === "price" ? "text-right" : 
-                          header.id === "stock_quantity" || header.id === "is_active" || header.id === "actions" ? "text-center" : 
-                          "text-left"
-                        }`}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </th>
-                    ))}
+                    {headerGroup.headers.map((header) => {
+                      const isSortable = header.column.getCanSort();
+                      return (
+                        <th
+                          key={header.id}
+                          className={cn(
+                            "px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider",
+                            header.id === "price" ? "text-right" : 
+                            header.id === "stock_quantity" || header.id === "is_active" || header.id === "actions" ? "text-center" : 
+                            "text-left",
+                            isSortable && "cursor-pointer hover:bg-gray-100/50 transition-colors"
+                          )}
+                        >
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </th>
+                      );
+                    })}
                   </tr>
                 ))}
               </thead>
@@ -586,22 +697,29 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             </table>
           </div>
         ) : (
-          <div className="py-12 text-center text-gray-500">
-            검색 결과가 없습니다.
-          </div>
+          <EmptyState
+            message="검색 결과가 없습니다"
+            description="다른 검색어나 필터를 사용해보세요"
+            icon={Package}
+          />
         )}
       </div>
 
       {/* 페이지네이션 */}
       {initialData.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            총 {initialData.total}개 중{" "}
-            {(initialData.page - 1) * initialData.pageSize + 1}-
-            {Math.min(initialData.page * initialData.pageSize, initialData.total)}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+          <div className="text-sm text-gray-600 font-medium">
+            총 <span className="text-[#10B981] font-bold">{initialData.total}</span>개 중{" "}
+            <span className="text-[#10B981] font-bold">
+              {(initialData.page - 1) * initialData.pageSize + 1}
+            </span>
+            -
+            <span className="text-[#10B981] font-bold">
+              {Math.min(initialData.page * initialData.pageSize, initialData.total)}
+            </span>
             개 표시
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -611,9 +729,45 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 params.set("page", String(initialData.page - 1));
                 router.push(`/wholesaler/products?${params.toString()}`);
               }}
+              className="border-gray-200 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
+              <ChevronLeft className="w-4 h-4 mr-1" />
               이전
             </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, initialData.totalPages) }, (_, i) => {
+                let pageNum: number;
+                if (initialData.totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (initialData.page <= 3) {
+                  pageNum = i + 1;
+                } else if (initialData.page >= initialData.totalPages - 2) {
+                  pageNum = initialData.totalPages - 4 + i;
+                } else {
+                  pageNum = initialData.page - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={initialData.page === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.set("page", String(pageNum));
+                      router.push(`/wholesaler/products?${params.toString()}`);
+                    }}
+                    className={cn(
+                      "min-w-[2.5rem]",
+                      initialData.page === pageNum
+                        ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white border-0 hover:shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
+                        : "border-gray-200 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5"
+                    )}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -623,8 +777,10 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 params.set("page", String(initialData.page + 1));
                 router.push(`/wholesaler/products?${params.toString()}`);
               }}
+              className="border-gray-200 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               다음
+              <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>

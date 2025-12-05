@@ -156,7 +156,10 @@ export async function getSettlements(
   }
 
   if (filter.end_date) {
-    query = query.lte("scheduled_payout_at", filter.end_date);
+    // 종료일은 하루 끝까지 포함
+    const endDate = new Date(filter.end_date);
+    endDate.setHours(23, 59, 59, 999);
+    query = query.lte("scheduled_payout_at", endDate.toISOString());
   }
 
   if (filter.order_id) {
