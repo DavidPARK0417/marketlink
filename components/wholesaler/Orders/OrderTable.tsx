@@ -26,7 +26,7 @@ import {
 } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { Eye } from "lucide-react";
+import { Eye, ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -39,7 +39,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import OrderStatusBadge from "./OrderStatusBadge";
 import type { OrderDetail } from "@/types/order";
 import type { OrderStatus } from "@/types/database";
 
@@ -97,6 +96,36 @@ export default function OrderTable({
       // 선택 초기화
       setRowSelection({});
     }
+  };
+
+  // 상태별 색상 매핑 (디자인 핸드오프 스타일)
+  const getStatusColor = (status: OrderStatus) => {
+    const colorMap: Record<OrderStatus, string> = {
+      pending: "bg-[#fbbf24] text-white",
+      confirmed: "bg-[#10B981] text-white",
+      shipped: "bg-[#3b82f6] text-white",
+      completed: "bg-gray-400 text-white",
+      cancelled: "bg-red-500 text-white",
+    };
+    return colorMap[status] || "bg-gray-400 text-white";
+  };
+
+  // 상태별 텍스트 매핑
+  const getStatusText = (status: OrderStatus) => {
+    const statusMap: Record<OrderStatus, string> = {
+      pending: "신규",
+      confirmed: "확인완료",
+      shipped: "출고완료",
+      completed: "배송완료",
+      cancelled: "취소",
+    };
+    return statusMap[status] || status;
+  };
+
+  // 개별 주문 상태 변경 핸들러
+  const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
+    if (!onBatchStatusChange) return;
+    onBatchStatusChange([orderId], newStatus);
   };
 
   const columns: ColumnDef<OrderDetail>[] = React.useMemo(
@@ -186,7 +215,40 @@ export default function OrderTable({
         accessorKey: "status",
         header: "상태",
         cell: ({ row }) => {
-          return <OrderStatusBadge status={row.getValue("status")} />;
+          const status = row.getValue("status") as OrderStatus;
+          return (
+            <div className="relative inline-block">
+              <select
+                value={status}
+                onChange={(e) =>
+                  handleStatusChange(
+                    row.original.id,
+                    e.target.value as OrderStatus
+                  )
+                }
+                className={`appearance-none pl-4 pr-10 py-2 rounded-full text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 ${getStatusColor(
+                  status
+                )}`}
+              >
+                <option value="pending" className="text-gray-900 bg-white">
+                  신규
+                </option>
+                <option value="confirmed" className="text-gray-900 bg-white">
+                  확인완료
+                </option>
+                <option value="shipped" className="text-gray-900 bg-white">
+                  출고완료
+                </option>
+                <option value="completed" className="text-gray-900 bg-white">
+                  배송완료
+                </option>
+                <option value="cancelled" className="text-gray-900 bg-white">
+                  취소
+                </option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none opacity-80" />
+            </div>
+          );
         },
       },
       {
@@ -273,33 +335,220 @@ export default function OrderTable({
         </div>
       )}
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : (header.column.columnDef.header as React.ReactNode)}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {cell.renderValue() as React.ReactNode}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      {/* 주문 목록 컨테이너 */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        {/* 데스크톱 테이블 */}
+        <div className="hidden lg:block overflow-x-auto">
+          <table className="w-full min-w-[1000px]">
+            <thead className="bg-white border-b border-gray-100">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                  주문번호
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                  상품명
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                  수량
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                  금액
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                  배송지
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                  주문일시
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                  상태
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {table.getRowModel().rows.map((row) => {
+                const order = row.original;
+                const status = order.status as OrderStatus;
+                return (
+                  <tr key={row.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
+                      {order.order_number}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                      {order.product?.name || "-"}
+                      {order.variant && ` (${order.variant.name})`}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                      {order.quantity}박스
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">
+                      {new Intl.NumberFormat("ko-KR").format(
+                        order.total_amount
+                      )}
+                      원
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                      {order.delivery_address}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                      {format(new Date(order.created_at), "MM월 dd일 HH:mm", {
+                        locale: ko,
+                      })}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="relative inline-block">
+                        <select
+                          value={status}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              order.id,
+                              e.target.value as OrderStatus
+                            )
+                          }
+                          className={`appearance-none pl-4 pr-10 py-2 rounded-full text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 ${getStatusColor(
+                            status
+                          )}`}
+                        >
+                          <option
+                            value="pending"
+                            className="text-gray-900 bg-white"
+                          >
+                            신규
+                          </option>
+                          <option
+                            value="confirmed"
+                            className="text-gray-900 bg-white"
+                          >
+                            확인완료
+                          </option>
+                          <option
+                            value="shipped"
+                            className="text-gray-900 bg-white"
+                          >
+                            출고완료
+                          </option>
+                          <option
+                            value="completed"
+                            className="text-gray-900 bg-white"
+                          >
+                            배송완료
+                          </option>
+                          <option
+                            value="cancelled"
+                            className="text-gray-900 bg-white"
+                          >
+                            취소
+                          </option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none opacity-80" />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 모바일 카드 리스트 */}
+        <div className="lg:hidden divide-y divide-gray-200">
+          {table.getRowModel().rows.map((row) => {
+            const order = row.original;
+            const status = order.status as OrderStatus;
+            return (
+              <div
+                key={row.id}
+                className="p-5 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <span className="text-xs text-gray-500 block mb-1">
+                      {format(new Date(order.created_at), "yyyy년 MM월 dd일 HH:mm", {
+                        locale: ko,
+                      })}
+                    </span>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">
+                      {order.product?.name || "-"}
+                      {order.variant && ` (${order.variant.name})`}
+                    </h3>
+                    <p className="text-xs text-gray-500 font-mono">
+                      {order.order_number}
+                    </p>
+                  </div>
+                  <div className="relative inline-block">
+                    <select
+                      value={status}
+                      onChange={(e) =>
+                        handleStatusChange(
+                          order.id,
+                          e.target.value as OrderStatus
+                        )
+                      }
+                      className={`appearance-none pl-3 pr-8 py-1.5 rounded-full text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 ${getStatusColor(
+                        status
+                      )}`}
+                    >
+                      <option value="pending" className="text-gray-900 bg-white">
+                        신규
+                      </option>
+                      <option
+                        value="confirmed"
+                        className="text-gray-900 bg-white"
+                      >
+                        확인완료
+                      </option>
+                      <option value="shipped" className="text-gray-900 bg-white">
+                        출고완료
+                      </option>
+                      <option
+                        value="completed"
+                        className="text-gray-900 bg-white"
+                      >
+                        배송완료
+                      </option>
+                      <option
+                        value="cancelled"
+                        className="text-gray-900 bg-white"
+                      >
+                        취소
+                      </option>
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-80" />
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm bg-gray-50 p-3 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">주문 수량</span>
+                    <span className="font-medium text-gray-900">
+                      {order.quantity}박스
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                    <span className="text-gray-500">결제 금액</span>
+                    <span className="font-bold text-[#10B981]">
+                      {new Intl.NumberFormat("ko-KR").format(
+                        order.total_amount
+                      )}
+                      원
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-start gap-2 text-xs text-gray-500">
+                  <span className="font-semibold whitespace-nowrap">배송지:</span>
+                  <span>{order.delivery_address}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {table.getRowModel().rows.length === 0 && (
+          <div className="py-12 text-center text-gray-500">
+            해당 조건의 주문이 없습니다.
+          </div>
+        )}
       </div>
 
       {/* 페이지네이션 */}

@@ -28,7 +28,6 @@ import { Search, X } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import PageHeader from "@/components/common/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,7 +37,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OrderTable from "@/components/wholesaler/Orders/OrderTable";
 import OrderDateRangePicker from "@/components/wholesaler/Orders/OrderDateRangePicker";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
@@ -120,16 +118,17 @@ export default function OrdersPage() {
     const filterObj: OrderFilter = {};
 
     // 탭에 따른 상태 필터
-    if (activeTab === "new") {
+    if (activeTab === "pending") {
       filterObj.status = "pending";
-    } else if (activeTab === "processing") {
-      // 처리중: confirmed 또는 shipped
-      // ⚠️ 주의: Supabase에서는 OR 조건이 복잡하므로, 일단 confirmed만 필터링
-      // 실제로는 클라이언트에서 필터링하거나 별도 API 엔드포인트를 만들어야 할 수 있습니다.
-      filterObj.status = "confirmed";
+    } else if (activeTab === "confirmed") {
+      // 처리중: confirmed와 shipped를 모두 포함해야 하지만,
+      // 서버에서는 단일 status만 필터링 가능하므로 클라이언트에서 필터링
+      // 서버에서는 필터를 보내지 않음 (전체 조회 후 클라이언트에서 필터링)
+      // filterObj.status는 설정하지 않음
     } else if (activeTab === "completed") {
       filterObj.status = "completed";
     }
+    // activeTab === "all"인 경우 필터 없음
 
     // 추가 상태 필터 (Select에서 선택한 경우)
     if (statusFilter !== "all") {
@@ -162,6 +161,27 @@ export default function OrdersPage() {
     queryFn: () => fetchOrders(filter),
     enabled: !!wholesalerId, // 도매점 ID가 있을 때만 조회
   });
+
+  // 처리중 탭인 경우 클라이언트에서 confirmed와 shipped 필터링
+  const filteredOrders = React.useMemo(() => {
+    if (!ordersData?.orders) return [];
+    
+    // 처리중 탭인 경우 confirmed와 shipped만 필터링
+    if (activeTab === "confirmed") {
+      const filtered = ordersData.orders.filter(
+        (order) => order.status === "confirmed" || order.status === "shipped"
+      );
+      console.log("🔍 [orders-page] 처리중 필터링", {
+        total: ordersData.orders.length,
+        filtered: filtered.length,
+        confirmed: ordersData.orders.filter((o) => o.status === "confirmed").length,
+        shipped: ordersData.orders.filter((o) => o.status === "shipped").length,
+      });
+      return filtered;
+    }
+    
+    return ordersData.orders;
+  }, [ordersData?.orders, activeTab]);
 
   // 일괄 상태 변경 Mutation
   const batchStatusChangeMutation = useMutation({
@@ -268,7 +288,62 @@ export default function OrdersPage() {
     setActiveTab("all");
   };
 
+  // 필터 버튼 데이터 (디자인 핸드오프 스타일)
+  // ⚠️ 중요: Hook은 조건부 return 이전에 호출되어야 함
+  const filterButtons = React.useMemo(() => {
+    const counts = ordersData?.counts ?? {
+      all: 0,
+      pending: 0,
+      confirmed: 0,
+      shipped: 0,
+      completed: 0,
+      cancelled: 0,
+      processing: 0,
+    };
+    
+    return [
+      {
+        label: "전체",
+        value: "all" as const,
+        count: counts.all,
+      },
+      {
+        label: "신규",
+        value: "pending" as const,
+        count: counts.pending,
+      },
+      {
+        label: "처리중",
+        value: "confirmed" as const,
+        count: counts.processing, // confirmed + shipped
+      },
+      {
+        label: "완료",
+        value: "completed" as const,
+        count: counts.completed,
+      },
+    ];
+  }, [ordersData?.counts]);
+
+  // 필터 버튼 클릭 핸들러
+  const handleFilterClick = (value: string) => {
+    console.log("🔍 [orders-page] 필터 버튼 클릭", { value, activeTab });
+    setActiveTab(value);
+    // 탭에 따른 상태 필터도 업데이트
+    if (value === "all") {
+      setStatusFilter("all");
+    } else if (value === "pending") {
+      setStatusFilter("pending");
+    } else if (value === "confirmed") {
+      // 처리중은 클라이언트에서 필터링하므로 statusFilter는 "all"로 유지
+      setStatusFilter("all");
+    } else if (value === "completed") {
+      setStatusFilter("completed");
+    }
+  };
+
   // 도매점 ID가 없으면 로딩 또는 에러 표시
+  // ⚠️ 중요: 모든 Hook 호출 후에 조건부 return 수행
   if (isWholesalerLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -293,90 +368,97 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="주문 관리"
-        description="들어온 주문을 확인하고 처리하세요."
-        hideTitle={true}
-      />
+    <div className="space-y-8">
+      {/* 페이지 헤더 */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">주문 관리</h1>
+        <p className="mt-2 text-gray-600">
+          총 {ordersData?.total ?? 0}건의 주문을 관리하세요.
+        </p>
+      </div>
 
-      {/* 탭 UI */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="all">전체</TabsTrigger>
-          <TabsTrigger value="new">신규</TabsTrigger>
-          <TabsTrigger value="processing">처리중</TabsTrigger>
-          <TabsTrigger value="completed">완료</TabsTrigger>
-        </TabsList>
+      {/* 필터 버튼 (디자인 핸드오프 스타일) */}
+      <div className="flex flex-wrap gap-2 sm:gap-4">
+        {filterButtons.map((btn) => (
+          <button
+            key={btn.value}
+            onClick={() => handleFilterClick(btn.value)}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all duration-300 whitespace-nowrap ${
+              activeTab === btn.value
+                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
+                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            }`}
+          >
+            {btn.label} ({btn.count})
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value={activeTab} className="space-y-4">
-          {/* 필터 UI */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            {/* 날짜 범위 선택 */}
-            <OrderDateRangePicker
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-            />
+      {/* 추가 필터 UI */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center">
+        {/* 날짜 범위 선택 */}
+        <OrderDateRangePicker
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+        />
 
-            {/* 상태 선택 */}
-            <Select
-              value={statusFilter}
-              onValueChange={(value) =>
-                setStatusFilter(value as OrderStatus | "all")
-              }
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="상태 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">전체 상태</SelectItem>
-                <SelectItem value="pending">신규 주문</SelectItem>
-                <SelectItem value="confirmed">접수 확인</SelectItem>
-                <SelectItem value="shipped">출고 완료</SelectItem>
-                <SelectItem value="completed">배송 완료</SelectItem>
-                <SelectItem value="cancelled">취소</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* 상태 선택 */}
+        <Select
+          value={statusFilter}
+          onValueChange={(value) =>
+            setStatusFilter(value as OrderStatus | "all")
+          }
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="상태 선택" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">전체 상태</SelectItem>
+            <SelectItem value="pending">신규 주문</SelectItem>
+            <SelectItem value="confirmed">접수 확인</SelectItem>
+            <SelectItem value="shipped">출고 완료</SelectItem>
+            <SelectItem value="completed">배송 완료</SelectItem>
+            <SelectItem value="cancelled">취소</SelectItem>
+          </SelectContent>
+        </Select>
 
-            {/* 주문번호 검색 */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="주문번호 검색"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+        {/* 주문번호 검색 */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="주문번호 검색"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
 
-            {/* 필터 초기화 */}
-            <Button
-              variant="outline"
-              onClick={handleResetFilters}
-              className="md:w-auto"
-            >
-              <X className="h-4 w-4 mr-2" />
-              초기화
-            </Button>
+        {/* 필터 초기화 */}
+        <Button
+          variant="outline"
+          onClick={handleResetFilters}
+          className="md:w-auto"
+        >
+          <X className="h-4 w-4 mr-2" />
+          초기화
+        </Button>
+      </div>
+
+      {/* 주문 테이블 */}
+      {error ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="text-destructive">
+            주문 목록을 불러오는 중 오류가 발생했습니다.
           </div>
-
-          {/* 주문 테이블 */}
-          {error ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-destructive">
-                주문 목록을 불러오는 중 오류가 발생했습니다.
-              </div>
-            </div>
-          ) : (
-            <OrderTable
-              orders={ordersData?.orders ?? []}
-              isLoading={isLoading}
-              onBatchStatusChange={handleBatchStatusChange}
-              isBatchProcessing={batchStatusChangeMutation.isPending}
-            />
-          )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      ) : (
+        <OrderTable
+          orders={filteredOrders}
+          isLoading={isLoading}
+          onBatchStatusChange={handleBatchStatusChange}
+          isBatchProcessing={batchStatusChangeMutation.isPending}
+        />
+      )}
     </div>
   );
 }

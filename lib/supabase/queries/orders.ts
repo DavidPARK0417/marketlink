@@ -47,6 +47,15 @@ export interface GetOrdersResult {
   page: number;
   pageSize: number;
   totalPages: number;
+  counts: {
+    all: number;
+    pending: number;
+    confirmed: number;
+    shipped: number;
+    completed: number;
+    cancelled: number;
+    processing: number; // confirmed + shipped
+  };
 }
 
 /**
@@ -206,11 +215,63 @@ export async function getOrders(
   const total = count ?? 0;
   const totalPages = Math.ceil(total / pageSize);
 
+  // 각 상태별 카운트 계산 (필터 조건은 유지하되, status 필터는 제외)
+  // 날짜 범위나 주문번호 필터는 유지하여 정확한 카운트 계산
+  const buildCountsQuery = (status?: OrderStatus) => {
+    let query = supabase
+      .from("orders")
+      .select("status", { count: "exact", head: true })
+      .eq("wholesaler_id", currentWholesalerId);
+
+    // status 필터 적용
+    if (status) {
+      query = query.eq("status", status);
+    }
+
+    // status 필터를 제외한 나머지 필터만 적용
+    if (filter.start_date) {
+      query = query.gte("created_at", filter.start_date);
+    }
+
+    if (filter.end_date) {
+      const endDate = new Date(filter.end_date);
+      endDate.setHours(23, 59, 59, 999);
+      query = query.lte("created_at", endDate.toISOString());
+    }
+
+    if (filter.order_number) {
+      query = query.eq("order_number", filter.order_number);
+    }
+
+    return query;
+  };
+
+  // 각 상태별로 카운트 조회
+  const [allResult, pendingResult, confirmedResult, shippedResult, completedResult, cancelledResult] = await Promise.all([
+    buildCountsQuery(),
+    buildCountsQuery("pending"),
+    buildCountsQuery("confirmed"),
+    buildCountsQuery("shipped"),
+    buildCountsQuery("completed"),
+    buildCountsQuery("cancelled"),
+  ]);
+
+  const counts = {
+    all: allResult.count ?? 0,
+    pending: pendingResult.count ?? 0,
+    confirmed: confirmedResult.count ?? 0,
+    shipped: shippedResult.count ?? 0,
+    completed: completedResult.count ?? 0,
+    cancelled: cancelledResult.count ?? 0,
+    processing: (confirmedResult.count ?? 0) + (shippedResult.count ?? 0), // confirmed + shipped
+  };
+
   console.log("✅ [orders-query] 주문 목록 조회 완료", {
     count: data?.length ?? 0,
     total,
     page,
     totalPages,
+    counts,
   });
 
   // 타입 변환 (products, product_variants 조인 결과)
@@ -226,6 +287,7 @@ export async function getOrders(
     page,
     pageSize,
     totalPages,
+    counts,
   };
 }
 
