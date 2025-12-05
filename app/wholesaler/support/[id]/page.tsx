@@ -190,6 +190,10 @@ export default function SupportInquiryDetailPage({
       }
 
       console.log("✅ [support-inquiry-detail-page] 문의글 삭제 성공");
+      
+      // 목록 캐시 무효화하여 삭제된 글이 바로 반영되도록
+      queryClient.invalidateQueries({ queryKey: ["inquiries-to-admin"] });
+      
       toast.success("문의가 삭제되었습니다.");
       
       // 고객지원 페이지로 이동

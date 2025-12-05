@@ -104,7 +104,7 @@ export default function FAQList({
             className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center gap-4">
-              <span className="text-blue-600 font-bold w-8">Q.</span>
+              <span className="text-[#10B981] font-bold w-8">Q.</span>
               <span className="font-medium text-gray-900">{faq.question}</span>
             </div>
             {openFaqId === faq.id ? (

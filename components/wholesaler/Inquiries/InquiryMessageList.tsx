@@ -42,20 +42,20 @@ function getMessageStyle(senderType: InquiryMessageSenderType) {
   switch (senderType) {
     case "user":
       return {
-        container: "flex justify-start",
-        bubble: "bg-[#10B981] text-white",
+        container: "flex justify-end", // 오른쪽 정렬
+        bubble: "bg-[#10B981] text-white", // 그린색
         label: "문의자",
       };
     case "admin":
       return {
-        container: "flex justify-start",
-        bubble: "bg-green-500 text-white",
+        container: "flex justify-start", // 왼쪽 정렬
+        bubble: "bg-[#3B82F6] text-white", // 블루색
         label: "관리자",
       };
     case "wholesaler":
       return {
-        container: "flex justify-start",
-        bubble: "bg-purple-500 text-white",
+        container: "flex justify-end", // 오른쪽 정렬
+        bubble: "bg-[#10B981] text-white", // 그린색
         label: "도매사업자",
       };
     default:
@@ -105,23 +105,35 @@ function InquiryMessageItem({
     locale: ko,
   });
 
+  const isLeft = style.container.includes("justify-start");
+  
   return (
     <div className={cn("w-full", style.container)}>
-      <div className="max-w-[80%] md:max-w-[70%] space-y-1">
+      <div className={cn(
+        "max-w-[80%] md:max-w-[70%] space-y-1",
+        isLeft ? "items-start" : "items-end"
+      )}>
         {/* 발신자 라벨 */}
-        <div className="flex items-center gap-2 px-2">
-          <span className="text-xs font-medium text-gray-600">
-            {style.label}
-            {message.sender_type === "user" && userEmail && (
-              <span className="ml-1 text-gray-500">({userEmail})</span>
-            )}
-          </span>
+        <div className={cn(
+          "flex items-center gap-2 px-2",
+          isLeft ? "justify-start" : "justify-end"
+        )}>
+          {isLeft && (
+            <span className="text-xs font-medium text-gray-600">
+              {style.label}
+            </span>
+          )}
           <span className="text-xs text-gray-400">
             {formattedDate}
             {isEdited && (
               <span className="ml-1 text-gray-400">(수정됨)</span>
             )}
           </span>
+          {!isLeft && (
+            <span className="text-xs font-medium text-gray-600">
+              {style.label}
+            </span>
+          )}
           {canEdit && (
             <div className="flex gap-1">
               {onEdit && (

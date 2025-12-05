@@ -129,7 +129,7 @@ export default function VOCForm({ onSuccess, onCancel }: VOCFormProps) {
                   <Input
                     {...field}
                     placeholder="피드백 제목을 입력해주세요"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#10B981] focus:border-transparent outline-none"
                   />
                 </FormControl>
                 <FormDescription className="text-xs text-gray-500 mt-1">
@@ -153,7 +153,7 @@ export default function VOCForm({ onSuccess, onCancel }: VOCFormProps) {
                     {...field}
                     placeholder="서비스 이용 중 불편하셨던 점이나 개선할 점을 자유롭게 적어주세요."
                     rows={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#10B981] focus:border-transparent outline-none resize-none"
                   />
                 </FormControl>
                 <FormDescription className="text-xs text-gray-500 mt-1">
@@ -178,7 +178,7 @@ export default function VOCForm({ onSuccess, onCancel }: VOCFormProps) {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold"
+              className="px-6 py-2.5 bg-[#10B981] text-white rounded-xl hover:bg-[#059669] transition-colors font-semibold"
             >
               {isSubmitting ? (
                 <>

@@ -22,12 +22,22 @@ interface InquiryTableProps {
   inquiries: InquiryDetail[];
   isLoading?: boolean;
   basePath?: string;
+  /**
+   * 시작 번호 (페이지네이션용, 기본값: 1)
+   */
+  startNumber?: number;
+  /**
+   * 전체 개수 (번호 역순 계산용)
+   */
+  total?: number;
 }
 
 export default function InquiryTable({
   inquiries,
   isLoading = false,
   basePath = "/wholesaler/support",
+  startNumber = 1,
+  total,
 }: InquiryTableProps) {
   // 상태 텍스트 변환
   const getStatusText = (status: string) => {
@@ -42,7 +52,7 @@ export default function InquiryTable({
       return "bg-gray-100 text-gray-600";
     }
     if (status === "answered") {
-      return "bg-blue-50 text-blue-600";
+      return "bg-[#D1FAE5] text-[#10B981]";
     }
     return "bg-gray-50 text-gray-500";
   };
@@ -79,22 +89,49 @@ export default function InquiryTable({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-white text-gray-600 text-xs uppercase tracking-wider border-b border-gray-100">
-              <th className="p-4 font-bold border-b w-24 text-center">상태</th>
-              <th className="p-4 font-bold border-b w-24 text-center">유형</th>
-              <th className="p-4 font-bold border-b">제목</th>
+              <th className="p-4 font-bold border-b w-16 text-center">번호</th>
               <th className="p-4 font-bold border-b w-32 text-center">작성일</th>
+              <th className="p-4 font-bold border-b">제목</th>
+              <th className="p-4 font-bold border-b w-24 text-center">상태</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 text-sm">
-            {inquiries.map((inquiry) => {
+            {inquiries.map((inquiry, index) => {
               const inquiryId = inquiry.id;
               const href = `${basePath}/${inquiryId}?type=wholesaler_to_admin`;
+              // 먼저 작성한 글이 1번이 되도록 번호 계산
+              // 내림차순 정렬이므로 역순으로 계산: total - (startNumber + index - 1)
+              const number = total 
+                ? total - (startNumber + index - 1)
+                : startNumber + index;
 
               return (
                 <tr
                   key={inquiry.id}
                   className="hover:bg-gray-50 transition-colors group"
                 >
+                  <td className="p-4 text-center text-gray-500 font-medium">
+                    {number}
+                  </td>
+                  <td className="p-4 text-center text-gray-400">
+                    {format(new Date(inquiry.created_at), "yyyy-MM-dd", {
+                      locale: ko,
+                    })}
+                  </td>
+                  <td className="p-4">
+                    <Link
+                      href={href}
+                      className="block font-medium text-gray-900 group-hover:text-[#10B981] transition-colors"
+                    >
+                      {inquiry.title}
+                    </Link>
+                    {inquiry.admin_reply && (
+                      <div className="mt-2 bg-gray-50 p-3 rounded-lg text-gray-600 text-xs">
+                        <span className="font-bold text-[#10B981] mr-1">[답변]</span>
+                        {inquiry.admin_reply}
+                      </div>
+                    )}
+                  </td>
                   <td className="p-4 text-center">
                     <span
                       className={`inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold ${getStatusStyle(
@@ -103,28 +140,6 @@ export default function InquiryTable({
                     >
                       {getStatusText(inquiry.status)}
                     </span>
-                  </td>
-                  <td className="p-4 text-center text-gray-500">
-                    {getTypeText()}
-                  </td>
-                  <td className="p-4">
-                    <Link
-                      href={href}
-                      className="block font-medium text-gray-900 group-hover:text-blue-600 transition-colors"
-                    >
-                      {inquiry.title}
-                    </Link>
-                    {inquiry.admin_reply && (
-                      <div className="mt-2 bg-gray-50 p-3 rounded-lg text-gray-600 text-xs">
-                        <span className="font-bold text-blue-600 mr-1">[답변]</span>
-                        {inquiry.admin_reply}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-4 text-center text-gray-400">
-                    {format(new Date(inquiry.created_at), "yyyy-MM-dd", {
-                      locale: ko,
-                    })}
                   </td>
                 </tr>
               );
@@ -135,9 +150,14 @@ export default function InquiryTable({
 
       {/* 모바일 카드 리스트 */}
       <div className="lg:hidden divide-y divide-gray-100">
-        {inquiries.map((inquiry) => {
+        {inquiries.map((inquiry, index) => {
           const inquiryId = inquiry.id;
           const href = `${basePath}/${inquiryId}?type=wholesaler_to_admin`;
+          // 먼저 작성한 글이 1번이 되도록 번호 계산
+          // 내림차순 정렬이므로 역순으로 계산: total - (startNumber + index - 1)
+          const number = total 
+            ? total - (startNumber + index - 1)
+            : startNumber + index;
 
           return (
             <Link
@@ -146,13 +166,16 @@ export default function InquiryTable({
               className="block p-5 hover:bg-gray-50 transition-colors"
             >
               <div className="flex justify-between items-start mb-2">
-                <span
-                  className={`inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold ${getStatusStyle(
-                    inquiry.status
-                  )}`}
-                >
-                  {getStatusText(inquiry.status)}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-500">#{number}</span>
+                  <span
+                    className={`inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold ${getStatusStyle(
+                      inquiry.status
+                    )}`}
+                  >
+                    {getStatusText(inquiry.status)}
+                  </span>
+                </div>
                 <span className="text-xs text-gray-400">
                   {format(new Date(inquiry.created_at), "yyyy-MM-dd", {
                     locale: ko,
@@ -163,13 +186,10 @@ export default function InquiryTable({
               <h3 className="text-base font-bold text-gray-900 mb-1">
                 {inquiry.title}
               </h3>
-              <span className="text-xs text-gray-500 mb-3 block">
-                {getTypeText()} 문의
-              </span>
 
               {inquiry.admin_reply && (
                 <div className="bg-gray-50 p-3 rounded-lg text-gray-600 text-xs mt-2">
-                  <span className="font-bold text-blue-600 mr-1">[답변]</span>
+                  <span className="font-bold text-[#10B981] mr-1">[답변]</span>
                   {inquiry.admin_reply}
                 </div>
               )}

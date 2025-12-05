@@ -90,7 +90,7 @@ export default function AnnouncementList({
                     NEW
                   </span>
                 )}
-                <span className="text-gray-900 font-medium group-hover:text-blue-600 transition-colors">
+                <span className="text-gray-900 font-medium group-hover:text-[#10B981] transition-colors">
                   {announcement.title}
                 </span>
               </div>

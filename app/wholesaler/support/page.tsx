@@ -5,7 +5,7 @@
  * 도매사업자가 고객센터 기능을 이용하는 메인 페이지입니다.
  *
  * 주요 기능:
- * 1. 상단 파란색 배너 (FAQ 검색 포함)
+ * 1. 상단 초록색 배너 (FAQ 검색 포함)
  * 2. 탭 구성: 문의내역, 자주묻는질문, 고객의 소리, 공지사항
  * 3. 문의 작성 모달
  * 4. FAQ 목록 (아코디언)
@@ -50,7 +50,10 @@ async function fetchInquiriesToAdmin(filter: InquiryFilterType = {}) {
   const response = await fetch("/api/wholesaler/inquiries/to-admin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filter }),
+    body: JSON.stringify({ 
+      filter,
+      sortOrder: "desc", // 최신 글이 위에 (내림차순)
+    }),
   });
 
   if (!response.ok) {
@@ -257,13 +260,13 @@ export default function SupportPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`pb-4 text-sm font-bold transition-colors relative whitespace-nowrap ${
                 activeTab === tab.id
-                  ? "text-blue-600"
+                  ? "text-[#10B981]"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {tab.label}
               {activeTab === tab.id && (
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full"></span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#10B981] rounded-t-full"></span>
               )}
             </button>
           ))}
@@ -279,7 +282,7 @@ export default function SupportPage() {
               <h2 className="text-xl font-bold text-gray-900">1:1 문의 내역</h2>
               <Button
                 onClick={() => setIsInquiryModalOpen(true)}
-                className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md text-sm"
+                className="flex items-center gap-2 bg-[#10B981] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-[#059669] transition-colors shadow-md text-sm"
               >
                 <Plus className="w-4 h-4" />
                 문의하기
@@ -294,6 +297,12 @@ export default function SupportPage() {
               inquiries={inquiriesData?.inquiries || []}
               isLoading={isInquiriesLoading}
               basePath="/wholesaler/support"
+              startNumber={
+                inquiriesData
+                  ? (inquiriesData.page - 1) * (inquiriesData.pageSize || 20) + 1
+                  : 1
+              }
+              total={inquiriesData?.total}
             />
 
             {/* 통계 정보 */}
@@ -318,8 +327,8 @@ export default function SupportPage() {
         {/* 고객의 소리 탭 */}
         {activeTab === "voc" && (
           <div className="max-w-2xl mx-auto text-center py-12">
-            <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Mic className="w-10 h-10 text-blue-600" />
+            <div className="bg-[#D1FAE5] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Mic className="w-10 h-10 text-[#10B981]" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
               고객의 소리(VOC)
@@ -331,7 +340,7 @@ export default function SupportPage() {
             </p>
             <button
               onClick={() => setIsVocModalOpen(true)}
-              className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 transform duration-200"
+              className="bg-[#10B981] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#059669] transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 transform duration-200"
             >
               의견 보내기
             </button>
