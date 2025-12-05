@@ -11,15 +11,13 @@
  * 3. 검색 시 FAQ 탭으로 이동 및 검색어 적용
  *
  * @dependencies
- * - components/ui/input.tsx
- * - lucide-react (Search 아이콘)
+ * - lucide-react (Search, MessageSquare 아이콘)
  */
 
 "use client";
 
 import * as React from "react";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Search, MessageSquare } from "lucide-react";
 
 interface SupportBannerProps {
   /**
@@ -48,39 +46,31 @@ export default function SupportBanner({
     }
   };
 
-  const handleSearchClick = () => {
-    onSearch(searchQuery);
-  };
-
   return (
-    <div className="bg-[#10B981] rounded-lg p-6 md:p-8 text-white">
-      <div className="space-y-4">
-        {/* 제목 및 설명 */}
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">고객센터</h1>
-          <p className="text-emerald-100 text-sm md:text-base">
-            무엇을 도와드릴까요? 궁금한 점을 검색해보세요.
+    <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-8 text-white shadow-lg mb-8">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="text-center md:text-left">
+          <h1 className="text-3xl font-bold mb-2">고객센터</h1>
+          <p className="text-blue-100">
+            무엇을 도와드릴까요? <br className="block md:hidden" />
+            궁금한 점을 검색해보세요.
           </p>
         </div>
-
-        {/* 검색 바 */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <Input
+        <div className="w-full md:w-1/2 relative">
+          <input
             type="text"
             placeholder="자주 묻는 질문 검색"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="pl-10 pr-20 bg-white text-gray-900 placeholder:text-gray-400 border-0 focus-visible:ring-2 focus-visible:ring-white/50"
+            className="w-full py-3 pl-12 pr-4 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-blue-400/30 shadow-sm"
           />
-          <button
-            onClick={handleSearchClick}
-            className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white text-sm font-medium rounded transition-colors"
-          >
-            검색
-          </button>
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         </div>
+        <button className="hidden md:flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 px-6 py-3 rounded-xl transition-colors font-semibold whitespace-nowrap">
+          <MessageSquare className="w-5 h-5" />
+          채팅 상담하기
+        </button>
       </div>
     </div>
   );

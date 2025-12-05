@@ -59,9 +59,13 @@ interface VOCFormProps {
    * 제출 성공 핸들러
    */
   onSuccess?: () => void;
+  /**
+   * 취소 핸들러 (모달 닫기)
+   */
+  onCancel?: () => void;
 }
 
-export default function VOCForm({ onSuccess }: VOCFormProps) {
+export default function VOCForm({ onSuccess, onCancel }: VOCFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<VOCFormData>({
@@ -109,38 +113,26 @@ export default function VOCForm({ onSuccess }: VOCFormProps) {
   };
 
   return (
-    <div className="w-full rounded-md border bg-white p-6 md:p-8">
-      {/* 아이콘 및 제목 */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 mb-4">
-          <Send className="w-8 h-8 text-[#10B981]" />
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          고객의 소리(VOC)
-        </h2>
-        <p className="text-gray-600">
-          서비스 이용 중 불편하셨던 점이나 개선할 점을 들려주세요.
-          <br />
-          고객님의 소중한 의견을 귀담아듣고 더 나은 서비스를 만들겠습니다.
-        </p>
-      </div>
-
+    <div className="w-full">
       {/* 폼 */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>제목</FormLabel>
+                <FormLabel className="block text-sm font-semibold text-gray-700 mb-2">
+                  제목
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="피드백 제목을 입력해주세요"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
                 </FormControl>
-                <FormDescription>
+                <FormDescription className="text-xs text-gray-500 mt-1">
                   {field.value.length} / 200자
                 </FormDescription>
                 <FormMessage />
@@ -153,16 +145,18 @@ export default function VOCForm({ onSuccess }: VOCFormProps) {
             name="content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>내용</FormLabel>
+                <FormLabel className="block text-sm font-semibold text-gray-700 mb-2">
+                  내용
+                </FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
-                    placeholder="피드백 내용을 상세히 적어주세요"
-                    rows={8}
-                    className="resize-none"
+                    placeholder="서비스 이용 중 불편하셨던 점이나 개선할 점을 자유롭게 적어주세요."
+                    rows={5}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
                   />
                 </FormControl>
-                <FormDescription>
+                <FormDescription className="text-xs text-gray-500 mt-1">
                   {field.value.length} / 2000자
                 </FormDescription>
                 <FormMessage />
@@ -170,11 +164,21 @@ export default function VOCForm({ onSuccess }: VOCFormProps) {
             )}
           />
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-3 pt-2">
+            {onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                className="px-6 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                취소
+              </Button>
+            )}
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="min-w-[120px]"
+              className="px-6 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors font-semibold"
             >
               {isSubmitting ? (
                 <>
@@ -182,10 +186,7 @@ export default function VOCForm({ onSuccess }: VOCFormProps) {
                   제출 중...
                 </>
               ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  의견 보내기
-                </>
+                "보내기"
               )}
             </Button>
           </div>

@@ -28,10 +28,9 @@ import * as React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Mic, Plus } from "lucide-react";
 import SupportBanner from "@/components/wholesaler/Support/SupportBanner";
 import InquiryCreateModal from "@/components/wholesaler/Support/InquiryCreateModal";
 import FAQList from "@/components/wholesaler/Support/FAQList";
@@ -130,6 +129,7 @@ export default function SupportPage() {
   const [activeTab, setActiveTab] = React.useState<string>(initialTab);
   const [searchQuery, setSearchQuery] = React.useState<string>(initialSearch);
   const [isInquiryModalOpen, setIsInquiryModalOpen] = React.useState(false);
+  const [isVocModalOpen, setIsVocModalOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<InquiryFilterType>({});
 
   // URL 쿼리 파라미터 업데이트
@@ -230,12 +230,12 @@ export default function SupportPage() {
 
   // VOC 제출 성공 핸들러
   const handleVOCSubmitted = () => {
-    // 성공 메시지는 VOCForm 내부에서 처리됨
+    setIsVocModalOpen(false);
     console.log("✅ [support-page] VOC 제출 완료");
   };
 
   return (
-    <div className="space-y-6 w-full max-w-full min-w-0">
+    <div className="space-y-8 pb-12">
       {/* 상단 배너 */}
       <SupportBanner
         searchQuery={searchQuery}
@@ -243,91 +243,109 @@ export default function SupportPage() {
         onSearch={handleFAQSearch}
       />
 
-      {/* 탭 UI */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-full min-w-0">
-        <TabsList>
-          <TabsTrigger 
-            value="inquiry"
-            className="data-[state=active]:text-[#10B981]"
-          >
-            문의내역
-          </TabsTrigger>
-          <TabsTrigger 
-            value="faq"
-            className="data-[state=active]:text-[#10B981]"
-          >
-            자주묻는질문
-          </TabsTrigger>
-          <TabsTrigger 
-            value="voc"
-            className="data-[state=active]:text-[#10B981]"
-          >
-            고객의 소리
-          </TabsTrigger>
-          <TabsTrigger 
-            value="announcements"
-            className="data-[state=active]:text-[#10B981]"
-          >
-            공지사항
-          </TabsTrigger>
-        </TabsList>
+      {/* 탭 네비게이션 */}
+      <div className="border-b border-gray-200">
+        <nav className="flex gap-8 overflow-x-auto pb-1 scrollbar-hide">
+          {[
+            { id: "inquiry", label: "문의내역" },
+            { id: "faq", label: "자주묻는질문" },
+            { id: "voc", label: "고객의 소리" },
+            { id: "announcements", label: "공지사항" },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`pb-4 text-sm font-bold transition-colors relative whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "text-blue-600"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {tab.label}
+              {activeTab === tab.id && (
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full"></span>
+              )}
+            </button>
+          ))}
+        </nav>
+      </div>
 
+      {/* 탭 컨텐츠 */}
+      <div className="min-h-[400px] mt-8">
         {/* 문의내역 탭 */}
-        <TabsContent value="inquiry" className="space-y-4 w-full max-w-full min-w-0">
-          <div className="flex items-center justify-between w-full max-w-full min-w-0">
-            <h2 className="text-lg font-semibold">1:1 문의 내역</h2>
-            <Button onClick={() => setIsInquiryModalOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              문의하기
-            </Button>
-          </div>
-
-          {/* 필터 */}
-          <InquiryFilter filter={filter} onFilterChange={setFilter} />
-
-          {/* 문의 테이블 */}
-          <InquiryTable
-            inquiries={inquiriesData?.inquiries || []}
-            isLoading={isInquiriesLoading}
-            basePath="/wholesaler/support"
-          />
-
-          {/* 통계 정보 */}
-          {inquiriesData && (
-            <div className="text-sm text-gray-600 w-full max-w-full min-w-0">
-              총 {inquiriesData.total}개의 문의 (페이지 {inquiriesData.page} /{" "}
-              {inquiriesData.totalPages})
+        {activeTab === "inquiry" && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-900">1:1 문의 내역</h2>
+              <Button
+                onClick={() => setIsInquiryModalOpen(true)}
+                className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-md text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                문의하기
+              </Button>
             </div>
-          )}
-        </TabsContent>
+
+            {/* 필터 */}
+            <InquiryFilter filter={filter} onFilterChange={setFilter} />
+
+            {/* 문의 테이블 */}
+            <InquiryTable
+              inquiries={inquiriesData?.inquiries || []}
+              isLoading={isInquiriesLoading}
+              basePath="/wholesaler/support"
+            />
+
+            {/* 통계 정보 */}
+            {inquiriesData && (
+              <div className="text-sm text-gray-600">
+                총 {inquiriesData.total}개의 문의 (페이지 {inquiriesData.page} /{" "}
+                {inquiriesData.totalPages})
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 자주묻는질문 탭 */}
-        <TabsContent value="faq" className="space-y-4 w-full max-w-full min-w-0">
-          <h2 className="text-lg font-semibold w-full max-w-full min-w-0">자주 묻는 질문</h2>
+        {activeTab === "faq" && (
           <FAQList
             faqs={faqs}
             isLoading={isFAQsLoading}
             searchQuery={searchQuery}
           />
-        </TabsContent>
+        )}
 
         {/* 고객의 소리 탭 */}
-        <TabsContent value="voc" className="space-y-4 w-full max-w-full min-w-0">
-          <VOCForm onSuccess={handleVOCSubmitted} />
-        </TabsContent>
+        {activeTab === "voc" && (
+          <div className="max-w-2xl mx-auto text-center py-12">
+            <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Mic className="w-10 h-10 text-blue-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              고객의 소리(VOC)
+            </h2>
+            <p className="text-gray-600 mb-8">
+              서비스 이용 중 불편하셨던 점이나 개선할 점을 들려주세요.
+              <br />
+              고객님의 소중한 의견을 귀담아듣고 더 나은 서비스를 만들겠습니다.
+            </p>
+            <button
+              onClick={() => setIsVocModalOpen(true)}
+              className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 transform duration-200"
+            >
+              의견 보내기
+            </button>
+          </div>
+        )}
 
         {/* 공지사항 탭 */}
-        <TabsContent
-          value="announcements"
-          className="space-y-4 w-full max-w-full min-w-0"
-        >
-          <h2 className="text-lg font-semibold w-full max-w-full min-w-0">공지사항</h2>
+        {activeTab === "announcements" && (
           <AnnouncementList
             announcements={announcements}
             isLoading={isAnnouncementsLoading}
           />
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
 
       {/* 문의 작성 모달 */}
       <InquiryCreateModal
@@ -335,6 +353,28 @@ export default function SupportPage() {
         onOpenChange={setIsInquiryModalOpen}
         onSuccess={handleInquiryCreated}
       />
+
+      {/* VOC 모달 */}
+      {isVocModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsVocModalOpen(false)}
+          />
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl relative z-10 p-6 transform transition-all scale-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">
+              소중한 의견 보내기
+            </h2>
+            <p className="text-sm text-gray-500 mb-4 -mt-4">
+              보내주신 의견은 서비스 개선을 위해 소중하게 활용됩니다.
+            </p>
+            <VOCForm
+              onSuccess={handleVOCSubmitted}
+              onCancel={() => setIsVocModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

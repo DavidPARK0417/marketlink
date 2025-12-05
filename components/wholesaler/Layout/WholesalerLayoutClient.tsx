@@ -539,7 +539,7 @@ function WholesalerLayoutContent({
                   <span className="text-sm font-medium">설정</span>
                 </Link>
                 <Link
-                  href="/wholesaler/inquiries"
+                  href="/wholesaler/support"
                   className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-[#10B981] hover:bg-emerald-50 rounded-lg transition-colors"
                 >
                   <HelpCircle className="w-5 h-5" />

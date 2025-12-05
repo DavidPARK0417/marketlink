@@ -50,11 +50,11 @@ export default function AnnouncementList({
 
   if (isLoading) {
     return (
-      <div className="space-y-4 w-full">
+      <div className="space-y-4">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-20 w-full animate-pulse rounded-lg bg-gray-200"
+            className="h-20 w-full animate-pulse rounded-xl bg-gray-200"
           />
         ))}
       </div>
@@ -63,8 +63,9 @@ export default function AnnouncementList({
 
   if (announcements.length === 0) {
     return (
-      <div className="w-full rounded-md border bg-white">
-        <div className="text-center py-12 w-full">
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-gray-900">공지사항</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
           <p className="text-gray-500">등록된 공지사항이 없습니다.</p>
         </div>
       </div>
@@ -72,35 +73,32 @@ export default function AnnouncementList({
   }
 
   return (
-    <div className="w-full rounded-md border bg-white">
-      <div className="divide-y">
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold text-gray-900">공지사항</h2>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
         {announcements.map((announcement) => {
           const newLabel = isNew(announcement.created_at);
           return (
             <Link
               key={announcement.id}
               href={`/wholesaler/support/announcements/${announcement.id}`}
-              className="block w-full p-4 hover:bg-gray-50 transition-colors"
+              className="block p-5 flex items-center justify-between hover:bg-gray-50 transition-colors group"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    {newLabel && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                        NEW
-                      </span>
-                    )}
-                    <h3 className="font-semibold text-gray-900 truncate">
-                      {announcement.title}
-                    </h3>
-                  </div>
-                </div>
-                <div className="text-sm text-gray-500 whitespace-nowrap">
-                  {format(new Date(announcement.created_at), "yyyy-MM-dd", {
-                    locale: ko,
-                  })}
-                </div>
+              <div className="flex items-center gap-3">
+                {newLabel && (
+                  <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded">
+                    NEW
+                  </span>
+                )}
+                <span className="text-gray-900 font-medium group-hover:text-blue-600 transition-colors">
+                  {announcement.title}
+                </span>
               </div>
+              <span className="text-sm text-gray-400">
+                {format(new Date(announcement.created_at), "yyyy-MM-dd", {
+                  locale: ko,
+                })}
+              </span>
             </Link>
           );
         })}

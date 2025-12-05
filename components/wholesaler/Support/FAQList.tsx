@@ -3,7 +3,7 @@
  * @description FAQ 목록 컴포넌트
  *
  * 자주 묻는 질문 목록을 아코디언 형태로 표시합니다.
- * 한 번에 하나만 열 수 있습니다.
+ * 디자인 핸드오프 스타일 적용 (Q./A. 스타일).
  *
  * 주요 기능:
  * 1. FAQ 목록 표시 (아코디언)
@@ -11,19 +11,14 @@
  * 3. 표시 순서대로 정렬
  *
  * @dependencies
- * - components/ui/accordion.tsx
  * - types/faq.ts
+ * - lucide-react (ChevronDown, ChevronUp)
  */
 
 "use client";
 
 import * as React from "react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import type { FAQ } from "@/types/faq";
 
 interface FAQListProps {
@@ -46,6 +41,8 @@ export default function FAQList({
   isLoading = false,
   searchQuery = "",
 }: FAQListProps) {
+  const [openFaqId, setOpenFaqId] = React.useState<string | null>(null);
+
   // 검색어로 필터링
   const filteredFAQs = React.useMemo(() => {
     if (!searchQuery.trim()) {
@@ -67,11 +64,11 @@ export default function FAQList({
 
   if (isLoading) {
     return (
-      <div className="space-y-4 w-full">
+      <div className="space-y-4 max-w-3xl mx-auto">
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-20 w-full animate-pulse rounded-lg bg-gray-200"
+            className="h-20 w-full animate-pulse rounded-xl bg-gray-200"
           />
         ))}
       </div>
@@ -80,8 +77,8 @@ export default function FAQList({
 
   if (sortedFAQs.length === 0) {
     return (
-      <div className="w-full rounded-md border bg-white">
-        <div className="text-center py-12 w-full">
+      <div className="space-y-4 max-w-3xl mx-auto">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
           <p className="text-gray-500">
             {searchQuery
               ? "검색 결과가 없습니다."
@@ -93,23 +90,41 @@ export default function FAQList({
   }
 
   return (
-    <div className="w-full rounded-md border bg-white">
-      <Accordion type="single" collapsible className="w-full">
-        {sortedFAQs.map((faq) => (
-          <AccordionItem key={faq.id} value={faq.id} className="w-full">
-            <AccordionTrigger className="text-left w-full">
-              <span className="font-medium">
-                <span className="text-[#10B981]">Q.</span> {faq.question}
-              </span>
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="whitespace-pre-wrap text-gray-700 pt-2">
-                A. {faq.answer}
+    <div className="space-y-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
+        자주 묻는 질문
+      </h2>
+      {sortedFAQs.map((faq) => (
+        <div
+          key={faq.id}
+          className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+        >
+          <button
+            onClick={() => setOpenFaqId(openFaqId === faq.id ? null : faq.id)}
+            className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <span className="text-blue-600 font-bold w-8">Q.</span>
+              <span className="font-medium text-gray-900">{faq.question}</span>
+            </div>
+            {openFaqId === faq.id ? (
+              <ChevronUp className="w-5 h-5 text-gray-400" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-400" />
+            )}
+          </button>
+          {openFaqId === faq.id && (
+            <div className="px-5 pb-5 pt-0 bg-gray-50 border-t border-gray-100">
+              <div className="flex gap-4 mt-4">
+                <span className="text-gray-400 font-bold w-8">A.</span>
+                <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
+                  {faq.answer}
+                </p>
               </div>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
