@@ -77,6 +77,8 @@ export interface InquiryFilter {
 export interface GetInquiriesOptions {
   page?: number;
   pageSize?: number;
+  sortBy?: "created_at" | "replied_at";
+  sortOrder?: "asc" | "desc";
   filter?: InquiryFilter;
 }
 
