@@ -169,36 +169,75 @@ export async function getInquiries(
   // 문의자 익명 코드 조회
   const inquiriesWithAnonymousCode: InquiryDetail[] = await Promise.all(
     (data || []).map(async (inquiry) => {
-      // 문의자 프로필 조회
-      const { data: inquiryProfile } = await supabase
-        .from("profiles")
-        .select("id, role")
-        .eq("id", inquiry.user_id)
-        .single();
+      try {
+        // 문의자 프로필 조회
+        const { data: inquiryProfile, error: profileError } = await supabase
+          .from("profiles")
+          .select("id, role")
+          .eq("id", inquiry.user_id)
+          .maybeSingle();
 
-      let anonymousCode: string | null = null;
+        if (profileError) {
+          console.warn(
+            `⚠️ [inquiries] 프로필 조회 오류 (inquiry_id: ${inquiry.id}, user_id: ${inquiry.user_id}):`,
+            profileError,
+          );
+        }
 
-      // 소매점인 경우 anonymous_code 조회
-      if (inquiryProfile?.role === "retailer") {
-        const { data: retailer } = await supabase
-          .from("retailers")
-          .select("anonymous_code")
-          .eq("profile_id", inquiryProfile.id)
-          .single();
+        let anonymousCode: string | null = null;
 
-        anonymousCode = retailer?.anonymous_code || null;
-      }
+        // 소매점인 경우 anonymous_code 조회
+        if (inquiryProfile?.role === "retailer") {
+          try {
+            const { data: retailer, error: retailerError } = await supabase
+              .from("retailers")
+              .select("anonymous_code")
+              .eq("profile_id", inquiryProfile.id)
+              .maybeSingle();
 
-      return {
-        ...inquiry,
-        user_anonymous_code: anonymousCode,
-        order: inquiry.orders
-          ? {
-              order_number: inquiry.orders.order_number,
-              created_at: inquiry.orders.created_at,
+            if (retailerError) {
+              console.warn(
+                `⚠️ [inquiries] 소매점 조회 오류 (profile_id: ${inquiryProfile.id}):`,
+                retailerError,
+              );
             }
-          : null,
-      } as InquiryDetail;
+
+            anonymousCode = retailer?.anonymous_code || null;
+          } catch (retailerErr) {
+            console.warn(
+              `⚠️ [inquiries] 소매점 조회 예외 (profile_id: ${inquiryProfile.id}):`,
+              retailerErr,
+            );
+          }
+        }
+
+        return {
+          ...inquiry,
+          user_anonymous_code: anonymousCode,
+          order: inquiry.orders
+            ? {
+                order_number: inquiry.orders.order_number,
+                created_at: inquiry.orders.created_at,
+              }
+            : null,
+        } as InquiryDetail;
+      } catch (err) {
+        console.error(
+          `❌ [inquiries] 문의 처리 오류 (inquiry_id: ${inquiry.id}):`,
+          err,
+        );
+        // 에러가 발생해도 기본 정보는 반환
+        return {
+          ...inquiry,
+          user_anonymous_code: null,
+          order: inquiry.orders
+            ? {
+                order_number: inquiry.orders.order_number,
+                created_at: inquiry.orders.created_at,
+              }
+            : null,
+        } as InquiryDetail;
+      }
     }),
   );
 

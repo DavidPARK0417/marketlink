@@ -20,7 +20,17 @@ export async function POST(request: NextRequest) {
   try {
     console.group("🔍 [api/inquiries] 문의 목록 조회 API 시작");
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error("❌ [api/inquiries] 요청 본문 파싱 오류:", parseError);
+      return NextResponse.json(
+        { error: "잘못된 요청 형식입니다." },
+        { status: 400 }
+      );
+    }
+
     const { filter = {}, page = 1, pageSize = 20 } = body;
 
     console.log("요청 파라미터:", { filter, page, pageSize });
@@ -58,6 +68,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error("❌ [api/inquiries] 문의 목록 조회 오류:", error);
+    console.error("❌ [api/inquiries] 에러 스택:", error instanceof Error ? error.stack : "스택 없음");
+    console.groupEnd();
 
     const errorMessage =
       error instanceof Error
@@ -67,7 +79,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: errorMessage,
-        details: error instanceof Error ? error.stack : undefined,
+        details: process.env.NODE_ENV === "development" && error instanceof Error ? error.stack : undefined,
       },
       { status: 500 },
     );

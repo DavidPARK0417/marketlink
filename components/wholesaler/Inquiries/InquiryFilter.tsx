@@ -120,9 +120,8 @@ export default function InquiryFilter({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">전체</SelectItem>
-            <SelectItem value="open">미답변</SelectItem>
-            <SelectItem value="answered">답변완료</SelectItem>
-            <SelectItem value="closed">종료</SelectItem>
+            <SelectItem value="open">답변 대기</SelectItem>
+            <SelectItem value="answered">답변 완료</SelectItem>
           </SelectContent>
         </Select>
       </div>
