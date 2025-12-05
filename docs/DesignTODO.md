@@ -63,16 +63,16 @@
 
 **작업 내용**:
 
-- [ ] `--primary` 색상을 `#10B981` (Emerald Green)로 변경
-- [ ] 프로젝트 전체에서 Blue 계열 하드코딩 클래스 검색 및 교체
+- [x] `--primary` 색상을 `#10B981` (Emerald Green)로 변경
+- [x] 프로젝트 전체에서 Blue 계열 하드코딩 클래스 검색 및 교체
 
 **체크리스트**:
 
-- [ ] `globals.css`의 `--primary: #137fec` → `--primary: #10B981` 변경
-- [ ] `grep -r "bg-blue" app/ components/` 실행하여 Blue 클래스 검색
-- [ ] `grep -r "text-blue" app/ components/` 실행하여 Blue 클래스 검색
-- [ ] 발견된 Blue 클래스를 Green 계열로 교체
-- [ ] shadcn/ui 컴포넌트가 CSS 변수를 사용하므로 자동 반영 확인
+- [x] `globals.css`의 `--primary: #137fec` → `--primary: #10B981` 변경
+- [x] `grep -r "bg-blue" app/ components/` 실행하여 Blue 클래스 검색
+- [x] `grep -r "text-blue" app/ components/` 실행하여 Blue 클래스 검색
+- [x] 발견된 Blue 클래스를 Green 계열로 교체
+- [x] shadcn/ui 컴포넌트가 CSS 변수를 사용하므로 자동 반영 확인
 
 **교체 매핑**:
 
@@ -115,24 +115,24 @@
 
 **작업 내용**:
 
-- [ ] 기존 `WholesalerLayoutClient.tsx` 백업
-- [ ] 디자인 핸드오프의 레이아웃 코드 확인
-- [ ] 기존 로직 통합:
-  - [ ] `useUser`, `useClerk` 훅 유지
-  - [ ] `useWholesaler` 훅 유지
-  - [ ] 로그아웃 로직 유지
-  - [ ] TermsModal, PrivacyModal 연동 유지
-- [ ] UI 부분만 디자인 핸드오프 스타일로 교체
+- [x] 기존 `WholesalerLayoutClient.tsx` 백업
+- [x] 디자인 핸드오프의 레이아웃 코드 확인
+- [x] 기존 로직 통합:
+  - [x] `useUser`, `useClerk` 훅 유지
+  - [x] `useWholesaler` 훅 유지
+  - [x] 로그아웃 로직 유지
+  - [x] TermsModal, PrivacyModal 연동 유지 (Footer 컴포넌트에서 관리)
+- [x] UI 부분만 디자인 핸드오프 스타일로 교체
 
 **체크리스트**:
 
-- [ ] 레이아웃 파일 백업 완료
-- [ ] 디자인 핸드오프 레이아웃 코드 복사
-- [ ] 기존 인증/사용자 로직 통합 완료
-- [ ] 모바일 메뉴 동작 확인
-- [ ] 사이드바 네비게이션 하이라이트 확인
-- [ ] 빌드 에러 확인 (`pnpm run build`)
-- [ ] 브라우저에서 레이아웃 확인
+- [x] 레이아웃 파일 백업 완료
+- [x] 디자인 핸드오프 레이아웃 코드 복사
+- [x] 기존 인증/사용자 로직 통합 완료
+- [ ] 모바일 메뉴 동작 확인 (브라우저 테스트 필요)
+- [ ] 사이드바 네비게이션 하이라이트 확인 (브라우저 테스트 필요)
+- [ ] 빌드 에러 확인 (`pnpm run build`) (사용자 확인 필요)
+- [ ] 브라우저에서 레이아웃 확인 (사용자 확인 필요)
 
 **주의사항**:
 
@@ -589,12 +589,12 @@ grep -r "//.*기존.*디자인" app/ components/
 ### Phase 1: 전역 디자인 토큰 통합
 
 - [ ] 1.1 Pretendard 폰트 추가
-- [ ] 1.2 Green 색상 시스템 적용
+- [x] 1.2 Green 색상 시스템 적용
 - [ ] 1.3 디자인 토큰 파일 통합 (선택사항)
 
 ### Phase 2: 레이아웃 교체
 
-- [ ] 2.1 WholesalerLayoutClient UI 교체
+- [x] 2.1 WholesalerLayoutClient UI 교체
 
 ### Phase 3: 페이지별 교체
 

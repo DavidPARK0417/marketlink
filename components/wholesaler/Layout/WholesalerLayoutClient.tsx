@@ -2,25 +2,61 @@
  * @file components/wholesaler/Layout/WholesalerLayoutClient.tsx
  * @description 도매 페이지 레이아웃 클라이언트 컴포넌트
  *
- * 모바일 햄버거 메뉴 상태를 관리하는 클라이언트 컴포넌트입니다.
- * 서버 컴포넌트인 Layout에서 사용됩니다.
+ * 디자인 핸드오프 기준으로 새롭게 작성된 레이아웃입니다.
+ * 기존 비즈니스 로직(인증, 사용자 정보, 알림 등)을 모두 유지하면서 UI만 디자인 핸드오프 스타일로 교체했습니다.
  *
  * 주요 기능:
- * 1. 모바일 햄버거 메뉴 상태 관리
- * 2. 모바일에서 사이드바를 오버레이로 표시
- * 3. 데스크톱에서 사이드바를 항상 표시
+ * 1. 사이드바 네비게이션 (데스크톱)
+ * 2. 헤더 (검색, 알림, 설정, 고객센터)
+ * 3. 모바일 메뉴
+ * 4. 사용자 프로필 및 로그아웃
+ * 5. TermsModal, PrivacyModal 연동
  *
  * @dependencies
- * - components/wholesaler/Layout/Sidebar.tsx
- * - components/wholesaler/Layout/Header.tsx
+ * - @clerk/nextjs (useUser, useClerk)
+ * - hooks/useWholesaler
+ * - hooks/use-wholesaler-notifications
+ * - components/TermsModal
+ * - components/PrivacyModal
+ * - components/Footer
  */
 
 "use client";
 
-import { useState, useEffect } from "react";
-import WholesalerSidebar from "@/components/wholesaler/Layout/Sidebar";
-import WholesalerHeader from "@/components/wholesaler/Layout/Header";
+import { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { useUser, useClerk } from "@clerk/nextjs";
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  CreditCard,
+  MessageSquare,
+  Settings,
+  Menu,
+  X,
+  User,
+  Bell,
+  Search,
+  BarChart2,
+  LogOut,
+  HelpCircle,
+  Plus,
+} from "lucide-react";
+import { useWholesaler } from "@/hooks/useWholesaler";
+import { useWholesalerNotifications } from "@/hooks/use-wholesaler-notifications";
 import Footer from "@/components/Footer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { formatPrice, formatDateTime } from "@/lib/utils/format";
 import type { UserRole } from "@/types/database";
 
 interface WholesalerLayoutClientProps {
@@ -32,28 +68,60 @@ export default function WholesalerLayoutClient({
   children,
   role,
 }: WholesalerLayoutClientProps) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white"></div>}>
+      <WholesalerLayoutContent role={role}>{children}</WholesalerLayoutContent>
+    </Suspense>
+  );
+}
+
+function WholesalerLayoutContent({
+  children,
+  role,
+}: {
+  children: React.ReactNode;
+  role?: UserRole;
+}) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const { signOut } = useClerk();
+  const { data: wholesaler, isLoading: isLoadingWholesaler } = useWholesaler();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // 알림 훅 사용
+  const {
+    unreadOrdersCount,
+    recentOrders,
+    unreadInquiriesCount,
+    recentInquiries,
+    hasNewNotifications,
+    totalUnreadCount,
+    isLoading: isLoadingNotifications,
+    markAsRead,
+    isMarkingAsRead,
+  } = useWholesalerNotifications();
 
   // 클라이언트 사이드 마운트 확인
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 모바일 메뉴 토글
-  const handleMobileMenuToggle = () => {
-    setIsMobileMenuOpen((prev) => !prev);
-  };
+  // 드롭다운이 열릴 때 읽음 처리
+  useEffect(() => {
+    if (isDropdownOpen && hasNewNotifications && !isMarkingAsRead) {
+      console.log("🔔 [layout] 드롭다운 열림 - 읽음 처리 시작");
+      markAsRead();
+    }
+  }, [isDropdownOpen, hasNewNotifications, isMarkingAsRead, markAsRead]);
 
-  // 모바일 메뉴 닫기
-  const handleCloseMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  // 모바일에서 메뉴 항목 클릭 시 메뉴 닫기
+  // 모바일 메뉴 열릴 때 스크롤 방지
   useEffect(() => {
     if (isMobileMenuOpen) {
-      // 스크롤 방지
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -64,50 +132,466 @@ export default function WholesalerLayoutClient({
     };
   }, [isMobileMenuOpen]);
 
+  // 로그아웃 처리
+  const handleLogout = async () => {
+    try {
+      console.log("🚪 [layout] 로그아웃 시작");
+      setIsLoggingOut(true);
+      await signOut();
+      router.push("/sign-in/wholesaler");
+      console.log("✅ [layout] 로그아웃 완료");
+    } catch (error) {
+      console.error("❌ [layout] 로그아웃 오류:", error);
+      setIsLoggingOut(false);
+      router.push("/sign-in/wholesaler");
+    }
+  };
+
+  // 사용자 이름의 첫 글자 추출 (아바타 폴백용)
+  const getInitials = (name: string | null | undefined): string => {
+    if (!name) return "U";
+    const words = name.trim().split(" ");
+    if (words.length >= 2) {
+      return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+    }
+    return name[0].toUpperCase();
+  };
+
+  const userName = user?.fullName || user?.firstName || "사용자";
+  const userInitials = getInitials(userName);
+  const businessName = wholesaler?.business_name || "도매 회원사";
+
+  // 네비게이션 메뉴
+  const navigation = [
+    { name: "홈", href: "/wholesaler/dashboard", icon: LayoutDashboard },
+    { name: "상품 관리", href: "/wholesaler/products", icon: Package },
+    { name: "시세 조회", href: "/wholesaler/market-prices", icon: BarChart2 },
+    { name: "주문 관리", href: "/wholesaler/orders", icon: ShoppingCart },
+    { name: "정산 관리", href: "/wholesaler/settlements", icon: CreditCard },
+    {
+      name: "상품 문의",
+      href: "/wholesaler/inquiries",
+      icon: MessageSquare,
+    },
+  ];
+
+  // 주문 상세 페이지로 이동
+  const handleOrderClick = (orderId: string) => {
+    router.push(`/wholesaler/orders/${orderId}`);
+    setIsDropdownOpen(false);
+  };
+
+  // 문의 상세 페이지로 이동
+  const handleInquiryClick = (inquiryId: string) => {
+    router.push(`/wholesaler/inquiries/${inquiryId}`);
+    setIsDropdownOpen(false);
+  };
+
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      <div className="flex flex-1">
-        {/* 데스크톱 사이드바 - 항상 표시 */}
-        <aside className="hidden md:block">
-          <WholesalerSidebar />
-        </aside>
-
-        {/* 메인 컨텐츠 영역 */}
-        <div className="flex flex-1 flex-col w-full">
-          {/* 헤더 */}
-          <WholesalerHeader
-            role={role}
-            onMobileMenuToggle={handleMobileMenuToggle}
-            isMobileMenuOpen={isMobileMenuOpen}
-          />
-
-          {/* 메인 컨텐츠 */}
-          <main className="flex-1 w-full max-w-full p-4 md:p-6 bg-gray-50 overflow-x-hidden">
-            {children}
-          </main>
-
-          {/* Footer - 항상 main 아래에 표시 */}
-          <Footer />
+    <div className="min-h-screen bg-white flex">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 fixed h-full z-30">
+        <div className="p-6 border-b border-gray-100">
+          <Link href="/wholesaler/dashboard" className="block w-full">
+            <Image
+              src="/farmtobiz_logo.png"
+              alt="FarmToBiz"
+              width={208}
+              height={80}
+              className="w-full h-auto object-contain"
+              priority
+            />
+          </Link>
         </div>
 
-        {/* 모바일 사이드바 오버레이 */}
-        {mounted && isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 md:hidden">
-            {/* 오버레이 배경 */}
-            <div
-              className="absolute inset-0 bg-black/50 transition-opacity"
-              onClick={handleCloseMobileMenu}
-              aria-hidden="true"
-            />
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+          {navigation.map((item) => {
+            const cleanHref = item.href.split("?")[0];
 
-            {/* 사이드바 */}
-            <div className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl transform transition-transform">
-              <WholesalerSidebar />
+            let isActive = false;
+            if (item.href.includes("?")) {
+              const targetTab = new URLSearchParams(item.href.split("?")[1]).get(
+                "tab",
+              );
+              const currentTab = searchParams.get("tab");
+              isActive = pathname === cleanHref && targetTab === currentTab;
+            } else {
+              isActive =
+                pathname === cleanHref ||
+                (cleanHref !== "/wholesaler/dashboard" &&
+                  pathname.startsWith(cleanHref + "/"));
+            }
+
+            const Icon = item.icon;
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group relative overflow-hidden ${
+                  isActive
+                    ? "text-[#10B981] bg-[#10B981]/10"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <Icon
+                  className={`w-5 h-5 ${
+                    isActive
+                      ? "text-[#10B981]"
+                      : "text-gray-400 group-hover:text-gray-600"
+                  }`}
+                />
+                <span className="relative z-10">{item.name}</span>
+                {isActive && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#10B981] rounded-r-full" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="px-4 pb-6">
+          <Link
+            href="/wholesaler/products/new"
+            className="w-full bg-[#10B981] text-white flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold hover:bg-[#059669] transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5 group"
+          >
+            <div className="bg-white/20 p-1 rounded-lg group-hover:bg-white/30 transition-colors">
+              <Plus className="w-4 h-4" />
+            </div>
+            <span>상품 등록하기</span>
+          </Link>
+        </div>
+
+        <div className="p-4 border-t border-gray-100 bg-gray-50/50">
+          <div className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-100">
+            {mounted && isUserLoaded && user && (
+              <>
+                <div className="flex items-center gap-3 mb-3">
+                  {user.imageUrl ? (
+                    <img
+                      src={user.imageUrl}
+                      alt={userName}
+                      className="w-10 h-10 rounded-full object-cover border border-emerald-100"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-emerald-600 font-bold border border-emerald-100">
+                      {userInitials}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 truncate">
+                      {isLoadingWholesaler ? "로딩 중..." : businessName}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {role === "admin" ? "관리자 계정" : "도매 계정"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="w-full flex items-center justify-center gap-2 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg py-2 hover:bg-gray-50 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <LogOut className="w-3 h-3" />
+                  {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col lg:pl-64 min-h-screen transition-all duration-300">
+        {/* Desktop Header (Search & Utility) */}
+        <header className="hidden lg:block sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-gray-100 px-8 py-4">
+          <div className="flex items-center justify-between gap-8">
+            <div className="flex-1 max-w-2xl relative group">
+              <input
+                type="text"
+                placeholder="상품, 주문번호, 고객명을 검색해보세요"
+                className="w-full bg-gray-50 border-0 rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white transition-all"
+              />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#10B981] transition-colors" />
+            </div>
+
+            <div className="flex items-center gap-4">
+              {/* 알림 드롭다운 메뉴 */}
+              <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="relative flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-[#10B981] hover:bg-emerald-50 rounded-lg transition-colors"
+                    aria-label="알림"
+                    disabled={isLoadingNotifications}
+                  >
+                    <div className="relative">
+                      <Bell className="w-5 h-5" />
+                      {hasNewNotifications && (
+                        <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white transform translate-x-1/4 -translate-y-1/4"></span>
+                      )}
+                    </div>
+                    <span className="text-sm font-medium">알림</span>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  <DropdownMenuLabel className="flex items-center justify-between">
+                    <span>알림</span>
+                    {totalUnreadCount > 0 && (
+                      <span className="text-xs font-normal text-red-500">
+                        읽지 않음 {totalUnreadCount}개
+                      </span>
+                    )}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {isLoadingNotifications ? (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      알림을 불러오는 중...
+                    </div>
+                  ) : recentOrders.length === 0 &&
+                    recentInquiries.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      알림이 없습니다
+                    </div>
+                  ) : (
+                    <div className="max-h-96 overflow-y-auto">
+                      {/* 주문 알림 섹션 */}
+                      {recentOrders.length > 0 && (
+                        <>
+                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                            주문 알림
+                            {unreadOrdersCount > 0 && (
+                              <span className="ml-2 text-red-500">
+                                ({unreadOrdersCount})
+                              </span>
+                            )}
+                          </div>
+                          {recentOrders.map((order) => (
+                            <DropdownMenuItem
+                              key={`order-${order.id}`}
+                              className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                              onClick={() => handleOrderClick(order.id)}
+                            >
+                              <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center gap-2">
+                                  <Package className="w-4 h-4 text-gray-500" />
+                                  <span className="font-medium text-sm">
+                                    {order.product.name}
+                                  </span>
+                                  {!order.is_read && (
+                                    <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                                  )}
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {formatDateTime(order.created_at, "time-only")}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-xs text-gray-600">
+                                <span>주문번호: {order.order_number}</span>
+                                <span className="font-medium">
+                                  {formatPrice(order.total_amount)}
+                                </span>
+                              </div>
+                            </DropdownMenuItem>
+                          ))}
+                          {recentInquiries.length > 0 && (
+                            <DropdownMenuSeparator />
+                          )}
+                        </>
+                      )}
+
+                      {/* 문의 알림 섹션 */}
+                      {recentInquiries.length > 0 && (
+                        <>
+                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                            문의 알림
+                            {unreadInquiriesCount > 0 && (
+                              <span className="ml-2 text-red-500">
+                                ({unreadInquiriesCount})
+                              </span>
+                            )}
+                          </div>
+                          {recentInquiries.map((inquiry) => (
+                            <DropdownMenuItem
+                              key={`inquiry-${inquiry.id}`}
+                              className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                              onClick={() => handleInquiryClick(inquiry.id)}
+                            >
+                              <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center gap-2">
+                                  <MessageSquare className="w-4 h-4 text-gray-500" />
+                                  <span className="font-medium text-sm">
+                                    {inquiry.title}
+                                  </span>
+                                  {inquiry.status === "open" && (
+                                    <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                                  )}
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  {formatDateTime(inquiry.created_at, "time-only")}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between w-full text-xs text-gray-600">
+                                {inquiry.user_anonymous_code && (
+                                  <span>문의자: {inquiry.user_anonymous_code}</span>
+                                )}
+                                <span
+                                  className={`text-xs px-2 py-0.5 rounded ${
+                                    inquiry.status === "open"
+                                      ? "bg-red-100 text-red-700"
+                                      : "bg-gray-100 text-gray-700"
+                                  }`}
+                                >
+                                  {inquiry.status === "open" ? "미답변" : "답변완료"}
+                                </span>
+                              </div>
+                            </DropdownMenuItem>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {(recentOrders.length > 0 || recentInquiries.length > 0) && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <div className="flex gap-2">
+                        {recentOrders.length > 0 && (
+                          <DropdownMenuItem
+                            className="text-center justify-center cursor-pointer flex-1"
+                            onClick={() => {
+                              router.push("/wholesaler/orders");
+                              setIsDropdownOpen(false);
+                            }}
+                          >
+                            모든 주문 보기
+                          </DropdownMenuItem>
+                        )}
+                        {recentInquiries.length > 0 && (
+                          <DropdownMenuItem
+                            className="text-center justify-center cursor-pointer flex-1"
+                            onClick={() => {
+                              router.push("/wholesaler/inquiries");
+                              setIsDropdownOpen(false);
+                            }}
+                          >
+                            모든 문의 보기
+                          </DropdownMenuItem>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <div className="h-8 w-px bg-gray-200 mx-2"></div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/wholesaler/settings"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-[#10B981] hover:bg-emerald-50 rounded-lg transition-colors"
+                >
+                  <Settings className="w-5 h-5" />
+                  <span className="text-sm font-medium">설정</span>
+                </Link>
+                <Link
+                  href="/wholesaler/inquiries"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-[#10B981] hover:bg-emerald-50 rounded-lg transition-colors"
+                >
+                  <HelpCircle className="w-5 h-5" />
+                  <span className="text-sm font-medium">고객센터</span>
+                </Link>
+              </div>
             </div>
           </div>
+        </header>
+
+        {/* Mobile Header */}
+        <header className="lg:hidden bg-gradient-to-b from-emerald-50/50 via-white/90 to-white/95 shadow-sm sticky top-0 z-50 backdrop-blur-xl border-b border-gray-100/50 supports-[backdrop-filter]:bg-white/60">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              {/* Mobile Logo */}
+              <Link
+                href="/wholesaler/dashboard"
+                className="flex items-center gap-2"
+              >
+                <div className="w-8 h-8 bg-[#10B981] rounded flex items-center justify-center">
+                  <span className="text-white font-bold text-xs">F</span>
+                </div>
+                <div className="flex flex-col -space-y-0.5">
+                  <h1 className="text-lg font-black tracking-tight">
+                    <span className="text-[#111827]">Farm</span>
+                    <span className="text-[#10B981]">to</span>
+                    <span className="text-[#111827]">Biz</span>
+                  </h1>
+                  <span className="text-[10px] text-[#6B7280] font-medium">
+                    신선한 농산물 직거래
+                  </span>
+                </div>
+              </Link>
+
+              {/* Mobile Search & Menu */}
+              <div className="flex items-center gap-1">
+                <button className="p-2 text-gray-600 hover:text-[#10B981] transition-colors">
+                  <Search className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="w-6 h-6" />
+                  ) : (
+                    <Menu className="w-6 h-6" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Menu Dropdown */}
+          {isMobileMenuOpen && (
+            <div className="bg-[#10B981] border-t border-white/10">
+              <nav className="px-4 py-2 space-y-1">
+                {navigation.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors text-white"
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium">{item.name}</span>
+                    </Link>
+                  );
+                })}
+                <div className="border-t border-white/20 my-2 pt-2">
+                  <div className="px-4 py-2 text-xs text-white/80">
+                    {isLoadingWholesaler ? "로딩 중..." : businessName} (
+                    {role === "admin" ? "관리자" : "도매"})
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 w-full text-left rounded-lg text-white/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+                  </button>
+                </div>
+              </nav>
+          </div>
         )}
+        </header>
+
+        {/* 메인 컨텐츠 - 반응형 패딩 */}
+        <main className="w-full px-4 lg:px-8 py-6 lg:py-8 flex-1 max-w-[1920px] mx-auto overflow-x-hidden bg-white">
+          {children}
+        </main>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );
 }
-
