@@ -57,7 +57,7 @@ export default function PriceTable({
     } else if (direction === "2") {
       // 하락 - 파랑, 절댓값 표시
       return (
-        <div className="flex items-center justify-end gap-1 text-sm font-bold text-blue-500" role="status" aria-label={`하락 ${Math.abs(value).toFixed(1)}%`}>
+        <div className="flex items-center justify-end gap-1 text-sm font-bold text-[#10B981]" role="status" aria-label={`하락 ${Math.abs(value).toFixed(1)}%`}>
           <TrendingDown className="w-4 h-4" aria-hidden="true" />
           <span>{Math.abs(value).toFixed(1)}%</span>
         </div>

@@ -433,7 +433,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             <div className="text-center">
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
                 isActive
-                  ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                  ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
                   : 'bg-gray-100 text-gray-600 border border-gray-200'
               }`}>
                 {isActive ? '활성' : '비활성'}
@@ -462,7 +462,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
               </button>
               <Link
                 href={`/wholesaler/products/${product.id}/edit`}
-                className="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all duration-200 group/btn"
+                className="p-2 rounded-lg bg-emerald-50 text-[#10B981] hover:bg-emerald-100 transition-all duration-200 group/btn"
                 title="수정"
               >
                 <Edit2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />

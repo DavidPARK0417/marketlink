@@ -917,8 +917,8 @@ export default function SettingsPage() {
       <Dialog open={isEmailSameModalOpen} onOpenChange={setIsEmailSameModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Info className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Info className="w-6 h-6 text-[#10B981]" />
             </div>
             <DialogTitle className="text-xl font-bold text-center">
               이메일 변경 안내

@@ -126,7 +126,7 @@ export default function PriceComparisonChart({
     } else if (direction === "2") {
       // 하락 - 파랑, 절댓값 표시
       return (
-        <span className="flex items-center gap-1 text-blue-500" role="status" aria-label={`하락 ${Math.abs(value).toFixed(1)}%`}>
+        <span className="flex items-center gap-1 text-[#10B981]" role="status" aria-label={`하락 ${Math.abs(value).toFixed(1)}%`}>
           <TrendingDown className="w-4 h-4" aria-hidden="true" />
           <span className="font-semibold">{Math.abs(value).toFixed(1)}%</span>
         </span>

@@ -679,7 +679,7 @@ export default function SettlementsPage() {
       </div>
 
       {/* 정산 안내 */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
         <div className="flex items-start gap-3">
           <Calendar className="w-5 h-5 text-[#10B981] mt-0.5" />
           <div>

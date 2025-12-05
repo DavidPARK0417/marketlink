@@ -213,7 +213,7 @@ export default function InquiriesPage() {
               </p>
             </div>
             <div className="p-2">
-              <MessageSquare className="w-12 h-12 text-blue-500" strokeWidth={1.5} />
+              <MessageSquare className="w-12 h-12 text-[#10B981]" strokeWidth={1.5} />
             </div>
           </div>
         </button>
