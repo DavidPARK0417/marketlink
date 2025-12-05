@@ -126,23 +126,13 @@ const Navbar = () => {
         />
       </Link>
 
-      {/* 우측 영역: 사용자 정보 */}
-      <div className="flex items-center gap-3">
-        {/* 로그인 상태에 따라 사용자 정보 표시 */}
+      {/* 우측 상단: 사용자 아바타 */}
+      <div className="flex items-center justify-end">
         {isLoaded && isSignedIn && (
           <>
-            {/* 로그인 상태 표시 */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <span className="hidden sm:inline">로그인됨</span>
-              {user?.primaryEmailAddress?.emailAddress && (
-                <span className="hidden md:inline text-gray-500 dark:text-gray-400">
-                  ({user.primaryEmailAddress.emailAddress})
-                </span>
-              )}
-            </div>
             {/* pending 또는 rejected 상태인 도매사업자에게만 "로그인되지 않음" 버튼 표시 */}
             {shouldShowLoginButton && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mr-3">
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   로그인되지 않음
                 </span>

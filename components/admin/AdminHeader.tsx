@@ -28,11 +28,16 @@ export default function AdminHeader() {
   }, []);
 
   return (
-    <header className="hidden lg:block sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-gray-100 h-16 flex items-center justify-end px-8">
-      {/* 사용자 드롭다운 메뉴 - 클라이언트 사이드에서만 렌더링 */}
-      {mounted && isLoaded && (
-        <UserButton afterSignOutUrl="/sign-in" />
-      )}
+    <header className="hidden lg:block sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-gray-100 h-16 flex items-center justify-between px-8">
+      {/* 왼쪽: 빈 공간 (필요시 추가 가능) */}
+      <div></div>
+      
+      {/* 우측 상단: 사용자 드롭다운 메뉴 */}
+      <div className="flex items-center justify-end">
+        {mounted && isLoaded && (
+          <UserButton afterSignOutUrl="/sign-in" />
+        )}
+      </div>
     </header>
   );
 }
