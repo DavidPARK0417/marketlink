@@ -324,17 +324,17 @@
 
 **작업 내용**:
 
-- [ ] `rounded-xl` 적용 (12px)
-- [ ] Green 색상 적용 (`bg-[#10B981]`, `hover:bg-[#059669]`)
-- [ ] 호버 효과 추가 (`hover:-translate-y-0.5`, `hover:shadow-lg`)
-- [ ] 액티브 효과 추가 (`active:scale-98`)
-- [ ] 트랜지션 추가 (`transition-all duration-300`)
+- [x] `rounded-xl` 적용 (12px)
+- [x] Green 색상 적용 (`bg-[#10B981]`, `hover:bg-[#059669]`)
+- [x] 호버 효과 추가 (`hover:-translate-y-0.5`, `hover:shadow-lg`)
+- [x] 액티브 효과 추가 (`active:scale-98`)
+- [x] 트랜지션 추가 (`transition-all duration-300`)
 
 **체크리스트**:
 
-- [ ] 버튼 스타일 업데이트 완료
-- [ ] 모든 버튼 variant 확인
-- [ ] 빌드 에러 확인
+- [x] 버튼 스타일 업데이트 완료
+- [x] 모든 버튼 variant 확인
+- [x] 빌드 에러 확인
 
 **참고**: `docs/design-handoff_D/02-components/buttons/code.tsx`
 
@@ -346,15 +346,15 @@
 
 **작업 내용**:
 
-- [ ] `rounded-2xl` 또는 `rounded-3xl` 적용 (16px~24px)
-- [ ] 그림자 효과 추가 (`shadow-md`, `hover:shadow-xl`)
-- [ ] 호버 효과 추가 (`hover:-translate-y-1`)
-- [ ] 트랜지션 추가 (`transition-all duration-300`)
+- [x] `rounded-2xl` 또는 `rounded-3xl` 적용 (16px~24px)
+- [x] 그림자 효과 추가 (`shadow-md`, `hover:shadow-xl`)
+- [x] 호버 효과 추가 (`hover:-translate-y-1`)
+- [x] 트랜지션 추가 (`transition-all duration-300`)
 
 **체크리스트**:
 
-- [ ] 카드 스타일 업데이트 완료
-- [ ] 빌드 에러 확인
+- [x] 카드 스타일 업데이트 완료
+- [x] 빌드 에러 확인
 
 **참고**: `docs/design-handoff_D/02-components/cards/code.tsx`
 
@@ -366,14 +366,14 @@
 
 **작업 내용**:
 
-- [ ] `rounded-xl` 적용 (12px)
-- [ ] 포커스 링 색상 Green으로 변경 (`focus:ring-[#10B981]`)
-- [ ] 트랜지션 추가 (`transition-colors duration-150`)
+- [x] `rounded-xl` 적용 (12px)
+- [x] 포커스 링 색상 Green으로 변경 (`focus:ring-[#10B981]`)
+- [x] 트랜지션 추가 (`transition-colors duration-150`)
 
 **체크리스트**:
 
-- [ ] 입력 필드 스타일 업데이트 완료
-- [ ] 빌드 에러 확인
+- [x] 입력 필드 스타일 업데이트 완료
+- [x] 빌드 에러 확인
 
 **참고**: `docs/design-handoff_D/02-components/forms/code.tsx`
 
@@ -385,13 +385,13 @@
 
 **작업 내용**:
 
-- [ ] 디자인 핸드오프 스타일 확인
-- [ ] 필요시 스타일 업데이트
+- [x] 디자인 핸드오프 스타일 확인
+- [x] 필요시 스타일 업데이트 (현재 shadcn/ui 기본 스타일 사용 중, 추가 업데이트 불필요)
 
 **체크리스트**:
 
-- [ ] 테이블 스타일 확인 및 업데이트
-- [ ] 빌드 에러 확인
+- [x] 테이블 스타일 확인 및 업데이트
+- [x] 빌드 에러 확인
 
 **참고**: `docs/design-handoff_D/02-components/tables/code.tsx`
 
@@ -403,14 +403,14 @@
 
 **작업 내용**:
 
-- [ ] 디자인 핸드오프 모달 스타일 확인
-- [ ] 백드롭 블러 효과 확인 (`backdrop-blur-sm`)
-- [ ] 필요시 스타일 업데이트
+- [x] 디자인 핸드오프 모달 스타일 확인
+- [x] 백드롭 블러 효과 확인 (`backdrop-blur-sm`)
+- [x] 필요시 스타일 업데이트 (`rounded-2xl` 적용)
 
 **체크리스트**:
 
-- [ ] 모달 스타일 확인 및 업데이트
-- [ ] 빌드 에러 확인
+- [x] 모달 스타일 확인 및 업데이트
+- [x] 빌드 에러 확인
 
 **참고**: `docs/design-handoff_D/02-components/modals/`
 
