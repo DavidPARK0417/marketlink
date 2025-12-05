@@ -37,6 +37,9 @@ import {
   Truck,
   DollarSign,
   Loader2,
+  AlertCircle,
+  ChevronRight,
+  TrendingUp,
 } from "lucide-react";
 
 /**
@@ -120,50 +123,131 @@ export default function DashboardPage() {
     };
   }, [wholesalerId, supabase, router]);
 
-  return (
-    <div className="space-y-6">
-      {/* 대시보드 헤더 섹션 */}
-      <div className="space-y-2 pb-6 border-b border-gray-200">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-          실시간 주문과 재고, 정산 현황을 한눈에!
-        </h1>
-        <p className="text-base md:text-lg text-gray-600">
-          도매업자의 하루를 더 스마트하게
-        </p>
-      </div>
+  const todayOrders = stats?.todayOrders ?? 0;
+  const confirmedOrders = stats?.confirmedOrders ?? 0;
+  const weeklySettlementAmount = stats?.weeklySettlementAmount ?? 0;
+  const totalProducts = stats?.totalProducts ?? 0;
 
-      {/* 통계 카드 4개 */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="오늘 주문"
-          value={isStatsLoading ? "..." : stats?.todayOrders ?? 0}
-          icon={ShoppingCart}
-          isLoading={isStatsLoading}
-        />
-        <StatCard
-          title="출고 예정"
-          value={isStatsLoading ? "..." : stats?.confirmedOrders ?? 0}
-          icon={Truck}
-          isLoading={isStatsLoading}
-        />
-        <StatCard
-          title="이번 주 정산 예정"
-          value={
-            isStatsLoading
-              ? "..."
-              : `${new Intl.NumberFormat("ko-KR").format(
-                  stats?.weeklySettlementAmount ?? 0,
-                )}원`
-          }
-          icon={DollarSign}
-          isLoading={isStatsLoading}
-        />
-        <StatCard
-          title="전체 상품"
-          value={isStatsLoading ? "..." : stats?.totalProducts ?? 0}
-          icon={Package}
-          isLoading={isStatsLoading}
-        />
+  return (
+    <div className="space-y-6 lg:space-y-8">
+      {/* 알림 배너 - 신규 주문 with 3D */}
+      {!isStatsLoading && todayOrders > 0 && (
+        <div className="relative bg-gradient-to-br from-[#10B981] via-[#059669] to-[#047857] text-white rounded-3xl p-4 lg:p-5 shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:shadow-[0_25px_60px_rgba(16,185,129,0.4)] transition-all duration-300 hover:-translate-y-1 border border-white/20">
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 rounded-3xl"></div>
+          <div className="relative flex items-center gap-3">
+            <div className="bg-white/20 backdrop-blur-sm p-2 rounded-xl shadow-lg">
+              <AlertCircle className="w-5 h-5 lg:w-6 lg:h-6 drop-shadow-lg" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-base lg:text-lg drop-shadow-md">
+                신규 주문 {todayOrders}건의 발주 확인이 필요합니다.
+              </h3>
+              <p className="text-xs lg:text-sm mt-0.5 opacity-90">
+                빠른 처리로 고객 만족도를 높이세요.
+              </p>
+            </div>
+            <ChevronRight className="w-6 h-6 flex-shrink-0 drop-shadow-lg" />
+          </div>
+        </div>
+      )}
+
+      {/* 간편 통계 카드 - 3D Effect */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        {/* 오늘 신규 주문 */}
+        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="relative">
+            {isStatsLoading ? (
+              <div className="space-y-3">
+                <div className="h-10 w-10 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+              </div>
+            ) : (
+              <>
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">📦</div>
+                <p className="text-xs lg:text-sm text-[#6B7280] font-semibold mb-2">오늘 신규 주문</p>
+                <p className="text-2xl lg:text-3xl font-bold text-[#111827] mb-2">{todayOrders}건</p>
+                <div className="flex items-center gap-1 text-xs text-[#10B981] font-semibold bg-[#10B981]/10 px-2 py-1 rounded-full w-fit">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>+12%</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* 출고 예정 */}
+        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(251,191,36,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#fbbf24]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="relative">
+            {isStatsLoading ? (
+              <div className="space-y-3">
+                <div className="h-10 w-10 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+              </div>
+            ) : (
+              <>
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">⏰</div>
+                <p className="text-xs lg:text-sm text-[#6B7280] font-semibold mb-2">출고 예정</p>
+                <p className="text-2xl lg:text-3xl font-bold text-[#111827] mb-2">{confirmedOrders}건</p>
+                <div className="text-xs text-[#fbbf24] font-semibold bg-[#fbbf24]/10 px-2 py-1 rounded-full w-fit">
+                  처리 필요
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* 이번 주 정산 */}
+        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="relative">
+            {isStatsLoading ? (
+              <div className="space-y-3">
+                <div className="h-10 w-10 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+              </div>
+            ) : (
+              <>
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">💰</div>
+                <p className="text-xs lg:text-sm text-[#6B7280] font-semibold mb-2">이번 주 정산</p>
+                <p className="text-xl lg:text-2xl font-bold text-[#111827] mb-2">
+                  {(weeklySettlementAmount / 10000).toFixed(0)}만원
+                </p>
+                <div className="flex items-center gap-1 text-xs text-[#10B981] font-semibold bg-[#10B981]/10 px-2 py-1 rounded-full w-fit">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>+8%</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* 등록 상품 */}
+        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(99,102,241,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="relative">
+            {isStatsLoading ? (
+              <div className="space-y-3">
+                <div className="h-10 w-10 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+              </div>
+            ) : (
+              <>
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">🏪</div>
+                <p className="text-xs lg:text-sm text-[#6B7280] font-semibold mb-2">등록 상품</p>
+                <p className="text-2xl lg:text-3xl font-bold text-[#111827] mb-2">{totalProducts}개</p>
+                <div className="text-xs text-[#6B7280] font-semibold bg-gray-100 px-2 py-1 rounded-full w-fit">
+                  관리 중
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* 에러 메시지 */}

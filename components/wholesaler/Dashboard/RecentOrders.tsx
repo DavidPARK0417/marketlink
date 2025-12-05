@@ -22,19 +22,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import OrderStatusBadge from "@/components/wholesaler/Orders/OrderStatusBadge";
 import EmptyState from "@/components/common/EmptyState";
-import { ShoppingCart, ArrowRight, Loader2 } from "lucide-react";
+import { ShoppingCart, ChevronRight, Loader2, Truck } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -59,100 +49,166 @@ export default function RecentOrders() {
     refetchInterval: 30000, // 30초마다 자동 갱신
   });
 
+  const getStatusText = (status: string) => {
+    const statusMap: Record<string, string> = {
+      pending: "신규",
+      confirmed: "확인완료",
+      shipped: "출고완료",
+      completed: "배송완료",
+      cancelled: "취소됨",
+    };
+    return statusMap[status] || status;
+  };
+
+  const getStatusColor = (status: string) => {
+    const colorMap: Record<string, string> = {
+      pending: "bg-[#fbbf24] text-white",
+      confirmed: "bg-[#10B981] text-white",
+      shipped: "bg-[#3b82f6] text-white",
+      completed: "bg-gray-400 text-white",
+      cancelled: "bg-red-500 text-white",
+    };
+    return colorMap[status] || "bg-gray-200";
+  };
+
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">최근 주문</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+        <div className="p-4 lg:p-6">
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-gray-500" />
+            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <CardTitle className="text-lg font-semibold">최근 주문</CardTitle>
-        <Link href="/wholesaler/orders">
-          <Button variant="outline" size="sm">
-            전체 보기
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+    <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+      <div className="p-4 lg:p-6 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg lg:text-xl font-bold text-[#111827] flex items-center gap-2">
+            <Truck className="w-5 h-5 text-[#10B981]" />
+            최근 주문 배송 조회
+          </h2>
+          <p className="text-xs lg:text-sm text-[#6B7280] mt-1">
+            {orders.length > 0
+              ? `신규 주문 ${orders.filter((o) => o.status === "pending").length}건이 처리 대기 중입니다`
+              : "최근 주문이 없습니다"}
+          </p>
+        </div>
+        <Link
+          href="/wholesaler/orders"
+          className="text-[#10B981] font-semibold text-sm flex items-center gap-1 hover:gap-2 transition-all"
+        >
+          더보기 <ChevronRight className="w-4 h-4" />
         </Link>
-      </CardHeader>
-      <CardContent>
-        {orders.length === 0 ? (
+      </div>
+
+      {orders.length === 0 ? (
+        <div className="p-4 lg:p-6">
           <EmptyState
             message="최근 주문이 없습니다"
             description="새로운 주문이 들어오면 여기에 표시됩니다."
             icon={ShoppingCart}
           />
-        ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>주문번호</TableHead>
-                  <TableHead>주문일</TableHead>
-                  <TableHead>상태</TableHead>
-                  <TableHead className="text-right">금액</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((order) => {
-                  // 주문 상태별 배경색 설정
-                  const getStatusColor = (status: string) => {
-                    switch (status) {
-                      case "completed":
-                        return "bg-green-50 hover:bg-green-100 border-green-200 dark:bg-green-950/20 dark:hover:bg-green-900/30 dark:border-green-800";
-                      case "shipped":
-                        return "bg-emerald-50 hover:bg-emerald-100 border-emerald-200 dark:bg-emerald-950/20 dark:hover:bg-emerald-900/30 dark:border-emerald-800";
-                      case "confirmed":
-                        return "bg-cyan-50 hover:bg-cyan-100 border-cyan-200 dark:bg-cyan-950/20 dark:hover:bg-cyan-900/30 dark:border-cyan-800";
-                      case "pending":
-                        return "bg-yellow-50 hover:bg-yellow-100 border-yellow-200 dark:bg-yellow-950/20 dark:hover:bg-yellow-900/30 dark:border-yellow-800";
-                      case "cancelled":
-                        return "bg-red-50 hover:bg-red-100 border-red-200 dark:bg-red-950/20 dark:hover:bg-red-900/30 dark:border-red-800";
-                      default:
-                        return "bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700";
-                    }
-                  };
-
-                  return (
-                    <TableRow
-                      key={order.id}
-                      className={getStatusColor(order.status)}
-                    >
-                      <TableCell className="font-medium">
-                        {order.order_number}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(order.created_at), "yyyy-MM-dd HH:mm", {
-                          locale: ko,
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        <OrderStatusBadge status={order.status} />
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {new Intl.NumberFormat("ko-KR").format(
-                          order.total_amount,
-                        )}
-                        원
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+        </div>
+      ) : (
+        <>
+          {/* 데스크톱 테이블 */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-[#F8F9FA]">
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                    주문번호
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                    상품명
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                    수량
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                    금액
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                    상태
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {orders.map((order) => (
+                  <tr
+                    key={order.id}
+                    className="hover:bg-[#F8F9FA] transition-colors"
+                  >
+                    <td className="px-6 py-4 text-sm font-medium text-[#111827]">
+                      {order.order_number}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#6B7280]">
+                      {order.product.name}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-[#6B7280]">
+                      {order.quantity}박스
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-[#111827]">
+                      {order.total_amount.toLocaleString()}원
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}
+                      >
+                        {getStatusText(order.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* 모바일 카드 */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {orders.map((order) => (
+              <div
+                key={order.id}
+                className="p-4 hover:bg-[#F8F9FA] transition-colors"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-[#111827] mb-1">
+                      {order.product.name}
+                    </p>
+                    <p className="text-xs text-[#6B7280]">
+                      {order.order_number}
+                    </p>
+                  </div>
+                  <span
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold flex-shrink-0 ml-2 ${getStatusColor(order.status)}`}
+                  >
+                    {getStatusText(order.status)}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-[#6B7280]">수량: </span>
+                    <span className="text-[#111827] font-medium">
+                      {order.quantity}박스
+                    </span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-[#6B7280]">금액: </span>
+                    <span className="text-[#111827] font-bold">
+                      {order.total_amount.toLocaleString()}원
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
