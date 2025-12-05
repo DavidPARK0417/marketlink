@@ -155,6 +155,51 @@ export async function getOrders(
 
   const supabase = createClerkSupabaseClient();
 
+  // 고객명 검색이 있는 경우, 먼저 retailers 테이블에서 retailer_id 목록 조회
+  let retailerIds: string[] | null = null;
+  if (filter.customer_name) {
+    console.log("🔍 [orders-query] 고객명 검색 시작", {
+      customer_name: filter.customer_name,
+    });
+
+    const { data: retailersData, error: retailersError } = await supabase
+      .from("retailers")
+      .select("id")
+      .ilike("business_name", `%${filter.customer_name.trim()}%`);
+
+    if (retailersError) {
+      console.error("❌ [orders-query] 고객명 검색 오류:", retailersError);
+      throw new Error(`고객명 검색 실패: ${retailersError.message}`);
+    }
+
+    retailerIds = retailersData?.map((r) => r.id) ?? [];
+    console.log("✅ [orders-query] 고객명 검색 결과", {
+      count: retailerIds.length,
+      retailer_ids: retailerIds,
+    });
+
+    // 고객명 검색 결과가 없으면 빈 결과 반환
+    if (retailerIds.length === 0) {
+      console.log("⚠️ [orders-query] 고객명 검색 결과 없음 - 빈 결과 반환");
+      return {
+        orders: [],
+        total: 0,
+        page,
+        pageSize,
+        totalPages: 0,
+        counts: {
+          all: 0,
+          pending: 0,
+          confirmed: 0,
+          shipped: 0,
+          completed: 0,
+          cancelled: 0,
+          processing: 0,
+        },
+      };
+    }
+  }
+
   // 기본 쿼리 생성 (products, product_variants 조인)
   // ⚠️ RLS 비활성화 환경 대응: 명시적으로 wholesaler_id 필터 추가
   // ✅ retailers 테이블의 anonymous_code 조회 (도매점에게 노출용)
@@ -165,7 +210,7 @@ export async function getOrders(
       *,
       products(*),
       product_variants(*),
-      retailers(id, anonymous_code)
+      retailers(id, anonymous_code, business_name)
     `,
       { count: "exact" },
     )
@@ -190,6 +235,14 @@ export async function getOrders(
   if (filter.order_number) {
     // 주문번호 정확 일치 검색
     query = query.eq("order_number", filter.order_number);
+  }
+
+  // 고객명 검색 결과로 retailer_id 필터링
+  if (retailerIds && retailerIds.length > 0) {
+    query = query.in("retailer_id", retailerIds);
+    console.log("🔍 [orders-query] retailer_id 필터 적용", {
+      retailer_ids: retailerIds,
+    });
   }
 
   // 정렬 적용
@@ -241,6 +294,11 @@ export async function getOrders(
 
     if (filter.order_number) {
       query = query.eq("order_number", filter.order_number);
+    }
+
+    // 고객명 검색 결과로 retailer_id 필터링
+    if (retailerIds && retailerIds.length > 0) {
+      query = query.in("retailer_id", retailerIds);
     }
 
     return query;

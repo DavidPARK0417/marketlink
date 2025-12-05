@@ -92,6 +92,7 @@ function WholesalerLayoutContent({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // 알림 훅 사용
   const {
@@ -185,6 +186,49 @@ function WholesalerLayoutContent({
   const handleInquiryClick = (inquiryId: string) => {
     router.push(`/wholesaler/inquiries/${inquiryId}`);
     setIsDropdownOpen(false);
+  };
+
+  // 검색어 타입 판별 함수
+  const detectSearchType = (query: string): 'order' | 'product' | 'customer' => {
+    const trimmed = query.trim();
+    
+    // 주문번호 패턴: ORD-로 시작하거나 숫자-숫자-숫자-숫자 패턴
+    if (/^ORD-/.test(trimmed) || /^\d{4}-\d{2}-\d{2}-\d+/.test(trimmed)) {
+      return 'order';
+    }
+    
+    // 기본적으로 상품명으로 간주
+    // (고객명은 주문 페이지에서만 검색 가능하므로, 여기서는 상품명으로 처리)
+    return 'product';
+  };
+
+  // 검색 실행 핸들러
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!searchQuery.trim()) {
+      return;
+    }
+    
+    const searchType = detectSearchType(searchQuery);
+    const trimmedQuery = searchQuery.trim();
+    
+    console.log("🔍 [layout-search] 검색 실행", {
+      query: trimmedQuery,
+      type: searchType,
+      currentPath: pathname,
+    });
+    
+    if (searchType === 'order') {
+      // 주문번호 검색 → 주문 페이지로 이동
+      router.push(`/wholesaler/orders?search=${encodeURIComponent(trimmedQuery)}`);
+    } else {
+      // 상품명 검색 → 상품 페이지로 이동
+      router.push(`/wholesaler/products?search=${encodeURIComponent(trimmedQuery)}`);
+    }
+    
+    // 검색 후 입력 필드 초기화 (선택사항)
+    // setSearchQuery("");
   };
 
   return (
@@ -306,14 +350,16 @@ function WholesalerLayoutContent({
         {/* Desktop Header (Search & Utility) */}
         <header className="hidden lg:block sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-gray-100 px-8 py-4">
           <div className="flex items-center justify-between gap-8">
-            <div className="flex-1 max-w-2xl relative group">
+            <form onSubmit={handleSearch} className="flex-1 max-w-2xl relative group">
               <input
                 type="text"
                 placeholder="상품, 주문번호, 고객명을 검색해보세요"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-gray-50 border-0 rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white transition-all"
               />
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#10B981] transition-colors" />
-            </div>
+            </form>
 
             <div className="flex items-center gap-4">
               {/* 알림 드롭다운 메뉴 */}
@@ -525,9 +571,16 @@ function WholesalerLayoutContent({
 
               {/* Mobile Search & Menu */}
               <div className="flex items-center gap-1">
-                <button className="p-2 text-gray-600 hover:text-[#10B981] transition-colors">
-                  <Search className="w-5 h-5" />
-                </button>
+                <form onSubmit={handleSearch} className="flex-1 max-w-xs relative mr-2">
+                  <input
+                    type="text"
+                    placeholder="검색..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-gray-50 border-0 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white transition-all"
+                  />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                </form>
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"

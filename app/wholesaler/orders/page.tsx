@@ -26,6 +26,7 @@ import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { Search, X } from "lucide-react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
@@ -85,11 +86,16 @@ async function fetchOrders(filter: OrderFilter = {}) {
 export default function OrdersPage() {
   const queryClient = useQueryClient();
   const supabase = useClerkSupabaseClient();
+  const searchParams = useSearchParams();
   const {
     data: wholesaler,
     isLoading: isWholesalerLoading,
     error: wholesalerError,
   } = useWholesaler();
+
+  // URL 쿼리 파라미터에서 초기값 읽기
+  const initialSearchTerm = searchParams.get("search") || "";
+  const initialCustomer = searchParams.get("customer") || "";
 
   // 필터 상태
   const [activeTab, setActiveTab] = React.useState<string>("all");
@@ -97,7 +103,7 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = React.useState<OrderStatus | "all">(
     "all",
   );
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = React.useState(initialSearchTerm);
 
   // 에러 로깅
   React.useEffect(() => {
@@ -117,6 +123,11 @@ export default function OrdersPage() {
   const filter: OrderFilter = React.useMemo(() => {
     const filterObj: OrderFilter = {};
 
+    // 필터 우선순위:
+    // 1. 탭 필터 (전체, 신규, 처리중, 완료) - 탭 선택 시 statusFilter는 "all"로 리셋됨
+    // 2. 상태 드롭다운 필터 - 상태 선택 시 activeTab은 "all"로 리셋됨
+    // 따라서 두 필터가 동시에 적용되는 경우는 없음
+
     // 탭에 따른 상태 필터
     if (activeTab === "pending") {
       filterObj.status = "pending";
@@ -131,6 +142,7 @@ export default function OrdersPage() {
     // activeTab === "all"인 경우 필터 없음
 
     // 추가 상태 필터 (Select에서 선택한 경우)
+    // 상태 드롭다운 선택 시 activeTab이 "all"로 리셋되므로, 이 필터가 우선 적용됨
     if (statusFilter !== "all") {
       filterObj.status = statusFilter;
     }
@@ -148,8 +160,13 @@ export default function OrdersPage() {
       filterObj.order_number = searchTerm.trim();
     }
 
+    // 고객명 검색 (URL 파라미터에서 읽음)
+    if (initialCustomer.trim()) {
+      filterObj.customer_name = initialCustomer.trim();
+    }
+
     return filterObj;
-  }, [activeTab, dateRange, statusFilter, searchTerm]);
+  }, [activeTab, dateRange, statusFilter, searchTerm, initialCustomer]);
 
   // 주문 목록 조회
   const {
@@ -327,19 +344,11 @@ export default function OrdersPage() {
 
   // 필터 버튼 클릭 핸들러
   const handleFilterClick = (value: string) => {
-    console.log("🔍 [orders-page] 필터 버튼 클릭", { value, activeTab });
+    console.log("🔍 [orders-page] 필터 버튼 클릭", { value, activeTab, statusFilter });
     setActiveTab(value);
-    // 탭에 따른 상태 필터도 업데이트
-    if (value === "all") {
-      setStatusFilter("all");
-    } else if (value === "pending") {
-      setStatusFilter("pending");
-    } else if (value === "confirmed") {
-      // 처리중은 클라이언트에서 필터링하므로 statusFilter는 "all"로 유지
-      setStatusFilter("all");
-    } else if (value === "completed") {
-      setStatusFilter("completed");
-    }
+    // 탭 선택 시 상태 드롭다운을 "all"로 리셋하여 충돌 방지
+    // 탭 필터가 우선 적용되도록 함
+    setStatusFilter("all");
   };
 
   // 도매점 ID가 없으면 로딩 또는 에러 표시
@@ -405,9 +414,14 @@ export default function OrdersPage() {
         {/* 상태 선택 */}
         <Select
           value={statusFilter}
-          onValueChange={(value) =>
-            setStatusFilter(value as OrderStatus | "all")
-          }
+          onValueChange={(value) => {
+            console.log("🔍 [orders-page] 상태 드롭다운 변경", { value, activeTab });
+            setStatusFilter(value as OrderStatus | "all");
+            // 상태 드롭다운 선택 시 탭을 "all"로 리셋하여 충돌 방지
+            if (value !== "all") {
+              setActiveTab("all");
+            }
+          }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="상태 선택" />

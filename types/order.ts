@@ -82,6 +82,7 @@ export interface OrderFilter {
   start_date?: string; // ISO 8601 형식
   end_date?: string; // ISO 8601 형식
   order_number?: string; // 주문번호 (정확 일치)
+  customer_name?: string; // 고객명 (retailers.business_name 검색)
 }
 
 /**

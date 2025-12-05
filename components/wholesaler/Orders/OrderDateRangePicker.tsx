@@ -48,7 +48,7 @@ export default function OrderDateRangePicker({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "w-[150px] justify-start text-left font-normal",
               !dateRange && "text-muted-foreground"
             )}
           >
