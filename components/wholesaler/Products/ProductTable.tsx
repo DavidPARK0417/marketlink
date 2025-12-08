@@ -661,64 +661,167 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
         </div>
       </div>
 
-      {/* 테이블 - 디자인 핸드오프 스타일 */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* 테이블 / 카드 - 디자인 핸드오프 스타일 */}
+      <div className="space-y-3">
         {table.getRowModel().rows?.length ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id} className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                    {headerGroup.headers.map((header) => {
-                      const isSortable = header.column.getCanSort();
-                      return (
-                        <th
-                          key={header.id}
+          <>
+            {/* 모바일 카드 리스트 */}
+            <div className="sm:hidden space-y-3">
+              {products.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex-shrink-0">
+                      {product.image_url ? (
+                        <Image
+                          src={product.image_url}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-semibold text-gray-900 text-sm">{product.name}</p>
+                        <span
                           className={cn(
-                            "px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider",
-                            header.id === "price" ? "text-right" : 
-                            header.id === "stock_quantity" || header.id === "is_active" || header.id === "actions" ? "text-center" : 
-                            "text-left",
-                            isSortable && "cursor-pointer hover:bg-gray-100/50 transition-colors"
+                            "inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold",
+                            product.is_active
+                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                              : "bg-gray-100 text-gray-600 border border-gray-200"
                           )}
                         >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </th>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-gradient-to-r hover:from-[#10B981]/5 hover:to-transparent transition-all duration-200 group"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
+                          {product.is_active ? "활성" : "비활성"}
+                        </span>
+                      </div>
+                      {product.specification && (
+                        <p className="text-xs text-gray-500">
+                          {product.specification.replace(/[()]/g, "").replace(/\s+/g, " · ")}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                          {product.category}
+                        </span>
+                        <span className="ml-auto font-semibold text-[#10B981]">
+                          {formatPrice(product.price)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-gray-600">
+                        <span>재고: {product.stock_quantity.toLocaleString()} 박스</span>
+                        <span>MOQ: {product.moq}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => toggleActive(product)}
+                        className={cn(
+                          "flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all",
+                          product.is_active
+                            ? "bg-green-50 text-green-700 hover:bg-green-100"
+                            : "bg-gray-50 text-gray-500 hover:bg-gray-100"
                         )}
-                      </td>
+                        title={product.is_active ? "활성 → 비활성" : "비활성 → 활성"}
+                      >
+                        <Eye className="w-4 h-4" />
+                        {product.is_active ? "비활성화" : "활성화"}
+                      </button>
+                      <Link
+                        href={`/wholesaler/products/${product.id}/edit`}
+                        className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-50 text-[#10B981] hover:bg-emerald-100 transition-all"
+                        title="수정"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                        수정
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteClick(product)}
+                        className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+                        title="삭제"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 데스크톱 테이블 */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden sm:block">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px]">
+                  <thead>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <tr
+                        key={headerGroup.id}
+                        className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200"
+                      >
+                        {headerGroup.headers.map((header) => {
+                          const isSortable = header.column.getCanSort();
+                          return (
+                            <th
+                              key={header.id}
+                              className={cn(
+                                "px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider",
+                                header.id === "price"
+                                  ? "text-right"
+                                  : header.id === "stock_quantity" ||
+                                    header.id === "is_active" ||
+                                    header.id === "actions"
+                                  ? "text-center"
+                                  : "text-left",
+                                isSortable && "cursor-pointer hover:bg-gray-100/50 transition-colors"
+                              )}
+                            >
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
+                            </th>
+                          );
+                        })}
+                      </tr>
                     ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {table.getRowModel().rows.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="hover:bg-gradient-to-r hover:from-[#10B981]/5 hover:to-transparent transition-all duration-200 group"
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className="px-6 py-4">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
         ) : (
-          <EmptyState
-            message="검색 결과가 없습니다"
-            description="다른 검색어나 필터를 사용해보세요"
-            icon={Package}
-          />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+            <EmptyState
+              message="검색 결과가 없습니다"
+              description="다른 검색어나 필터를 사용해보세요"
+              icon={Package}
+            />
+          </div>
         )}
       </div>
 

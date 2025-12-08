@@ -440,7 +440,7 @@ export default function ProductForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>상품명 *</FormLabel>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <FormControl className="flex-1">
                       <Input
                         placeholder="예: 고당도 설향 딸기"
@@ -452,7 +452,7 @@ export default function ProductForm({
                       type="button"
                       variant="outline"
                       size="icon"
-                      className="md:size-auto md:px-3 md:gap-2"
+                      className="w-full sm:w-auto md:size-auto md:px-3 md:gap-2"
                       onClick={handleStandardize}
                       disabled={isSubmitting || isStandardizing}
                       title="AI 표준화"
@@ -511,7 +511,7 @@ export default function ProductForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>가격 (원) *</FormLabel>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <FormControl className="flex-1">
                       <Input
                         type="number"
@@ -602,7 +602,7 @@ export default function ProductForm({
                       type="button"
                       variant="outline"
                       size="icon"
-                      className="md:size-auto md:px-3 md:gap-2"
+                      className="w-full sm:w-auto md:size-auto md:px-3 md:gap-2"
                       onClick={() => {
                         setMarketPriceModalOpen(true);
                       }}
@@ -819,7 +819,7 @@ export default function ProductForm({
             />
 
             {/* 단위 및 규격 */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="unit"
@@ -1141,7 +1141,7 @@ export default function ProductForm({
             {/* 규격 정보 */}
             <div className="space-y-4">
               <FormLabel>규격 정보 (선택사항)</FormLabel>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="specifications.weight"
@@ -1221,13 +1221,14 @@ export default function ProductForm({
             </div>
 
             {/* 버튼 */}
-            <div className="flex justify-end gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:justify-end">
               {onCancel && (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={onCancel}
                   disabled={isSubmitting}
+                  className="w-full sm:w-auto"
                 >
                   취소
                 </Button>
@@ -1238,6 +1239,7 @@ export default function ProductForm({
                 onClick={() => {
                   form.handleSubmit(handleSubmit)();
                 }}
+                className="w-full sm:w-auto"
               >
                 {isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
