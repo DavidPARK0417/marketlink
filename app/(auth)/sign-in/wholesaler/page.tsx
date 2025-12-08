@@ -39,16 +39,18 @@ export default async function WholesalerSignInPage({
   console.log("=".repeat(80));
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-4 md:py-8 bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-4 md:py-8 bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-950 transition-colors duration-200">
       <div className="w-full max-w-md space-y-3">
         {/* 역할 안내 카드 */}
-        <Card className="border-green-200">
+        <Card className="border-green-200 dark:border-green-500/50 bg-white dark:bg-gray-900 transition-colors duration-200">
           <CardHeader className="text-center py-3">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <Package className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-2 transition-colors duration-200">
+              <Package className="w-6 h-6 text-green-600 dark:text-green-300" />
             </div>
-            <CardTitle className="text-xl">도매업자 로그인</CardTitle>
-            <CardDescription className="text-sm">
+            <CardTitle className="text-xl text-gray-900 dark:text-gray-50 transition-colors duration-200">
+              도매업자 로그인
+            </CardTitle>
+            <CardDescription className="text-sm text-gray-700 dark:text-gray-300 transition-colors duration-200">
               전국의 소매업체에게 상품을 판매하고 비즈니스를 확장하세요.
             </CardDescription>
           </CardHeader>
@@ -75,21 +77,21 @@ export default async function WholesalerSignInPage({
             </div>
 
             {/* 신규 회원 안내 카드 */}
-            <Card className="border-emerald-200 bg-emerald-50/50">
+            <Card className="border-emerald-200 dark:border-emerald-500/50 bg-emerald-50/50 dark:bg-gray-900 transition-colors duration-200">
               <CardHeader className="text-center py-3">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <UserPlus className="w-4 h-4 text-[#10B981]" />
-                  <CardTitle className="text-base">
+                <div className="flex items-center justify-center gap-2 mb-1 text-emerald-900 dark:text-white transition-colors duration-200">
+                  <UserPlus className="w-4 h-4 text-emerald-700 dark:text-emerald-300 transition-colors duration-200" />
+                  <CardTitle className="text-base text-emerald-900 dark:text-white transition-colors duration-200">
                     아직 회원이 아니신가요?
                   </CardTitle>
                 </div>
-                <CardDescription className="text-emerald-900/70 mb-2 text-sm">
+                <CardDescription className="text-emerald-900 dark:text-white font-medium dark:font-semibold mb-2 text-sm transition-colors duration-200">
                   지금 바로 회원가입하고 도매 비즈니스를 시작하세요!
                 </CardDescription>
                 <Link href="/sign-up?type=wholesaler">
                   <Button
                     variant="default"
-                    className="w-full bg-[#10B981] hover:bg-[#059669]"
+                    className="w-full bg-[#10B981] hover:bg-[#059669] dark:bg-emerald-600 dark:hover:bg-emerald-500 transition-colors duration-200"
                   >
                     회원가입하기
                   </Button>

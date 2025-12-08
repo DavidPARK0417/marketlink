@@ -64,7 +64,7 @@ export default function AnnouncementList({
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-20 w-full animate-pulse rounded-xl bg-gray-200"
+            className="h-20 w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800"
           />
         ))}
       </div>
@@ -74,9 +74,11 @@ export default function AnnouncementList({
   if (announcements.length === 0) {
     return (
       <div className="space-y-6">
-        <h2 className="text-xl font-bold text-gray-900">공지사항</h2>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-          <p className="text-gray-500">등록된 공지사항이 없습니다.</p>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          공지사항
+        </h2>
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">등록된 공지사항이 없습니다.</p>
         </div>
       </div>
     );
@@ -84,8 +86,10 @@ export default function AnnouncementList({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-gray-900">공지사항</h2>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+        공지사항
+      </h2>
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
         {announcements.map((announcement, index) => {
           const newLabel = isNew(announcement.created_at);
           // 먼저 작성한 글이 1번이 되도록 번호 계산
@@ -97,22 +101,22 @@ export default function AnnouncementList({
             <Link
               key={announcement.id}
               href={`/wholesaler/support/announcements/${announcement.id}`}
-              className="block p-5 flex items-center justify-between hover:bg-gray-50 transition-colors group"
+              className="block p-5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
             >
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-500 min-w-[2rem]">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 min-w-[2rem]">
                   {number}
                 </span>
                 {newLabel && (
-                  <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded">
+                  <span className="bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-200 text-[10px] font-bold px-2 py-0.5 rounded">
                     NEW
                   </span>
                 )}
-                <span className="text-gray-900 font-medium group-hover:text-[#10B981] transition-colors">
+                <span className="text-gray-900 dark:text-gray-100 font-medium group-hover:text-[#10B981] transition-colors">
                   {announcement.title}
                 </span>
               </div>
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-gray-400 dark:text-gray-500">
                 {format(new Date(announcement.created_at), "yyyy-MM-dd", {
                   locale: ko,
                 })}

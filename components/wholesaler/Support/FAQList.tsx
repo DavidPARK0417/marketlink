@@ -68,7 +68,7 @@ export default function FAQList({
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-20 w-full animate-pulse rounded-xl bg-gray-200"
+            className="h-20 w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800"
           />
         ))}
       </div>
@@ -78,8 +78,8 @@ export default function FAQList({
   if (sortedFAQs.length === 0) {
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-          <p className="text-gray-500">
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">
             {searchQuery
               ? "검색 결과가 없습니다."
               : "등록된 FAQ가 없습니다."}
@@ -91,33 +91,37 @@ export default function FAQList({
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
-      <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
         자주 묻는 질문
       </h2>
       {sortedFAQs.map((faq) => (
         <div
           key={faq.id}
-          className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+          className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden"
         >
           <button
             onClick={() => setOpenFaqId(openFaqId === faq.id ? null : faq.id)}
-            className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
           >
             <div className="flex items-center gap-4">
               <span className="text-[#10B981] font-bold w-8">Q.</span>
-              <span className="font-medium text-gray-900">{faq.question}</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">
+                {faq.question}
+              </span>
             </div>
             {openFaqId === faq.id ? (
-              <ChevronUp className="w-5 h-5 text-gray-400" />
+              <ChevronUp className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             ) : (
-              <ChevronDown className="w-5 h-5 text-gray-400" />
+              <ChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             )}
           </button>
           {openFaqId === faq.id && (
-            <div className="px-5 pb-5 pt-0 bg-gray-50 border-t border-gray-100">
+            <div className="px-5 pb-5 pt-0 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-800">
               <div className="flex gap-4 mt-4">
-                <span className="text-gray-400 font-bold w-8">A.</span>
-                <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
+                <span className="text-gray-400 dark:text-gray-500 font-bold w-8">
+                  A.
+                </span>
+                <p className="text-gray-600 dark:text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">
                   {faq.answer}
                 </p>
               </div>

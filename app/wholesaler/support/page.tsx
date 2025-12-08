@@ -279,7 +279,9 @@ export default function SupportPage() {
         {activeTab === "inquiry" && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">1:1 문의 내역</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                1:1 문의 내역
+              </h2>
               <Button
                 onClick={() => setIsInquiryModalOpen(true)}
                 className="flex items-center gap-2 bg-[#10B981] text-white px-5 py-2.5 rounded-xl font-bold hover:bg-[#059669] transition-colors shadow-md text-sm"
