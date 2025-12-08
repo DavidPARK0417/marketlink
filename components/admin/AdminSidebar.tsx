@@ -185,7 +185,7 @@ export default function AdminSidebar() {
                   "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group relative overflow-hidden",
                   isActive
                     ? "text-[#10B981] bg-[#10B981]/10"
-                    : "text-muted-foreground hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-foreground",
+                    : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-foreground dark:hover:text-white",
                 )}
               >
                 <Icon
@@ -193,7 +193,7 @@ export default function AdminSidebar() {
                     "w-5 h-5",
                     isActive
                       ? "text-[#10B981]"
-                      : "text-gray-400 dark:text-gray-500 group-hover:text-foreground",
+                      : "text-gray-500 dark:text-gray-300 group-hover:text-foreground dark:group-hover:text-white",
                   )}
                 />
                 <span className="relative z-10">{item.label}</span>
