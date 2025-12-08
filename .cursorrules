@@ -1,3 +1,16 @@
+---
+description: 다크모드 대응 UI 컨벤션
+globs: components/**/*.tsx, app/**/*.{tsx,ts}
+alwaysApply: true
+---
+
+- **색상 쌍 필수**: `bg-*-light`와 `dark:bg-*`, `text-*-light`와 `dark:text-*`를 항상 짝으로 선언 (HEX 하드코딩 지양).
+- **카드/경계**: `border-gray-200 dark:border-gray-800`, `bg-white dark:bg-gray-900`처럼 배경·테두리 모두 짝 지정.
+- **아이콘/이미지**: SVG는 `currentColor` 따르게 하고 부모의 `text-* dark:text-*`로 색 제어. 배경 이미지엔 오버레이(`bg-black/40 dark:bg-black/60`)로 대비 확보.
+- **폼/포커스**: 입력창 배경·텍스트·플레이스홀더·focus ring에 `dark:` 쌍을 모두 지정. 필요시 `color-scheme: light dark;`.
+- **전환/접근성**: 색상 전환에 `transition-colors duration-200` 사용, WCAG 대비(4.5:1) 확인.
+- **테스트 루틴**: 시스템 테마 라이트/다크 전환 후 새로고침, 토글 후 상태, 키보드 포커스 링을 양 모드에서 확인.
+
 # 🚨 팀 협업 및 초보자 보호 규칙 (CRITICAL - 최우선)
 
 ## 작업 범위 제한

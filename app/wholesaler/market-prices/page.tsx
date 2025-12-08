@@ -109,7 +109,7 @@ export default function MarketPricesPage() {
 
       {/* 차트 (선택된 항목이 있을 때만 표시) */}
       {selectedItem && !isLoading && (
-        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+        <div className="bg-white dark:bg-gray-900 text-foreground rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50 dark:border-gray-800 transition-colors duration-200">
           <PriceComparisonChart data={selectedItem} isLoading={isLoading} />
         </div>
       )}

@@ -160,6 +160,9 @@ export default function PriceComparisonChart({
     }
   };
 
+  // 축/눈금 색상을 테마 전경색에 맞춰 강제 적용 (currentColor 사용)
+  const axisTickStyle = { fill: "currentColor" };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64 p-6 md:p-8">
@@ -202,16 +205,20 @@ export default function PriceComparisonChart({
       {/* 막대 그래프 */}
       <div className="w-full h-60 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <BarChart
+            data={chartData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            style={{ color: "hsl(var(--foreground))" }}
+          >
             <XAxis
               dataKey="label"
               className="text-xs"
-              tick={{ fill: "hsl(var(--foreground))" }}
+              tick={axisTickStyle}
             />
             <YAxis
               tickFormatter={(value) => formatPrice(value)}
               className="text-xs"
-              tick={{ fill: "hsl(var(--foreground))" }}
+              tick={axisTickStyle}
             />
             <Tooltip
               formatter={(value: number) => formatPrice(value)}
@@ -222,7 +229,10 @@ export default function PriceComparisonChart({
                 color: "hsl(var(--foreground))",
               }}
             />
-            <Legend content={renderLegend} />
+            <Legend
+              content={renderLegend}
+              wrapperStyle={{ color: "hsl(var(--foreground))" }}
+            />
             <Bar
               dataKey="price"
               name="가격"
