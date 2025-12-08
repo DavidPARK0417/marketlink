@@ -48,7 +48,7 @@ export default function PageHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 pb-6 md:pb-8 border-b border-gray-200",
+        "flex flex-col gap-4 pb-6 md:pb-8 border-b border-gray-200 dark:border-gray-700",
         className
       )}
     >
@@ -57,12 +57,12 @@ export default function PageHeader({
         {/* 제목 및 설명 영역 */}
         <div className="flex flex-col gap-2 flex-1">
           {!hideTitle && (
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-2xl md:text-3xl font-bold text-[#111827]">
               {title}
             </h1>
           )}
           {description && (
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+            <p className="text-sm md:text-base text-[#6B7280]">
               {description}
             </p>
           )}
