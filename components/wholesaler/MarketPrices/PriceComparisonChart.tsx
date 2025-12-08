@@ -27,6 +27,7 @@ import {
   ResponsiveContainer,
   Legend,
   Cell,
+  type LegendProps,
 } from "recharts";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { DailyPriceItem } from "@/lib/api/market-prices-types";
@@ -40,6 +41,23 @@ export default function PriceComparisonChart({
   data,
   isLoading = false,
 }: PriceComparisonChartProps) {
+  const renderLegend = ({ payload }: LegendProps) => {
+    if (!payload || payload.length === 0) return null;
+    return (
+      <ul className="flex flex-wrap gap-3 text-sm text-foreground" aria-label="차트 범례">
+        {payload.map((entry) => (
+          <li key={entry.value} className="flex items-center gap-2">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ backgroundColor: entry.color ?? "hsl(var(--foreground))" }}
+              aria-hidden="true"
+            />
+            <span>{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
   // 시점별 색상 정의
   const periodColors: Record<string, string> = {
     "1년전": "#94a3b8", // 회색 (오래된 데이터)
@@ -161,16 +179,19 @@ export default function PriceComparisonChart({
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6 md:p-8">
+    <div
+      className="flex flex-col gap-4 p-6 md:p-8"
+      style={{ color: "hsl(var(--foreground))" }}
+    >
       {/* 제목 및 정보 */}
       <div className="flex flex-col gap-2">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-          <h3 className="text-lg md:text-xl font-semibold text-[#111827]">
+          <h3 className="text-lg md:text-xl font-semibold text-foreground">
             {data.productName} 가격 비교
           </h3>
           <PriceChangeIndicator />
         </div>
-        <div className="flex flex-wrap gap-3 text-sm text-[#6B7280]">
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
           <span>구분: {data.productClsName}</span>
           <span>단위: {data.unit}</span>
           <span>카테고리: {data.categoryName}</span>
@@ -184,12 +205,12 @@ export default function PriceComparisonChart({
             <XAxis
               dataKey="label"
               className="text-xs"
-              tick={{ fill: "currentColor" }}
+              tick={{ fill: "hsl(var(--foreground))" }}
             />
             <YAxis
               tickFormatter={(value) => formatPrice(value)}
               className="text-xs"
-              tick={{ fill: "currentColor" }}
+              tick={{ fill: "hsl(var(--foreground))" }}
             />
             <Tooltip
               formatter={(value: number) => formatPrice(value)}
@@ -197,9 +218,10 @@ export default function PriceComparisonChart({
                 backgroundColor: "hsl(var(--background))",
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "0.5rem",
+                color: "hsl(var(--foreground))",
               }}
             />
-            <Legend />
+            <Legend content={renderLegend} />
             <Bar
               dataKey="price"
               name="가격"
@@ -218,11 +240,11 @@ export default function PriceComparisonChart({
         {chartData.map((item) => (
           <div
             key={item.period}
-            className="flex flex-col gap-1 p-3 rounded-xl border border-gray-100 bg-white"
+            className="flex flex-col gap-1 p-3 rounded-xl border border-border bg-card"
           >
-            <div className="text-xs text-[#6B7280]">{item.label}</div>
-            <div className="text-sm font-semibold text-[#111827]">{formatPrice(item.price)}</div>
-            <div className="text-xs text-[#6B7280]">
+            <div className="text-xs text-muted-foreground">{item.label}</div>
+            <div className="text-sm font-semibold text-foreground">{formatPrice(item.price)}</div>
+            <div className="text-xs text-muted-foreground">
               {formatDate(item.date)}
             </div>
           </div>

@@ -27,6 +27,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  type LegendProps,
 } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PriceTrendItem } from "@/lib/api/market-prices-types";
@@ -49,6 +50,23 @@ export default function PriceTrendChart({
   itemName,
 }: PriceTrendChartProps) {
   const [period, setPeriod] = useState<TrendPeriod>("daily");
+  const renderLegend = ({ payload }: LegendProps) => {
+    if (!payload || payload.length === 0) return null;
+    return (
+      <ul className="flex flex-wrap gap-3 text-sm text-foreground" aria-label="차트 범례">
+        {payload.map((entry) => (
+          <li key={entry.value} className="flex items-center gap-2">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ backgroundColor: entry.color ?? "hsl(var(--foreground))" }}
+              aria-hidden="true"
+            />
+            <span>{entry.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   // 선택된 기간에 따른 데이터
   const currentData = useMemo(() => {
@@ -147,7 +165,10 @@ export default function PriceTrendChart({
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6 md:p-8">
+    <div
+      className="flex flex-col gap-4 p-6 md:p-8"
+      style={{ color: "hsl(var(--foreground))" }}
+    >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <h3 className="text-lg font-semibold">
@@ -174,7 +195,7 @@ export default function PriceTrendChart({
               dataKey="date"
               tickFormatter={formatDate}
               className="text-xs"
-              tick={{ fill: "currentColor" }}
+              tick={{ fill: "hsl(var(--foreground))" }}
               angle={period === "daily" ? -45 : 0}
               textAnchor={period === "daily" ? "end" : "middle"}
               height={period === "daily" ? 60 : 30}
@@ -182,7 +203,7 @@ export default function PriceTrendChart({
             <YAxis
               tickFormatter={(value) => formatPrice(value)}
               className="text-xs"
-              tick={{ fill: "currentColor" }}
+              tick={{ fill: "hsl(var(--foreground))" }}
             />
             <Tooltip
               formatter={(value: number) => formatPrice(value)}
@@ -191,9 +212,10 @@ export default function PriceTrendChart({
                 backgroundColor: "hsl(var(--background))",
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "0.5rem",
+                color: "hsl(var(--foreground))",
               }}
             />
-            <Legend />
+            <Legend content={renderLegend} />
             <Line
               type="monotone"
               dataKey="가격"
