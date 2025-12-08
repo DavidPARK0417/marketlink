@@ -8,6 +8,9 @@
 import Link from "next/link";
 import { getUserProfile } from "@/lib/clerk/auth";
 
+// 인증 확인이 필요한 페이지이므로 동적 렌더링 강제
+export const dynamic = "force-dynamic";
+
 export default async function CheckProfilePage() {
   const profile = await getUserProfile();
 

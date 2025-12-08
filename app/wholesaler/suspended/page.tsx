@@ -25,6 +25,9 @@ import { getUserProfile } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import { SuspendedPageClient } from "./SuspendedPageClient";
 
+// 인증 확인이 필요한 페이지이므로 동적 렌더링 강제
+export const dynamic = "force-dynamic";
+
 // 문의 정보 (환경 변수 또는 상수로 관리 가능)
 const CONTACT_EMAIL = "contact@yourplatform.com";
 const CONTACT_PHONE = "1588-XXXX";

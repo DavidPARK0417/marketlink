@@ -12,6 +12,9 @@
 import { getUserProfile, redirectByRole } from "@/lib/clerk/auth";
 import { redirect } from "next/navigation";
 
+// 인증 확인이 필요한 페이지이므로 동적 렌더링 강제
+export const dynamic = "force-dynamic";
+
 export default async function RootPage() {
   console.log("🏠 [root] 루트 페이지 접근");
 

@@ -22,6 +22,9 @@ import { requireAdmin } from "@/lib/clerk/auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 
+// 인증이 필요한 레이아웃이므로 동적 렌더링 강제
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({
   children,
 }: {

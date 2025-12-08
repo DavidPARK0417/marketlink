@@ -28,6 +28,9 @@
 import { redirect } from "next/navigation";
 import { getUserProfile } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
+
+// 인증 확인이 필요한 페이지이므로 동적 렌더링 강제
+export const dynamic = "force-dynamic";
 import WholesalerOnboardingForm from "./WholesalerOnboardingForm";
 import WholesalerOnboardingClient from "./WholesalerOnboardingClient";
 
