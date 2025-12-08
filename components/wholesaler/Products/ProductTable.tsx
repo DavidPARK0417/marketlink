@@ -665,8 +665,8 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       <div className="space-y-3">
         {table.getRowModel().rows?.length ? (
           <>
-            {/* 모바일 카드 리스트 */}
-            <div className="sm:hidden space-y-3">
+            {/* 모바일~노트북 카드 리스트 */}
+            <div className="xl:hidden space-y-3">
               {products.map((product) => (
                 <div
                   key={product.id}
@@ -758,9 +758,9 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             </div>
 
             {/* 데스크톱 테이블 */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden sm:block">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden xl:block">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[760px]">
+                <table className="w-full min-w-[720px]">
                   <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <tr

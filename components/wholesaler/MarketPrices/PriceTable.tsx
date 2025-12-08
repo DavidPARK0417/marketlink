@@ -84,17 +84,17 @@ export default function PriceTable({
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {/* 모바일: 카드 스타일 로딩 */}
-        <div className="md:hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+        {/* 모바일~노트북: 카드 스타일 로딩 */}
+        <div className="xl:hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
           <span className="text-sm text-[#6B7280]" role="status" aria-live="polite">
             로딩 중...
           </span>
         </div>
 
         {/* 데스크톱: 기존 테이블 스켈레톤 */}
-        <div className="hidden md:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+        <div className="hidden xl:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
           <div className="overflow-x-auto -mx-4 md:mx-0">
-            <table className="w-full min-w-[1000px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
+            <table className="w-full min-w-[920px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
               <thead className="bg-[#F8F9FA]">
                 <tr>
                   <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
@@ -125,16 +125,16 @@ export default function PriceTable({
   if (data.length === 0) {
     return (
       <div className="space-y-3">
-        {/* 모바일: 빈 상태 카드 */}
-        <div className="md:hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+        {/* 모바일~노트북: 빈 상태 카드 */}
+        <div className="xl:hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
           <p className="text-sm text-[#6B7280]">조회된 시세 정보가 없습니다.</p>
           <p className="text-xs text-[#9CA3AF] mt-1">검색 후 결과가 여기에 표시됩니다.</p>
         </div>
 
         {/* 데스크톱: 테이블 헤더 유지 */}
-        <div className="hidden md:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+        <div className="hidden xl:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
           <div className="overflow-x-auto -mx-4 md:mx-0">
-            <table className="w-full min-w-[1000px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
+            <table className="w-full min-w-[920px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
               <thead className="bg-[#F8F9FA]">
                 <tr>
                   <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
@@ -163,8 +163,8 @@ export default function PriceTable({
 
   return (
     <div className="space-y-4">
-      {/* 모바일 카드 뷰 */}
-      <div className="md:hidden space-y-3">
+      {/* 모바일~노트북 카드 뷰 */}
+      <div className="xl:hidden space-y-3">
         {paginatedData.map((item, index) => (
           <div
             key={`${item.productno}-${item.productClsCode}-card-${index}`}
@@ -212,9 +212,9 @@ export default function PriceTable({
       </div>
 
       {/* 데스크톱 테이블 */}
-      <div className="hidden md:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+      <div className="hidden xl:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
         <div className="overflow-x-auto -mx-4 md:mx-0">
-          <table className="w-full min-w-[1000px]" role="table" aria-label="시세 조회 테이블">
+          <table className="w-full min-w-[920px]" role="table" aria-label="시세 조회 테이블">
             <thead className="bg-[#F8F9FA]">
               <tr>
                 <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
