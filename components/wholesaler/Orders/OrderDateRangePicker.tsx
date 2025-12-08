@@ -48,22 +48,24 @@ export default function OrderDateRangePicker({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[150px] justify-start text-left font-normal",
+              "min-w-[200px] max-w-full justify-start text-left font-normal",
               !dateRange && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {dateRange?.from ? (
               dateRange.to ? (
-                <>
+                <span className="flex-1 truncate">
                   {format(dateRange.from, "yyyy-MM-dd", { locale: ko })} ~{" "}
                   {format(dateRange.to, "yyyy-MM-dd", { locale: ko })}
-                </>
+                </span>
               ) : (
-                format(dateRange.from, "yyyy-MM-dd", { locale: ko })
+                <span className="flex-1 truncate">
+                  {format(dateRange.from, "yyyy-MM-dd", { locale: ko })}
+                </span>
               )
             ) : (
-              <span>조회 기간 설정</span>
+              <span className="flex-1 truncate">조회 기간 설정</span>
             )}
           </Button>
         </PopoverTrigger>
