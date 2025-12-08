@@ -25,7 +25,7 @@ import { useState, useEffect } from "react";
 import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { Loader2, Search, Mail, Bell, Info } from "lucide-react";
 import {
@@ -706,15 +706,26 @@ export default function SettingsPage() {
             비밀번호를 변경하려면 아래 버튼을 사용하세요.
           </p>
 
-          <div className="flex items-start gap-3 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
-            <div className="bg-[#10B981] text-white text-xs font-bold px-2 py-1 rounded-full mt-0.5 shrink-0">
-              {user?.firstName?.[0]?.toUpperCase() || 
-               user?.lastName?.[0]?.toUpperCase() || 
-               user?.emailAddresses[0]?.emailAddress?.[0]?.toUpperCase() || 
-               'U'}
-            </div>
+          <div
+            className="flex items-start gap-3 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl"
+            onClick={() =>
+              console.log("🔑 [settings] UserButton 클릭 - Clerk 계정 설정 열기")
+            }
+          >
+            <UserButton
+              afterSignOutUrl="/sign-in/wholesaler"
+              userProfileMode="popover"
+              appearance={{
+                elements: {
+                  avatarBox:
+                    "w-7 h-7 bg-[#10B981] text-white text-xs font-bold",
+                  userButtonTrigger:
+                    "shadow-none p-0 hover:shadow-none focus-visible:ring-2 focus-visible:ring-[#10B981]/40",
+                },
+              }}
+            />
             <p className="text-sm text-gray-600 dark:text-gray-200 pt-0.5">
-              사용자 메뉴에서 비밀번호를 변경할 수 있습니다.
+              클릭하면 Clerk 계정 설정(비밀번호 변경 포함) 메뉴가 열립니다.
             </p>
           </div>
         </div>
