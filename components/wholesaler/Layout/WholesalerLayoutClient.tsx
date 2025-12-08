@@ -532,8 +532,6 @@ function WholesalerLayoutContent({
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              <div className="h-8 w-px bg-gray-200 mx-2"></div>
               <div className="flex items-center gap-2">
                 <Link
                   href="/wholesaler/settings"
