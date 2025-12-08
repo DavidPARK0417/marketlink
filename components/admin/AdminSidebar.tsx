@@ -36,6 +36,7 @@ import {
   MessageCircle,
   Menu,
   X,
+  Search,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -86,6 +87,8 @@ export default function AdminSidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // 클라이언트 사이드 마운트 확인
   useEffect(() => {
@@ -118,6 +121,43 @@ export default function AdminSidebar() {
       setIsLoggingOut(false);
       router.push("/sign-in");
     }
+  };
+
+  // 검색어 패턴 감지 (도매 헤더 패턴과 유사하게 구성)
+  const detectSearchType = (query: string) => {
+    const trimmed = query.trim();
+    if (/^\d{3}-\d{2}-\d{5}$/.test(trimmed) || /^\d{10,12}$/.test(trimmed)) {
+      return "wholesaler";
+    }
+    if (/공지|announcement|notice/i.test(trimmed)) return "announcement";
+    if (/faq/i.test(trimmed)) return "faq";
+    if (/voc/i.test(trimmed)) return "voc";
+    if (/로그|audit/i.test(trimmed)) return "audit";
+    return "inquiry";
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = searchQuery.trim();
+    if (!trimmed) return;
+
+    const type = detectSearchType(trimmed);
+    const target =
+      type === "wholesaler"
+        ? `/admin/wholesalers/pending?search=${encodeURIComponent(trimmed)}`
+        : type === "announcement"
+          ? `/admin/announcements?search=${encodeURIComponent(trimmed)}`
+          : type === "faq"
+            ? `/admin/faqs?search=${encodeURIComponent(trimmed)}`
+            : type === "voc"
+              ? `/admin/voc?search=${encodeURIComponent(trimmed)}`
+              : type === "audit"
+                ? `/admin/audit-logs?search=${encodeURIComponent(trimmed)}`
+                : `/admin/inquiries?search=${encodeURIComponent(trimmed)}`;
+
+    console.log("🔍 [admin-mobile-search] 검색 실행", { query: trimmed, type, target });
+    router.push(target);
+    setIsSearchOpen(false);
   };
 
   // 사용자 이름의 첫 글자 추출
@@ -233,7 +273,7 @@ export default function AdminSidebar() {
       {/* Mobile Header */}
       <header className="lg:hidden bg-white shadow-sm sticky top-0 z-50 backdrop-blur-xl border-b border-gray-100/50">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 gap-2">
             {/* Mobile Logo */}
             <Link href="/admin/dashboard" className="flex items-center gap-2">
               <div className="w-9 h-9 bg-gradient-to-br from-[#10B981] to-[#059669] rounded-xl flex items-center justify-center shadow-md">
@@ -263,17 +303,41 @@ export default function AdminSidebar() {
               </div>
             </Link>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
-            >
-              {isMobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
+            {/* Mobile Actions: Search + Menu */}
+            <div className="flex items-center gap-2">
+              {isSearchOpen && (
+                <form onSubmit={handleSearch} className="relative w-36">
+                  <input
+                    type="text"
+                    placeholder="검색"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20"
+                  />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                </form>
               )}
-            </button>
+
+              <button
+                onClick={() => setIsSearchOpen((prev) => !prev)}
+                className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+                aria-label="검색"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+                aria-label="메뉴"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
