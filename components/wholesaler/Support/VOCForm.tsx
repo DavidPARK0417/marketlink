@@ -122,17 +122,17 @@ export default function VOCForm({ onSuccess, onCancel }: VOCFormProps) {
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="block text-sm font-semibold text-gray-700 mb-2">
+                <FormLabel className="block text-sm font-semibold text-foreground mb-2">
                   제목
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     placeholder="피드백 제목을 입력해주세요"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#10B981] focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-[#10B981] focus:border-transparent outline-none bg-card text-card-foreground placeholder:text-muted-foreground border border-border"
                   />
                 </FormControl>
-                <FormDescription className="text-xs text-gray-500 mt-1">
+                <FormDescription className="text-xs text-muted-foreground mt-1">
                   {field.value.length} / 200자
                 </FormDescription>
                 <FormMessage />
@@ -145,7 +145,7 @@ export default function VOCForm({ onSuccess, onCancel }: VOCFormProps) {
             name="content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="block text-sm font-semibold text-gray-700 mb-2">
+                <FormLabel className="block text-sm font-semibold text-foreground mb-2">
                   내용
                 </FormLabel>
                 <FormControl>
@@ -153,10 +153,10 @@ export default function VOCForm({ onSuccess, onCancel }: VOCFormProps) {
                     {...field}
                     placeholder="서비스 이용 중 불편하셨던 점이나 개선할 점을 자유롭게 적어주세요."
                     rows={5}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#10B981] focus:border-transparent outline-none resize-none"
+                    className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-[#10B981] focus:border-transparent outline-none resize-none bg-card text-card-foreground placeholder:text-muted-foreground border border-border"
                   />
                 </FormControl>
-                <FormDescription className="text-xs text-gray-500 mt-1">
+                <FormDescription className="text-xs text-muted-foreground mt-1">
                   {field.value.length} / 2000자
                 </FormDescription>
                 <FormMessage />

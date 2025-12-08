@@ -372,11 +372,11 @@ export default function SupportPage() {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
             onClick={() => setIsVocModalOpen(false)}
           />
-          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl relative z-10 p-6 transform transition-all scale-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">
+          <div className="bg-card text-card-foreground w-full max-w-lg rounded-2xl shadow-2xl relative z-10 p-6 transform transition-all scale-100 border border-border">
+            <h2 className="text-xl font-bold mb-6">
               소중한 의견 보내기
             </h2>
-            <p className="text-sm text-gray-500 mb-4 -mt-4">
+            <p className="text-sm text-muted-foreground mb-4 -mt-4">
               보내주신 의견은 서비스 개선을 위해 소중하게 활용됩니다.
             </p>
             <VOCForm
