@@ -28,6 +28,7 @@ import {
   Legend,
   Cell,
   type LegendProps,
+  type LegendPayload,
 } from "recharts";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { DailyPriceItem } from "@/lib/api/market-prices-types";
@@ -41,7 +42,7 @@ export default function PriceComparisonChart({
   data,
   isLoading = false,
 }: PriceComparisonChartProps) {
-  const renderLegend = ({ payload }: LegendProps) => {
+  const renderLegend = ({ payload }: LegendProps & { payload?: LegendPayload[] }) => {
     if (!payload || payload.length === 0) return null;
     return (
       <ul className="flex flex-wrap gap-3 text-sm text-foreground" aria-label="차트 범례">
