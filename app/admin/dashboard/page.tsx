@@ -31,9 +31,10 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* 페이지 헤더 */}
-      <div>
-        <p className="text-muted-foreground">
-          관리자 페이지에 오신 것을 환영합니다.
+      <div className="space-y-1">
+        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">관리자 대시보드</h1>
+        <p className="text-sm text-muted-foreground">
+          주요 관리 기능을 한눈에 확인하고 필요한 페이지로 이동하세요.
         </p>
       </div>
 

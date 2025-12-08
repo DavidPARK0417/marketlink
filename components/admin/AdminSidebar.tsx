@@ -136,9 +136,9 @@ export default function AdminSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 fixed h-full z-30">
+      <aside className="hidden lg:flex flex-col w-64 bg-background border-r border-gray-200 dark:border-gray-800 fixed h-full z-30">
         {/* 로고 영역 */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800">
           <Link href="/admin/dashboard" className="block w-full">
             <Image
               src="/farmtobiz_logo.png"
@@ -170,7 +170,7 @@ export default function AdminSidebar() {
                   "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group relative overflow-hidden",
                   isActive
                     ? "text-[#10B981] bg-[#10B981]/10"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                    : "text-muted-foreground hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-foreground",
                 )}
               >
                 <Icon
@@ -178,7 +178,7 @@ export default function AdminSidebar() {
                     "w-5 h-5",
                     isActive
                       ? "text-[#10B981]"
-                      : "text-gray-400 group-hover:text-gray-600",
+                      : "text-gray-400 dark:text-gray-500 group-hover:text-foreground",
                   )}
                 />
                 <span className="relative z-10">{item.label}</span>
@@ -191,8 +191,8 @@ export default function AdminSidebar() {
         </nav>
 
         {/* 하단 프로필 영역 */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-          <div className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-100">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/40">
+          <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-gray-900 dark:to-gray-800 p-4 rounded-xl border border-emerald-100 dark:border-gray-700">
             {mounted && isUserLoaded && user && (
               <>
                 <div className="flex items-center gap-3 mb-3">
@@ -208,10 +208,10 @@ export default function AdminSidebar() {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 truncate">
+                    <p className="text-sm font-bold text-foreground truncate">
                       {userName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       관리자 계정
                     </p>
                   </div>
@@ -219,7 +219,7 @@ export default function AdminSidebar() {
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="w-full flex items-center justify-center gap-2 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg py-2 hover:bg-gray-50 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 text-xs font-medium text-gray-600 dark:text-foreground bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg py-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <LogOut className="w-3 h-3" />
                   {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
