@@ -37,6 +37,14 @@ export default function PriceTable({
     setCurrentPage(1);
   }, [data.length]);
 
+  // 렌더링 로그 (핵심 데이터 흐름 추적)
+  useEffect(() => {
+    console.log("[MarketPrices][PriceTable] render", {
+      dataCount: data.length,
+      currentPage,
+    });
+  }, [data.length, currentPage]);
+
   // 가격 포맷팅 (천 단위 쉼표)
   const formatPrice = (price: number): string => {
     if (price === 0) return "-";
@@ -75,29 +83,39 @@ export default function PriceTable({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
-        <div className="overflow-x-auto -mx-4 md:mx-0">
-          <table className="w-full min-w-[1000px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
-            <thead className="bg-[#F8F9FA]">
-              <tr>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">품목</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">단위</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">당일 가격</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1일 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1개월 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1년 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">증감률</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              <tr>
-                <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500">
-                  <span role="status" aria-live="polite">로딩 중...</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <div className="space-y-3">
+        {/* 모바일: 카드 스타일 로딩 */}
+        <div className="md:hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <span className="text-sm text-[#6B7280]" role="status" aria-live="polite">
+            로딩 중...
+          </span>
+        </div>
+
+        {/* 데스크톱: 기존 테이블 스켈레톤 */}
+        <div className="hidden md:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <table className="w-full min-w-[1000px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
+              <thead className="bg-[#F8F9FA]">
+                <tr>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">품목</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">단위</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">당일 가격</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1일 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1개월 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1년 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">증감률</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                <tr>
+                  <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500">
+                    <span role="status" aria-live="polite">로딩 중...</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
@@ -106,29 +124,38 @@ export default function PriceTable({
   // 데이터가 없을 때도 테이블 헤더를 표시하여 공간 확보
   if (data.length === 0) {
     return (
-      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
-        <div className="overflow-x-auto -mx-4 md:mx-0">
-          <table className="w-full min-w-[1000px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
-            <thead className="bg-[#F8F9FA]">
-              <tr>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">품목</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">단위</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">당일 가격</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1일 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1개월 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1년 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">증감률</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              <tr>
-                <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500">
-                  조회된 시세 정보가 없습니다.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <div className="space-y-3">
+        {/* 모바일: 빈 상태 카드 */}
+        <div className="md:hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <p className="text-sm text-[#6B7280]">조회된 시세 정보가 없습니다.</p>
+          <p className="text-xs text-[#9CA3AF] mt-1">검색 후 결과가 여기에 표시됩니다.</p>
+        </div>
+
+        {/* 데스크톱: 테이블 헤더 유지 */}
+        <div className="hidden md:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+          <div className="overflow-x-auto -mx-4 md:mx-0">
+            <table className="w-full min-w-[1000px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
+              <thead className="bg-[#F8F9FA]">
+                <tr>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">품목</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">단위</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">당일 가격</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1일 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1개월 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1년 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">증감률</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                <tr>
+                  <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500">
+                    조회된 시세 정보가 없습니다.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
@@ -136,10 +163,58 @@ export default function PriceTable({
 
   return (
     <div className="space-y-4">
-      {/* 테이블 */}
-      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+      {/* 모바일 카드 뷰 */}
+      <div className="md:hidden space-y-3">
+        {paginatedData.map((item, index) => (
+          <div
+            key={`${item.productno}-${item.productClsCode}-card-${index}`}
+            className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+            onClick={() => onRowClick?.(item)}
+            role={onRowClick ? "button" : undefined}
+            tabIndex={onRowClick ? 0 : undefined}
+            aria-label={onRowClick ? `${item.productName} 시세 정보 보기` : undefined}
+            onKeyDown={(e) => {
+              if (onRowClick && (e.key === "Enter" || e.key === " ")) {
+                e.preventDefault();
+                onRowClick(item);
+              }
+            }}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="space-y-1">
+                <p className="text-xs text-[#6B7280]">{item.productClsName}</p>
+                <p className="text-base font-semibold text-[#111827]">{item.productName}</p>
+                <p className="text-xs text-[#6B7280]">{item.unit}</p>
+              </div>
+              <PriceChangeIndicator direction={item.direction} value={item.value} />
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+              <div className="flex flex-col gap-1">
+                <span className="text-[#6B7280]">당일</span>
+                <span className="font-semibold text-[#10B981]">{formatPrice(item.dpr1)}원</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[#6B7280]">1일 전</span>
+                <span className="text-[#111827]">{formatPrice(item.dpr2)}원</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[#6B7280]">1개월 전</span>
+                <span className="text-[#111827]">{formatPrice(item.dpr3)}원</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[#6B7280]">1년 전</span>
+                <span className="text-[#111827]">{formatPrice(item.dpr4)}원</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 데스크톱 테이블 */}
+      <div className="hidden md:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
         <div className="overflow-x-auto -mx-4 md:mx-0">
-          <table className="w-full min-w-[1000px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
+          <table className="w-full min-w-[1000px]" role="table" aria-label="시세 조회 테이블">
             <thead className="bg-[#F8F9FA]">
               <tr>
                 <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>

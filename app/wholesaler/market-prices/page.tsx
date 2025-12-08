@@ -72,7 +72,7 @@ export default function MarketPricesPage() {
   };
 
   return (
-    <div className="space-y-6 lg:space-y-8">
+    <div className="space-y-5 sm:space-y-6 lg:space-y-8">
       {/* 페이지 헤더 */}
       <div>
         <h1 className="text-2xl lg:text-3xl font-bold text-[#111827]">시세 조회</h1>

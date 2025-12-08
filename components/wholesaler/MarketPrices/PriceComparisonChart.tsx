@@ -165,13 +165,13 @@ export default function PriceComparisonChart({
     <div className="flex flex-col gap-4 p-6 md:p-8">
       {/* 제목 및 정보 */}
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold text-[#111827]">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <h3 className="text-lg md:text-xl font-semibold text-[#111827]">
             {data.productName} 가격 비교
           </h3>
           <PriceChangeIndicator />
         </div>
-        <div className="flex flex-wrap gap-4 text-sm text-[#6B7280]">
+        <div className="flex flex-wrap gap-3 text-sm text-[#6B7280]">
           <span>구분: {data.productClsName}</span>
           <span>단위: {data.unit}</span>
           <span>카테고리: {data.categoryName}</span>
@@ -179,7 +179,7 @@ export default function PriceComparisonChart({
       </div>
 
       {/* 막대 그래프 */}
-      <div className="w-full" style={{ minHeight: "300px", height: "300px" }}>
+      <div className="w-full h-60 md:h-72">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -216,7 +216,7 @@ export default function PriceComparisonChart({
       </div>
 
       {/* 가격 상세 정보 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
         {chartData.map((item) => (
           <div
             key={item.period}
