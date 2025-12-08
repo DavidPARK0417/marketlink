@@ -18,12 +18,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { Search } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 
 export default function AdminHeader() {
   const { isLoaded } = useUser();
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
   // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
@@ -67,10 +68,19 @@ export default function AdminHeader() {
     router.push(target);
   };
 
+  const toggleMobileMenu = () => {
+    console.log("📱 [admin-header] 모바일 메뉴 토글", { next: !isMobileMenuOpen });
+    setIsMobileMenuOpen((prev) => !prev);
+    window.dispatchEvent(new CustomEvent("admin-mobile-menu", { detail: { toggle: true } }));
+  };
+
   return (
-    <header className="hidden md:flex sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 h-16 items-center justify-between px-6 lg:px-8 gap-4">
+    <header className="flex w-full sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 h-16 items-center justify-between px-4 sm:px-5 md:px-6 lg:px-8 gap-3">
       {/* 좌측/중앙: 검색창 */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-3xl min-w-[240px] relative group">
+      <form
+        onSubmit={handleSearch}
+        className="flex-1 relative group"
+      >
         <input
           type="text"
           placeholder="사업자번호, 문의, 공지, FAQ, VOC 검색"
@@ -81,9 +91,18 @@ export default function AdminHeader() {
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500 group-focus-within:text-[#10B981]" />
       </form>
 
-      {/* 우측: 사용자 드롭다운 메뉴 */}
-      <div className="flex items-center justify-end">
-        {mounted && isLoaded && <UserButton afterSignOutUrl="/sign-in" />}
+      {/* 우측: 메뉴 + 사용자 */}
+      <div className="flex items-center justify-end gap-2">
+        <button
+          onClick={toggleMobileMenu}
+          className="xl:hidden p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+          aria-label="메뉴"
+        >
+          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+        <div className="hidden sm:flex">
+          {mounted && isLoaded && <UserButton afterSignOutUrl="/sign-in" />}
+        </div>
       </div>
     </header>
   );

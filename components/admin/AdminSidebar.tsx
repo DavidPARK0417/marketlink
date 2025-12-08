@@ -34,9 +34,6 @@ import {
   HelpCircle,
   Megaphone,
   MessageCircle,
-  Menu,
-  X,
-  Search,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -87,8 +84,6 @@ export default function AdminSidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   // 클라이언트 사이드 마운트 확인
   useEffect(() => {
@@ -123,42 +118,22 @@ export default function AdminSidebar() {
     }
   };
 
-  // 검색어 패턴 감지 (도매 헤더 패턴과 유사하게 구성)
-  const detectSearchType = (query: string) => {
-    const trimmed = query.trim();
-    if (/^\d{3}-\d{2}-\d{5}$/.test(trimmed) || /^\d{10,12}$/.test(trimmed)) {
-      return "wholesaler";
-    }
-    if (/공지|announcement|notice/i.test(trimmed)) return "announcement";
-    if (/faq/i.test(trimmed)) return "faq";
-    if (/voc/i.test(trimmed)) return "voc";
-    if (/로그|audit/i.test(trimmed)) return "audit";
-    return "inquiry";
-  };
+  // 헤더에서 보내는 모바일 메뉴 토글 이벤트 수신
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const customEvent = event as CustomEvent<{ toggle?: boolean; open?: boolean }>;
+      if (customEvent.detail?.toggle) {
+        setIsMobileMenuOpen((prev) => !prev);
+      } else if (typeof customEvent.detail?.open === "boolean") {
+        setIsMobileMenuOpen(customEvent.detail.open);
+      }
+    };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = searchQuery.trim();
-    if (!trimmed) return;
-
-    const type = detectSearchType(trimmed);
-    const target =
-      type === "wholesaler"
-        ? `/admin/wholesalers/pending?search=${encodeURIComponent(trimmed)}`
-        : type === "announcement"
-          ? `/admin/announcements?search=${encodeURIComponent(trimmed)}`
-          : type === "faq"
-            ? `/admin/faqs?search=${encodeURIComponent(trimmed)}`
-            : type === "voc"
-              ? `/admin/voc?search=${encodeURIComponent(trimmed)}`
-              : type === "audit"
-                ? `/admin/audit-logs?search=${encodeURIComponent(trimmed)}`
-                : `/admin/inquiries?search=${encodeURIComponent(trimmed)}`;
-
-    console.log("🔍 [admin-mobile-search] 검색 실행", { query: trimmed, type, target });
-    router.push(target);
-    setIsSearchOpen(false);
-  };
+    window.addEventListener("admin-mobile-menu", handler as EventListener);
+    return () => {
+      window.removeEventListener("admin-mobile-menu", handler as EventListener);
+    };
+  }, []);
 
   // 사용자 이름의 첫 글자 추출
   const getInitials = (name: string | null | undefined): string => {
@@ -176,7 +151,7 @@ export default function AdminSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-background border-r border-gray-200 dark:border-gray-800 fixed h-full z-30">
+      <aside className="hidden xl:flex flex-col w-64 bg-background border-r border-gray-200 dark:border-gray-800 fixed h-full z-30">
         {/* 로고 영역 */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800">
           <Link href="/admin/dashboard" className="block w-full">
@@ -270,125 +245,53 @@ export default function AdminSidebar() {
         </div>
       </aside>
 
-      {/* Mobile Header */}
-      <header className="lg:hidden bg-white shadow-sm sticky top-0 z-50 backdrop-blur-xl border-b border-gray-100/50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 gap-2">
-            {/* Mobile Logo */}
-            <Link href="/admin/dashboard" className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-gradient-to-br from-[#10B981] to-[#059669] rounded-xl flex items-center justify-center shadow-md">
-                <svg
-                  className="w-5 h-5 text-white"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+      {/* Mobile Menu Dropdown (헤더에서 토글) */}
+      {isMobileMenuOpen && (
+        <div className="xl:hidden bg-[#10B981] border-t border-white/10 sticky top-16 z-40">
+          <nav className="px-4 py-2 space-y-1">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                item.href === "/admin/dashboard"
+                  ? pathname === item.href
+                  : pathname === item.href ||
+                    pathname.startsWith(item.href + "/");
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-white",
+                    isActive ? "bg-white/20" : "hover:bg-white/10",
+                  )}
                 >
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                  <path d="M2 17l10 5 10-5" />
-                  <path d="M2 12l10 5 10-5" />
-                </svg>
-              </div>
-              <div className="flex flex-col -space-y-0.5">
-                <h1 className="text-lg font-black tracking-tight">
-                  <span className="text-[#111827]">Farm</span>
-                  <span className="text-[#10B981]">to</span>
-                  <span className="text-[#111827]">Biz</span>
-                </h1>
-                <span className="text-[10px] text-[#6B7280] font-medium">
-                  관리자
-                </span>
-              </div>
-            </Link>
-
-            {/* Mobile Actions: Search + Menu */}
-            <div className="flex items-center gap-2">
-              {isSearchOpen && (
-                <form onSubmit={handleSearch} className="relative w-36">
-                  <input
-                    type="text"
-                    placeholder="검색"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20"
-                  />
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                </form>
-              )}
-
-              <button
-                onClick={() => setIsSearchOpen((prev) => !prev)}
-                className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
-                aria-label="검색"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
-                aria-label="메뉴"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Menu Dropdown */}
-        {isMobileMenuOpen && (
-          <div className="bg-[#10B981] border-t border-white/10">
-            <nav className="px-4 py-2 space-y-1">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive =
-                  item.href === "/admin/dashboard"
-                    ? pathname === item.href
-                    : pathname === item.href ||
-                      pathname.startsWith(item.href + "/");
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-white",
-                      isActive ? "bg-white/20" : "hover:bg-white/10",
-                    )}
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              );
+            })}
+            <div className="border-t border-white/20 my-2 pt-2">
+              {mounted && isUserLoaded && user && (
+                <>
+                  <div className="px-4 py-2 text-xs text-white/80">
+                    {userName} (관리자)
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 w-full text-left rounded-lg text-white/90 disabled:opacity-50"
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
-                );
-              })}
-              <div className="border-t border-white/20 my-2 pt-2">
-                {mounted && isUserLoaded && user && (
-                  <>
-                    <div className="px-4 py-2 text-xs text-white/80">
-                      {userName} (관리자)
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      disabled={isLoggingOut}
-                      className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 w-full text-left rounded-lg text-white/90 disabled:opacity-50"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      로그아웃
-                    </button>
-                  </>
-                )}
-              </div>
-            </nav>
-          </div>
-        )}
-      </header>
+                    <LogOut className="w-4 h-4" />
+                    로그아웃
+                  </button>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
     </>
   );
 }
