@@ -151,7 +151,7 @@ export default function AdminSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden xl:flex flex-col w-64 bg-background border-r border-gray-200 dark:border-gray-800 fixed h-full z-30">
+      <aside className="hidden lg:flex flex-col w-64 bg-background border-r border-gray-200 dark:border-gray-800 fixed h-full z-30">
         {/* 로고 영역 */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800">
           <Link href="/admin/dashboard" className="block w-full">
@@ -247,7 +247,7 @@ export default function AdminSidebar() {
 
       {/* Mobile Menu Dropdown (헤더에서 토글) */}
       {isMobileMenuOpen && (
-        <div className="xl:hidden bg-[#10B981] border-t border-white/10 sticky top-16 z-40">
+        <div className="lg:hidden bg-[#10B981] border-t border-white/10 sticky top-16 z-40">
           <nav className="px-4 py-2 space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;

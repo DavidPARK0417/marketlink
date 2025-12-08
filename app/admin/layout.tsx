@@ -44,7 +44,7 @@ export default async function AdminLayout({
       <AdminSidebar />
 
       {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex flex-col xl:pl-64 min-h-screen transition-all duration-300 bg-background">
+      <div className="flex-1 flex flex-col lg:pl-64 min-h-screen transition-all duration-300 bg-background">
         {/* 헤더 */}
         <AdminHeader />
 

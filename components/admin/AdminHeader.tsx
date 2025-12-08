@@ -95,7 +95,7 @@ export default function AdminHeader() {
       <div className="flex items-center justify-end gap-2">
         <button
           onClick={toggleMobileMenu}
-          className="xl:hidden p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+          className="lg:hidden p-2 text-gray-600 hover:text-[#10B981] transition-colors"
           aria-label="메뉴"
         >
           {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
