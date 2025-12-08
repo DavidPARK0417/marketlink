@@ -32,14 +32,14 @@ export default async function AdminPage() {
     <div className="space-y-8">
       {/* 페이지 헤더 */}
       <div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           관리자 페이지에 오신 것을 환영합니다.
         </p>
       </div>
 
       {/* 페이지 전환 섹션 */}
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">
+        <h3 className="text-xl font-semibold text-foreground mb-4">
           페이지 전환
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -50,10 +50,10 @@ export default async function AdminPage() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-gray-900">
+                <h4 className="text-lg font-semibold text-foreground">
                   관리자 대시보드
                 </h4>
-                <p className="text-sm text-gray-600 mt-1">현재 페이지</p>
+                <p className="text-sm text-muted-foreground mt-1">현재 페이지</p>
               </div>
             </div>
           </div>
@@ -68,10 +68,10 @@ export default async function AdminPage() {
                 <Store className="w-6 h-6 text-[#10B981]" />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-gray-900">
+                <h4 className="text-lg font-semibold text-foreground">
                   도매 페이지
                 </h4>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   도매점 관리 화면으로 이동
                 </p>
               </div>
@@ -88,10 +88,10 @@ export default async function AdminPage() {
                 <ShoppingBag className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-gray-900">
+                <h4 className="text-lg font-semibold text-foreground">
                   소매 페이지
                 </h4>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   소매점 관리 화면으로 이동
                 </p>
               </div>
@@ -102,7 +102,7 @@ export default async function AdminPage() {
 
       {/* 관리 기능 카드 */}
       <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">
+        <h3 className="text-xl font-semibold text-foreground mb-4">
           관리 기능
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

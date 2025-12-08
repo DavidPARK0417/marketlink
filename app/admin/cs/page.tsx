@@ -126,8 +126,8 @@ export default async function AdminCSPage({ searchParams }: CSPageProps) {
     <div className="space-y-6">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">CS 통합 관리</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">CS 통합 관리</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           도매와 소매의 모든 CS 문의를 통합 관리합니다. 상태와 역할별로 필터링할
           수 있습니다.
         </p>

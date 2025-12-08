@@ -193,8 +193,8 @@ export default async function AuditLogsPage({
     <div className="space-y-6">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">감사 로그</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">감사 로그</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           모든 관리자 액션을 추적하고 조회합니다. 액션 유형, 날짜 범위, 관리자별로
           필터링할 수 있습니다.
         </p>

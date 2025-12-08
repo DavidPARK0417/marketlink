@@ -32,8 +32,8 @@ export default async function AdminVOCPage() {
     <div className="space-y-6">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">고객의 소리(VOC)</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">고객의 소리(VOC)</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           도매사업자들이 제출한 피드백을 확인할 수 있습니다.
         </p>
       </div>

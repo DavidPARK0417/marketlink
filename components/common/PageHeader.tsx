@@ -57,12 +57,12 @@ export default function PageHeader({
         {/* 제목 및 설명 영역 */}
         <div className="flex flex-col gap-2 flex-1">
           {!hideTitle && (
-            <h1 className="text-2xl md:text-3xl font-bold text-[#111827]">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
               {title}
             </h1>
           )}
           {description && (
-            <p className="text-sm md:text-base text-[#6B7280]">
+            <p className="text-sm md:text-base text-muted-foreground">
               {description}
             </p>
           )}

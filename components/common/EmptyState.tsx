@@ -53,20 +53,17 @@ export default function EmptyState({
       )}
     >
       {/* 아이콘 */}
-      <div className="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-100 dark:bg-gray-800">
-        <Icon
-          className="w-8 h-8 md:w-10 md:h-10 text-gray-400 dark:text-gray-500"
-          aria-hidden="true"
-        />
+      <div className="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-100">
+        <Icon className="w-8 h-8 md:w-10 md:h-10 text-gray-400" aria-hidden="true" />
       </div>
 
       {/* 메시지 및 설명 */}
       <div className="flex flex-col gap-2 max-w-md">
-        <h3 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg md:text-xl font-semibold text-[#111827]">
           {message}
         </h3>
         {description && (
-          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
+          <p className="text-sm md:text-base text-[#6B7280]">
             {description}
           </p>
         )}

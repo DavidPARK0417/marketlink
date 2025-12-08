@@ -380,8 +380,8 @@ export default function OrdersPage() {
     <div className="space-y-8">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">주문 관리</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-foreground">주문 관리</h1>
+        <p className="mt-2 text-muted-foreground">
           총 {ordersData?.total ?? 0}건의 주문을 관리하세요.
         </p>
       </div>

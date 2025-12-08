@@ -75,8 +75,8 @@ export default function MarketPricesPage() {
     <div className="space-y-5 sm:space-y-6 lg:space-y-8">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-2xl lg:text-3xl font-bold text-[#111827]">시세 조회</h1>
-        <p className="mt-2 text-sm lg:text-base text-[#6B7280]">
+        <h1 className="text-2xl lg:text-3xl font-bold text-foreground">시세 조회</h1>
+        <p className="mt-2 text-sm lg:text-base text-muted-foreground">
           전국 주요 도매시장의 실시간 시세를 조회하세요.
         </p>
       </div>

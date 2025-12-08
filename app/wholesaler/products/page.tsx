@@ -97,8 +97,8 @@ export default async function ProductsPage({
       {/* 페이지 헤더 - 디자인 핸드오프 스타일 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-[#111827]">상품 관리</h1>
-          <p className="mt-2 text-sm lg:text-base text-[#6B7280]">
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">상품 관리</h1>
+          <p className="mt-2 text-sm lg:text-base text-muted-foreground">
             등록된 상품 {productsData.total}개를 관리하세요.
           </p>
         </div>

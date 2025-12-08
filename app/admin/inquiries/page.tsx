@@ -168,8 +168,8 @@ export default function AdminInquiriesPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 font-medium">전체 문의</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
+              <p className="text-sm text-muted-foreground font-medium">전체 문의</p>
+              <p className="text-3xl font-bold text-foreground mt-2">
                 {statsData?.total ?? 0}건
               </p>
             </div>
@@ -188,8 +188,8 @@ export default function AdminInquiriesPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 font-medium">답변 대기</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
+              <p className="text-sm text-muted-foreground font-medium">답변 대기</p>
+              <p className="text-3xl font-bold text-foreground mt-2">
                 {statsData?.open ?? 0}건
               </p>
             </div>
@@ -208,8 +208,8 @@ export default function AdminInquiriesPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 font-medium">답변 완료</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
+              <p className="text-sm text-muted-foreground font-medium">답변 완료</p>
+              <p className="text-3xl font-bold text-foreground mt-2">
                 {statsData?.answered ?? 0}건
               </p>
             </div>

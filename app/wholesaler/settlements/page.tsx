@@ -363,8 +363,8 @@ export default function SettlementsPage() {
     <div className="space-y-8">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">정산 관리</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-foreground">정산 관리</h1>
+        <p className="mt-2 text-muted-foreground">
           투명한 정산 내역을 확인하고 관리하세요.
         </p>
       </div>

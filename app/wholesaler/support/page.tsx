@@ -330,10 +330,10 @@ export default function SupportPage() {
             <div className="bg-[#D1FAE5] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
               <Mic className="w-10 h-10 text-[#10B981]" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            <h2 className="text-2xl font-bold text-foreground mb-3">
               고객의 소리(VOC)
             </h2>
-            <p className="text-gray-600 mb-8">
+            <p className="text-muted-foreground mb-8">
               서비스 이용 중 불편하셨던 점이나 개선할 점을 들려주세요.
               <br />
               고객님의 소중한 의견을 귀담아듣고 더 나은 서비스를 만들겠습니다.

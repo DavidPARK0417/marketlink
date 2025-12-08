@@ -236,10 +236,10 @@ function WholesalerLayoutContent({
   };
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 fixed h-full z-30">
-        <div className="p-6 border-b border-gray-100">
+      <aside className="hidden lg:flex flex-col w-64 bg-background border-r border-gray-200 dark:border-gray-800 fixed h-full z-30">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800">
           <Link href="/wholesaler/dashboard" className="block w-full">
             <Image
               src="/farmtobiz_logo.png"
@@ -310,8 +310,8 @@ function WholesalerLayoutContent({
           </Link>
         </div>
 
-        <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-          <div className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-100">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/40">
+          <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-gray-900 dark:to-gray-800 p-4 rounded-xl border border-emerald-100 dark:border-gray-700">
             {mounted && isUserLoaded && user && (
               <>
                 <div className="flex items-center gap-3 mb-3">
@@ -327,10 +327,10 @@ function WholesalerLayoutContent({
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 truncate">
+                    <p className="text-sm font-bold text-foreground truncate">
                       {isLoadingWholesaler ? "로딩 중..." : businessName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       {role === "admin" ? "관리자 계정" : "도매 계정"}
                     </p>
                   </div>
@@ -338,7 +338,7 @@ function WholesalerLayoutContent({
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="w-full flex items-center justify-center gap-2 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg py-2 hover:bg-gray-50 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 text-xs font-medium text-gray-600 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg py-2 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <LogOut className="w-3 h-3" />
                   {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
@@ -350,9 +350,9 @@ function WholesalerLayoutContent({
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:pl-64 min-h-screen transition-all duration-300">
+      <div className="flex-1 flex flex-col lg:pl-64 min-h-screen transition-all duration-300 bg-background">
         {/* Desktop Header (Search & Utility) */}
-        <header className="hidden lg:block sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-gray-100 px-8 py-4">
+        <header className="hidden lg:block sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 px-8 py-4">
           <div className="flex items-center justify-between gap-8">
             <form onSubmit={handleSearch} className="flex-1 max-w-2xl relative group">
               <input
@@ -555,7 +555,7 @@ function WholesalerLayoutContent({
         </header>
 
         {/* Mobile Header */}
-        <header className="lg:hidden bg-gradient-to-b from-emerald-50/50 via-white/90 to-white/95 shadow-sm sticky top-0 z-50 backdrop-blur-xl border-b border-gray-100/50 supports-[backdrop-filter]:bg-white/60">
+        <header className="lg:hidden bg-gradient-to-b from-emerald-50/50 via-white/90 to-white/95 dark:from-gray-900/60 dark:via-gray-900/70 dark:to-gray-900/80 shadow-sm sticky top-0 z-50 backdrop-blur-xl border-b border-gray-100/50 dark:border-gray-800/60 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               {/* Mobile Logo */}
@@ -827,7 +827,7 @@ function WholesalerLayoutContent({
         </header>
 
         {/* 메인 컨텐츠 - 반응형 패딩 */}
-        <main className="w-full px-4 lg:px-8 py-6 lg:py-8 flex-1 max-w-[1920px] mx-auto overflow-x-hidden bg-white">
+      <main className="w-full px-4 lg:px-8 py-6 lg:py-8 flex-1 max-w-[1920px] mx-auto overflow-x-hidden bg-background">
           {children}
         </main>
 

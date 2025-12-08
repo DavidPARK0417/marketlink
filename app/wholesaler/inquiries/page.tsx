@@ -192,8 +192,8 @@ export default function InquiriesPage() {
     <div className="space-y-8 pb-12">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">상품문의</h1>
-        <p className="mt-2 text-gray-600">신속한 응대로 고객 신뢰도를 높이세요.</p>
+        <h1 className="text-3xl font-bold text-foreground">상품문의</h1>
+        <p className="mt-2 text-muted-foreground">신속한 응대로 고객 신뢰도를 높이세요.</p>
       </div>
 
       {/* 문의 통계 카드 */}

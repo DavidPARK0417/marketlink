@@ -50,8 +50,8 @@ export default async function AdminAnnouncementsPage() {
     <div className="space-y-6">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">공지사항 관리</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">공지사항 관리</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           공지사항을 작성하고 관리합니다. 추가, 수정, 삭제할 수 있습니다.
         </p>
       </div>

@@ -147,6 +147,9 @@ export default function ProductForm({
     ? parseSpecification(initialData.specification)
     : { value: "", unit: "ea" };
 
+  const defaultDeliveryMethod = initialData?.delivery_method || "direct";
+  console.log("🚚 [ProductForm] 기본 배송 방법 설정:", defaultDeliveryMethod);
+
   // 이미지 URL 배열 (수정 모드: 기존 이미지, 등록 모드: 빈 배열)
   const initialImages = initialData?.image_url ? [initialData.image_url] : [];
 
@@ -162,7 +165,7 @@ export default function ProductForm({
       unit: parsedSpec.unit,
       specification_value: parsedSpec.value,
       delivery_fee: initialData?.shipping_fee || 0,
-      delivery_method: initialData?.delivery_method || "courier",
+      delivery_method: defaultDeliveryMethod,
       lead_time: initialData?.specification || "",
       specifications: {
         weight: "",
