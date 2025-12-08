@@ -89,7 +89,9 @@ function WholesalerLayoutContent({
   const { signOut } = useClerk();
   const { data: wholesaler, isLoading: isLoadingWholesaler } = useWholesaler();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // 데스크톱과 모바일 드롭다운을 분리하여 중복 렌더링 문제 해결
+  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -112,13 +114,13 @@ function WholesalerLayoutContent({
     setMounted(true);
   }, []);
 
-  // 드롭다운이 열릴 때 읽음 처리
+  // 드롭다운이 열릴 때 읽음 처리 (데스크톱 또는 모바일 중 하나라도 열리면)
   useEffect(() => {
-    if (isDropdownOpen && hasNewNotifications && !isMarkingAsRead) {
+    if ((isDesktopDropdownOpen || isMobileDropdownOpen) && hasNewNotifications && !isMarkingAsRead) {
       console.log("🔔 [layout] 드롭다운 열림 - 읽음 처리 시작");
       markAsRead();
     }
-  }, [isDropdownOpen, hasNewNotifications, isMarkingAsRead, markAsRead]);
+  }, [isDesktopDropdownOpen, isMobileDropdownOpen, hasNewNotifications, isMarkingAsRead, markAsRead]);
 
   // 모바일 메뉴 열릴 때 스크롤 방지
   useEffect(() => {
@@ -179,13 +181,15 @@ function WholesalerLayoutContent({
   // 주문 상세 페이지로 이동
   const handleOrderClick = (orderId: string) => {
     router.push(`/wholesaler/orders/${orderId}`);
-    setIsDropdownOpen(false);
+    setIsDesktopDropdownOpen(false);
+    setIsMobileDropdownOpen(false);
   };
 
   // 문의 상세 페이지로 이동
   const handleInquiryClick = (inquiryId: string) => {
     router.push(`/wholesaler/inquiries/${inquiryId}`);
-    setIsDropdownOpen(false);
+    setIsDesktopDropdownOpen(false);
+    setIsMobileDropdownOpen(false);
   };
 
   // 검색어 타입 판별 함수
@@ -362,8 +366,8 @@ function WholesalerLayoutContent({
             </form>
 
             <div className="flex items-center gap-4">
-              {/* 알림 드롭다운 메뉴 */}
-              <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+              {/* 알림 드롭다운 메뉴 (데스크톱) */}
+              <DropdownMenu open={isDesktopDropdownOpen} onOpenChange={setIsDesktopDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <button
                     className="relative flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-[#10B981] hover:bg-emerald-50 rounded-lg transition-colors"
@@ -506,7 +510,7 @@ function WholesalerLayoutContent({
                             className="text-center justify-center cursor-pointer flex-1"
                             onClick={() => {
                               router.push("/wholesaler/orders");
-                              setIsDropdownOpen(false);
+                              setIsDesktopDropdownOpen(false);
                             }}
                           >
                             모든 주문 보기
@@ -517,7 +521,7 @@ function WholesalerLayoutContent({
                             className="text-center justify-center cursor-pointer flex-1"
                             onClick={() => {
                               router.push("/wholesaler/inquiries");
-                              setIsDropdownOpen(false);
+                              setIsDesktopDropdownOpen(false);
                             }}
                           >
                             모든 문의 보기
@@ -584,8 +588,8 @@ function WholesalerLayoutContent({
                 
                 {/* Mobile 알림, 설정, 고객센터 버튼 */}
                 <div className="flex items-center gap-1 mr-1">
-                  {/* 알림 드롭다운 메뉴 */}
-                  <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                  {/* 알림 드롭다운 메뉴 (모바일) */}
+                  <DropdownMenu open={isMobileDropdownOpen} onOpenChange={setIsMobileDropdownOpen}>
                     <DropdownMenuTrigger asChild>
                       <button
                         className="relative p-2 text-gray-600 hover:text-[#10B981] transition-colors"
@@ -727,7 +731,7 @@ function WholesalerLayoutContent({
                                 className="text-center justify-center cursor-pointer flex-1"
                                 onClick={() => {
                                   router.push("/wholesaler/orders");
-                                  setIsDropdownOpen(false);
+                                  setIsMobileDropdownOpen(false);
                                 }}
                               >
                                 모든 주문 보기
@@ -738,7 +742,7 @@ function WholesalerLayoutContent({
                                 className="text-center justify-center cursor-pointer flex-1"
                                 onClick={() => {
                                   router.push("/wholesaler/inquiries");
-                                  setIsDropdownOpen(false);
+                                  setIsMobileDropdownOpen(false);
                                 }}
                               >
                                 모든 문의 보기
