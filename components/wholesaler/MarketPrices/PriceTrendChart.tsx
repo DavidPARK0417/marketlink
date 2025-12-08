@@ -28,6 +28,7 @@ import {
   ResponsiveContainer,
   Legend,
   type LegendProps,
+  type LegendPayload,
 } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { PriceTrendItem } from "@/lib/api/market-prices-types";
@@ -50,7 +51,7 @@ export default function PriceTrendChart({
   itemName,
 }: PriceTrendChartProps) {
   const [period, setPeriod] = useState<TrendPeriod>("daily");
-  const renderLegend = ({ payload }: LegendProps) => {
+  const renderLegend = ({ payload }: LegendProps & { payload?: LegendPayload[] }) => {
     if (!payload || payload.length === 0) return null;
     return (
       <ul className="flex flex-wrap gap-3 text-sm text-foreground" aria-label="차트 범례">
