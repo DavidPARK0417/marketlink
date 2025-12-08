@@ -714,7 +714,6 @@ export default function SettingsPage() {
           >
             <UserButton
               afterSignOutUrl="/sign-in/wholesaler"
-              userProfileMode="popover"
               appearance={{
                 elements: {
                   avatarBox:
