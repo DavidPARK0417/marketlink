@@ -363,51 +363,51 @@ export default function SettingsPage() {
 
       <div className="max-w-2xl mx-auto w-full space-y-6 pb-12">
         {/* 1. 계정 정보 (읽기 전용) */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-1">계정 정보</h2>
-          <p className="text-sm text-gray-500 mb-6">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">계정 정보</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-6">
             사업자 등록 정보입니다. 수정할 수 없습니다.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
             <div>
-              <p className="text-xs font-semibold text-gray-500 mb-1">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
                 사업자번호
               </p>
-              <p className="text-base text-gray-900 font-medium">
+              <p className="text-base text-gray-900 dark:text-gray-100 font-medium">
                 {formatBusinessNumber(wholesaler.business_number)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-500 mb-1">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
                 대표자명
               </p>
-              <p className="text-base text-gray-900 font-medium">
+              <p className="text-base text-gray-900 dark:text-gray-100 font-medium">
                 {wholesaler.representative}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-500 mb-1">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
                 익명 코드
               </p>
-              <p className="text-base text-gray-900 font-medium">
+              <p className="text-base text-gray-900 dark:text-gray-100 font-medium">
                 {wholesaler.anonymous_code}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-500 mb-1">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
                 승인 상태
               </p>
-              <p className="text-base text-gray-900 font-medium">
+              <p className="text-base text-gray-900 dark:text-gray-100 font-medium">
                 {getWholesalerStatusLabel(wholesaler.status)}
               </p>
             </div>
             {wholesaler.approved_at && (
               <div>
-                <p className="text-xs font-semibold text-gray-500 mb-1">
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
                   승인일
                 </p>
-                <p className="text-base text-gray-900 font-medium">
+                <p className="text-base text-gray-900 dark:text-gray-100 font-medium">
                   {format(
                     new Date(wholesaler.approved_at),
                     "yyyy년 MM월 dd일",
@@ -417,8 +417,8 @@ export default function SettingsPage() {
               </div>
             )}
             <div>
-              <p className="text-xs font-semibold text-gray-500 mb-1">가입일</p>
-              <p className="text-base text-gray-900 font-medium">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">가입일</p>
+              <p className="text-base text-gray-900 dark:text-gray-100 font-medium">
                 {format(new Date(wholesaler.created_at), "yyyy년 MM월 dd일", {
                   locale: ko,
                 })}
@@ -428,11 +428,11 @@ export default function SettingsPage() {
         </div>
 
         {/* 2. 사업자 정보 수정 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-1">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
             사업자 정보 수정
           </h2>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-6">
             상호명, 연락처, 주소, 계좌번호를 수정할 수 있습니다.
           </p>
 
@@ -447,7 +447,7 @@ export default function SettingsPage() {
                   name="business_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                      <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
                         상호명 <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
@@ -458,7 +458,7 @@ export default function SettingsPage() {
                           className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                         />
                       </FormControl>
-                      <FormDescription className="text-xs text-gray-400 mt-1.5">
+                      <FormDescription className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
                         사업자 등록증에 기재된 상호명을 입력해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -472,7 +472,7 @@ export default function SettingsPage() {
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                      <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
                         연락처 <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
@@ -484,7 +484,7 @@ export default function SettingsPage() {
                           className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                         />
                       </FormControl>
-                      <FormDescription className="text-xs text-gray-400 mt-1.5">
+                      <FormDescription className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
                         연락 가능한 전화번호를 입력해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -498,7 +498,7 @@ export default function SettingsPage() {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                      <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
                         주소 <span className="text-red-500">*</span>
                       </FormLabel>
                       <div className="flex gap-2 mb-2">
@@ -508,7 +508,7 @@ export default function SettingsPage() {
                             {...field}
                             disabled={isSubmittingWholesaler}
                             readOnly
-                            className="flex-1 px-4 py-3 rounded-xl border-gray-200 bg-gray-50 text-gray-600"
+                            className="flex-1 px-4 py-3 rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-100"
                           />
                         </FormControl>
                         <Button
@@ -516,13 +516,13 @@ export default function SettingsPage() {
                           variant="outline"
                           onClick={handleAddressSearch}
                           disabled={isSubmittingWholesaler}
-                          className="px-4 py-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2 whitespace-nowrap"
+                          className="px-4 py-2 border-gray-300 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2 whitespace-nowrap"
                         >
                           <Search className="w-4 h-4" />
                           주소 검색
                         </Button>
                       </div>
-                      <FormDescription className="text-xs text-gray-400 mb-3">
+                      <FormDescription className="text-xs text-gray-400 dark:text-gray-500 mb-3">
                         주소 검색 버튼을 클릭하여 주소를 검색해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -536,7 +536,7 @@ export default function SettingsPage() {
                   name="address_detail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                      <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
                         상세주소
                       </FormLabel>
                       <FormControl>
@@ -547,7 +547,7 @@ export default function SettingsPage() {
                           className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                         />
                       </FormControl>
-                      <FormDescription className="text-xs text-gray-400 mt-1.5">
+                      <FormDescription className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
                         상세주소를 입력해주세요 (선택사항)
                       </FormDescription>
                       <FormMessage />
@@ -561,7 +561,7 @@ export default function SettingsPage() {
                   name="bank_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                      <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
                         은행명 <span className="text-red-500">*</span>
                       </FormLabel>
                       <Select
@@ -571,7 +571,7 @@ export default function SettingsPage() {
                         disabled={isSubmittingWholesaler}
                       >
                         <FormControl>
-                          <SelectTrigger className="px-4 py-3 h-auto rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all">
+                          <SelectTrigger className="px-4 py-3 h-auto rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all">
                             <SelectValue placeholder="은행을 선택해주세요" />
                           </SelectTrigger>
                         </FormControl>
@@ -583,7 +583,7 @@ export default function SettingsPage() {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormDescription className="text-xs text-gray-400 mt-1.5">
+                      <FormDescription className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
                         정산을 받을 은행을 선택해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -597,7 +597,7 @@ export default function SettingsPage() {
                   name="bank_account_number"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                      <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
                         계좌번호 <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
@@ -608,7 +608,7 @@ export default function SettingsPage() {
                           className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                         />
                       </FormControl>
-                      <FormDescription className="text-xs text-gray-400 mt-1.5">
+                      <FormDescription className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
                         선택한 은행의 계좌번호를 입력해주세요.
                       </FormDescription>
                       <FormMessage />
@@ -638,12 +638,12 @@ export default function SettingsPage() {
           </div>
 
         {/* 3. 이메일 변경 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
           <div className="flex items-center gap-2 mb-1">
-            <Mail className="w-5 h-5 text-gray-900" />
-            <h2 className="text-lg font-bold text-gray-900">이메일 변경</h2>
+            <Mail className="w-5 h-5 text-gray-900 dark:text-gray-100" />
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">이메일 변경</h2>
           </div>
-          <p className="text-sm text-gray-500 mb-6 pl-7">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-6 pl-7">
             이메일을 변경하면 새 이메일로 인증 링크가 발송됩니다.
           </p>
 
@@ -657,7 +657,7 @@ export default function SettingsPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-semibold text-gray-700 mb-1.5">
+                    <FormLabel className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1.5">
                       새 이메일 주소
                     </FormLabel>
                     <FormControl>
@@ -669,7 +669,7 @@ export default function SettingsPage() {
                         className="px-4 py-3 rounded-xl border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all"
                       />
                     </FormControl>
-                    <FormDescription className="text-xs text-gray-400 mt-1.5">
+                    <FormDescription className="text-xs text-gray-400 dark:text-gray-500 mt-1.5">
                       새 이메일 주소를 입력하면 인증 이메일이 발송됩니다.
                     </FormDescription>
                     <FormMessage />
@@ -698,34 +698,34 @@ export default function SettingsPage() {
         </div>
 
         {/* 4. 비밀번호 변경 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-1">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">
             비밀번호 변경
           </h2>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-6">
             비밀번호를 변경하려면 아래 버튼을 사용하세요.
           </p>
 
-          <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl">
+          <div className="flex items-start gap-3 bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
             <div className="bg-[#10B981] text-white text-xs font-bold px-2 py-1 rounded-full mt-0.5 shrink-0">
               {user?.firstName?.[0]?.toUpperCase() || 
                user?.lastName?.[0]?.toUpperCase() || 
                user?.emailAddresses[0]?.emailAddress?.[0]?.toUpperCase() || 
                'U'}
             </div>
-            <p className="text-sm text-gray-600 pt-0.5">
+            <p className="text-sm text-gray-600 dark:text-gray-200 pt-0.5">
               사용자 메뉴에서 비밀번호를 변경할 수 있습니다.
             </p>
           </div>
         </div>
 
         {/* 5. 알림 설정 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8">
           <div className="flex items-center gap-2 mb-1">
-            <Bell className="w-5 h-5 text-gray-900" />
-            <h2 className="text-lg font-bold text-gray-900">알림 설정</h2>
+            <Bell className="w-5 h-5 text-gray-900 dark:text-gray-100" />
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">알림 설정</h2>
           </div>
-          <p className="text-sm text-gray-500 mb-6 pl-7">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-6 pl-7">
             받고 싶은 알림을 선택하세요.
           </p>
 
@@ -736,7 +736,7 @@ export default function SettingsPage() {
             >
                 {/* 새 주문 알림 */}
                 <div>
-                  <p className="text-sm font-bold text-gray-900 mb-3">
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">
                     새 주문 알림
                   </p>
                   <div className="space-y-2">
@@ -753,7 +753,7 @@ export default function SettingsPage() {
                               className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
+                          <FormLabel className="text-sm text-gray-700 dark:text-gray-200 cursor-pointer font-normal">
                             이메일 알림
                           </FormLabel>
                         </FormItem>
@@ -772,7 +772,7 @@ export default function SettingsPage() {
                               className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
+                          <FormLabel className="text-sm text-gray-700 dark:text-gray-200 cursor-pointer font-normal">
                             푸시 알림
                           </FormLabel>
                         </FormItem>
@@ -783,7 +783,7 @@ export default function SettingsPage() {
 
                 {/* 정산 완료 알림 */}
                 <div>
-                  <p className="text-sm font-bold text-gray-900 mb-3">
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">
                     정산 완료 알림
                   </p>
                   <div className="space-y-2">
@@ -800,7 +800,7 @@ export default function SettingsPage() {
                               className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
+                          <FormLabel className="text-sm text-gray-700 dark:text-gray-200 cursor-pointer font-normal">
                             이메일 알림
                           </FormLabel>
                         </FormItem>
@@ -819,7 +819,7 @@ export default function SettingsPage() {
                               className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
+                          <FormLabel className="text-sm text-gray-700 dark:text-gray-200 cursor-pointer font-normal">
                             푸시 알림
                           </FormLabel>
                         </FormItem>
@@ -830,7 +830,7 @@ export default function SettingsPage() {
 
                 {/* 문의 답변 알림 */}
                 <div>
-                  <p className="text-sm font-bold text-gray-900 mb-3">
+                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-3">
                     문의 답변 알림
                   </p>
                   <div className="space-y-2">
@@ -847,7 +847,7 @@ export default function SettingsPage() {
                               className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
+                          <FormLabel className="text-sm text-gray-700 dark:text-gray-200 cursor-pointer font-normal">
                             이메일 알림
                           </FormLabel>
                         </FormItem>
@@ -866,7 +866,7 @@ export default function SettingsPage() {
                               className="w-5 h-5 data-[state=checked]:bg-[#10B981] data-[state=checked]:border-[#10B981] border-gray-300 rounded focus:ring-[#10B981]"
                             />
                           </FormControl>
-                          <FormLabel className="text-sm text-gray-700 cursor-pointer font-normal">
+                          <FormLabel className="text-sm text-gray-700 dark:text-gray-200 cursor-pointer font-normal">
                             푸시 알림
                           </FormLabel>
                         </FormItem>
