@@ -73,10 +73,10 @@ export default function RecentOrders() {
 
   if (isLoading) {
     return (
-      <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+      <div className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50 dark:border-gray-800 transition-colors duration-200">
         <div className="p-4 lg:p-6">
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+            <Loader2 className="h-5 w-5 animate-spin text-gray-400 dark:text-gray-300" />
           </div>
         </div>
       </div>
@@ -84,14 +84,14 @@ export default function RecentOrders() {
   }
 
   return (
-    <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
-      <div className="p-4 lg:p-6 border-b border-gray-200 flex items-center justify-between">
+    <div className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50 dark:border-gray-800 transition-colors duration-200">
+      <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
         <div>
-          <h2 className="text-lg lg:text-xl font-bold text-[#111827] flex items-center gap-2">
-            <Truck className="w-5 h-5 text-[#10B981]" />
+          <h2 className="text-lg lg:text-xl font-bold text-foreground dark:text-foreground flex items-center gap-2">
+            <Truck className="w-5 h-5 text-[#10B981] dark:text-[#10B981]" />
             최근 주문 배송 조회
           </h2>
-          <p className="text-xs lg:text-sm text-[#6B7280] mt-1">
+          <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 mt-1">
             {orders.length > 0
               ? `신규 주문 ${orders.filter((o) => o.status === "pending").length}건이 처리 대기 중입니다`
               : "최근 주문이 없습니다"}
@@ -118,41 +118,41 @@ export default function RecentOrders() {
           {/* 데스크톱 테이블 */}
           <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-[#F8F9FA]">
+              <thead className="bg-[#F8F9FA] dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                     주문번호
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                     상품명
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                     수량
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                     금액
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-[#111827]">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                     상태
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                 {orders.map((order) => (
                   <tr
                     key={order.id}
-                    className="hover:bg-[#F8F9FA] transition-colors"
+                    className="hover:bg-[#F8F9FA] dark:hover:bg-gray-800 transition-colors duration-200"
                   >
-                    <td className="px-6 py-4 text-sm font-medium text-[#111827]">
+                    <td className="px-6 py-4 text-sm font-medium text-foreground dark:text-foreground">
                       {order.order_number}
                     </td>
-                    <td className="px-6 py-4 text-sm text-[#6B7280]">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground">
                       {order.product.name}
                     </td>
-                    <td className="px-6 py-4 text-sm text-[#6B7280]">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground">
                       {order.quantity}박스
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-[#111827]">
+                    <td className="px-6 py-4 text-sm font-semibold text-foreground dark:text-foreground">
                       {order.total_amount.toLocaleString()}원
                     </td>
                     <td className="px-6 py-4">
@@ -169,18 +169,18 @@ export default function RecentOrders() {
           </div>
 
           {/* 모바일 카드 */}
-          <div className="lg:hidden divide-y divide-gray-200">
+              <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="p-4 hover:bg-[#F8F9FA] transition-colors"
+                    className="p-4 hover:bg-[#F8F9FA] dark:hover:bg-gray-800 transition-colors duration-200"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <p className="text-sm font-bold text-[#111827] mb-1">
+                        <p className="text-sm font-bold text-foreground dark:text-foreground mb-1">
                       {order.product.name}
                     </p>
-                    <p className="text-xs text-[#6B7280]">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       {order.order_number}
                     </p>
                   </div>
@@ -190,16 +190,20 @@ export default function RecentOrders() {
                     {getStatusText(order.status)}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="text-[#6B7280]">수량: </span>
-                    <span className="text-[#111827] font-medium">
+                      <span className="text-muted-foreground dark:text-muted-foreground">
+                        수량:{" "}
+                      </span>
+                      <span className="text-foreground dark:text-foreground font-medium">
                       {order.quantity}박스
                     </span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-[#6B7280]">금액: </span>
-                    <span className="text-[#111827] font-bold">
+                      <span className="text-muted-foreground dark:text-muted-foreground">
+                        금액:{" "}
+                      </span>
+                      <span className="text-foreground dark:text-foreground font-bold">
                       {order.total_amount.toLocaleString()}원
                     </span>
                   </div>

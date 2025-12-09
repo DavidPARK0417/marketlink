@@ -351,13 +351,13 @@ export default function SettlementTable({
       <div className="space-y-4">
         {/* 데스크톱 테이블 (md 이상) */}
         <div className="hidden md:block">
-          <div className="rounded-md border">
+          <div className="rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-200">
             <Table>
-              <TableHeader>
+              <TableHeader className="bg-white dark:bg-gray-900 transition-colors duration-200">
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
+                  <TableRow key={headerGroup.id} className="border-gray-200 dark:border-gray-800">
                     {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className="text-foreground dark:text-foreground">
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -369,11 +369,11 @@ export default function SettlementTable({
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody>
+              <TableBody className="divide-y divide-gray-200 dark:divide-gray-800">
                 {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="text-foreground dark:text-foreground">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
@@ -400,7 +400,7 @@ export default function SettlementTable({
 
         {/* 총 정산 예정 금액 표시 (하단) */}
         {totalPendingAmount > 0 && (
-          <div className="flex justify-end rounded-lg border bg-muted/50 p-4">
+          <div className="flex justify-end rounded-lg border border-gray-200 dark:border-gray-800 bg-muted/50 dark:bg-gray-900/60 p-4 transition-colors duration-200">
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-muted-foreground">
                 총 정산 예정 금액:

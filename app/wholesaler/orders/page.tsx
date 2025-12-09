@@ -395,7 +395,7 @@ export default function OrdersPage() {
             className={`flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-semibold transition-all duration-300 whitespace-nowrap ${
               activeTab === btn.value
                 ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                : "bg-white dark:bg-gray-900 text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-colors duration-200"
             }`}
           >
             {btn.label} ({btn.count})

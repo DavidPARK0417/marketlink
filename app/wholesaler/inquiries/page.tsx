@@ -201,14 +201,15 @@ export default function InquiriesPage() {
         {/* 전체 문의 카드 */}
         <button
           onClick={() => handleStatsCardClick("all")}
-          className={`bg-white rounded-xl shadow-md p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
+          className={`relative bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
             activeTab === "all" ? "ring-2 ring-[#10B981]" : "hover:shadow-lg"
           }`}
         >
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 font-medium">전체 문의</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">전체 문의</p>
+              <p className="text-3xl font-bold text-foreground dark:text-foreground mt-2">
                 {statsData?.total ?? 0}건
               </p>
             </div>
@@ -221,14 +222,15 @@ export default function InquiriesPage() {
         {/* 답변 대기 카드 */}
         <button
           onClick={() => handleStatsCardClick("open")}
-          className={`bg-white rounded-xl shadow-md p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
+          className={`relative bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
             activeTab === "open" ? "ring-2 ring-[#fbbf24]" : "hover:shadow-lg"
           }`}
         >
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 font-medium">답변 대기</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">답변 대기</p>
+              <p className="text-3xl font-bold text-foreground dark:text-foreground mt-2">
                 {statsData?.open ?? 0}건
               </p>
             </div>
@@ -241,14 +243,15 @@ export default function InquiriesPage() {
         {/* 답변 완료 카드 */}
         <button
           onClick={() => handleStatsCardClick("answered")}
-          className={`bg-white rounded-xl shadow-md p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
+          className={`relative bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
             activeTab === "answered" ? "ring-2 ring-[#10B981]" : "hover:shadow-lg"
           }`}
         >
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 font-medium">답변 완료</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">답변 완료</p>
+              <p className="text-3xl font-bold text-foreground dark:text-foreground mt-2">
                 {statsData?.answered ?? 0}건
               </p>
             </div>
@@ -265,21 +268,21 @@ export default function InquiriesPage() {
       {/* 문의 목록 (카드 리스트) */}
       <div className="space-y-4">
         {isLoading ? (
-          <div className="bg-white rounded-xl shadow-md p-12 text-center text-gray-500">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-12 text-center text-muted-foreground dark:text-muted-foreground transition-colors duration-200">
             로딩 중...
           </div>
         ) : data?.inquiries && data.inquiries.length > 0 ? (
           data.inquiries.map((inquiry: InquiryDetail) => (
             <div
               key={inquiry.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+              className="bg-white dark:bg-gray-900 rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-200"
             >
               <div className="p-6">
                 {/* 헤더 */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold text-gray-900">
+                      <h3 className="text-lg font-bold text-foreground dark:text-foreground">
                         {inquiry.title}
                       </h3>
                       <span
@@ -291,7 +294,7 @@ export default function InquiriesPage() {
                         {getStatusText(inquiry.status)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
                       {inquiry.user_anonymous_code && (
                         <>
                           <span>고객: {inquiry.user_anonymous_code}</span>
@@ -327,8 +330,8 @@ export default function InquiriesPage() {
                 </div>
 
                 {/* 문의 내용 */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <p className="text-sm text-gray-700">{inquiry.content}</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4 transition-colors duration-200">
+                  <p className="text-sm text-foreground dark:text-foreground">{inquiry.content}</p>
                 </div>
 
                 {/* 액션 버튼 */}
@@ -343,14 +346,14 @@ export default function InquiriesPage() {
                   ) : (
                     <Link
                       href={`/wholesaler/inquiries/${inquiry.id}`}
-                      className="px-6 py-2 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+                      className="px-6 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-foreground rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     >
                       답변 확인
                     </Link>
                   )}
                   <Link
                     href={`/wholesaler/inquiries/${inquiry.id}`}
-                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                    className="px-6 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-foreground rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     상세보기
                   </Link>
@@ -359,7 +362,7 @@ export default function InquiriesPage() {
             </div>
           ))
         ) : (
-          <div className="bg-white rounded-xl shadow-md p-12 text-center text-gray-500">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-12 text-center text-muted-foreground dark:text-muted-foreground transition-colors duration-200">
             해당 조건의 문의가 없습니다.
           </div>
         )}
@@ -367,8 +370,8 @@ export default function InquiriesPage() {
 
       {/* 페이지네이션 */}
       {data && data.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <div className="text-sm text-gray-600 font-medium">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-200">
+          <div className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">
             총 <span className="text-[#10B981] font-bold">{data.total}</span>개 중{" "}
             <span className="text-[#10B981] font-bold">
               {(data.page - 1) * data.pageSize + 1}
@@ -385,14 +388,14 @@ export default function InquiriesPage() {
               size="sm"
               disabled={data.page === 1}
               onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-              className="border-gray-200 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="border-gray-200 dark:border-gray-700 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               이전
             </Button>
-            <div className="flex items-center gap-1 px-4 py-2 text-sm font-semibold text-gray-900">
+            <div className="flex items-center gap-1 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-foreground">
               <span>{data.page}</span>
-              <span className="text-gray-500">/</span>
+              <span className="text-gray-500 dark:text-muted-foreground">/</span>
               <span>{data.totalPages}</span>
             </div>
             <Button
@@ -400,7 +403,7 @@ export default function InquiriesPage() {
               size="sm"
               disabled={data.page >= data.totalPages}
               onClick={() => setPage((prev) => Math.min(data.totalPages, prev + 1))}
-              className="border-gray-200 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="border-gray-200 dark:border-gray-700 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               다음
               <ChevronRight className="w-4 h-4 ml-1" />

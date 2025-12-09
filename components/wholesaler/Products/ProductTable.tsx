@@ -576,7 +576,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
   return (
     <div className="space-y-4">
       {/* 필터 UI - 디자인 핸드오프 스타일 */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-200">
         {/* 검색창 */}
         <div className="relative w-full md:w-96">
           <form onSubmit={handleSearch}>
@@ -600,22 +600,22 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 setIsCategoryDropdownOpen(!isCategoryDropdownOpen);
                 setIsStatusDropdownOpen(false);
               }}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl flex items-center justify-between text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#10B981]/20"
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl flex items-center justify-between text-sm font-semibold text-foreground dark:text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-[#10B981]/20"
             >
               <span className="truncate">{categoryDisplayText}</span>
               <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isCategoryDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-lg z-30 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-lg z-30 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 {categoryOptions.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => handleCategoryChange(cat)}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#F8F9FA] ${
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#F8F9FA] dark:hover:bg-gray-800 ${
                       (cat === "전체" && category === "all") || (cat === category)
-                        ? 'text-[#10B981] font-bold bg-[#F8F9FA]'
-                        : 'text-gray-600 font-medium'
+                        ? 'text-[#10B981] font-bold bg-[#F8F9FA] dark:bg-gray-800'
+                        : 'text-gray-600 dark:text-gray-300 font-medium'
                     }`}
                   >
                     {cat === "전체" ? "전체 카테고리" : cat}
@@ -632,24 +632,24 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 setIsStatusDropdownOpen(!isStatusDropdownOpen);
                 setIsCategoryDropdownOpen(false);
               }}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl flex items-center justify-between text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#10B981]/20"
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl flex items-center justify-between text-sm font-semibold text-foreground dark:text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-[#10B981]/20"
             >
               <span>{statusDisplayText}</span>
               <ChevronDown className={`w-4 h-4 transition-transform flex-shrink-0 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isStatusDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-lg z-30 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-lg z-30 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 {statusOptions.map((statusOption) => (
                   <button
                     key={statusOption}
                     onClick={() => handleStatusChange(statusOption)}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#F8F9FA] ${
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#F8F9FA] dark:hover:bg-gray-800 ${
                       (statusOption === "전체" && status === "all") ||
                       (statusOption === "활성" && status === "active") ||
                       (statusOption === "비활성" && status === "inactive")
-                        ? 'text-[#10B981] font-bold bg-[#F8F9FA]'
-                        : 'text-gray-600 font-medium'
+                        ? 'text-[#10B981] font-bold bg-[#F8F9FA] dark:bg-gray-800'
+                        : 'text-gray-600 dark:text-gray-300 font-medium'
                     }`}
                   >
                     {statusOption === "전체" ? "상태 전체" : statusOption}
@@ -670,10 +670,10 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3"
+                  className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 space-y-3 transition-colors duration-200"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex-shrink-0">
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 flex-shrink-0 transition-colors duration-200">
                       {product.image_url ? (
                         <Image
                           src={product.image_url}
@@ -683,38 +683,40 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-8 h-8 text-gray-400" />
+                          <Package className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                         </div>
                       )}
                     </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-semibold text-gray-900 text-sm">{product.name}</p>
+                        <p className="font-semibold text-foreground dark:text-foreground text-sm">
+                          {product.name}
+                        </p>
                         <span
                           className={cn(
                             "inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold",
                             product.is_active
-                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                              : "bg-gray-100 text-gray-600 border border-gray-200"
+                              ? "bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-100 dark:border-emerald-800"
+                              : "bg-gray-100 text-gray-600 border border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
                           )}
                         >
                           {product.is_active ? "활성" : "비활성"}
                         </span>
                       </div>
                       {product.specification && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                           {product.specification.replace(/[()]/g, "").replace(/\s+/g, " · ")}
                         </p>
                       )}
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-100 dark:border-emerald-800">
                           {product.category}
                         </span>
                         <span className="ml-auto font-semibold text-[#10B981]">
                           {formatPrice(product.price)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-gray-600">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground dark:text-muted-foreground">
                         <span>재고: {product.stock_quantity.toLocaleString()} 박스</span>
                         <span>MOQ: {product.moq}</span>
                       </div>
@@ -727,8 +729,8 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                         className={cn(
                           "flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all",
                           product.is_active
-                            ? "bg-green-50 text-green-700 hover:bg-green-100"
-                            : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                        ? "bg-green-50 text-green-700 hover:bg-green-100 dark:bg-emerald-900/40 dark:text-emerald-100 dark:hover:bg-emerald-900/60"
+                        : "bg-gray-50 text-gray-500 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                         )}
                         title={product.is_active ? "활성 → 비활성" : "비활성 → 활성"}
                       >
@@ -737,7 +739,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                       </button>
                       <Link
                         href={`/wholesaler/products/${product.id}/edit`}
-                        className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-50 text-[#10B981] hover:bg-emerald-100 transition-all"
+                    className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-50 text-[#10B981] hover:bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-100 dark:hover:bg-emerald-900/60 transition-all"
                         title="수정"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -745,7 +747,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                       </Link>
                       <button
                         onClick={() => handleDeleteClick(product)}
-                        className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-all"
+                    className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/40 dark:text-red-100 dark:hover:bg-red-900/60 transition-all"
                         title="삭제"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -758,14 +760,14 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             </div>
 
             {/* 데스크톱 테이블 */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden xl:block">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden hidden xl:block transition-colors duration-200">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[720px]">
                   <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <tr
                         key={headerGroup.id}
-                        className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200"
+                        className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-b border-gray-200 dark:border-gray-800 transition-colors duration-200"
                       >
                         {headerGroup.headers.map((header) => {
                           const isSortable = header.column.getCanSort();
@@ -773,7 +775,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                             <th
                               key={header.id}
                               className={cn(
-                                "px-6 py-4 text-xs font-bold text-gray-700 uppercase tracking-wider",
+                                "px-6 py-4 text-xs font-bold text-foreground dark:text-foreground uppercase tracking-wider",
                                 header.id === "price"
                                   ? "text-right"
                                   : header.id === "stock_quantity" ||
@@ -781,7 +783,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                                     header.id === "actions"
                                   ? "text-center"
                                   : "text-left",
-                                isSortable && "cursor-pointer hover:bg-gray-100/50 transition-colors"
+                                isSortable && "cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800 transition-colors"
                               )}
                             >
                               {header.isPlaceholder
@@ -796,11 +798,11 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                       </tr>
                     ))}
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800 transition-colors duration-200">
                     {table.getRowModel().rows.map((row) => (
                       <tr
                         key={row.id}
-                        className="hover:bg-gradient-to-r hover:from-[#10B981]/5 hover:to-transparent transition-all duration-200 group"
+                        className="hover:bg-gradient-to-r hover:from-[#10B981]/5 hover:to-transparent dark:hover:from-[#10B981]/10 dark:hover:to-gray-900 transition-all duration-200 group"
                       >
                         {row.getVisibleCells().map((cell) => (
                           <td key={cell.id} className="px-6 py-4">
@@ -815,7 +817,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             </div>
           </>
         ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-200">
             <EmptyState
               message="검색 결과가 없습니다"
               description="다른 검색어나 필터를 사용해보세요"
@@ -827,8 +829,8 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
 
       {/* 페이지네이션 */}
       {initialData.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-          <div className="text-sm text-gray-600 font-medium">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-200">
+          <div className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">
             총 <span className="text-[#10B981] font-bold">{initialData.total}</span>개 중{" "}
             <span className="text-[#10B981] font-bold">
               {(initialData.page - 1) * initialData.pageSize + 1}

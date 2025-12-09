@@ -85,31 +85,31 @@ export default function PriceTable({
     return (
       <div className="space-y-3">
         {/* 모바일~노트북: 카드 스타일 로딩 */}
-        <div className="xl:hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-          <span className="text-sm text-[#6B7280]" role="status" aria-live="polite">
+        <div className="xl:hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm transition-colors duration-200">
+          <span className="text-sm text-[#6B7280] dark:text-gray-300" role="status" aria-live="polite">
             로딩 중...
           </span>
         </div>
 
         {/* 데스크톱: 기존 테이블 스켈레톤 */}
-        <div className="hidden xl:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+        <div className="hidden xl:block bg-white dark:bg-gray-900 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50 dark:border-gray-800 transition-colors duration-200">
           <div className="overflow-x-auto -mx-4 md:mx-0">
             <table className="w-full min-w-[920px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
-              <thead className="bg-[#F8F9FA]">
+              <thead className="bg-[#F8F9FA] dark:bg-gray-900">
                 <tr>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">품목</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">단위</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">당일 가격</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1일 전</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1개월 전</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1년 전</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">증감률</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">구분</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">품목</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">단위</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">당일 가격</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1일 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1개월 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1년 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">증감률</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                 <tr>
-                  <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500">
+                  <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     <span role="status" aria-live="polite">로딩 중...</span>
                   </td>
                 </tr>
@@ -162,13 +162,13 @@ export default function PriceTable({
   }
 
   return (
-    <div className="space-y-4">
+      <div className="space-y-4">
       {/* 모바일~노트북 카드 뷰 */}
       <div className="xl:hidden space-y-3">
         {paginatedData.map((item, index) => (
           <div
             key={`${item.productno}-${item.productClsCode}-card-${index}`}
-            className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+              className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm transition-colors duration-200"
             onClick={() => onRowClick?.(item)}
             role={onRowClick ? "button" : undefined}
             tabIndex={onRowClick ? 0 : undefined}
@@ -182,29 +182,29 @@ export default function PriceTable({
           >
             <div className="flex items-start justify-between gap-2">
               <div className="space-y-1">
-                <p className="text-xs text-[#6B7280]">{item.productClsName}</p>
-                <p className="text-base font-semibold text-[#111827]">{item.productName}</p>
-                <p className="text-xs text-[#6B7280]">{item.unit}</p>
+                <p className="text-xs text-[#6B7280] dark:text-gray-300">{item.productClsName}</p>
+                <p className="text-base font-semibold text-foreground dark:text-foreground">{item.productName}</p>
+                <p className="text-xs text-[#6B7280] dark:text-gray-300">{item.unit}</p>
               </div>
               <PriceChangeIndicator direction={item.direction} value={item.value} />
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
               <div className="flex flex-col gap-1">
-                <span className="text-[#6B7280]">당일</span>
+                <span className="text-[#6B7280] dark:text-gray-300">당일</span>
                 <span className="font-semibold text-[#10B981]">{formatPrice(item.dpr1)}원</span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[#6B7280]">1일 전</span>
-                <span className="text-[#111827]">{formatPrice(item.dpr2)}원</span>
+                <span className="text-[#6B7280] dark:text-gray-300">1일 전</span>
+                <span className="text-foreground dark:text-foreground">{formatPrice(item.dpr2)}원</span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[#6B7280]">1개월 전</span>
-                <span className="text-[#111827]">{formatPrice(item.dpr3)}원</span>
+                <span className="text-[#6B7280] dark:text-gray-300">1개월 전</span>
+                <span className="text-foreground dark:text-foreground">{formatPrice(item.dpr3)}원</span>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[#6B7280]">1년 전</span>
-                <span className="text-[#111827]">{formatPrice(item.dpr4)}원</span>
+                <span className="text-[#6B7280] dark:text-gray-300">1년 전</span>
+                <span className="text-foreground dark:text-foreground">{formatPrice(item.dpr4)}원</span>
               </div>
             </div>
           </div>
@@ -212,26 +212,26 @@ export default function PriceTable({
       </div>
 
       {/* 데스크톱 테이블 */}
-      <div className="hidden xl:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+      <div className="hidden xl:block bg-white dark:bg-gray-900 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50 dark:border-gray-800 transition-colors duration-200">
         <div className="overflow-x-auto -mx-4 md:mx-0">
           <table className="w-full min-w-[920px]" role="table" aria-label="시세 조회 테이블">
-            <thead className="bg-[#F8F9FA]">
+            <thead className="bg-[#F8F9FA] dark:bg-gray-900">
               <tr>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">품목</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">단위</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">당일 가격</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1일 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1개월 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1년 전</th>
-                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">증감률</th>
+                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">구분</th>
+                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">품목</th>
+                <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">단위</th>
+                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">당일 가격</th>
+                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1일 전</th>
+                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1개월 전</th>
+                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1년 전</th>
+                <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">증감률</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
               {paginatedData.map((item, index) => (
                 <tr
                   key={`${item.productno}-${item.productClsCode}-${index}`}
-                  className={onRowClick ? "cursor-pointer hover:bg-[#F8F9FA] transition-colors focus-within:bg-[#F8F9FA] outline-none" : ""}
+                  className={onRowClick ? "cursor-pointer hover:bg-[#F8F9FA] dark:hover:bg-gray-800 transition-colors duration-200 focus-within:bg-[#F8F9FA] dark:focus-within:bg-gray-800 outline-none" : ""}
                   onClick={() => onRowClick?.(item)}
                   onKeyDown={(e) => {
                     if (onRowClick && (e.key === "Enter" || e.key === " ")) {
@@ -243,19 +243,19 @@ export default function PriceTable({
                   role={onRowClick ? "button" : "row"}
                   aria-label={onRowClick ? `${item.productName} 시세 정보 보기` : undefined}
                 >
-                  <td className="px-4 md:px-6 py-4 text-sm text-[#111827]">{item.productClsName}</td>
-                  <td className="px-4 md:px-6 py-4 text-sm font-bold text-[#111827]">{item.productName}</td>
-                  <td className="px-4 md:px-6 py-4 text-sm text-[#6B7280]">{item.unit}</td>
+                  <td className="px-4 md:px-6 py-4 text-sm text-foreground dark:text-foreground">{item.productClsName}</td>
+                  <td className="px-4 md:px-6 py-4 text-sm font-bold text-foreground dark:text-foreground">{item.productName}</td>
+                  <td className="px-4 md:px-6 py-4 text-sm text-[#6B7280] dark:text-gray-300">{item.unit}</td>
                   <td className="px-4 md:px-6 py-4 text-sm text-right font-bold text-[#10B981]">
                     {formatPrice(item.dpr1)}원
                   </td>
-                  <td className="px-4 md:px-6 py-4 text-sm text-right text-[#6B7280]">
+                  <td className="px-4 md:px-6 py-4 text-sm text-right text-[#6B7280] dark:text-gray-300">
                     {formatPrice(item.dpr2)}원
                   </td>
-                  <td className="px-4 md:px-6 py-4 text-sm text-right text-[#6B7280]">
+                  <td className="px-4 md:px-6 py-4 text-sm text-right text-[#6B7280] dark:text-gray-300">
                     {formatPrice(item.dpr3)}원
                   </td>
-                  <td className="px-4 md:px-6 py-4 text-sm text-right text-[#6B7280]">
+                  <td className="px-4 md:px-6 py-4 text-sm text-right text-[#6B7280] dark:text-gray-300">
                     {formatPrice(item.dpr4)}원
                   </td>
                   <td className="px-4 md:px-6 py-4 text-right">
@@ -271,9 +271,9 @@ export default function PriceTable({
       {/* 페이지네이션 */}
       {totalPages > 1 && (
         <nav className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2" aria-label="페이지네이션">
-          <div className="text-sm text-[#6B7280] order-2 sm:order-1">
-            총 <span className="font-semibold text-[#111827]">{data.length}</span>개 중{" "}
-            <span className="font-semibold text-[#111827]">
+          <div className="text-sm text-[#6B7280] dark:text-gray-300 order-2 sm:order-1">
+            총 <span className="font-semibold text-foreground dark:text-foreground">{data.length}</span>개 중{" "}
+            <span className="font-semibold text-foreground dark:text-foreground">
               {(currentPage - 1) * pageSize + 1}-
               {Math.min(currentPage * pageSize, data.length)}
             </span>
@@ -283,21 +283,21 @@ export default function PriceTable({
             <button
               onClick={() => setCurrentPage((prev) => prev - 1)}
               disabled={currentPage === 1}
-              className="flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white text-[#111827] font-medium hover:bg-[#F8F9FA] hover:border-[#10B981] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981]"
+              className="flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-[#111827] dark:text-foreground font-medium hover:bg-[#F8F9FA] dark:hover:bg-gray-800 hover:border-[#10B981] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-200 dark:disabled:hover:bg-gray-900 dark:disabled:hover:border-gray-800 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981]"
               aria-label="이전 페이지"
               aria-disabled={currentPage === 1}
             >
               <ChevronLeft className="w-5 h-5" aria-hidden="true" />
             </button>
-            <div className="flex items-center px-4 py-2 text-sm font-semibold text-[#111827] min-w-[80px] justify-center">
+            <div className="flex items-center px-4 py-2 text-sm font-semibold text-foreground dark:text-foreground min-w-[80px] justify-center">
               <span aria-current="page">{currentPage}</span>
-              <span className="mx-1 text-[#6B7280]">/</span>
+              <span className="mx-1 text-[#6B7280] dark:text-gray-300">/</span>
               <span>{totalPages}</span>
             </div>
             <button
               onClick={() => setCurrentPage((prev) => prev + 1)}
               disabled={currentPage >= totalPages}
-              className="flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 bg-white text-[#111827] font-medium hover:bg-[#F8F9FA] hover:border-[#10B981] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981]"
+              className="flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-[#111827] dark:text-foreground font-medium hover:bg-[#F8F9FA] dark:hover:bg-gray-800 hover:border-[#10B981] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-gray-200 dark:disabled:hover:bg-gray-900 dark:disabled:hover:border-gray-800 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981]"
               aria-label="다음 페이지"
               aria-disabled={currentPage >= totalPages}
             >

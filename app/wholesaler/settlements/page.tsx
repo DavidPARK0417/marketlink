@@ -371,20 +371,23 @@ export default function SettlementsPage() {
 
       {/* 정산 통계 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <p className="text-sm text-gray-600 font-medium">총 정산 금액</p>
+        <div className="relative group bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-6 overflow-hidden transition-colors duration-200">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <p className="text-sm text-gray-600 dark:text-muted-foreground font-medium">총 정산 금액</p>
           <p className="text-3xl font-bold text-[#10B981] mt-2">
             {totalAmount.toLocaleString()}원
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <p className="text-sm text-gray-600 font-medium">정산 대기</p>
+        <div className="relative group bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-6 overflow-hidden transition-colors duration-200">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <p className="text-sm text-gray-600 dark:text-muted-foreground font-medium">정산 대기</p>
           <p className="text-3xl font-bold text-[#fbbf24] mt-2">
             {pendingCount}건
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <p className="text-sm text-gray-600 font-medium">정산 완료</p>
+        <div className="relative group bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-6 overflow-hidden transition-colors duration-200">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <p className="text-sm text-gray-600 dark:text-muted-foreground font-medium">정산 완료</p>
           <p className="text-3xl font-bold text-[#10B981] mt-2">
             {completedCount}건
           </p>
@@ -399,8 +402,8 @@ export default function SettlementsPage() {
             onClick={() => setStatusFilter("all")}
             className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
               statusFilter === "all"
-                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 dark:shadow-[0_4px_20px_rgba(16,185,129,0.25)] dark:hover:shadow-[0_6px_25px_rgba(16,185,129,0.35)]"
+                : "bg-white dark:bg-gray-900 text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-colors duration-200"
             }`}
           >
             전체 ({allCount})
@@ -409,8 +412,8 @@ export default function SettlementsPage() {
             onClick={() => setStatusFilter("pending")}
             className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
               statusFilter === "pending"
-                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 dark:shadow-[0_4px_20px_rgba(16,185,129,0.25)] dark:hover:shadow-[0_6px_25px_rgba(16,185,129,0.35)]"
+                : "bg-white dark:bg-gray-900 text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-colors duration-200"
             }`}
           >
             정산 대기 ({pendingCountForFilter})
@@ -419,8 +422,8 @@ export default function SettlementsPage() {
             onClick={() => setStatusFilter("completed")}
             className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
               statusFilter === "completed"
-                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                ? "bg-gradient-to-r from-[#10B981] to-[#059669] text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 dark:shadow-[0_4px_20px_rgba(16,185,129,0.25)] dark:hover:shadow-[0_6px_25px_rgba(16,185,129,0.35)]"
+                : "bg-white dark:bg-gray-900 text-gray-700 dark:text-foreground hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-300 dark:border-gray-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-colors duration-200"
             }`}
           >
             정산 완료 ({completedCountForFilter})
@@ -447,7 +450,7 @@ export default function SettlementsPage() {
       </div>
 
       {/* 정산 내역 테이블 */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-100">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 transition-colors duration-200">
         {error ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-destructive">
@@ -457,7 +460,7 @@ export default function SettlementsPage() {
         ) : isLoading ? (
           <SettlementTableSkeleton />
         ) : filteredSettlements.length === 0 ? (
-          <div className="py-12 text-center text-gray-500">
+          <div className="py-12 text-center text-muted-foreground dark:text-muted-foreground">
             해당 조건의 정산 내역이 없습니다.
           </div>
         ) : (
@@ -465,60 +468,60 @@ export default function SettlementsPage() {
             {/* 데스크톱 테이블 */}
             <div className="hidden lg:block overflow-x-auto rounded-xl">
               <table className="w-full min-w-[800px]">
-                <thead className="bg-white border-b border-gray-100">
+                <thead className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors duration-200">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                       주문번호
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                       <button
                         onClick={() => handleSort("order_amount")}
-                        className="flex items-center hover:text-gray-700 transition-colors"
+                        className="flex items-center hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
                       >
                         판매금액
                         {renderSortIcon("order_amount")}
                       </button>
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                       플랫폼 수수료 (5%)
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                       최종 지급액
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                       <button
                         onClick={() => handleSort("scheduled_payout_at")}
-                        className="flex items-center hover:text-gray-700 transition-colors"
+                        className="flex items-center hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
                       >
                         정산일
                         {renderSortIcon("scheduled_payout_at")}
                       </button>
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                       상태
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                   {filteredSettlements.map((settlement) => (
                     <tr
                       key={settlement.id}
-                      className="hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
                       onClick={() => handleViewDetail(settlement)}
                     >
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 text-sm font-medium text-foreground dark:text-foreground">
                         {settlement.orders?.order_number || "-"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 text-sm text-foreground dark:text-foreground">
                         {formatPrice(settlement.order_amount)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-red-600">
+                      <td className="px-6 py-4 text-sm text-red-600 dark:text-red-300">
                         -{formatPrice(settlement.platform_fee)}
                       </td>
                       <td className="px-6 py-4 text-sm font-bold text-[#10B981]">
                         {formatPrice(settlement.wholesaler_amount)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground">
                         {settlement.completed_at
                           ? format(new Date(settlement.completed_at), "yyyy-MM-dd")
                           : settlement.scheduled_payout_at
@@ -544,15 +547,15 @@ export default function SettlementsPage() {
             </div>
 
             {/* 모바일 카드 리스트 */}
-            <div className="lg:hidden divide-y divide-gray-200">
+            <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
               {filteredSettlements.map((settlement) => (
                 <div
                   key={settlement.id}
-                  className="p-5 hover:bg-gray-50 transition-colors"
+                  className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
                 >
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <span className="text-xs text-gray-500 block mb-1">
+                      <span className="text-xs text-muted-foreground dark:text-muted-foreground block mb-1">
                         {settlement.completed_at
                           ? format(new Date(settlement.completed_at), "yyyy-MM-dd")
                           : settlement.scheduled_payout_at
@@ -562,7 +565,7 @@ export default function SettlementsPage() {
                               )
                             : "정산 예정"}
                       </span>
-                      <span className="text-xs font-mono text-gray-500">
+                      <span className="text-xs font-mono text-muted-foreground dark:text-muted-foreground">
                         {settlement.orders?.order_number || "-"}
                       </span>
                     </div>
@@ -575,18 +578,18 @@ export default function SettlementsPage() {
                     </span>
                   </div>
 
-                  <div className="bg-gray-50 p-3 rounded-lg space-y-2 text-sm">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg space-y-2 text-sm transition-colors duration-200">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">판매금액</span>
-                      <span className="text-gray-900">
+                      <span className="text-muted-foreground dark:text-muted-foreground">판매금액</span>
+                      <span className="text-foreground dark:text-foreground">
                         {formatPrice(settlement.order_amount)}
                       </span>
                     </div>
-                    <div className="flex justify-between text-red-500">
+                    <div className="flex justify-between text-red-500 dark:text-red-300">
                       <span>수수료 (5%)</span>
                       <span>-{formatPrice(settlement.platform_fee)}</span>
                     </div>
-                    <div className="flex justify-between pt-2 border-t border-gray-200 font-bold text-[#10B981]">
+                    <div className="flex justify-between pt-2 border-t border-gray-200 dark:border-gray-700 font-bold text-[#10B981]">
                       <span>최종 지급액</span>
                       <span>{formatPrice(settlement.wholesaler_amount)}</span>
                     </div>
@@ -679,12 +682,13 @@ export default function SettlementsPage() {
       </div>
 
       {/* 정산 안내 */}
-      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+      <div className="relative bg-emerald-50 dark:bg-gray-900 border border-emerald-200 dark:border-emerald-900/60 rounded-xl p-6 overflow-hidden transition-colors duration-200">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <div className="flex items-start gap-3">
-          <Calendar className="w-5 h-5 text-[#10B981] mt-0.5" />
+          <Calendar className="w-5 h-5 text-[#10B981] dark:text-emerald-200 mt-0.5" />
           <div>
-            <h3 className="font-bold text-gray-900 mb-2">정산 안내</h3>
-            <ul className="text-sm text-gray-700 space-y-1">
+            <h3 className="font-bold text-gray-900 dark:text-foreground mb-2">정산 안내</h3>
+            <ul className="text-sm text-gray-700 dark:text-muted-foreground space-y-1">
               <li>• 정산은 주문 완료 후 익일 자동으로 처리됩니다.</li>
               <li>
                 • 플랫폼 수수료는 판매금액의 5%이며, 투명하게 공개됩니다.

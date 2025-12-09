@@ -336,61 +336,61 @@ export default function OrderTable({
       )}
 
       {/* 주문 목록 컨테이너 */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
         {/* 데스크톱 테이블 */}
         <div className="hidden lg:block overflow-x-auto">
           <table className="w-full min-w-[1000px]">
-            <thead className="bg-white border-b border-gray-100">
+            <thead className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
                   주문번호
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
                   상품명
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
                   수량
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
                   금액
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
                   배송지
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
                   주문일시
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
                   상태
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
               {table.getRowModel().rows.map((row) => {
                 const order = row.original;
                 const status = order.status as OrderStatus;
                 return (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
+                  <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+                    <td className="px-6 py-4 text-sm font-medium text-foreground dark:text-foreground whitespace-nowrap">
                       {order.order_number}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
                       {order.product?.name || "-"}
                       {order.variant && ` (${order.variant.name})`}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
                       {order.quantity}박스
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
                       {new Intl.NumberFormat("ko-KR").format(
                         order.total_amount
                       )}
                       원
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
                       {order.delivery_address}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
                       {format(new Date(order.created_at), "MM월 dd일 HH:mm", {
                         locale: ko,
                       })}
@@ -451,27 +451,27 @@ export default function OrderTable({
         </div>
 
         {/* 모바일 카드 리스트 */}
-        <div className="lg:hidden divide-y divide-gray-200">
+        <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
           {table.getRowModel().rows.map((row) => {
             const order = row.original;
             const status = order.status as OrderStatus;
             return (
               <div
                 key={row.id}
-                className="p-5 hover:bg-gray-50 transition-colors"
+                className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <span className="text-xs text-gray-500 block mb-1">
+                    <span className="text-xs text-muted-foreground dark:text-muted-foreground block mb-1">
                       {format(new Date(order.created_at), "yyyy년 MM월 dd일 HH:mm", {
                         locale: ko,
                       })}
                     </span>
-                    <h3 className="text-base font-bold text-gray-900 mb-1">
+                    <h3 className="text-base font-bold text-foreground dark:text-foreground mb-1">
                       {order.product?.name || "-"}
                       {order.variant && ` (${order.variant.name})`}
                     </h3>
-                    <p className="text-xs text-gray-500 font-mono">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground font-mono">
                       {order.order_number}
                     </p>
                   </div>
@@ -517,15 +517,15 @@ export default function OrderTable({
                   </div>
                 </div>
 
-                <div className="space-y-2 text-sm bg-gray-50 p-3 rounded-lg">
+                <div className="space-y-2 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg transition-colors duration-200">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-500">주문 수량</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="text-muted-foreground dark:text-muted-foreground">주문 수량</span>
+                    <span className="font-medium text-foreground dark:text-foreground">
                       {order.quantity}박스
                     </span>
                   </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                    <span className="text-gray-500">결제 금액</span>
+                  <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <span className="text-muted-foreground dark:text-muted-foreground">결제 금액</span>
                     <span className="font-bold text-[#10B981]">
                       {new Intl.NumberFormat("ko-KR").format(
                         order.total_amount
@@ -535,7 +535,7 @@ export default function OrderTable({
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-start gap-2 text-xs text-gray-500">
+                <div className="mt-3 flex items-start gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
                   <span className="font-semibold whitespace-nowrap">배송지:</span>
                   <span>{order.delivery_address}</span>
                 </div>
@@ -545,7 +545,7 @@ export default function OrderTable({
         </div>
 
         {table.getRowModel().rows.length === 0 && (
-          <div className="py-12 text-center text-gray-500">
+          <div className="py-12 text-center text-muted-foreground dark:text-muted-foreground">
             해당 조건의 주문이 없습니다.
           </div>
         )}

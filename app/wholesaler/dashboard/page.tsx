@@ -154,20 +154,20 @@ export default function DashboardPage() {
       {/* 간편 통계 카드 - 3D Effect */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         {/* 오늘 신규 주문 */}
-        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 group overflow-hidden">
+        <div className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 dark:border-gray-800 group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative">
             {isStatsLoading ? (
               <div className="space-y-3">
-                <div className="h-10 w-10 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-10 w-10 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
+                <div className="h-8 w-16 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
               </div>
             ) : (
               <>
                 <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">📦</div>
-                <p className="text-xs lg:text-sm text-[#6B7280] font-semibold mb-2">오늘 신규 주문</p>
-                <p className="text-2xl lg:text-3xl font-bold text-[#111827] mb-2">{todayOrders}건</p>
+                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">오늘 신규 주문</p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">{todayOrders}건</p>
                 <div className="flex items-center gap-1 text-xs text-[#10B981] font-semibold bg-[#10B981]/10 px-2 py-1 rounded-full w-fit">
                   <TrendingUp className="w-3 h-3" />
                   <span>+12%</span>
@@ -178,20 +178,20 @@ export default function DashboardPage() {
         </div>
 
         {/* 출고 예정 */}
-        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(251,191,36,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 group overflow-hidden">
+        <div className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(251,191,36,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 dark:border-gray-800 group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#fbbf24]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative">
             {isStatsLoading ? (
               <div className="space-y-3">
-                <div className="h-10 w-10 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-10 w-10 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
+                <div className="h-8 w-16 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
               </div>
             ) : (
               <>
                 <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">⏰</div>
-                <p className="text-xs lg:text-sm text-[#6B7280] font-semibold mb-2">출고 예정</p>
-                <p className="text-2xl lg:text-3xl font-bold text-[#111827] mb-2">{confirmedOrders}건</p>
+                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">출고 예정</p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">{confirmedOrders}건</p>
                 <div className="text-xs text-[#fbbf24] font-semibold bg-[#fbbf24]/10 px-2 py-1 rounded-full w-fit">
                   처리 필요
                 </div>
@@ -201,20 +201,20 @@ export default function DashboardPage() {
         </div>
 
         {/* 이번 주 정산 */}
-        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 group overflow-hidden">
+        <div className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(16,185,129,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 dark:border-gray-800 group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative">
             {isStatsLoading ? (
               <div className="space-y-3">
-                <div className="h-10 w-10 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-10 w-10 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
+                <div className="h-8 w-16 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
               </div>
             ) : (
               <>
                 <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">💰</div>
-                <p className="text-xs lg:text-sm text-[#6B7280] font-semibold mb-2">이번 주 정산</p>
-                <p className="text-xl lg:text-2xl font-bold text-[#111827] mb-2">
+                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">이번 주 정산</p>
+                <p className="text-xl lg:text-2xl font-bold text-foreground dark:text-foreground mb-2">
                   {(weeklySettlementAmount / 10000).toFixed(0)}만원
                 </p>
                 <div className="flex items-center gap-1 text-xs text-[#10B981] font-semibold bg-[#10B981]/10 px-2 py-1 rounded-full w-fit">
@@ -227,21 +227,21 @@ export default function DashboardPage() {
         </div>
 
         {/* 등록 상품 */}
-        <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(99,102,241,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 group overflow-hidden">
+        <div className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-4 lg:p-6 hover:shadow-[0_20px_50px_rgba(99,102,241,0.2)] transition-all duration-300 hover:-translate-y-2 border border-gray-100/50 dark:border-gray-800 group overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative">
             {isStatsLoading ? (
               <div className="space-y-3">
-                <div className="h-10 w-10 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-10 w-10 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
+                <div className="h-8 w-16 bg-gray-200 dark:bg-gray-800 animate-pulse rounded"></div>
               </div>
             ) : (
               <>
                 <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">🏪</div>
-                <p className="text-xs lg:text-sm text-[#6B7280] font-semibold mb-2">등록 상품</p>
-                <p className="text-2xl lg:text-3xl font-bold text-[#111827] mb-2">{totalProducts}개</p>
-                <div className="text-xs text-[#6B7280] font-semibold bg-gray-100 px-2 py-1 rounded-full w-fit">
+                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">등록 상품</p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">{totalProducts}개</p>
+                <div className="text-xs text-[#6B7280] dark:text-gray-300 font-semibold bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full w-fit">
                   관리 중
                 </div>
               </>
@@ -252,8 +252,8 @@ export default function DashboardPage() {
 
       {/* 에러 메시지 */}
       {statsError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-800">
+        <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/40 p-4 transition-colors duration-200">
+          <p className="text-sm text-red-800 dark:text-red-200">
             통계 데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시
             시도해주세요.
           </p>
