@@ -50,7 +50,7 @@ async function fetchInquiriesToAdmin(filter: InquiryFilterType = {}) {
   const response = await fetch("/api/wholesaler/inquiries/to-admin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ 
+    body: JSON.stringify({
       filter,
       sortOrder: "desc", // 최신 글이 위에 (내림차순)
     }),
@@ -58,13 +58,30 @@ async function fetchInquiriesToAdmin(filter: InquiryFilterType = {}) {
 
   if (!response.ok) {
     let errorMessage = "문의 목록 조회 실패";
+    let errorPayload: unknown = null;
     try {
-      const errorData = await response.json();
-      errorMessage = errorData.error || errorMessage;
-      console.error("❌ [support-page] API 에러 응답:", errorData);
+      const raw = await response.text();
+      const parsed = raw ? JSON.parse(raw) : {};
+      errorPayload = parsed;
+      errorMessage =
+        (typeof parsed === "object" && parsed && "error" in parsed
+          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (parsed as any).error
+          : undefined) || raw || errorMessage;
+      console.error("❌ [support-page] API 에러 응답:", parsed);
     } catch (e) {
+      errorPayload = e;
       console.error("❌ [support-page] 에러 응답 파싱 실패:", e);
     }
+
+    // 사용자에게 최대한 의미 있는 메시지 전달
+    if (!errorMessage) {
+      errorMessage = "문의 목록을 불러오는 중 오류가 발생했습니다.";
+    }
+    console.error("❌ [support-page] 문의 목록 조회 실패", {
+      message: errorMessage,
+      errorPayload,
+    });
 
     throw new Error(errorMessage);
   }

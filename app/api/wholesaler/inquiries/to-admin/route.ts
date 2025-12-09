@@ -10,7 +10,11 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getInquiriesToAdmin } from "@/lib/supabase/queries/inquiries";
+import {
+  getInquiriesForAdmin,
+  getInquiriesToAdmin,
+} from "@/lib/supabase/queries/inquiries";
+import { getUserProfile } from "@/lib/clerk/auth";
 import type { InquiryFilter, GetInquiriesOptions } from "@/types/inquiry";
 
 export async function POST(request: NextRequest) {
@@ -29,7 +33,15 @@ export async function POST(request: NextRequest) {
       filter: filter as InquiryFilter,
     };
 
-    const result = await getInquiriesToAdmin(options);
+    // 관리자 모드일 때는 모든 도매→관리자 문의를 조회
+    const profile = await getUserProfile();
+
+    const isAdmin = profile?.role === "admin";
+    console.log("요청자 권한:", profile?.role);
+
+    const result = isAdmin
+      ? await getInquiriesForAdmin(options)
+      : await getInquiriesToAdmin(options);
 
     console.log("✅ [api/inquiries/to-admin] 관리자 문의 목록 조회 성공", {
       count: result.inquiries.length,
