@@ -81,7 +81,6 @@ export default function AdminSidebar() {
   const router = useRouter();
   const { user, isLoaded: isUserLoaded } = useUser();
   const { signOut } = useClerk();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -89,19 +88,6 @@ export default function AdminSidebar() {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // 모바일 메뉴 열릴 때 스크롤 방지
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isMobileMenuOpen]);
 
   // 로그아웃 처리
   const handleLogout = async () => {
@@ -117,23 +103,6 @@ export default function AdminSidebar() {
       router.push("/sign-in");
     }
   };
-
-  // 헤더에서 보내는 모바일 메뉴 토글 이벤트 수신
-  useEffect(() => {
-    const handler = (event: Event) => {
-      const customEvent = event as CustomEvent<{ toggle?: boolean; open?: boolean }>;
-      if (customEvent.detail?.toggle) {
-        setIsMobileMenuOpen((prev) => !prev);
-      } else if (typeof customEvent.detail?.open === "boolean") {
-        setIsMobileMenuOpen(customEvent.detail.open);
-      }
-    };
-
-    window.addEventListener("admin-mobile-menu", handler as EventListener);
-    return () => {
-      window.removeEventListener("admin-mobile-menu", handler as EventListener);
-    };
-  }, []);
 
   // 사용자 이름의 첫 글자 추출
   const getInitials = (name: string | null | undefined): string => {
@@ -245,53 +214,6 @@ export default function AdminSidebar() {
         </div>
       </aside>
 
-      {/* Mobile Menu Dropdown (헤더에서 토글) */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden bg-[#10B981] border-t border-white/10 sticky top-16 z-40">
-          <nav className="px-4 py-2 space-y-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive =
-                item.href === "/admin/dashboard"
-                  ? pathname === item.href
-                  : pathname === item.href ||
-                    pathname.startsWith(item.href + "/");
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-white",
-                    isActive ? "bg-white/20" : "hover:bg-white/10",
-                  )}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </Link>
-              );
-            })}
-            <div className="border-t border-white/20 my-2 pt-2">
-              {mounted && isUserLoaded && user && (
-                <>
-                  <div className="px-4 py-2 text-xs text-white/80">
-                    {userName} (관리자)
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                    className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-white/10 w-full text-left rounded-lg text-white/90 disabled:opacity-50"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    로그아웃
-                  </button>
-                </>
-              )}
-            </div>
-          </nav>
-        </div>
-      )}
     </>
   );
 }
