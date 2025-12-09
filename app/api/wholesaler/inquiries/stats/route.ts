@@ -11,7 +11,11 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getInquiryStats, getInquiryStatsForAdmin } from "@/lib/supabase/queries/inquiries";
+import {
+  getInquiryStats,
+  getInquiryStatsForAdmin,
+  getRetailerToWholesalerStatsForAdmin,
+} from "@/lib/supabase/queries/inquiries";
 import { getUserProfile } from "@/lib/clerk/auth";
 
 export async function GET(request: NextRequest) {
@@ -40,9 +44,11 @@ export async function GET(request: NextRequest) {
 
     console.log("👤 [api/inquiries/stats] 사용자 역할:", profile.role);
 
-    // 관리자: 전체 문의 통계, 도매점: 자신의 문의 통계
+    // 관리자: 소매→도매 문의 전체 통계, 도매점: 자신의 문의 통계
     const stats =
-      profile.role === "admin" ? await getInquiryStatsForAdmin() : await getInquiryStats();
+      profile.role === "admin"
+        ? await getRetailerToWholesalerStatsForAdmin()
+        : await getInquiryStats();
 
     console.log("✅ [api/inquiries/stats] 상품문의 통계 조회 성공", stats);
     console.groupEnd();

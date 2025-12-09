@@ -344,8 +344,8 @@ export default function SettingsPage() {
   if (!wholesaler) {
     return (
       <div className="max-w-2xl mx-auto w-full space-y-6 pb-12">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <p className="text-center text-gray-600">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-8 transition-colors duration-200">
+          <p className="text-center text-gray-600 dark:text-gray-300 transition-colors duration-200">
             도매점 정보를 찾을 수 없습니다.
           </p>
         </div>

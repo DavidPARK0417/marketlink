@@ -988,6 +988,73 @@ export async function getInquiryStats(): Promise<{
 }
 
 /**
+ * 관리자용 상품문의 통계 조회 (소매 → 도매, 전체 합계)
+ * 관리자 역할로 접속했을 때 도매 페이지의 상품문의 카드에 보여줄 집계입니다.
+ */
+export async function getRetailerToWholesalerStatsForAdmin(): Promise<{
+  total: number;
+  open: number;
+  answered: number;
+  closed: number;
+}> {
+  console.group("🔍 [inquiries] 관리자용 소매→도매 문의 통계 조회 시작");
+
+  // 관리자 권한 확인
+  const profile = await getUserProfile();
+
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  if (profile.role !== "admin") {
+    console.error("❌ [inquiries] 관리자 권한 없음");
+    throw new Error("관리자 권한이 필요합니다.");
+  }
+
+  const supabase = createClerkSupabaseClient();
+
+  // 전체 문의 수 (소매→도매, 전체 합산)
+  const { count: total } = await supabase
+    .from("inquiries")
+    .select("*", { count: "exact", head: true })
+    .eq("inquiry_type", "retailer_to_wholesaler");
+
+  // 미답변 문의 수
+  const { count: open } = await supabase
+    .from("inquiries")
+    .select("*", { count: "exact", head: true })
+    .eq("inquiry_type", "retailer_to_wholesaler")
+    .eq("status", "open");
+
+  // 답변 완료 문의 수
+  const { count: answered } = await supabase
+    .from("inquiries")
+    .select("*", { count: "exact", head: true })
+    .eq("inquiry_type", "retailer_to_wholesaler")
+    .eq("status", "answered");
+
+  // 종료 문의 수
+  const { count: closed } = await supabase
+    .from("inquiries")
+    .select("*", { count: "exact", head: true })
+    .eq("inquiry_type", "retailer_to_wholesaler")
+    .eq("status", "closed");
+
+  const stats = {
+    total: total || 0,
+    open: open || 0,
+    answered: answered || 0,
+    closed: closed || 0,
+  };
+
+  console.log("✅ [inquiries] 관리자용 소매→도매 문의 통계 조회 완료", stats);
+  console.groupEnd();
+
+  return stats;
+}
+
+/**
  * 관리자용 문의 통계 조회
  * 모든 도매→관리자 문의의 통계를 조회합니다.
  */
