@@ -34,6 +34,7 @@ import {
   HelpCircle,
   Megaphone,
   MessageCircle,
+  MessageSquareDashed,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -53,6 +54,11 @@ const menuItems = [
     href: "/admin/inquiries",
     label: "도매 문의 관리",
     icon: MessageSquare,
+  },
+  {
+    href: "/admin/retail-inquiries",
+    label: "소매 문의 관리",
+    icon: MessageSquareDashed,
   },
   {
     href: "/admin/faqs",

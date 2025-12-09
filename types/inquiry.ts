@@ -89,6 +89,9 @@ export interface GetInquiriesOptions {
 export interface InquiryDetail extends Inquiry {
   // 문의자 익명 코드 (retailers 테이블의 anonymous_code)
   user_anonymous_code?: string | null;
+  // 관리자 조회용: 소매 사업자 정보
+  retailer_business_name?: string | null;
+  retailer_phone?: string | null;
   // 주문 정보 (order_id가 있는 경우)
   order?: {
     order_number: string;

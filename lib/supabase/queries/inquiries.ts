@@ -46,6 +46,16 @@ export interface GetInquiriesResult {
 }
 
 /**
+ * 관리자용 소매 문의(소매→관리자) 조회 결과 타입
+ */
+export interface GetRetailerInquiriesForAdminResult extends GetInquiriesResult {
+  inquiries: (InquiryDetail & {
+    retailer_business_name?: string | null;
+    retailer_phone?: string | null;
+  })[];
+}
+
+/**
  * 문의 목록 조회
  * 현재 도매점 관련 문의만 조회합니다.
  */
@@ -376,6 +386,140 @@ export async function getInquiriesToAdmin(
 }
 
 /**
+ * 관리자용: 모든 소매→관리자 문의 목록 조회
+ */
+export async function getRetailerInquiriesForAdmin(
+  options: GetInquiriesOptions = {},
+): Promise<GetRetailerInquiriesForAdminResult> {
+  const {
+    page = 1,
+    pageSize = 20,
+    sortBy = "created_at",
+    sortOrder = "desc",
+    filter = {},
+  } = options;
+
+  console.group("🔍 [inquiries] 관리자용 소매→관리자 문의 목록 조회 시작");
+  console.log("옵션:", { page, pageSize, sortBy, sortOrder, filter });
+
+  // 관리자 권한 확인
+  const profile = await getUserProfile();
+
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  if (profile.role !== "admin") {
+    console.error("❌ [inquiries] 관리자 권한 없음", { role: profile.role });
+    throw new Error("관리자 권한이 필요합니다.");
+  }
+
+  console.log("✅ [inquiries] 관리자 권한 확인:", profile.id);
+
+  const supabase = createClerkSupabaseClient();
+
+  // 소매→관리자 문의 + 소매사업자 정보 조인
+  let query = supabase
+    .from("inquiries")
+    .select(
+      `
+        *,
+        profiles!user_id (
+          id,
+          role,
+          retailers (
+            business_name,
+            phone,
+            anonymous_code
+          )
+        )
+      `,
+      { count: "exact" },
+    )
+    .eq("inquiry_type", "retailer_to_admin");
+
+  // 필터 적용
+  if (filter.status) {
+    query = query.eq("status", filter.status);
+  }
+
+  if (filter.start_date) {
+    query = query.gte("created_at", filter.start_date);
+  }
+
+  if (filter.end_date) {
+    query = query.lte("created_at", filter.end_date);
+  }
+
+  if (filter.search) {
+    query = query.or(
+      `title.ilike.%${filter.search}%,content.ilike.%${filter.search}%`,
+    );
+  }
+
+  // 정렬
+  query = query.order(sortBy, { ascending: sortOrder === "asc" });
+
+  // 페이지네이션
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  query = query.range(from, to);
+
+  console.log("🔍 [inquiries] Supabase 쿼리 실행");
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("❌ [inquiries] 쿼리 실행 오류:", error);
+    throw new Error(
+      `문의 목록을 불러오는 중 오류가 발생했습니다: ${error.message}`,
+    );
+  }
+
+  console.log("✅ [inquiries] 쿼리 실행 완료", {
+    count: data?.length || 0,
+    total: count || 0,
+  });
+
+  const inquiriesWithDetails = (data || []).map((inquiry: any) => {
+    const retailer = inquiry.profiles?.retailers?.[0];
+
+    return {
+      ...inquiry,
+      user_anonymous_code: retailer?.anonymous_code || null, // anonymous_code가 있다면 표시
+      retailer_business_name: retailer?.business_name || null,
+      retailer_phone: retailer?.phone || null,
+      order: inquiry.orders
+        ? {
+            order_number: inquiry.orders.order_number,
+            created_at: inquiry.orders.created_at,
+          }
+        : null,
+    } as InquiryDetail & {
+      retailer_business_name?: string | null;
+      retailer_phone?: string | null;
+    };
+  });
+
+  const totalPages = Math.ceil((count || 0) / pageSize);
+
+  console.log("✅ [inquiries] 관리자용 소매→관리자 문의 목록 조회 완료", {
+    total: count || 0,
+    page,
+    totalPages,
+  });
+  console.groupEnd();
+
+  return {
+    inquiries: inquiriesWithDetails,
+    total: count || 0,
+    page,
+    pageSize,
+    totalPages,
+  };
+}
+
+/**
  * 관리자용: 모든 도매→관리자 문의 목록 조회
  * 관리자가 모든 도매사업자로부터 받은 문의를 조회합니다.
  */
@@ -639,6 +783,23 @@ export async function getInquiryById(
     console.groupEnd();
 
     return inquiryDetail;
+  } else if (inquiry.inquiry_type === "retailer_to_admin") {
+    // 소매→관리자 문의: 소매 작성자 또는 관리자 권한 필요
+    if (profile.role !== "admin" && inquiry.user_id !== profile.id) {
+      console.error("❌ [inquiries] 권한 없음 - 소매→관리자 문의");
+      throw new Error("이 문의를 조회할 권한이 없습니다.");
+    }
+
+    const inquiryDetail: InquiryDetail = {
+      ...inquiry,
+      user_anonymous_code: null,
+      order: null,
+    };
+
+    console.log("✅ [inquiries] 문의 상세 조회 완료 (소매→관리자)");
+    console.groupEnd();
+
+    return inquiryDetail;
   } else {
     console.error("❌ [inquiries] 알 수 없는 문의 유형:", inquiry.inquiry_type);
     throw new Error("알 수 없는 문의 유형입니다.");
@@ -850,13 +1011,13 @@ export async function closeInquiry(inquiryId: string): Promise<Inquiry> {
   // 2. 권한 확인
   // 도매사업자인 경우 자신의 문의만 종료 가능
   if (profile.role === "wholesaler") {
-    if (inquiry.inquiry_type === "wholesaler_to_admin") {
+  if (inquiry.inquiry_type === "wholesaler_to_admin") {
       // 자신이 보낸 문의인지 확인 (user_id로 확인)
       if (inquiry.user_id !== profile.id) {
         console.error("❌ [inquiries] 권한 없음 - 다른 사용자의 문의");
         throw new Error("이 문의를 종료할 권한이 없습니다.");
       }
-    } else if (inquiry.inquiry_type === "retailer_to_wholesaler") {
+  } else if (inquiry.inquiry_type === "retailer_to_wholesaler") {
       // 소매점이 보낸 문의인 경우, 자신의 도매점 문의인지 확인
       // 도매사업자 정보 조회
       const { data: wholesaler, error: wholesalerError } = await supabase
@@ -872,6 +1033,12 @@ export async function closeInquiry(inquiryId: string): Promise<Inquiry> {
 
       if (inquiry.wholesaler_id !== wholesaler.id) {
         console.error("❌ [inquiries] 권한 없음 - 다른 도매점의 문의");
+        throw new Error("이 문의를 종료할 권한이 없습니다.");
+      }
+    } else if (inquiry.inquiry_type === "retailer_to_admin") {
+      // 소매→관리자 문의: 작성자(소매) 또는 관리자만 종료 가능
+      if (inquiry.user_id !== profile.id) {
+        console.error("❌ [inquiries] 권한 없음 - 다른 사용자의 문의");
         throw new Error("이 문의를 종료할 권한이 없습니다.");
       }
     } else {
@@ -1049,6 +1216,68 @@ export async function getRetailerToWholesalerStatsForAdmin(): Promise<{
   };
 
   console.log("✅ [inquiries] 관리자용 소매→도매 문의 통계 조회 완료", stats);
+  console.groupEnd();
+
+  return stats;
+}
+
+/**
+ * 관리자용 소매→관리자 문의 통계 조회
+ */
+export async function getRetailerToAdminStatsForAdmin(): Promise<{
+  total: number;
+  open: number;
+  answered: number;
+  closed: number;
+}> {
+  console.group("🔍 [inquiries] 관리자용 소매→관리자 문의 통계 조회 시작");
+
+  // 관리자 권한 확인
+  const profile = await getUserProfile();
+
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  if (profile.role !== "admin") {
+    console.error("❌ [inquiries] 관리자 권한 없음");
+    throw new Error("관리자 권한이 필요합니다.");
+  }
+
+  const supabase = createClerkSupabaseClient();
+
+  const { count: total } = await supabase
+    .from("inquiries")
+    .select("*", { count: "exact", head: true })
+    .eq("inquiry_type", "retailer_to_admin");
+
+  const { count: open } = await supabase
+    .from("inquiries")
+    .select("*", { count: "exact", head: true })
+    .eq("inquiry_type", "retailer_to_admin")
+    .eq("status", "open");
+
+  const { count: answered } = await supabase
+    .from("inquiries")
+    .select("*", { count: "exact", head: true })
+    .eq("inquiry_type", "retailer_to_admin")
+    .eq("status", "answered");
+
+  const { count: closed } = await supabase
+    .from("inquiries")
+    .select("*", { count: "exact", head: true })
+    .eq("inquiry_type", "retailer_to_admin")
+    .eq("status", "closed");
+
+  const stats = {
+    total: total || 0,
+    open: open || 0,
+    answered: answered || 0,
+    closed: closed || 0,
+  };
+
+  console.log("✅ [inquiries] 관리자용 소매→관리자 문의 통계 조회 완료", stats);
   console.groupEnd();
 
   return stats;
