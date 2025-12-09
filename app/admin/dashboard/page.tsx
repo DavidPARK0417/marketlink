@@ -83,7 +83,7 @@ export default async function AdminDashboardPage() {
 
           {/* 소매 페이지 */}
           <Link
-            href="/retailer/dashboard"
+            href="https://farmtobiz-retailer.vercel.app/retailer/dashboard"
             className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-green-300 dark:hover:border-green-400 transition-colors duration-200"
           >
             <div className="flex items-center gap-4">
