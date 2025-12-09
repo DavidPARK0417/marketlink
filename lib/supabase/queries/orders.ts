@@ -145,6 +145,30 @@ export async function getOrders(
       profileId: profile.id,
       role: profile.role,
     });
+
+    // 관리자 모드에서 도매점이 아직 없을 때는 빈 결과를 반환 (에러 대신 빈 리스트)
+    if (profile.role === "admin") {
+      console.log(
+        "ℹ️ [orders-query] 관리자 계정 - 연결된 도매점 없음, 빈 주문 리스트 반환",
+      );
+      return {
+        orders: [],
+        total: 0,
+        page,
+        pageSize,
+        totalPages: 0,
+        counts: {
+          all: 0,
+          pending: 0,
+          confirmed: 0,
+          shipped: 0,
+          completed: 0,
+          cancelled: 0,
+          processing: 0,
+        },
+      };
+    }
+
     throw new Error(
       "도매점 정보를 찾을 수 없습니다. 도매점 등록이 필요합니다.",
     );

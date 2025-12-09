@@ -47,6 +47,19 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
   if (!wholesalers || wholesalers.length === 0) {
+    // 관리자 모드에서 도매점이 아직 없을 때는 빈 통계 반환 (에러 대신 0으로 표시)
+    if (profile.role === "admin") {
+      console.log(
+        "ℹ️ [dashboard-query] 관리자 계정 - 연결된 도매점 없음, 기본 통계 반환",
+      );
+      return {
+        todayOrders: 0,
+        confirmedOrders: 0,
+        weeklySettlementAmount: 0,
+        totalProducts: 0,
+      };
+    }
+
     throw new Error("도매점 정보를 찾을 수 없습니다.");
   }
 

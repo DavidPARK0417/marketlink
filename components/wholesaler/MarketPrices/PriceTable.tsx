@@ -126,30 +126,30 @@ export default function PriceTable({
     return (
       <div className="space-y-3">
         {/* 모바일~노트북: 빈 상태 카드 */}
-        <div className="xl:hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-          <p className="text-sm text-[#6B7280]">조회된 시세 정보가 없습니다.</p>
-          <p className="text-xs text-[#9CA3AF] mt-1">검색 후 결과가 여기에 표시됩니다.</p>
+        <div className="xl:hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm transition-colors duration-200">
+          <p className="text-sm text-[#6B7280] dark:text-gray-300">조회된 시세 정보가 없습니다.</p>
+          <p className="text-xs text-[#9CA3AF] dark:text-gray-500 mt-1">검색 후 결과가 여기에 표시됩니다.</p>
         </div>
 
         {/* 데스크톱: 테이블 헤더 유지 */}
-        <div className="hidden xl:block bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50">
+        <div className="hidden xl:block bg-white dark:bg-gray-900 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50 dark:border-gray-800 transition-colors duration-200">
           <div className="overflow-x-auto -mx-4 md:mx-0">
             <table className="w-full min-w-[920px] md:min-w-0" role="table" aria-label="시세 조회 테이블">
-              <thead className="bg-[#F8F9FA]">
+              <thead className="bg-[#F8F9FA] dark:bg-gray-900">
                 <tr>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">구분</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">품목</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] whitespace-nowrap">단위</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">당일 가격</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1일 전</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1개월 전</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] whitespace-nowrap">1년 전</th>
-                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] whitespace-nowrap">증감률</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] dark:text-foreground whitespace-nowrap">구분</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] dark:text-foreground whitespace-nowrap">품목</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-[#111827] dark:text-foreground whitespace-nowrap">단위</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] dark:text-foreground whitespace-nowrap">당일 가격</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1일 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1개월 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#6B7280] dark:text-gray-300 whitespace-nowrap">1년 전</th>
+                  <th scope="col" className="px-4 md:px-6 py-4 text-right text-sm font-semibold text-[#111827] dark:text-foreground whitespace-nowrap">증감률</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                 <tr>
-                  <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500">
+                  <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     조회된 시세 정보가 없습니다.
                   </td>
                 </tr>

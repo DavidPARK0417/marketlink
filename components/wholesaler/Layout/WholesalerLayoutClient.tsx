@@ -34,6 +34,7 @@ import {
   ShoppingCart,
   CreditCard,
   MessageSquare,
+  Shield,
   Settings,
   Menu,
   X,
@@ -190,6 +191,12 @@ function WholesalerLayoutContent({
     router.push(`/wholesaler/inquiries/${inquiryId}`);
     setIsDesktopDropdownOpen(false);
     setIsMobileDropdownOpen(false);
+  };
+
+  // 관리자 페이지로 이동 (관리자 전용)
+  const handleGoToAdmin = () => {
+    console.log("↩️ [layout] 관리자 페이지로 이동");
+    router.push("/admin");
   };
 
   // 검색어 타입 판별 함수
@@ -366,6 +373,18 @@ function WholesalerLayoutContent({
             </form>
 
             <div className="flex items-center gap-4">
+              {role === "admin" && (
+                <button
+                  type="button"
+                  onClick={handleGoToAdmin}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  aria-label="관리자 페이지로 이동"
+                >
+                  <Shield className="w-4 h-4 text-[#10B981]" />
+                  <span>관리자 페이지</span>
+                </button>
+              )}
+
               {/* 알림 드롭다운 메뉴 (데스크톱) */}
               <DropdownMenu open={isDesktopDropdownOpen} onOpenChange={setIsDesktopDropdownOpen}>
                 <DropdownMenuTrigger asChild>
@@ -586,6 +605,17 @@ function WholesalerLayoutContent({
                 
                 {/* Mobile 알림, 설정, 고객센터 버튼 */}
                 <div className="flex items-center gap-1 mr-1">
+                  {role === "admin" && (
+                    <button
+                      type="button"
+                      onClick={handleGoToAdmin}
+                      className="p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      aria-label="관리자 페이지로 이동"
+                    >
+                      <Shield className="w-5 h-5" />
+                    </button>
+                  )}
+
                   {/* 알림 드롭다운 메뉴 (모바일) */}
                   <DropdownMenu open={isMobileDropdownOpen} onOpenChange={setIsMobileDropdownOpen}>
                     <DropdownMenuTrigger asChild>

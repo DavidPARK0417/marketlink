@@ -11,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getInquiryStats } from "@/lib/supabase/queries/inquiries";
+import { getInquiryStats, getInquiryStatsForAdmin } from "@/lib/supabase/queries/inquiries";
 import { getUserProfile } from "@/lib/clerk/auth";
 
 export async function GET(request: NextRequest) {
@@ -29,17 +29,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (profile.role !== "wholesaler") {
-      console.error("❌ [api/inquiries/stats] 도매점 권한 없음");
+    // 도매점 또는 관리자만 허용
+    if (profile.role !== "wholesaler" && profile.role !== "admin") {
+      console.error("❌ [api/inquiries/stats] 권한 없음", { role: profile.role });
       return NextResponse.json(
-        { error: "도매점 권한이 필요합니다." },
-        { status: 403 }
+        { error: "도매점 또는 관리자 권한이 필요합니다." },
+        { status: 403 },
       );
     }
 
     console.log("👤 [api/inquiries/stats] 사용자 역할:", profile.role);
 
-    const stats = await getInquiryStats();
+    // 관리자: 전체 문의 통계, 도매점: 자신의 문의 통계
+    const stats =
+      profile.role === "admin" ? await getInquiryStatsForAdmin() : await getInquiryStats();
 
     console.log("✅ [api/inquiries/stats] 상품문의 통계 조회 성공", stats);
     console.groupEnd();
@@ -57,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        error: errorMessage,
+        error: errorMessage || "상품문의 통계를 불러오는 중 오류가 발생했습니다.",
         details: process.env.NODE_ENV === "development" && error instanceof Error ? error.stack : undefined,
       },
       { status: 500 },
