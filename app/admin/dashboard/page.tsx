@@ -45,16 +45,18 @@ export default async function AdminDashboardPage() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* 관리자 대시보드 (현재 페이지) */}
-          <div className="p-6 bg-red-50 rounded-lg shadow-sm border-2 border-red-200">
+          <div className="p-6 bg-red-50 dark:bg-red-900/40 rounded-lg shadow-sm border-2 border-red-200 dark:border-red-700 transition-colors duration-200">
             <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+              <div className="flex-shrink-0 w-12 h-12 bg-red-500 dark:bg-red-600 rounded-lg flex items-center justify-center">
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-foreground">
+                <h4 className="text-lg font-semibold text-foreground dark:text-foreground">
                   관리자 대시보드
                 </h4>
-                <p className="text-sm text-muted-foreground mt-1">현재 페이지</p>
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
+                  현재 페이지
+                </p>
               </div>
             </div>
           </div>
@@ -62,17 +64,17 @@ export default async function AdminDashboardPage() {
           {/* 도매 페이지 */}
           <Link
             href="/wholesaler/dashboard"
-            className="block p-6 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-emerald-300 transition-all"
+            className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-400 transition-colors duration-200"
           >
             <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center">
                 <Store className="w-6 h-6 text-[#10B981]" />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-foreground">
+                <h4 className="text-lg font-semibold text-foreground dark:text-foreground">
                   도매 페이지
                 </h4>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
                   도매점 관리 화면으로 이동
                 </p>
               </div>
@@ -82,17 +84,17 @@ export default async function AdminDashboardPage() {
           {/* 소매 페이지 */}
           <Link
             href="/retailer/dashboard"
-            className="block p-6 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-green-300 transition-all"
+            className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-green-300 dark:hover:border-green-400 transition-colors duration-200"
           >
             <div className="flex items-center gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
                 <ShoppingBag className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-foreground">
+                <h4 className="text-lg font-semibold text-foreground dark:text-foreground">
                   소매 페이지
                 </h4>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
                   소매점 관리 화면으로 이동
                 </p>
               </div>
@@ -110,10 +112,10 @@ export default async function AdminDashboardPage() {
         {/* 도매 승인 대기 카드 */}
         <Link
           href="/admin/wholesalers/pending"
-          className="block p-6 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-colors duration-200"
         >
           <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center">
               <svg
                 className="w-6 h-6 text-[#10B981]"
                 fill="none"
@@ -129,10 +131,10 @@ export default async function AdminDashboardPage() {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-foreground dark:text-foreground">
                 도매 승인 대기
               </h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
                 승인 대기 중인 도매사업자 목록
               </p>
             </div>
@@ -142,10 +144,10 @@ export default async function AdminDashboardPage() {
         {/* 감사 로그 카드 */}
         <Link
           href="/admin/audit-logs"
-          className="block p-6 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+          className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-colors duration-200"
         >
           <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
               <svg
                 className="w-6 h-6 text-green-600"
                 fill="none"
@@ -161,8 +163,8 @@ export default async function AdminDashboardPage() {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">감사 로그</h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <h3 className="text-lg font-semibold text-foreground dark:text-foreground">감사 로그</h3>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
                 관리자 액션 기록 조회
               </p>
             </div>
@@ -173,22 +175,22 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* 현재 관리자 정보 */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-6 transition-colors duration-200">
+        <h3 className="text-lg font-semibold text-foreground dark:text-foreground mb-4">
           현재 관리자 정보
         </h3>
         <div className="space-y-2">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-600">이메일:</span>
-            <span className="text-sm text-gray-900">{profile.email}</span>
+            <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">이메일:</span>
+            <span className="text-sm text-foreground dark:text-foreground">{profile.email}</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-600">역할:</span>
-            <span className="text-sm text-gray-900">{profile.role}</span>
+            <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">역할:</span>
+            <span className="text-sm text-foreground dark:text-foreground">{profile.role}</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-600">상태:</span>
-            <span className="text-sm text-gray-900">{profile.status}</span>
+            <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">상태:</span>
+            <span className="text-sm text-foreground dark:text-foreground">{profile.status}</span>
           </div>
         </div>
       </div>
