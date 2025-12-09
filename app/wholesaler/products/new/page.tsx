@@ -53,6 +53,7 @@ export default function NewProductPage() {
   const supabase = useClerkSupabaseClient();
   const [wholesalerId, setWholesalerId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   // wholesaler_id 조회
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function NewProductPage() {
         // 프로필 조회
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("id")
+          .select("id, role")
           .eq("clerk_user_id", user.id)
           .single();
 
@@ -84,6 +85,18 @@ export default function NewProductPage() {
         }
 
         console.log("✅ [new-product-page] 프로필 조회 완료:", profile.id);
+
+        if (profile.role === "admin") {
+          console.warn(
+            "⛔️ [new-product-page] 관리자 계정은 상품 등록을 사용할 수 없습니다.",
+          );
+          toast.error(
+            "관리자 계정에서는 상품 등록을 할 수 없습니다. 도매점 계정으로 로그인해 주세요.",
+          );
+          setIsBlocked(true);
+          setIsLoading(false);
+          return;
+        }
 
         // wholesaler 정보 조회
         const { data: wholesaler, error: wholesalerError } = await supabase
@@ -202,8 +215,7 @@ export default function NewProductPage() {
     router.push("/wholesaler/products");
   };
 
-  // 로딩 중이거나 wholesaler_id가 없으면 로딩 표시
-  if (isLoading || !wholesalerId) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -214,6 +226,27 @@ export default function NewProductPage() {
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
             <p className="text-gray-600">로딩 중...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isBlocked || !wholesalerId) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="상품 등록"
+          description="새로운 상품을 등록하세요."
+        />
+        <div className="flex items-center justify-center p-12">
+          <div className="w-full max-w-xl space-y-3 rounded-lg border border-gray-200 bg-white p-6 text-center transition-colors duration-200 dark:border-gray-800 dark:bg-gray-900">
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+              상품 등록이 제한되었습니다.
+            </p>
+            <p className="text-gray-600 dark:text-gray-300">
+              관리자 계정에서는 상품 등록을 할 수 없습니다. 도매점 계정으로 로그인해 주세요.
+            </p>
           </div>
         </div>
       </div>
