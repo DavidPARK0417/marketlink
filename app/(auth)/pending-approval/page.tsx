@@ -206,7 +206,6 @@ export default function PendingApprovalPage() {
   // Pending 모달 확인 핸들러
   const handlePendingConfirm = () => {
     setShowPendingModal(false);
-    router.push("/");
   };
 
   // 로딩 중
@@ -313,7 +312,7 @@ export default function PendingApprovalPage() {
     );
   }
 
-  // 승인 대기 중 상태 (pending) - 모달로 표시
+  // 승인 대기 중 상태 (pending) - 모달 + 정적 안내 카드
   return (
     <>
       {/* Pending 모달 */}
@@ -331,21 +330,21 @@ export default function PendingApprovalPage() {
               정보를 확인 후 신속하게 승인 처리해 드리겠습니다.
             </DialogDescription>
             <div className="space-y-4 pt-2">
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-                <p className="text-sm text-emerald-800 text-center">
+              <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-4">
+                <p className="text-sm text-emerald-800 dark:text-emerald-200 text-center">
                   <strong>예상 소요 시간: 영업일 기준 1~2일</strong>
                 </p>
               </div>
               <div className="space-y-2 pt-2">
-                <p className="text-sm font-medium text-gray-700">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
                   승인 관련 문의:
                 </p>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                   <Mail className="w-4 h-4" />
                   <span>{CONTACT_EMAIL}</span>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 pt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 pt-2">
                 승인 완료 시 자동으로 화면이 전환됩니다.
               </p>
             </div>
@@ -361,9 +360,51 @@ export default function PendingApprovalPage() {
         </DialogContent>
       </Dialog>
 
-      {/* 배경 페이지 (메인 페이지로 리다이렉트) */}
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#10B981]" />
+      {/* 배경 안내 카드 (스피너 제거) */}
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
+        <Card className="max-w-lg w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
+          <CardHeader className="text-center space-y-3">
+            <Hourglass className="w-12 h-12 text-yellow-500 mx-auto" />
+            <CardTitle className="text-xl">관리자 승인 대기 중입니다.</CardTitle>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              승인 완료 시 자동으로 화면이 전환됩니다. 잠시만 기다려 주세요.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+            <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3">
+              <p className="text-center text-emerald-800 dark:text-emerald-200">
+                예상 소요 시간: 영업일 기준 1~2일
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="font-medium text-gray-700 dark:text-gray-200">
+                승인 관련 문의
+              </p>
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                <span>{CONTACT_EMAIL}</span>
+              </div>
+            </div>
+          </CardContent>
+          <CardContent className="pt-0">
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="outline"
+                className="w-full border-gray-200 dark:border-gray-700"
+                onClick={() => setShowPendingModal(true)}
+              >
+                자세히 보기
+              </Button>
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={handleLogout}
+              >
+                로그아웃
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </>
   );

@@ -87,14 +87,6 @@ const Navbar = () => {
     }
   };
 
-  // "로그인되지 않음" 버튼 표시 여부 결정
-  // 조건: 로그인되어 있고, 도매사업자 상태가 pending 또는 rejected이며, 도매사업자 대시보드가 아닐 때
-  const shouldShowLoginButton =
-    isLoaded &&
-    isSignedIn &&
-    (wholesalerStatus === "pending" || wholesalerStatus === "rejected") &&
-    pathname !== "/wholesaler";
-
   // 소매점 페이지에서는 Navbar를 표시하지 않음
   if (pathname?.startsWith("/retailer")) {
     return null;
@@ -130,14 +122,6 @@ const Navbar = () => {
       <div className="flex items-center justify-end">
         {isLoaded && isSignedIn && (
           <>
-            {/* pending 또는 rejected 상태인 도매사업자에게만 "로그인되지 않음" 버튼 표시 */}
-            {shouldShowLoginButton && (
-              <div className="flex items-center gap-2 mr-3">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  로그인되지 않음
-                </span>
-              </div>
-            )}
             <UserButton
               afterSignOutUrl="/sign-in/wholesaler"
               appearance={{

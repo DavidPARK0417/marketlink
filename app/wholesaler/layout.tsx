@@ -22,7 +22,7 @@
  * - components/wholesaler/Layout/WholesalerLayoutClient.tsx
  */
 
-import { redirect } from "next/navigation";
+import { isRedirectError, redirect } from "next/navigation";
 import { requireWholesaler } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import WholesalerLayoutClient from "@/components/wholesaler/Layout/WholesalerLayoutClient";
@@ -90,9 +90,9 @@ export default async function WholesalerLayout({
     // 5. status = 'pending' 또는 'rejected'이면 승인 대기 페이지로 리다이렉트
     if (wholesaler.status === "pending" || wholesaler.status === "rejected") {
       console.log(
-        "⏳ [wholesaler-layout] 승인 대기/반려 상태, 승인 대기 페이지로 리다이렉트",
+        "⏳ [wholesaler-layout] 승인 대기/반려 상태, 홈으로 이동 후 모달 표시",
       );
-      redirect("/pending-approval");
+      redirect("/");
     }
 
     // 6. status = 'suspended'이면 정지 페이지로 리다이렉트
@@ -117,6 +117,10 @@ export default async function WholesalerLayout({
       </WholesalerLayoutClient>
     );
   } catch (error) {
+    if (isRedirectError(error)) {
+      // Next.js 리다이렉트 흐름은 그대로 전달하여 중복 처리 방지
+      throw error;
+    }
     console.error("❌ [wholesaler-layout] 레이아웃 렌더링 오류:", error);
     console.error("❌ [wholesaler-layout] 에러 스택:", error instanceof Error ? error.stack : "스택 없음");
     

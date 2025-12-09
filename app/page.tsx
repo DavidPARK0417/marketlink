@@ -10,6 +10,7 @@
  */
 
 import { getUserProfile, redirectByRole } from "@/lib/clerk/auth";
+import PendingApprovalPage from "./(auth)/pending-approval/page";
 import { redirect } from "next/navigation";
 
 // 인증 확인이 필요한 페이지이므로 동적 렌더링 강제
@@ -35,5 +36,13 @@ export default async function RootPage() {
 
   // 로그인된 경우 역할별로 리다이렉트
   console.log("🏠 [root] 로그인된 사용자, 역할별 리다이렉트:", profile.role);
+
+  // 도매 계정이지만 승인 대기 상태면 루트에서 Pending 모달만 띄우고 머무름
+  const wholesalerStatus = profile.wholesalers?.[0]?.status;
+  if (profile.role === "wholesaler" && wholesalerStatus === "pending") {
+    console.log("⏳ [root] 도매 승인 대기 상태 - 루트에서 Pending 모달 표시");
+    return <PendingApprovalPage />;
+  }
+
   redirectByRole(profile.role);
 }
