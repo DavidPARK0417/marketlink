@@ -29,7 +29,7 @@ export default async function AdminDashboardPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 transition-colors duration-200">
       {/* 페이지 헤더 */}
       <div className="space-y-1">
         <h1 className="text-2xl lg:text-3xl font-bold text-foreground">관리자 대시보드</h1>
@@ -45,7 +45,7 @@ export default async function AdminDashboardPage() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* 관리자 대시보드 (현재 페이지) */}
-          <div className="p-6 bg-red-50 dark:bg-red-900/40 rounded-lg shadow-sm border-2 border-red-200 dark:border-red-700 transition-colors duration-200">
+          <div className="p-6 bg-red-50 dark:bg-red-950/50 rounded-lg shadow-sm border-2 border-red-200 dark:border-red-700 transition-colors duration-200">
             <div className="flex items-center gap-4">
               <div className="flex-shrink-0 w-12 h-12 bg-red-500 dark:bg-red-600 rounded-lg flex items-center justify-center">
                 <Shield className="w-6 h-6 text-white" />
@@ -68,7 +68,7 @@ export default async function AdminDashboardPage() {
           >
             <div className="flex items-center gap-4">
               <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center">
-                <Store className="w-6 h-6 text-[#10B981]" />
+                <Store className="w-6 h-6 text-[#10B981] dark:text-emerald-200" />
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-foreground dark:text-foreground">
@@ -88,7 +88,7 @@ export default async function AdminDashboardPage() {
           >
             <div className="flex items-center gap-4">
               <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
-                <ShoppingBag className="w-6 h-6 text-green-600" />
+                <ShoppingBag className="w-6 h-6 text-green-600 dark:text-emerald-200" />
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-foreground dark:text-foreground">
@@ -112,12 +112,12 @@ export default async function AdminDashboardPage() {
         {/* 도매 승인 대기 카드 */}
         <Link
           href="/admin/wholesalers/pending"
-          className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-colors duration-200"
+          className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-colors duration-200"
         >
           <div className="flex items-center gap-4">
             <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-[#10B981]"
+                className="w-6 h-6 text-[#10B981] dark:text-emerald-200"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -144,12 +144,12 @@ export default async function AdminDashboardPage() {
         {/* 감사 로그 카드 */}
         <Link
           href="/admin/audit-logs"
-          className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-colors duration-200"
+          className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-colors duration-200"
         >
           <div className="flex items-center gap-4">
             <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-green-600"
+                className="w-6 h-6 text-green-600 dark:text-emerald-200"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
