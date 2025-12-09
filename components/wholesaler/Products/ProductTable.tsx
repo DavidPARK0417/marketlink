@@ -326,9 +326,13 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
           
           return (
             <div>
-              <div className="font-bold text-gray-900 text-sm">{product.name}</div>
+              <div className="font-bold text-gray-900 dark:text-gray-100 text-sm">
+                {product.name}
+              </div>
               {specDisplay && (
-                <div className="text-xs text-gray-500 mt-1">{specDisplay}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {specDisplay}
+                </div>
               )}
             </div>
           );
@@ -433,10 +437,12 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
           const stock = row.original.stock_quantity;
           return (
             <div className="text-center">
-              <span className="font-semibold text-gray-900 text-sm">
+              <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
                 {stock.toLocaleString()}
               </span>
-              <span className="text-gray-500 text-xs ml-1">박스</span>
+              <span className="text-gray-500 dark:text-gray-400 text-xs ml-1">
+                박스
+              </span>
             </div>
           );
         },
