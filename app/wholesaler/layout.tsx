@@ -22,7 +22,7 @@
  * - components/wholesaler/Layout/WholesalerLayoutClient.tsx
  */
 
-import { isRedirectError, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { requireWholesaler } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import WholesalerLayoutClient from "@/components/wholesaler/Layout/WholesalerLayoutClient";
@@ -117,7 +117,14 @@ export default async function WholesalerLayout({
       </WholesalerLayoutClient>
     );
   } catch (error) {
-    if (isRedirectError(error)) {
+    const isRedirect =
+      typeof error === "object" &&
+      error !== null &&
+      "digest" in error &&
+      typeof (error as { digest?: unknown }).digest === "string" &&
+      (error as { digest: string }).digest.startsWith("NEXT_REDIRECT");
+
+    if (isRedirect) {
       // Next.js 리다이렉트 흐름은 그대로 전달하여 중복 처리 방지
       throw error;
     }
