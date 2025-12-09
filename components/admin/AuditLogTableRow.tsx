@@ -56,7 +56,7 @@ export default function AuditLogTableRow({
 
   return (
     <tr
-      className="hover:bg-gray-50 cursor-pointer"
+      className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
       onClick={handleRowClick}
       role="button"
       tabIndex={0}
@@ -67,26 +67,26 @@ export default function AuditLogTableRow({
         }
       }}
     >
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground dark:text-foreground">
         {adminEmail}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground dark:text-foreground">
         {formatAction(action)}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground dark:text-muted-foreground">
         {targetType || "-"}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground dark:text-muted-foreground">
         {targetId ? (
           <span className="font-mono text-xs">{targetId.slice(0, 8)}...</span>
         ) : (
           "-"
         )}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground dark:text-muted-foreground">
         {ipAddress || "-"}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground dark:text-muted-foreground">
         {formattedDate}
       </td>
     </tr>

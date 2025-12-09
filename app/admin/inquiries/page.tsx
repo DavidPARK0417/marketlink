@@ -162,7 +162,7 @@ export default function AdminInquiriesPage() {
         {/* 전체 문의 카드 */}
         <button
           onClick={() => handleStatsCardClick("all")}
-          className={`bg-white rounded-xl shadow-md p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
+          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
             activeTab === "all" ? "ring-2 ring-[#10B981]" : "hover:shadow-lg"
           }`}
         >
@@ -182,7 +182,7 @@ export default function AdminInquiriesPage() {
         {/* 답변 대기 카드 */}
         <button
           onClick={() => handleStatsCardClick("open")}
-          className={`bg-white rounded-xl shadow-md p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
+          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
             activeTab === "open" ? "ring-2 ring-[#fbbf24]" : "hover:shadow-lg"
           }`}
         >
@@ -202,7 +202,7 @@ export default function AdminInquiriesPage() {
         {/* 답변 완료 카드 */}
         <button
           onClick={() => handleStatsCardClick("answered")}
-          className={`bg-white rounded-xl shadow-md p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
+          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
             activeTab === "answered" ? "ring-2 ring-[#10B981]" : "hover:shadow-lg"
           }`}
         >
@@ -238,7 +238,7 @@ export default function AdminInquiriesPage() {
 
       {/* 통계 정보 */}
       {data && (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
           총 {data.total}개의 문의 (페이지 {data.page} / {data.totalPages})
         </div>
       )}

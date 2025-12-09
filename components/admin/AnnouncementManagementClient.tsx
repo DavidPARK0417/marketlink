@@ -191,13 +191,13 @@ export default function AnnouncementManagementClient({
       </div>
 
       {/* 공지사항 목록 */}
-      <div className="rounded-lg border bg-white">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-200">
         {announcements.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
             등록된 공지사항이 없습니다.
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="divide-y divide-gray-200 dark:divide-gray-800 transition-colors duration-200">
             {announcements.map((announcement, index) => {
               const newLabel = isNew(announcement.created_at);
               // 먼저 작성한 글이 1번이 되도록 번호 계산
@@ -206,27 +206,27 @@ export default function AnnouncementManagementClient({
               return (
                 <div
                   key={announcement.id}
-                  className="p-4 hover:bg-gray-50 transition-colors"
+                  className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-medium text-gray-500 min-w-[2rem]">
+                        <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground min-w-[2rem]">
                           {number}
                         </span>
                         {newLabel && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200">
                             NEW
                           </span>
                         )}
                         <button
                           onClick={() => setViewingAnnouncement(announcement)}
-                          className="font-semibold text-gray-900 hover:text-[#10B981] transition-colors text-left"
+                          className="font-semibold text-foreground dark:text-foreground hover:text-[#10B981] transition-colors text-left"
                         >
                           {announcement.title}
                         </button>
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                         {format(
                           new Date(announcement.created_at),
                           "yyyy-MM-dd HH:mm",

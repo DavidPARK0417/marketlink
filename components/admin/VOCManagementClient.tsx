@@ -131,45 +131,45 @@ export default function VOCManagementClient() {
       </div>
 
       {/* 피드백 목록 */}
-      <div className="rounded-lg border bg-white">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-200">
         {isLoading ? (
           <div className="p-8 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">로딩 중...</p>
+            <p className="text-muted-foreground dark:text-muted-foreground">로딩 중...</p>
           </div>
         ) : error ? (
-          <div className="p-8 text-center text-red-600">
+          <div className="p-8 text-center text-red-600 dark:text-red-400">
             피드백 목록을 불러오는 중 오류가 발생했습니다.
           </div>
         ) : feedbacks.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
             등록된 피드백이 없습니다.
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b bg-gray-50">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 w-16">
+              <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                <th className="px-4 py-3 text-left text-sm font-semibold text-foreground dark:text-foreground w-16">
                   번호
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+                <th className="px-4 py-3 text-left text-sm font-semibold text-foreground dark:text-foreground">
                   제목
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
               {feedbacks.map((feedback: VOCFeedback, index: number) => (
                 <tr
                   key={feedback.id}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
                 >
-                  <td className="px-4 py-3 text-sm text-gray-600 text-center">
+                  <td className="px-4 py-3 text-sm text-muted-foreground dark:text-muted-foreground text-center">
                     {feedbacks.length - index}
                   </td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => setViewingFeedback(feedback)}
-                      className="font-semibold text-gray-900 hover:text-[#10B981] transition-colors text-left"
+                      className="font-semibold text-foreground dark:text-foreground hover:text-[#10B981] transition-colors text-left"
                     >
                       {feedback.title}
                     </button>
@@ -183,7 +183,7 @@ export default function VOCManagementClient() {
 
       {/* 통계 정보 */}
       {feedbacks.length > 0 && (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
           총 {feedbacks.length}개의 피드백
         </div>
       )}
@@ -214,7 +214,7 @@ export default function VOCManagementClient() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto pr-2">
-            <div className="whitespace-pre-wrap text-gray-700">
+            <div className="whitespace-pre-wrap text-foreground dark:text-foreground">
               {viewingFeedback?.content}
             </div>
           </div>

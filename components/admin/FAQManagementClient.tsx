@@ -207,29 +207,29 @@ export default function FAQManagementClient({
       </div>
 
       {/* FAQ 목록 */}
-      <div className="rounded-lg border bg-white">
+      <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-colors duration-200">
         {faqs.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
             등록된 FAQ가 없습니다.
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="divide-y divide-gray-200 dark:divide-gray-800 transition-colors duration-200">
             {faqs.map((faq, index) => (
               <div
                 key={faq.id}
-                className="p-4 hover:bg-gray-50 transition-colors"
+                className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium text-gray-500">
+                      <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                         {index + 1}.
                       </span>
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-foreground dark:text-foreground">
                         {faq.question}
                       </h3>
                     </div>
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground line-clamp-2">
                       {faq.answer}
                     </p>
                   </div>
