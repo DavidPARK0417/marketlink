@@ -286,14 +286,14 @@ function WholesalerLayoutContent({
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all group relative overflow-hidden ${
                   isActive
                     ? "text-[#10B981] bg-[#10B981]/10"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                 }`}
               >
                 <Icon
                   className={`w-5 h-5 ${
                     isActive
                       ? "text-[#10B981]"
-                      : "text-gray-400 group-hover:text-gray-600"
+                      : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-100"
                   }`}
                 />
                 <span className="relative z-10">{item.name}</span>
@@ -389,12 +389,12 @@ function WholesalerLayoutContent({
               <DropdownMenu open={isDesktopDropdownOpen} onOpenChange={setIsDesktopDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <button
-                    className="relative flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-[#10B981] hover:bg-emerald-50 rounded-lg transition-colors"
+                    className="relative flex items-center gap-2 px-3 py-2 text-gray-500 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     aria-label="알림"
                     disabled={isLoadingNotifications}
                   >
                     <div className="relative">
-                      <Bell className="w-5 h-5" />
+                      <Bell className="w-5 h-5 text-current" />
                       {hasNewNotifications && (
                         <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white transform translate-x-1/4 -translate-y-1/4"></span>
                       )}
@@ -413,12 +413,12 @@ function WholesalerLayoutContent({
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {isLoadingNotifications ? (
-                    <div className="p-4 text-center text-sm text-gray-500">
+                    <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
                       알림을 불러오는 중...
                     </div>
                   ) : recentOrders.length === 0 &&
                     recentInquiries.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-gray-500">
+                    <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
                       알림이 없습니다
                     </div>
                   ) : (
@@ -426,7 +426,7 @@ function WholesalerLayoutContent({
                       {/* 주문 알림 섹션 */}
                       {recentOrders.length > 0 && (
                         <>
-                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                             주문 알림
                             {unreadOrdersCount > 0 && (
                               <span className="ml-2 text-red-500">
@@ -442,7 +442,7 @@ function WholesalerLayoutContent({
                             >
                               <div className="flex items-center justify-between w-full">
                                 <div className="flex items-center gap-2">
-                                  <Package className="w-4 h-4 text-gray-500" />
+                                    <Package className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                   <span className="font-medium text-sm">
                                     {order.product.name}
                                   </span>
@@ -450,11 +450,11 @@ function WholesalerLayoutContent({
                                     <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                                   )}
                                 </div>
-                                <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">
                                   {formatDateTime(order.created_at, "time-only")}
                                 </span>
                               </div>
-                              <div className="flex items-center justify-between w-full text-xs text-gray-600">
+                                <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-300">
                                 <span>주문번호: {order.order_number}</span>
                                 <span className="font-medium">
                                   {formatPrice(order.total_amount)}
@@ -471,7 +471,7 @@ function WholesalerLayoutContent({
                       {/* 문의 알림 섹션 */}
                       {recentInquiries.length > 0 && (
                         <>
-                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                             문의 알림
                             {unreadInquiriesCount > 0 && (
                               <span className="ml-2 text-red-500">
@@ -554,16 +554,16 @@ function WholesalerLayoutContent({
               <div className="flex items-center gap-2">
                 <Link
                   href="/wholesaler/settings"
-                  className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-[#10B981] hover:bg-emerald-50 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-500 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-5 h-5 text-current" />
                   <span className="text-sm font-medium">설정</span>
                 </Link>
                 <Link
                   href="/wholesaler/support"
-                  className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-[#10B981] hover:bg-emerald-50 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-500 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
-                  <HelpCircle className="w-5 h-5" />
+                  <HelpCircle className="w-5 h-5 text-current" />
                   <span className="text-sm font-medium">고객센터</span>
                 </Link>
               </div>
@@ -620,7 +620,7 @@ function WholesalerLayoutContent({
                   <DropdownMenu open={isMobileDropdownOpen} onOpenChange={setIsMobileDropdownOpen}>
                     <DropdownMenuTrigger asChild>
                       <button
-                        className="relative p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+                      className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                         aria-label="알림"
                         disabled={isLoadingNotifications}
                       >
