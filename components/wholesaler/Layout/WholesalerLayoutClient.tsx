@@ -389,6 +389,7 @@ function WholesalerLayoutContent({
               <DropdownMenu open={isDesktopDropdownOpen} onOpenChange={setIsDesktopDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <button
+                    id="wholesaler-desktop-notifications-trigger"
                     className="relative flex items-center gap-2 px-3 py-2 text-gray-500 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     aria-label="알림"
                     disabled={isLoadingNotifications}
@@ -620,6 +621,7 @@ function WholesalerLayoutContent({
                   <DropdownMenu open={isMobileDropdownOpen} onOpenChange={setIsMobileDropdownOpen}>
                     <DropdownMenuTrigger asChild>
                       <button
+                    id="wholesaler-mobile-notifications-trigger"
                       className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                         aria-label="알림"
                         disabled={isLoadingNotifications}

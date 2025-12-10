@@ -27,7 +27,6 @@ const menuItems = [
   { href: "/admin/inquiries", label: "도매 문의 관리" },
   { href: "/admin/faqs", label: "FAQ 관리" },
   { href: "/admin/announcements", label: "공지사항 관리" },
-  { href: "/admin/voc", label: "고객의 소리" },
   { href: "/admin/audit-logs", label: "감사 로그" },
 ];
 
@@ -52,7 +51,6 @@ export default function AdminHeader() {
     }
     if (/공지|announcement|notice/i.test(trimmed)) return "announcement";
     if (/faq/i.test(trimmed)) return "faq";
-    if (/voc/i.test(trimmed)) return "voc";
     if (/로그|audit/i.test(trimmed)) return "audit";
     return "inquiry";
   };
@@ -70,9 +68,7 @@ export default function AdminHeader() {
           ? `/admin/announcements?search=${encodeURIComponent(trimmed)}`
           : type === "faq"
             ? `/admin/faqs?search=${encodeURIComponent(trimmed)}`
-            : type === "voc"
-              ? `/admin/voc?search=${encodeURIComponent(trimmed)}`
-              : type === "audit"
+          : type === "audit"
                 ? `/admin/audit-logs?search=${encodeURIComponent(trimmed)}`
                 : `/admin/inquiries?search=${encodeURIComponent(trimmed)}`;
 
@@ -105,7 +101,7 @@ export default function AdminHeader() {
       >
         <input
           type="text"
-          placeholder="사업자번호, 문의, 공지, FAQ, VOC 검색"
+          placeholder="사업자번호, 문의, 공지, FAQ 검색"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-gray-50 dark:bg-gray-800 border-0 rounded-xl pl-11 pr-4 py-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white dark:focus:bg-gray-700 transition-all"

@@ -30,12 +30,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Mic, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import SupportBanner from "@/components/wholesaler/Support/SupportBanner";
 import InquiryCreateModal from "@/components/wholesaler/Support/InquiryCreateModal";
 import FAQList from "@/components/wholesaler/Support/FAQList";
 import AnnouncementList from "@/components/wholesaler/Support/AnnouncementList";
-import VOCForm from "@/components/wholesaler/Support/VOCForm";
 import InquiryTable from "@/components/wholesaler/Inquiries/InquiryTable";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
 import type { InquiryFilter as InquiryFilterType } from "@/types/inquiry";
@@ -142,14 +141,17 @@ export default function SupportPage() {
   const searchParams = useSearchParams();
 
   // URL 쿼리 파라미터에서 탭 및 검색어 읽기
-  const initialTab = searchParams.get("tab") || "inquiry";
+  const allowedTabs = ["inquiry", "faq", "announcements"] as const;
+  const initialTabParam = searchParams.get("tab");
+  const initialTab = allowedTabs.includes(initialTabParam as typeof allowedTabs[number])
+    ? (initialTabParam as string)
+    : "inquiry";
   const initialSearch = searchParams.get("search") || "";
 
   // 상태 관리
   const [activeTab, setActiveTab] = React.useState<string>(initialTab);
   const [searchQuery, setSearchQuery] = React.useState<string>(initialSearch);
   const [isInquiryModalOpen, setIsInquiryModalOpen] = React.useState(false);
-  const [isVocModalOpen, setIsVocModalOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<InquiryFilterType>({});
 
   // URL 쿼리 파라미터 업데이트
@@ -248,12 +250,6 @@ export default function SupportPage() {
     queryClient.invalidateQueries({ queryKey: ["inquiries-to-admin"] });
   };
 
-  // VOC 제출 성공 핸들러
-  const handleVOCSubmitted = () => {
-    setIsVocModalOpen(false);
-    console.log("✅ [support-page] VOC 제출 완료");
-  };
-
   return (
     <div className="space-y-8 pb-12">
       {/* 상단 배너 */}
@@ -269,7 +265,6 @@ export default function SupportPage() {
           {[
             { id: "inquiry", label: "문의내역" },
             { id: "faq", label: "자주묻는질문" },
-            { id: "voc", label: "고객의 소리" },
             { id: "announcements", label: "공지사항" },
           ].map((tab) => (
             <button
@@ -343,29 +338,6 @@ export default function SupportPage() {
           />
         )}
 
-        {/* 고객의 소리 탭 */}
-        {activeTab === "voc" && (
-          <div className="max-w-2xl mx-auto text-center py-12">
-            <div className="bg-[#D1FAE5] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Mic className="w-10 h-10 text-[#10B981]" />
-            </div>
-            <h2 className="text-2xl font-bold text-foreground mb-3">
-              고객의 소리(VOC)
-            </h2>
-            <p className="text-muted-foreground mb-8">
-              서비스 이용 중 불편하셨던 점이나 개선할 점을 들려주세요.
-              <br />
-              고객님의 소중한 의견을 귀담아듣고 더 나은 서비스를 만들겠습니다.
-            </p>
-            <button
-              onClick={() => setIsVocModalOpen(true)}
-              className="bg-[#10B981] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#059669] transition-colors shadow-lg hover:shadow-xl hover:-translate-y-1 transform duration-200"
-            >
-              의견 보내기
-            </button>
-          </div>
-        )}
-
         {/* 공지사항 탭 */}
         {activeTab === "announcements" && (
           <AnnouncementList
@@ -384,27 +356,6 @@ export default function SupportPage() {
         onSuccess={handleInquiryCreated}
       />
 
-      {/* VOC 모달 */}
-      {isVocModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsVocModalOpen(false)}
-          />
-          <div className="bg-card text-card-foreground w-full max-w-lg rounded-2xl shadow-2xl relative z-10 p-6 transform transition-all scale-100 border border-border">
-            <h2 className="text-xl font-bold mb-6">
-              소중한 의견 보내기
-            </h2>
-            <p className="text-sm text-muted-foreground mb-4 -mt-4">
-              보내주신 의견은 서비스 개선을 위해 소중하게 활용됩니다.
-            </p>
-            <VOCForm
-              onSuccess={handleVOCSubmitted}
-              onCancel={() => setIsVocModalOpen(false)}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

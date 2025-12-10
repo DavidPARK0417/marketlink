@@ -71,11 +71,6 @@ const menuItems = [
     icon: Megaphone,
   },
   {
-    href: "/admin/voc",
-    label: "고객의 소리",
-    icon: MessageCircle,
-  },
-  {
     href: "/admin/audit-logs",
     label: "감사 로그",
     icon: FileText,
