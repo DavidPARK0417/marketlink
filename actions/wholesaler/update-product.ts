@@ -112,11 +112,11 @@ export async function updateProduct(
 
     console.log("specification:", specification);
 
-    // 3. 이미지 URL (첫 번째 이미지만 저장, products 테이블은 단일 이미지만 지원)
-    const imageUrl =
-      data.images && data.images.length > 0 ? data.images[0] : null;
+    // 3. 이미지 배열 + 대표 이미지 (첫 번째 이미지)
+    const images = data.images && data.images.length > 0 ? data.images : [];
+    const imageUrl = images.length > 0 ? images[0] : null;
 
-    console.log("image_url:", imageUrl);
+    console.log("images:", images.length, "image_url:", imageUrl);
 
     // 4. 상품 정보 업데이트
     const { error: updateError } = await supabase
@@ -131,6 +131,7 @@ export async function updateProduct(
         shipping_fee: data.delivery_fee,
         delivery_method: data.delivery_method,
         stock_quantity: data.stock,
+        images,
         image_url: imageUrl,
         // updated_at은 DB 트리거로 자동 업데이트됨
       })

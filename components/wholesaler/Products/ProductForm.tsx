@@ -150,8 +150,13 @@ export default function ProductForm({
   const defaultDeliveryMethod = initialData?.delivery_method || "direct";
   console.log("🚚 [ProductForm] 기본 배송 방법 설정:", defaultDeliveryMethod);
 
-  // 이미지 URL 배열 (수정 모드: 기존 이미지, 등록 모드: 빈 배열)
-  const initialImages = initialData?.image_url ? [initialData.image_url] : [];
+  // 이미지 URL 배열 (수정 모드: 기존 이미지 우선, 없으면 image_url)
+  const initialImages =
+    initialData?.images && initialData.images.length > 0
+      ? initialData.images
+      : initialData?.image_url
+        ? [initialData.image_url]
+        : [];
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),

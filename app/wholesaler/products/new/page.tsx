@@ -161,7 +161,8 @@ export default function NewProductPage() {
       console.log("specification:", specification);
 
       // 이미지 URL (첫 번째 이미지만 저장, products 테이블은 단일 이미지만 지원)
-      const imageUrl = data.images && data.images.length > 0 ? data.images[0] : null;
+      const images = data.images && data.images.length > 0 ? data.images : [];
+      const imageUrl = images.length > 0 ? images[0] : null;
 
       console.log("image_url:", imageUrl);
 
@@ -179,7 +180,8 @@ export default function NewProductPage() {
           shipping_fee: data.delivery_fee,
           delivery_method: data.delivery_method,
           stock_quantity: data.stock,
-          image_url: imageUrl,
+          images,
+          image_url: imageUrl, // 호환용(리스트/주문 등 단일 이미지 표시)
           is_active: true,
         })
         .select()

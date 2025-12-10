@@ -27,6 +27,7 @@ export interface Product {
   shipping_fee: number;
   delivery_method: DeliveryMethod;
   stock_quantity: number;
+  images: string[]; // 다중 이미지 (최대 5개)
   image_url: string | null;
   is_active: boolean;
   // AI 표준화 관련
@@ -66,6 +67,7 @@ export interface CreateProductRequest {
   shipping_fee?: number; // 기본값: 0
   delivery_method?: DeliveryMethod; // 기본값: "courier"
   stock_quantity?: number; // 기본값: 0
+  images?: string[];
   image_url?: string;
   is_active?: boolean; // 기본값: true
   // AI 표준화 관련 (선택)
@@ -87,6 +89,7 @@ export interface UpdateProductRequest {
   shipping_fee?: number;
   delivery_method?: DeliveryMethod;
   stock_quantity?: number;
+  images?: string[];
   image_url?: string;
   is_active?: boolean;
   standardized_name?: string;
