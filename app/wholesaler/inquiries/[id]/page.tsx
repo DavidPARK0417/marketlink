@@ -374,7 +374,7 @@ export default function InquiryDetailPage({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="whitespace-pre-wrap break-words text-gray-700 mb-4 w-full max-w-full overflow-x-hidden">
+          <div className="whitespace-pre-wrap break-words text-gray-800 dark:text-gray-100 mb-4 w-full max-w-full overflow-x-hidden">
             {inquiry.content}
           </div>
 

@@ -30,7 +30,8 @@ import { Button } from "@/components/ui/button";
 interface InquiryMessageListProps {
   messages: InquiryMessage[];
   userEmail?: string; // 사용자 이메일 (사용자 메시지 표시용)
-  currentUserId?: string; // 현재 사용자 ID (수정 권한 확인용)
+  currentUserId?: string; // 현재 사용자 ID (수정 권한 확인용 및 방향 결정용)
+  viewerRole?: "wholesaler" | "admin"; // 뷰어 관점에 따른 기본 정렬
   onEdit?: (message: InquiryMessage) => void; // 수정 핸들러
   onDelete?: (message: InquiryMessage) => void; // 삭제 핸들러
 }
@@ -38,31 +39,37 @@ interface InquiryMessageListProps {
 /**
  * 메시지 발신자 타입에 따른 스타일 반환
  */
-function getMessageStyle(senderType: InquiryMessageSenderType) {
+function getMessageStyle(senderType: InquiryMessageSenderType, isSelf: boolean) {
+  const container = isSelf ? "flex justify-end" : "flex justify-start";
+
   switch (senderType) {
     case "user":
       return {
-        container: "flex justify-end", // 오른쪽 정렬
+        container,
         bubble: "bg-[#10B981] text-white", // 그린색
         label: "문의자",
+        isSelf,
       };
     case "admin":
       return {
-        container: "flex justify-start", // 왼쪽 정렬
+        container,
         bubble: "bg-[#3B82F6] text-white", // 블루색
         label: "관리자",
+        isSelf,
       };
     case "wholesaler":
       return {
-        container: "flex justify-end", // 오른쪽 정렬
+        container,
         bubble: "bg-[#10B981] text-white", // 그린색
         label: "도매사업자",
+        isSelf,
       };
     default:
       return {
-        container: "flex justify-start",
+        container,
         bubble: "bg-gray-100 text-gray-900",
         label: "알 수 없음",
+        isSelf,
       };
   }
 }
@@ -74,17 +81,31 @@ function InquiryMessageItem({
   message,
   userEmail,
   currentUserId,
+  viewerRole = "wholesaler",
   onEdit,
   onDelete,
 }: {
   message: InquiryMessage;
   userEmail?: string;
   currentUserId?: string;
+  viewerRole?: "wholesaler" | "admin";
   onEdit?: (message: InquiryMessage) => void;
   onDelete?: (message: InquiryMessage) => void;
 }) {
-  const style = getMessageStyle(message.sender_type);
-  const canEdit = message.sender_id === currentUserId; // 자신이 작성한 메시지만 수정 가능
+  // sender_id가 비어 있으면 관측자(viewerRole) 기준으로 정렬
+  const isCurrentUser =
+    currentUserId && message.sender_id
+      ? message.sender_id === currentUserId
+      : undefined;
+  const fallbackIsSelf =
+    viewerRole === "admin"
+      ? message.sender_type === "admin"
+      : message.sender_type !== "admin";
+  const isSelf = isCurrentUser ?? fallbackIsSelf;
+
+  const style = getMessageStyle(message.sender_type, isSelf);
+  const canEdit =
+    !!message.sender_id && !!currentUserId && message.sender_id === currentUserId; // sender_id 없으면 수정 불가
   const isEdited = message.edited_at !== null; // 수정된 메시지 표시
 
   // 디버깅 로그 (개발 환경에서만)
@@ -97,6 +118,8 @@ function InquiryMessageItem({
       canEdit: canEdit,
       hasOnEdit: !!onEdit,
       isEdited: isEdited,
+      isSelf: isSelf,
+      viewerRole: viewerRole,
     });
   }
 
@@ -105,7 +128,7 @@ function InquiryMessageItem({
     locale: ko,
   });
 
-  const isLeft = style.container.includes("justify-start");
+  const isLeft = !style.isSelf;
   
   return (
     <div className={cn("w-full", style.container)}>
@@ -183,6 +206,7 @@ export default function InquiryMessageList({
   messages,
   userEmail,
   currentUserId,
+  viewerRole = "wholesaler",
   onEdit,
   onDelete,
 }: InquiryMessageListProps) {
@@ -202,6 +226,7 @@ export default function InquiryMessageList({
           message={message}
           userEmail={userEmail}
           currentUserId={currentUserId}
+          viewerRole={viewerRole}
           onEdit={onEdit}
           onDelete={onDelete}
         />

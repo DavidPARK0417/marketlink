@@ -38,7 +38,6 @@ import {
 import InquiryStatusBadge from "@/components/wholesaler/Inquiries/InquiryStatusBadge";
 import InquiryReplyForm from "@/components/wholesaler/Inquiries/InquiryReplyForm";
 import InquiryImageModal from "@/components/admin/InquiryImageModal";
-import CloseInquiryButton from "@/components/admin/CloseInquiryButton";
 import InquiryMessageList from "@/components/wholesaler/Inquiries/InquiryMessageList";
 import InquiryFollowUpForm from "@/components/wholesaler/Inquiries/InquiryFollowUpForm";
 import InquiryMessageEditForm from "@/components/wholesaler/Inquiries/InquiryMessageEditForm";
@@ -294,7 +293,7 @@ export default function AdminInquiryDetailPage({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="whitespace-pre-wrap break-words text-gray-700 mb-4 w-full max-w-full overflow-x-hidden">
+          <div className="whitespace-pre-wrap break-words text-gray-800 dark:text-gray-100 mb-4 w-full max-w-full overflow-x-hidden">
             {inquiry.content}
           </div>
 
@@ -362,6 +361,7 @@ export default function AdminInquiryDetailPage({
               messages={messagesData || []}
               userEmail={inquiry.user_anonymous_code || undefined}
               currentUserId={currentProfileId || undefined}
+              viewerRole="admin"
               onEdit={(message) => {
                 console.log("✏️ [admin-inquiry-detail-page] 수정 버튼 클릭:", {
                   messageId: message.id,
@@ -399,47 +399,19 @@ export default function AdminInquiryDetailPage({
         </Card>
       )}
 
-      {/* 문의 종료 버튼 (답변 완료된 경우 또는 답변 불가능한 경우) */}
-      {inquiry.status !== "open" && inquiry.status !== "closed" && (
-        <Card className="w-full max-w-full">
-          <CardContent className="pt-6">
-            <div className="flex justify-end">
-              <CloseInquiryButton
-                inquiryId={inquiry.id}
-                currentStatus={inquiry.status}
-                apiEndpoint="/api/admin/inquiries/close"
-                onSuccess={handleReplySuccess}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* 이미 답변 완료된 경우 안내 */}
       {inquiry.status === "answered" && (
         <Card className="w-full max-w-full">
           <CardContent className="pt-6">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-sm text-green-800">
-                답변이 완료되었습니다. 필요시 문의를 종료할 수 있습니다.
+            <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-800 rounded-lg p-4 transition-colors duration-200">
+              <p className="text-sm text-green-800 dark:text-green-100">
+                답변이 완료되었습니다. 추가로 안내할 내용이 있다면 메시지를 남겨주세요.
               </p>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* 이미 종료된 경우 안내 */}
-      {inquiry.status === "closed" && (
-        <Card className="w-full max-w-full">
-          <CardContent className="pt-6">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <p className="text-sm text-gray-800">
-                이 문의는 종료되었습니다.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

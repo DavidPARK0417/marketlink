@@ -1505,7 +1505,7 @@ export async function updateInquiryMessage(
   // 1. 메시지 정보 조회
   const { data: message, error: messageError } = await supabase
     .from("inquiry_messages")
-    .select("id, inquiry_id, sender_id, content")
+    .select("id, inquiry_id, sender_id, sender_type, content")
     .eq("id", messageId)
     .single();
 
@@ -1631,6 +1631,56 @@ export async function deleteInquiryMessage(messageId: string): Promise<void> {
   if (deleteError) {
     console.error("❌ [inquiries] 메시지 삭제 오류:", deleteError);
     throw new Error("메시지를 삭제하는 중 오류가 발생했습니다.");
+  }
+
+  if (!deleteError) {
+    const { data: remainingReply, count: remainingReplies, error: countError } =
+      await supabase
+        .from("inquiry_messages")
+        .select("content, created_at", { count: "exact", head: false })
+        .eq("inquiry_id", message.inquiry_id)
+        .in("sender_type", ["admin", "wholesaler"])
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+    if (countError) {
+      console.warn("⚠️ [inquiries] 남은 답변 수 조회 실패 (무시):", countError);
+    } else if (message.sender_type === "admin" || message.sender_type === "wholesaler") {
+      if ((remainingReplies ?? 0) === 0) {
+        const { error: revertError } = await supabase
+          .from("inquiries")
+          .update({
+            status: "open",
+            admin_reply: null,
+            replied_at: null,
+          })
+          .eq("id", message.inquiry_id);
+
+        if (revertError) {
+          console.warn("⚠️ [inquiries] 답변 상태 되돌리기 실패 (무시):", revertError);
+        } else {
+          console.log(
+            "ℹ️ [inquiries] 마지막 답변 삭제로 상태를 open 으로 되돌렸습니다.",
+          );
+        }
+      } else if (remainingReply && remainingReply.length > 0) {
+        const latest = remainingReply[0];
+        const { error: syncError } = await supabase
+          .from("inquiries")
+          .update({
+            status: "answered",
+            admin_reply: latest.content,
+            replied_at: latest.created_at,
+          })
+          .eq("id", message.inquiry_id);
+
+        if (syncError) {
+          console.warn("⚠️ [inquiries] 답변 본문 동기화 실패 (무시):", syncError);
+        } else {
+          console.log("ℹ️ [inquiries] 최신 답변으로 admin_reply 동기화 완료");
+        }
+      }
+    }
   }
 
   console.log("✅ [inquiries] 메시지 삭제 완료");
