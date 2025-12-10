@@ -1590,7 +1590,7 @@ export async function deleteInquiryMessage(messageId: string): Promise<void> {
   // 1. 메시지 정보 조회
   const { data: message, error: messageError } = await supabase
     .from("inquiry_messages")
-    .select("id, inquiry_id, sender_id, content")
+    .select("id, inquiry_id, sender_id, sender_type, content")
     .eq("id", messageId)
     .single();
 
