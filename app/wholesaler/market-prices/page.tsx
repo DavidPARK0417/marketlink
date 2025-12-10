@@ -115,7 +115,7 @@ export default function MarketPricesPage() {
       )}
 
       {/* 참고 사항 */}
-      <div className="text-xs text-gray-500 px-2">
+      <div className="text-xs text-gray-600 dark:text-gray-300 px-2">
         <p>* 제공되는 시세 정보는 도매시장 경매 낙찰가를 기준으로 하며, 실시간 변동될 수 있습니다.</p>
         <p>* 증감률은 전일 대비 등락폭을 의미합니다.</p>
       </div>
