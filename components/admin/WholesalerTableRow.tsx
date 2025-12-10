@@ -51,25 +51,35 @@ export default function WholesalerTableRow({
   return (
     <tr
       onClick={handleRowClick}
-      className="hover:bg-gray-50 transition-colors cursor-pointer"
+      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
     >
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-gray-900">{business_name}</div>
+        <div className="text-sm font-medium text-foreground dark:text-foreground">
+          {business_name}
+        </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-500">{business_number}</div>
+        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+          {business_number}
+        </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-500">{representative}</div>
+        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+          {representative}
+        </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-500">{email || "-"}</div>
+        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+          {email || "-"}
+        </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-500">{formatDate(created_at)}</div>
+        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+          {formatDate(created_at)}
+        </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <span className="text-[#10B981] hover:text-emerald-900 font-medium">
+        <span className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-medium">
           상세보기
         </span>
       </td>
