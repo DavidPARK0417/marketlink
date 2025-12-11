@@ -8,8 +8,7 @@
  * 1. 문의 상세 정보 표시
  * 2. 대화 히스토리 표시
  * 3. 추가 질문 작성
- * 4. 문의 종료
- * 5. 문의 삭제
+ * 4. 문의 삭제
  *
  * @dependencies
  * - lib/supabase/queries/inquiries.ts
@@ -39,7 +38,6 @@ import {
 } from "@/components/ui/card";
 import InquiryStatusBadge from "@/components/wholesaler/Inquiries/InquiryStatusBadge";
 import InquiryImageModal from "@/components/admin/InquiryImageModal";
-import CloseInquiryButton from "@/components/admin/CloseInquiryButton";
 import InquiryMessageList from "@/components/wholesaler/Inquiries/InquiryMessageList";
 import InquiryFollowUpForm from "@/components/wholesaler/Inquiries/InquiryFollowUpForm";
 import InquiryMessageEditForm from "@/components/wholesaler/Inquiries/InquiryMessageEditForm";
@@ -471,29 +469,13 @@ export default function SupportInquiryDetailPage({
           </Card>
         )}
 
-      {/* 문의 종료 버튼 */}
-      {inquiry.status !== "open" && inquiry.status !== "closed" && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex justify-end">
-              <CloseInquiryButton
-                inquiryId={inquiry.id}
-                currentStatus={inquiry.status}
-                apiEndpoint="/api/wholesaler/inquiries/close"
-                onSuccess={handleReplySuccess}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* 이미 답변 완료된 경우 안내 */}
       {inquiry.status === "answered" && (
         <Card>
           <CardContent className="pt-6">
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <p className="text-sm text-green-800">
-                답변이 완료되었습니다. 필요시 문의를 종료할 수 있습니다.
+                답변이 완료되었습니다.
               </p>
             </div>
           </CardContent>

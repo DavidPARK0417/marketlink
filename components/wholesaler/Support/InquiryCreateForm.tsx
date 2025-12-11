@@ -195,18 +195,21 @@ export default function InquiryCreateForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6 w-full max-w-full min-w-0"
+      >
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full max-w-full min-w-0">
               <FormLabel>제목</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   placeholder="문의 제목을 입력해주세요"
-                  className="max-w-2xl"
+                  className="w-full max-w-full min-w-0 box-border"
                 />
               </FormControl>
               <FormDescription>{field.value.length} / 200자</FormDescription>
@@ -219,14 +222,14 @@ export default function InquiryCreateForm({
           control={form.control}
           name="content"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full max-w-full min-w-0">
               <FormLabel>내용</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
                   placeholder="문의 내용을 입력해주세요. 정산, 계정, 기술 지원 등 어떤 내용이든 문의해주세요."
                   rows={10}
-                  className="resize-none max-w-2xl"
+                  className="w-full max-w-full min-w-0 resize-none box-border"
                 />
               </FormControl>
               <FormDescription>{field.value.length} / 5000자</FormDescription>
@@ -241,7 +244,7 @@ export default function InquiryCreateForm({
           <FormDescription>
             최대 5개까지 첨부 가능합니다. 각 파일은 5MB 이하여야 합니다.
           </FormDescription>
-          <div className="space-y-4 max-w-2xl">
+          <div className="space-y-4 w-full max-w-full min-w-0">
             {/* 이미지 미리보기 */}
             {attachmentUrls.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -296,7 +299,7 @@ export default function InquiryCreateForm({
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isSubmitting || attachmentUrls.length >= 5}
-                  className="w-full"
+                  className="w-full max-w-full min-w-0"
                 >
                   <Upload className="mr-2 h-4 w-4" />
                   {attachmentUrls.length === 0
@@ -308,7 +311,7 @@ export default function InquiryCreateForm({
           </div>
         </FormItem>
 
-        <div className="flex justify-end gap-2 max-w-2xl pt-4 mt-4 border-t">
+        <div className="flex justify-end gap-2 w-full max-w-full min-w-0 pt-4 mt-4 border-t">
           <Button
             type="button"
             variant="outline"

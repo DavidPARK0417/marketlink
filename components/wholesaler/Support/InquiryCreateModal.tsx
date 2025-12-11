@@ -69,7 +69,7 @@ export default function InquiryCreateModal({
             내용이든 문의해주세요.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto min-h-0 mt-4">
+        <div className="flex-1 overflow-y-auto min-h-0 mt-4 w-full min-w-0">
           <InquiryCreateForm onSuccess={handleSuccess} onCancel={handleCancel} />
         </div>
       </DialogContent>
