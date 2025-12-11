@@ -366,7 +366,7 @@ export default function SupportInquiryDetailPage({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="whitespace-pre-wrap text-gray-700 mb-4">
+          <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-100 mb-4 transition-colors duration-200">
             {inquiry.content}
           </div>
 
