@@ -197,7 +197,7 @@ export default function InquiryCreateForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 w-full max-w-full min-w-0"
+        className="space-y-6 w-full max-w-full min-w-0 px-2"
       >
         <FormField
           control={form.control}
@@ -209,7 +209,7 @@ export default function InquiryCreateForm({
                 <Input
                   {...field}
                   placeholder="문의 제목을 입력해주세요"
-                  className="w-full max-w-full min-w-0 box-border"
+                  className="w-full max-w-[calc(100%-16px)] min-w-0 box-border mx-auto"
                 />
               </FormControl>
               <FormDescription>{field.value.length} / 200자</FormDescription>
@@ -229,7 +229,7 @@ export default function InquiryCreateForm({
                   {...field}
                   placeholder="문의 내용을 입력해주세요. 정산, 계정, 기술 지원 등 어떤 내용이든 문의해주세요."
                   rows={10}
-                  className="w-full max-w-full min-w-0 resize-none box-border"
+                  className="w-full max-w-[calc(100%-16px)] min-w-0 resize-none box-border mx-auto"
                 />
               </FormControl>
               <FormDescription>{field.value.length} / 5000자</FormDescription>
