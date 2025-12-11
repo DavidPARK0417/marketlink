@@ -24,21 +24,43 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import Link from "next/link";
-import { MessageSquare, Clock, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  MessageSquare,
+  Clock,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
+import PageHeader from "@/components/common/PageHeader";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
 import { Button } from "@/components/ui/button";
-import type { InquiryFilter as InquiryFilterType } from "@/types/inquiry";
+import type {
+  InquiryFilter as InquiryFilterType,
+  InquiryDetail,
+} from "@/types/inquiry";
 import type { InquiryStatus } from "@/types/database";
-import type { InquiryDetail } from "@/types/inquiry";
+
+type InquiriesResponse = {
+  inquiries: InquiryDetail[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
 
 // 문의 목록 조회 함수 (클라이언트에서 직접 호출)
 async function fetchInquiries(
   filter: InquiryFilterType = {},
   page: number = 1,
   pageSize: number = 20,
-) {
-  console.log("🔍 [inquiries-page] 문의 목록 조회 요청", { filter, page, pageSize });
+): Promise<InquiriesResponse> {
+  console.log("🔍 [inquiries-page] 문의 목록 조회 요청", {
+    filter,
+    page,
+    pageSize,
+  });
 
   const response = await fetch("/api/wholesaler/inquiries", {
     method: "POST",
@@ -58,7 +80,10 @@ async function fetchInquiries(
         // JSON이 아닌 경우 텍스트로 읽기
         const errorText = await response.text();
         console.error("❌ [inquiries-page] API 에러 응답 (텍스트):", errorText);
-        errorMessage = `서버 오류 (${response.status}): ${errorText.substring(0, 100)}`;
+        errorMessage = `서버 오류 (${response.status}): ${errorText.substring(
+          0,
+          100,
+        )}`;
       }
     } catch (e) {
       console.error("❌ [inquiries-page] 에러 응답 파싱 실패:", e);
@@ -68,7 +93,7 @@ async function fetchInquiries(
     throw new Error(errorMessage);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as InquiriesResponse;
   console.log("✅ [inquiries-page] 문의 목록 조회 성공", {
     inquiriesCount: data.inquiries?.length ?? 0,
     total: data.total,
@@ -94,8 +119,14 @@ async function fetchInquiryStats() {
       } else {
         // JSON이 아닌 경우 텍스트로 읽기
         const errorText = await response.text();
-        console.error("❌ [inquiries-page] 통계 API 에러 응답 (텍스트):", errorText);
-        errorMessage = `서버 오류 (${response.status}): ${errorText.substring(0, 100)}`;
+        console.error(
+          "❌ [inquiries-page] 통계 API 에러 응답 (텍스트):",
+          errorText,
+        );
+        errorMessage = `서버 오류 (${response.status}): ${errorText.substring(
+          0,
+          100,
+        )}`;
       }
     } catch (e) {
       console.error("❌ [inquiries-page] 통계 에러 응답 파싱 실패:", e);
@@ -117,6 +148,7 @@ export default function InquiriesPage() {
   // 페이지 상태
   const [page, setPage] = React.useState(1);
   const pageSize = 20;
+  const router = useRouter();
 
   // activeTab을 filter.status로부터 계산 (동기화 보장)
   const activeTab = React.useMemo(() => {
@@ -164,37 +196,35 @@ export default function InquiriesPage() {
     }));
   };
 
-  // 상태 텍스트 및 색상 함수
-  const getStatusText = (status: InquiryStatus) => {
-    const statusMap: Record<InquiryStatus, string> = {
+  const getStatusBadge = (status: InquiryStatus) => {
+    const displayStatus: InquiryStatus =
+      status === "closed" ? "answered" : status;
+
+    const statusText: Record<"open" | "answered", string> = {
       open: "답변 대기",
       answered: "답변 완료",
-      closed: "종료",
     };
-    return statusMap[status];
-  };
 
-  const getStatusColor = (status: InquiryStatus) => {
-    if (status === "open") {
-      return "bg-[#fbbf24] text-white";
-    }
-    return "bg-[#10B981] text-white";
-  };
+    const statusClass =
+      displayStatus === "open"
+        ? "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-100"
+        : "bg-[#D1FAE5] text-[#10B981] dark:bg-emerald-900/40 dark:text-emerald-200";
 
-  const getStatusIcon = (status: InquiryStatus) => {
-    if (status === "open") {
-      return <Clock className="w-4 h-4" />;
-    }
-    return <CheckCircle className="w-4 h-4" />;
+    return (
+      <span
+        className={`inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold ${statusClass}`}
+      >
+        {statusText[displayStatus === "open" ? "open" : "answered"]}
+      </span>
+    );
   };
 
   return (
     <div className="space-y-8 pb-12">
-      {/* 페이지 헤더 */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">상품문의</h1>
-        <p className="mt-2 text-muted-foreground">신속한 응대로 고객 신뢰도를 높이세요.</p>
-      </div>
+      <PageHeader
+        title="상품 문의 관리"
+        description="소매점에서 등록한 상품 문의를 한눈에 관리합니다."
+      />
 
       {/* 문의 통계 카드 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -208,13 +238,18 @@ export default function InquiriesPage() {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">전체 문의</p>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">
+                전체 문의
+              </p>
               <p className="text-3xl font-bold text-foreground dark:text-foreground mt-2">
                 {statsData?.total ?? 0}건
               </p>
             </div>
             <div className="p-2">
-              <MessageSquare className="w-12 h-12 text-[#10B981]" strokeWidth={1.5} />
+              <MessageSquare
+                className="w-12 h-12 text-[#10B981]"
+                strokeWidth={1.5}
+              />
             </div>
           </div>
         </button>
@@ -229,7 +264,9 @@ export default function InquiriesPage() {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">답변 대기</p>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">
+                답변 대기
+              </p>
               <p className="text-3xl font-bold text-foreground dark:text-foreground mt-2">
                 {statsData?.open ?? 0}건
               </p>
@@ -244,19 +281,26 @@ export default function InquiriesPage() {
         <button
           onClick={() => handleStatsCardClick("answered")}
           className={`relative bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-6 text-left transition-all duration-200 hover:-translate-y-1 ${
-            activeTab === "answered" ? "ring-2 ring-[#10B981]" : "hover:shadow-lg"
+            activeTab === "answered"
+              ? "ring-2 ring-[#10B981]"
+              : "hover:shadow-lg"
           }`}
         >
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">답변 완료</p>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">
+                답변 완료
+              </p>
               <p className="text-3xl font-bold text-foreground dark:text-foreground mt-2">
                 {statsData?.answered ?? 0}건
               </p>
             </div>
             <div className="p-2">
-              <CheckCircle className="w-12 h-12 text-purple-500" strokeWidth={1.5} />
+              <CheckCircle
+                className="w-12 h-12 text-purple-500"
+                strokeWidth={1.5}
+              />
             </div>
           </div>
         </button>
@@ -265,114 +309,176 @@ export default function InquiriesPage() {
       {/* 필터 */}
       <InquiryFilter filter={filter} onFilterChange={setFilter} />
 
-      {/* 문의 목록 (카드 리스트) */}
-      <div className="space-y-4">
-        {isLoading ? (
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-12 text-center text-muted-foreground dark:text-muted-foreground transition-colors duration-200">
-            로딩 중...
-          </div>
-        ) : data?.inquiries && data.inquiries.length > 0 ? (
-          data.inquiries.map((inquiry: InquiryDetail) => (
-            <div
-              key={inquiry.id}
-              className="bg-white dark:bg-gray-900 rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-gray-100 dark:border-gray-800 transition-colors duration-200"
-            >
-              <div className="p-6">
-                {/* 헤더 */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold text-foreground dark:text-foreground">
-                        {inquiry.title}
-                      </h3>
-                      <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                          inquiry.status
-                        )}`}
-                      >
-                        {getStatusIcon(inquiry.status)}
-                        {getStatusText(inquiry.status)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
-                      {inquiry.user_anonymous_code && (
-                        <>
-                          <span>고객: {inquiry.user_anonymous_code}</span>
-                          <span>•</span>
-                        </>
-                      )}
-                      <span>
-                        문의일:{" "}
-                        {new Date(inquiry.created_at).toLocaleDateString("ko-KR", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                      {inquiry.replied_at && (
-                        <>
-                          <span>•</span>
-                          <span className="text-[#10B981]">
-                            답변완료:{" "}
-                            {new Date(inquiry.replied_at).toLocaleDateString("ko-KR", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 문의 내용 */}
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4 transition-colors duration-200">
-                  <p className="text-sm text-foreground dark:text-foreground">{inquiry.content}</p>
-                </div>
-
-                {/* 액션 버튼 */}
-                <div className="flex gap-3">
-                  {inquiry.status === "open" ? (
-                    <Link
-                      href={`/wholesaler/inquiries/${inquiry.id}`}
-                      className="px-6 py-2 bg-[#10B981] text-white rounded-xl font-semibold hover:bg-[#059669] transition-colors shadow-md"
-                    >
-                      답변하기
-                    </Link>
-                  ) : (
-                    <Link
-                      href={`/wholesaler/inquiries/${inquiry.id}`}
-                      className="px-6 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-foreground rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      답변 확인
-                    </Link>
-                  )}
-                  <Link
-                    href={`/wholesaler/inquiries/${inquiry.id}`}
-                    className="px-6 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-foreground rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      {/* 문의 목록 테이블 + 모바일 카드 (관리자 소매 문의 관리와 동일한 패턴) */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
+        {/* 데스크톱 테이블 */}
+        <div className="hidden lg:block overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 text-xs uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
+                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-16 text-center">
+                  번호
+                </th>
+                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40">
+                  고객 코드
+                </th>
+                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800">
+                  문의 제목 / 내용
+                </th>
+                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-28 text-center">
+                  상태
+                </th>
+                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40 text-center">
+                  생성일
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+              {isLoading && (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
                   >
-                    상세보기
-                  </Link>
-                </div>
-              </div>
+                    로딩 중...
+                  </td>
+                </tr>
+              )}
+              {!isLoading &&
+                data?.inquiries?.map((inquiry, index) => {
+                  const number = data.total
+                    ? data.total -
+                      ((data.page - 1) * (data.pageSize || pageSize) + index)
+                    : index + 1;
+                  const detailHref = `/wholesaler/inquiries/${inquiry.id}`;
+
+                  return (
+                    <tr
+                      key={inquiry.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+                      onClick={() => router.push(detailHref)}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          router.push(detailHref);
+                        }
+                      }}
+                    >
+                      <td className="p-4 text-center text-muted-foreground dark:text-muted-foreground font-medium">
+                        {number}
+                      </td>
+                      <td className="p-4">
+                        <div className="text-foreground dark:text-foreground font-semibold">
+                          {inquiry.user_anonymous_code || "-"}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <Link
+                          href={detailHref}
+                          className="font-semibold text-foreground dark:text-foreground mb-1 hover:text-[#10B981] transition-colors"
+                        >
+                          {inquiry.title}
+                        </Link>
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
+                          {inquiry.content}
+                        </p>
+                      </td>
+                      <td className="p-4 text-center">
+                        {getStatusBadge(inquiry.status)}
+                      </td>
+                      <td className="p-4 text-center text-muted-foreground dark:text-muted-foreground">
+                        {new Date(inquiry.created_at).toLocaleDateString(
+                          "ko-KR",
+                          {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              {!isLoading && data?.inquiries?.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
+                  >
+                    해당 조건의 문의가 없습니다.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 모바일 카드 */}
+        <div className="lg:hidden divide-y divide-gray-100 dark:divide-gray-800">
+          {isLoading && (
+            <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
+              로딩 중...
             </div>
-          ))
-        ) : (
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 p-12 text-center text-muted-foreground dark:text-muted-foreground transition-colors duration-200">
-            해당 조건의 문의가 없습니다.
-          </div>
-        )}
+          )}
+          {!isLoading &&
+            data?.inquiries?.map((inquiry, index) => {
+              const number = data.total
+                ? data.total -
+                  ((data.page - 1) * (data.pageSize || pageSize) + index)
+                : index + 1;
+              const detailHref = `/wholesaler/inquiries/${inquiry.id}`;
+              return (
+                <Link
+                  key={inquiry.id}
+                  href={detailHref}
+                  className="block p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <div className="text-xs text-muted-foreground dark:text-muted-foreground">
+                        #{number} •{" "}
+                        {new Date(inquiry.created_at).toLocaleDateString(
+                          "ko-KR",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </div>
+                      <div className="text-sm font-semibold text-foreground dark:text-foreground">
+                        고객: {inquiry.user_anonymous_code || "-"}
+                      </div>
+                    </div>
+                    {getStatusBadge(inquiry.status)}
+                  </div>
+                  <div className="text-base font-semibold text-foreground dark:text-foreground mb-1">
+                    {inquiry.title}
+                  </div>
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
+                    {inquiry.content}
+                  </p>
+                </Link>
+              );
+            })}
+          {!isLoading && data?.inquiries?.length === 0 && (
+            <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
+              해당 조건의 문의가 없습니다.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 페이지네이션 */}
       {data && data.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-200">
           <div className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">
-            총 <span className="text-[#10B981] font-bold">{data.total}</span>개 중{" "}
+            총 <span className="text-[#10B981] font-bold">{data.total}</span>개
+            중{" "}
             <span className="text-[#10B981] font-bold">
               {(data.page - 1) * data.pageSize + 1}
             </span>
@@ -395,14 +501,18 @@ export default function InquiriesPage() {
             </Button>
             <div className="flex items-center gap-1 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-foreground">
               <span>{data.page}</span>
-              <span className="text-gray-500 dark:text-muted-foreground">/</span>
+              <span className="text-gray-500 dark:text-muted-foreground">
+                /
+              </span>
               <span>{data.totalPages}</span>
             </div>
             <Button
               variant="outline"
               size="sm"
               disabled={data.page >= data.totalPages}
-              onClick={() => setPage((prev) => Math.min(data.totalPages, prev + 1))}
+              onClick={() =>
+                setPage((prev) => Math.min(data.totalPages, prev + 1))
+              }
               className="border-gray-200 dark:border-gray-700 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               다음
@@ -414,7 +524,7 @@ export default function InquiriesPage() {
 
       {/* 통계 정보 (페이지가 1개일 때만 표시) */}
       {data && data.totalPages <= 1 && (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-gray-600 dark:text-gray-300">
           총 {data.total}개의 문의
         </div>
       )}
