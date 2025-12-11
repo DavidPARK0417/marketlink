@@ -222,6 +222,7 @@ export default function PriceComparisonChart({
             />
             <Tooltip
               formatter={(value: number) => formatPrice(value)}
+              cursor={{ fill: "transparent", stroke: "transparent" }}
               contentStyle={{
                 backgroundColor: "hsl(var(--background))",
                 border: "1px solid hsl(var(--border))",

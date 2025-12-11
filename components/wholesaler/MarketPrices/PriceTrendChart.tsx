@@ -209,6 +209,7 @@ export default function PriceTrendChart({
             <Tooltip
               formatter={(value: number) => formatPrice(value)}
               labelFormatter={(label) => `날짜: ${label}`}
+              cursor={{ fill: "transparent", stroke: "transparent" }}
               contentStyle={{
                 backgroundColor: "hsl(var(--background))",
                 border: "1px solid hsl(var(--border))",
