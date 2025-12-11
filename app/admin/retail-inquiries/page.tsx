@@ -24,6 +24,8 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MessageSquare, Clock, CheckCircle } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import PageHeader from "@/components/common/PageHeader";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
@@ -146,6 +148,7 @@ async function fetchRetailInquiryStats() {
 
 export default function AdminRetailInquiriesPage() {
   const [filter, setFilter] = React.useState<InquiryFilterType>({});
+  const router = useRouter();
 
   const activeTab = React.useMemo(() => {
     if (filter.status === "open") return "open";
@@ -327,11 +330,20 @@ export default function AdminRetailInquiriesPage() {
                   const number = data.total
                     ? data.total - ((data.page - 1) * (data.pageSize || 20) + index)
                     : index + 1;
+                  const detailHref = `/admin/retail-inquiries/${inquiry.id}`;
 
                   return (
                     <tr
                       key={inquiry.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+                      onClick={() => router.push(detailHref)}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          router.push(detailHref);
+                        }
+                      }}
                     >
                       <td className="p-4 text-center text-muted-foreground dark:text-muted-foreground font-medium">
                         {number}
@@ -345,10 +357,13 @@ export default function AdminRetailInquiriesPage() {
                         {inquiry.retailer_phone || "-"}
                       </td>
                       <td className="p-4">
-                        <div className="font-semibold text-foreground dark:text-foreground mb-1">
+                        <Link
+                          href={detailHref}
+                          className="font-semibold text-foreground dark:text-foreground mb-1 hover:text-[#10B981] transition-colors"
+                        >
                           {inquiry.title}
-                        </div>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words">
+                        </Link>
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
                           {inquiry.content}
                         </p>
                       </td>
@@ -393,10 +408,12 @@ export default function AdminRetailInquiriesPage() {
               const number = data.total
                 ? data.total - ((data.page - 1) * (data.pageSize || 20) + index)
                 : index + 1;
+              const detailHref = `/admin/retail-inquiries/${inquiry.id}`;
               return (
-                <div
+                <Link
                   key={inquiry.id}
-                  className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                  href={detailHref}
+                  className="block p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -421,10 +438,10 @@ export default function AdminRetailInquiriesPage() {
                   <div className="text-base font-semibold text-foreground dark:text-foreground mb-1">
                     {inquiry.title}
                   </div>
-                  <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words">
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
                     {inquiry.content}
                   </p>
-                </div>
+                </Link>
               );
             })}
           {!isLoading && data?.inquiries?.length === 0 && (
