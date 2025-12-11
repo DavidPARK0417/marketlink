@@ -115,8 +115,8 @@ export default function RecentOrders() {
         </div>
       ) : (
         <>
-          {/* 데스크톱 테이블 */}
-          <div className="hidden lg:block overflow-x-auto">
+          {/* 데스크톱 테이블 (넓은 화면) */}
+          <div className="hidden xl:block overflow-x-hidden">
             <table className="w-full">
               <thead className="bg-[#F8F9FA] dark:bg-gray-900">
                 <tr>
@@ -168,8 +168,8 @@ export default function RecentOrders() {
             </table>
           </div>
 
-          {/* 모바일 카드 */}
-              <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
+          {/* 모바일/중간 화면 카드 */}
+          <div className="xl:hidden divide-y divide-gray-200 dark:divide-gray-800">
             {orders.map((order) => (
               <div
                 key={order.id}

@@ -14,6 +14,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import type { InquiryDetail } from "@/types/inquiry";
@@ -49,6 +50,8 @@ export default function InquiryTable({
   enableRowClick = true,
   enableCardClick = true,
 }: InquiryTableProps) {
+  const router = useRouter();
+
   // 상태 텍스트 변환
   const getStatusText = (status: string) => {
     if (status === "open") return "접수완료";
@@ -130,11 +133,17 @@ export default function InquiryTable({
               return (
                 <tr
                   key={inquiry.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 group"
+                  className={`hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 group ${
+                    enableRowClick ? "cursor-pointer" : ""
+                  }`}
                   onClick={
                     enableRowClick
                       ? () => {
-                          window.location.href = href;
+                          console.log("🧭 [support-inquiry-table] 행 클릭 → 상세 이동", {
+                            inquiryId,
+                            href,
+                          });
+                          router.push(href);
                         }
                       : undefined
                   }
@@ -144,7 +153,15 @@ export default function InquiryTable({
                       ? (e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
-                            window.location.href = href;
+                            console.log(
+                              "🧭 [support-inquiry-table] 키보드로 행 이동",
+                              {
+                                inquiryId,
+                                href,
+                                key: e.key,
+                              },
+                            );
+                            router.push(href);
                           }
                         }
                       : undefined
