@@ -338,64 +338,78 @@ export default function OrderTable({
       {/* 주문 목록 컨테이너 */}
       <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
         {/* 데스크톱 테이블 */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full min-w-[1000px]">
+        <div className="hidden lg:block overflow-x-auto max-w-full">
+          <table className="w-full min-w-[960px] table-fixed">
             <thead className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
+                <th className="px-4 py-4 text-center text-sm font-semibold text-foreground dark:text-foreground w-16">
+                  번호
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                   주문번호
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                   상품명
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                   수량
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                   금액
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                   배송지
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                   주문일시
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground">
                   상태
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-              {table.getRowModel().rows.map((row) => {
+              {table.getRowModel().rows.map((row, index) => {
                 const order = row.original;
                 const status = order.status as OrderStatus;
+                const pagination = table.getState().pagination;
+                const pageIndex = pagination?.pageIndex ?? 0;
+                const pageSize =
+                  pagination?.pageSize ?? table.getRowModel().rows.length;
+                const rowNumber = pageIndex * pageSize + index + 1;
                 return (
-                  <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
-                    <td className="px-6 py-4 text-sm font-medium text-foreground dark:text-foreground whitespace-nowrap">
+                  <tr
+                    key={row.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                  >
+                    <td className="px-4 py-4 text-sm text-muted-foreground dark:text-gray-100 text-center">
+                      {rowNumber}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium text-foreground dark:text-foreground break-words">
                       {order.order_number}
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
-                      {order.product?.name || "-"}
-                      {order.variant && ` (${order.variant.name})`}
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-gray-200 break-words">
+                      <div className="leading-tight">
+                        {order.product?.name || "-"}
+                        {order.variant && ` (${order.variant.name})`}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-gray-200 text-center">
                       {order.quantity}박스
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">
-                      {new Intl.NumberFormat("ko-KR").format(
-                        order.total_amount
-                      )}
+                    <td className="px-6 py-4 text-sm font-semibold text-foreground dark:text-foreground text-right">
+                      {new Intl.NumberFormat("ko-KR").format(order.total_amount)}
                       원
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-gray-200 break-words">
                       {order.delivery_address}
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm text-muted-foreground dark:text-gray-300">
                       {format(new Date(order.created_at), "MM월 dd일 HH:mm", {
                         locale: ko,
                       })}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <div className="relative inline-block">
                         <select
                           value={status}
@@ -452,92 +466,100 @@ export default function OrderTable({
 
         {/* 모바일 카드 리스트 */}
         <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
-          {table.getRowModel().rows.map((row) => {
+          {table.getRowModel().rows.map((row, index) => {
             const order = row.original;
             const status = order.status as OrderStatus;
+            const pagination = table.getState().pagination;
+            const pageIndex = pagination?.pageIndex ?? 0;
+            const pageSize =
+              pagination?.pageSize ?? table.getRowModel().rows.length;
+            const rowNumber = pageIndex * pageSize + index + 1;
             return (
               <div
                 key={row.id}
-                className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 space-y-4"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <span className="text-xs text-muted-foreground dark:text-muted-foreground block mb-1">
-                      {format(new Date(order.created_at), "yyyy년 MM월 dd일 HH:mm", {
-                        locale: ko,
-                      })}
-                    </span>
-                    <h3 className="text-base font-bold text-foreground dark:text-foreground mb-1">
-                      {order.product?.name || "-"}
-                      {order.variant && ` (${order.variant.name})`}
-                    </h3>
-                    <p className="text-xs text-muted-foreground dark:text-muted-foreground font-mono">
-                      {order.order_number}
-                    </p>
-                  </div>
-                  <div className="relative inline-block">
-                    <select
-                      value={status}
-                      onChange={(e) =>
-                        handleStatusChange(
-                          order.id,
-                          e.target.value as OrderStatus
-                        )
-                      }
-                      className={`appearance-none pl-3 pr-8 py-1.5 rounded-full text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 ${getStatusColor(
-                        status
-                      )}`}
-                    >
-                      <option value="pending" className="text-gray-900 bg-white">
-                        신규
-                      </option>
-                      <option
-                        value="confirmed"
-                        className="text-gray-900 bg-white"
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start gap-3">
+                    <div className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-semibold text-foreground dark:text-foreground">
+                      {rowNumber}
+                    </div>
+                    <div className="min-w-0 space-y-1">
+                      <span className="text-xs text-muted-foreground dark:text-gray-300 block">
+                        {format(new Date(order.created_at), "yyyy년 MM월 dd일 HH:mm", {
+                          locale: ko,
+                        })}
+                      </span>
+                      <h3 className="text-base font-bold text-foreground dark:text-gray-50 leading-snug break-words">
+                        {order.product?.name || "-"}
+                        {order.variant && ` (${order.variant.name})`}
+                      </h3>
+                      <p className="text-xs text-muted-foreground dark:text-gray-200 font-mono break-words">
+                        {order.order_number}
+                      </p>
+                    </div>
+                    <div className="relative inline-block shrink-0">
+                      <select
+                        value={status}
+                        onChange={(e) =>
+                          handleStatusChange(
+                            order.id,
+                            e.target.value as OrderStatus
+                          )
+                        }
+                        className={`appearance-none pl-3 pr-8 py-1.5 rounded-full text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 ${getStatusColor(
+                          status
+                        )}`}
                       >
-                        확인완료
-                      </option>
-                      <option value="shipped" className="text-gray-900 bg-white">
-                        출고완료
-                      </option>
-                      <option
-                        value="completed"
-                        className="text-gray-900 bg-white"
-                      >
-                        배송완료
-                      </option>
-                      <option
-                        value="cancelled"
-                        className="text-gray-900 bg-white"
-                      >
-                        취소
-                      </option>
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-80" />
+                        <option value="pending" className="text-gray-900 bg-white">
+                          신규
+                        </option>
+                        <option
+                          value="confirmed"
+                          className="text-gray-900 bg-white"
+                        >
+                          확인완료
+                        </option>
+                        <option value="shipped" className="text-gray-900 bg-white">
+                          출고완료
+                        </option>
+                        <option
+                          value="completed"
+                          className="text-gray-900 bg-white"
+                        >
+                          배송완료
+                        </option>
+                        <option
+                          value="cancelled"
+                          className="text-gray-900 bg-white"
+                        >
+                          취소
+                        </option>
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-80" />
+                    </div>
                   </div>
-                </div>
-
-                <div className="space-y-2 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg transition-colors duration-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground dark:text-muted-foreground">주문 수량</span>
-                    <span className="font-medium text-foreground dark:text-foreground">
-                      {order.quantity}박스
-                    </span>
+                    <div className="space-y-2 text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg transition-colors duration-200">
+                    <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground dark:text-gray-300">주문 수량</span>
+                        <span className="font-medium text-foreground dark:text-gray-50">
+                        {order.quantity}박스
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <span className="text-muted-foreground dark:text-gray-300">결제 금액</span>
+                        <span className="font-bold text-[#10B981] dark:text-[#34d399]">
+                        {new Intl.NumberFormat("ko-KR").format(
+                          order.total_amount
+                        )}
+                        원
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <span className="text-muted-foreground dark:text-muted-foreground">결제 금액</span>
-                    <span className="font-bold text-[#10B981]">
-                      {new Intl.NumberFormat("ko-KR").format(
-                        order.total_amount
-                      )}
-                      원
-                    </span>
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground dark:text-gray-300 break-words">
+                    <span className="font-semibold whitespace-nowrap text-foreground dark:text-gray-100">배송지:</span>
+                    <span className="break-words text-foreground dark:text-gray-200">{order.delivery_address}</span>
                   </div>
-                </div>
-
-                <div className="mt-3 flex items-start gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
-                  <span className="font-semibold whitespace-nowrap">배송지:</span>
-                  <span>{order.delivery_address}</span>
                 </div>
               </div>
             );
