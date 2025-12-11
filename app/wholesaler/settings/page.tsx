@@ -910,7 +910,7 @@ export default function SettingsPage() {
         <div className="flex justify-center pt-8 pb-4">
           <button
             onClick={() => setIsDeleteAccountModalOpen(true)}
-            className="text-sm text-red-500 underline decoration-red-300 hover:text-red-600 hover:decoration-red-600 transition-colors font-medium"
+            className="text-sm text-red-500 hover:text-red-600 transition-colors font-medium"
           >
             회원 탈퇴
           </button>
