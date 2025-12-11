@@ -229,6 +229,8 @@ export default function PriceComparisonChart({
                 borderRadius: "0.5rem",
                 color: "hsl(var(--foreground))",
               }}
+              labelStyle={{ color: "hsl(var(--foreground))" }}
+              itemStyle={{ color: "hsl(var(--foreground))" }}
             />
             <Legend
               content={renderLegend}
