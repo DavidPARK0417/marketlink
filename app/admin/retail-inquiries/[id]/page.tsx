@@ -391,14 +391,19 @@ export default function AdminRetailInquiryDetailPage({
       </Card>
 
       {/* 메시지 수정 폼 */}
-      {editingMessage && (
+      {editingMessage && inquiryId && (
         <InquiryMessageEditForm
           message={editingMessage}
+          isOpen={editingMessage !== null}
           onClose={() => setEditingMessage(null)}
+          apiEndpoint="/api/admin/inquiries/messages"
+          inquiryId={inquiryId}
           onSuccess={() => {
-            setEditingMessage(null);
             queryClient.invalidateQueries({
               queryKey: ["admin-retail-inquiry-messages", inquiryId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["admin-retail-inquiry", inquiryId],
             });
           }}
         />

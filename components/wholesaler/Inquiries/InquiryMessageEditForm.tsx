@@ -55,6 +55,7 @@ interface InquiryMessageEditFormProps {
   onClose: () => void;
   apiEndpoint: string; // "/api/wholesaler/inquiries/messages" 또는 "/api/admin/inquiries/messages"
   inquiryId: string;
+  onSuccess?: () => void;
 }
 
 export default function InquiryMessageEditForm({
@@ -63,6 +64,7 @@ export default function InquiryMessageEditForm({
   onClose,
   apiEndpoint,
   inquiryId,
+  onSuccess,
 }: InquiryMessageEditFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<EditFormData>({
@@ -113,6 +115,7 @@ export default function InquiryMessageEditForm({
       queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
       queryClient.invalidateQueries({ queryKey: ["inquiry", inquiryId] });
       queryClient.invalidateQueries({ queryKey: ["admin-inquiry", inquiryId] });
+      onSuccess?.();
       onClose();
     },
     onError: (error) => {
