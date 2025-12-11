@@ -258,7 +258,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
           const pageNumber = (initialData.page - 1) * initialData.pageSize + rowIndex + 1;
           return (
             <div className="text-center">
-              <span className="font-semibold text-gray-700 text-sm">
+              <span className="font-semibold text-sm text-gray-700 dark:text-gray-100 transition-colors duration-200">
                 {pageNumber}
               </span>
             </div>
