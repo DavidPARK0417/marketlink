@@ -47,6 +47,11 @@ export default function InquiryCreateModal({
   onOpenChange,
   onSuccess,
 }: InquiryCreateModalProps) {
+  const handleCancel = () => {
+    console.log("⏹️ [inquiry-create-modal] 취소 버튼 클릭 - 모달 닫기");
+    onOpenChange(false);
+  };
+
   const handleSuccess = () => {
     // 문의 작성 성공 시 모달 닫기
     onOpenChange(false);
@@ -65,7 +70,7 @@ export default function InquiryCreateModal({
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto min-h-0 mt-4">
-          <InquiryCreateForm onSuccess={handleSuccess} />
+          <InquiryCreateForm onSuccess={handleSuccess} onCancel={handleCancel} />
         </div>
       </DialogContent>
     </Dialog>

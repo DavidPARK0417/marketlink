@@ -59,10 +59,12 @@ type InquiryFormData = z.infer<typeof inquirySchema>;
 
 interface InquiryCreateFormProps {
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
 export default function InquiryCreateForm({
   onSuccess,
+  onCancel,
 }: InquiryCreateFormProps) {
   const router = useRouter();
   const { user } = useUser();
@@ -185,6 +187,12 @@ export default function InquiryCreateForm({
     }
   };
 
+  const handleCancel = () => {
+    console.log("⏹️ [inquiry-create-form] 작성 취소 - 폼 리셋 및 모달 닫기 요청");
+    form.reset();
+    onCancel?.();
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -304,7 +312,7 @@ export default function InquiryCreateForm({
           <Button
             type="button"
             variant="outline"
-            onClick={() => form.reset()}
+            onClick={handleCancel}
             disabled={isSubmitting}
           >
             취소
