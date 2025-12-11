@@ -272,19 +272,21 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
         cell: ({ row }) => {
           const imageUrl = row.original.image_url;
           return (
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex items-center justify-center group-hover:from-[#10B981]/10 group-hover:to-[#059669]/10 transition-all shadow-sm">
-              {imageUrl ? (
-                <div className="relative w-full h-full overflow-hidden rounded-xl">
-                  <Image
-                    src={imageUrl}
-                    alt={row.original.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <Package className="w-8 h-8 text-gray-400 group-hover:text-[#10B981] group-hover:scale-110 transition-all" />
-              )}
+            <div className="flex justify-center">
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex items-center justify-center group-hover:from-[#10B981]/10 group-hover:to-[#059669]/10 transition-all shadow-sm">
+                {imageUrl ? (
+                  <div className="relative w-full h-full overflow-hidden rounded-xl">
+                    <Image
+                      src={imageUrl}
+                      alt={row.original.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <Package className="w-8 h-8 text-gray-400 group-hover:text-[#10B981] group-hover:scale-110 transition-all" />
+                )}
+              </div>
             </div>
           );
         },
@@ -304,7 +306,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 params.set("page", "1");
                 router.push(`/wholesaler/products?${params.toString()}`);
               }}
-              className="flex items-center gap-1.5 hover:text-[#10B981] transition-colors group w-full text-left"
+              className="flex items-center justify-center gap-1.5 hover:text-[#10B981] transition-colors group w-full"
             >
               <span className={cn(isSorted && "text-[#10B981] font-bold")}>상품명</span>
               {isSorted === "asc" ? (
@@ -325,7 +327,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
             : null;
           
           return (
-            <div>
+            <div className="text-center">
               <div className="font-bold text-gray-900 dark:text-gray-100 text-sm">
                 {product.name}
               </div>
@@ -352,7 +354,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 params.set("page", "1");
                 router.push(`/wholesaler/products?${params.toString()}`);
               }}
-              className="flex items-center gap-1.5 hover:text-[#10B981] transition-colors group w-full text-left"
+              className="flex items-center justify-center gap-1.5 hover:text-[#10B981] transition-colors group w-full"
             >
               <span className={cn(isSorted && "text-[#10B981] font-bold")}>카테고리</span>
               {isSorted === "asc" ? (
@@ -366,9 +368,11 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
           );
         },
         cell: ({ row }) => (
-          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-[#10B981]/10 to-[#059669]/10 text-[#059669] border border-[#10B981]/20">
-            {row.original.category}
-          </span>
+          <div className="flex justify-center">
+            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-[#10B981]/10 to-[#059669]/10 text-[#059669] border border-[#10B981]/20">
+              {row.original.category}
+            </span>
+          </div>
         ),
       },
       {
@@ -385,7 +389,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 params.set("page", "1");
                 router.push(`/wholesaler/products?${params.toString()}`);
               }}
-              className="flex items-center gap-1.5 hover:text-[#10B981] transition-colors group ml-auto"
+              className="flex items-center justify-center gap-1.5 hover:text-[#10B981] transition-colors group w-full"
             >
               <span className={cn(isSorted && "text-[#10B981] font-bold")}>가격</span>
               {isSorted === "asc" ? (
@@ -399,7 +403,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
           );
         },
         cell: ({ row }) => (
-          <div className="text-right">
+          <div className="text-center">
             <span className="font-bold text-[#10B981] text-sm">
               {formatPrice(row.original.price)}
             </span>
@@ -420,7 +424,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                 params.set("page", "1");
                 router.push(`/wholesaler/products?${params.toString()}`);
               }}
-              className="flex items-center gap-1.5 hover:text-[#10B981] transition-colors group mx-auto"
+              className="flex items-center justify-center gap-1.5 hover:text-[#10B981] transition-colors group w-full"
             >
               <span className={cn(isSorted && "text-[#10B981] font-bold")}>재고</span>
               {isSorted === "asc" ? (
@@ -781,14 +785,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
                             <th
                               key={header.id}
                               className={cn(
-                                "px-6 py-4 text-xs font-bold text-foreground dark:text-foreground uppercase tracking-wider",
-                                header.id === "price"
-                                  ? "text-right"
-                                  : header.id === "stock_quantity" ||
-                                    header.id === "is_active" ||
-                                    header.id === "actions"
-                                  ? "text-center"
-                                  : "text-left",
+                                "px-6 py-4 text-xs font-bold text-foreground dark:text-foreground uppercase tracking-wider text-center",
                                 isSortable && "cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800 transition-colors"
                               )}
                             >
