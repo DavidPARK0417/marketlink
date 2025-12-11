@@ -1688,3 +1688,71 @@ export async function deleteInquiry(inquiryId: string): Promise<void> {
   console.log("✅ [inquiries] 문의글 삭제 완료");
   console.groupEnd();
 }
+
+/**
+ * 문의 수정 (작성자 전용)
+ * - wholesaler_to_admin 문의만 대상
+ * - 종료된 문의는 수정 불가
+ */
+export async function updateInquiryContent(
+  inquiryId: string,
+  payload: { title: string; content: string },
+) {
+  console.group("✏️ [inquiries] 문의 수정 시작");
+  console.log("inquiryId:", inquiryId);
+
+  const profile = await getUserProfile();
+  if (!profile) {
+    console.error("❌ [inquiries] 프로필 없음");
+    throw new Error("사용자 프로필을 찾을 수 없습니다.");
+  }
+
+  const supabase = createClerkSupabaseClient();
+
+  // 1. 문의 정보 조회
+  const { data: inquiry, error: inquiryError } = await supabase
+    .from("inquiries")
+    .select("user_id, inquiry_type, status")
+    .eq("id", inquiryId)
+    .single();
+
+  if (inquiryError || !inquiry) {
+    console.error("❌ [inquiries] 문의 조회 오류:", inquiryError);
+    throw new Error("문의를 찾을 수 없습니다.");
+  }
+
+  if (inquiry.user_id !== profile.id) {
+    console.error("❌ [inquiries] 권한 없음 - 다른 사용자의 문의");
+    throw new Error("본인이 작성한 문의만 수정할 수 있습니다.");
+  }
+
+  if (inquiry.inquiry_type !== "wholesaler_to_admin") {
+    console.error("❌ [inquiries] 수정 불가한 문의 유형:", inquiry.inquiry_type);
+    throw new Error("이 문의 유형은 수정할 수 없습니다.");
+  }
+
+  if (inquiry.status === "closed") {
+    console.error("❌ [inquiries] 종료된 문의 수정 불가");
+    throw new Error("종료된 문의는 수정할 수 없습니다.");
+  }
+
+  // 2. 업데이트
+  const { data: updated, error: updateError } = await supabase
+    .from("inquiries")
+    .update({
+      title: payload.title,
+      content: payload.content,
+    })
+    .eq("id", inquiryId)
+    .select()
+    .single();
+
+  if (updateError || !updated) {
+    console.error("❌ [inquiries] 문의 수정 오류:", updateError);
+    throw new Error("문의를 수정하는 중 오류가 발생했습니다.");
+  }
+
+  console.log("✅ [inquiries] 문의 수정 완료");
+  console.groupEnd();
+  return updated as Inquiry;
+}

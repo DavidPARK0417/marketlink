@@ -30,6 +30,14 @@ interface InquiryTableProps {
    * 전체 개수 (번호 역순 계산용)
    */
   total?: number;
+  /**
+   * 행 클릭 시 이동 활성화 (기본: true)
+   */
+  enableRowClick?: boolean;
+  /**
+   * 모바일 카드 클릭 시 이동 활성화 (기본: true)
+   */
+  enableCardClick?: boolean;
 }
 
 export default function InquiryTable({
@@ -38,6 +46,8 @@ export default function InquiryTable({
   basePath = "/wholesaler/support",
   startNumber = 1,
   total,
+  enableRowClick = true,
+  enableCardClick = true,
 }: InquiryTableProps) {
   // 상태 텍스트 변환
   const getStatusText = (status: string) => {
@@ -121,6 +131,26 @@ export default function InquiryTable({
                 <tr
                   key={inquiry.id}
                   className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 group"
+                  onClick={
+                    enableRowClick
+                      ? () => {
+                          window.location.href = href;
+                        }
+                      : undefined
+                  }
+                  tabIndex={enableRowClick ? 0 : -1}
+                  onKeyDown={
+                    enableRowClick
+                      ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            window.location.href = href;
+                          }
+                        }
+                      : undefined
+                  }
+                  role={enableRowClick ? "button" : undefined}
+                  aria-label={enableRowClick ? `${inquiry.title} 상세 보기` : undefined}
                 >
                   <td className="p-4 text-center text-muted-foreground dark:text-muted-foreground font-medium">
                     {number}
@@ -178,6 +208,8 @@ export default function InquiryTable({
               key={inquiry.id}
               href={href}
               className="block p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+              tabIndex={enableCardClick ? 0 : -1}
+              aria-disabled={!enableCardClick}
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2">

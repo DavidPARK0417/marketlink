@@ -158,6 +158,21 @@ export default function AdminInquiryDetailPage({
     staleTime: 10 * 1000, // 10초
   });
 
+  // 최초 문의 본문이 메시지 목록에 중복 노출되는 경우 제외
+  const filteredMessages = React.useMemo(() => {
+    if (!messagesData || !inquiry) return messagesData || [];
+    const inquiryContent = (inquiry.content || "").trim();
+    const inquiryAuthorId = inquiry.user_id;
+    return messagesData.filter((message) => {
+      const sameContent = message.content.trim() === inquiryContent;
+      const sameAuthor = message.sender_id === inquiryAuthorId;
+      const isUserLike = message.sender_type === "user" || message.sender_type === "wholesaler";
+      // 최초 작성 본문이 메시지 테이블에 들어간 경우 숨김
+      if (sameContent && sameAuthor && isUserLike) return false;
+      return true;
+    });
+  }, [messagesData, inquiry]);
+
   // 답변 작성 성공 핸들러
   const handleReplySuccess = () => {
     // 문의 상세 정보 갱신
@@ -358,7 +373,7 @@ export default function AdminInquiryDetailPage({
             </div>
           ) : (
             <InquiryMessageList
-              messages={messagesData || []}
+              messages={filteredMessages || []}
               userEmail={inquiry.user_anonymous_code || undefined}
               currentUserId={currentProfileId || undefined}
               viewerRole="admin"

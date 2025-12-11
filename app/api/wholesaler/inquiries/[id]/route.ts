@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getInquiryById, deleteInquiry } from "@/lib/supabase/queries/inquiries";
+import { getInquiryById, deleteInquiry, updateInquiryContent } from "@/lib/supabase/queries/inquiries";
 
 export async function GET(
   request: NextRequest,
@@ -74,6 +74,75 @@ export async function DELETE(
       error instanceof Error
         ? error.message
         : "문의를 삭제하는 중 오류가 발생했습니다.";
+
+    return NextResponse.json(
+      {
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : undefined,
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const { title, content } = body;
+
+    console.group("✏️ [api/wholesaler/inquiries/[id]] 문의 수정 API 시작");
+    console.log("문의 ID:", id);
+
+    if (!title || !content) {
+      return NextResponse.json(
+        { error: "제목과 내용을 모두 입력해주세요." },
+        { status: 400 },
+      );
+    }
+
+    if (typeof title !== "string" || typeof content !== "string") {
+      return NextResponse.json(
+        { error: "제목과 내용 형식이 올바르지 않습니다." },
+        { status: 400 },
+      );
+    }
+
+    const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
+
+    if (trimmedTitle.length === 0 || trimmedTitle.length > 120) {
+      return NextResponse.json(
+        { error: "제목은 1~120자 사이로 입력해주세요." },
+        { status: 400 },
+      );
+    }
+
+    if (trimmedContent.length < 10 || trimmedContent.length > 5000) {
+      return NextResponse.json(
+        { error: "내용은 10자 이상 5000자 이하로 입력해주세요." },
+        { status: 400 },
+      );
+    }
+
+    const updated = await updateInquiryContent(id, {
+      title: trimmedTitle,
+      content: trimmedContent,
+    });
+
+    console.log("✅ [api/wholesaler/inquiries/[id]] 문의 수정 성공");
+    console.groupEnd();
+
+    return NextResponse.json({ success: true, inquiry: updated });
+  } catch (error) {
+    console.error("❌ [api/wholesaler/inquiries/[id]] 문의 수정 오류:", error);
+    console.groupEnd();
+
+    const errorMessage =
+      error instanceof Error ? error.message : "문의를 수정하는 중 오류가 발생했습니다.";
 
     return NextResponse.json(
       {

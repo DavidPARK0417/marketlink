@@ -19,10 +19,10 @@
 "use client";
 
 import * as React from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -36,6 +36,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import InquiryStatusBadge from "@/components/wholesaler/Inquiries/InquiryStatusBadge";
 import InquiryImageModal from "@/components/admin/InquiryImageModal";
 import InquiryMessageList from "@/components/wholesaler/Inquiries/InquiryMessageList";
@@ -79,6 +88,9 @@ export default function SupportInquiryDetailPage({
   const [isImageModalOpen, setIsImageModalOpen] = React.useState(false);
   const [editingMessage, setEditingMessage] = React.useState<InquiryMessage | null>(null);
   const [currentProfileId, setCurrentProfileId] = React.useState<string | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+  const [editTitle, setEditTitle] = React.useState("");
+  const [editContent, setEditContent] = React.useState("");
   const queryClient = useQueryClient();
   const router = useRouter();
   const { user } = useUser();
@@ -139,6 +151,14 @@ export default function SupportInquiryDetailPage({
     staleTime: 30 * 1000, // 30초
   });
 
+  // 문의 수정 초기값 동기화
+  React.useEffect(() => {
+    if (inquiry) {
+      setEditTitle(inquiry.title ?? "");
+      setEditContent(inquiry.content ?? "");
+    }
+  }, [inquiry]);
+
   // 대화 히스토리 조회
   const {
     data: messagesData,
@@ -157,12 +177,88 @@ export default function SupportInquiryDetailPage({
     staleTime: 10 * 1000, // 10초
   });
 
+  // 최초 문의 본문이 메시지 목록에 중복 노출되는 경우 제외
+  const filteredMessages = React.useMemo(() => {
+    if (!messagesData || !inquiry) return messagesData || [];
+    const inquiryContent = (inquiry.content || "").trim();
+    const inquiryAuthorId = inquiry.user_id;
+    return messagesData.filter((message) => {
+      const sameContent = message.content.trim() === inquiryContent;
+      const sameAuthor = message.sender_id === inquiryAuthorId;
+      const isUserLike =
+        message.sender_type === "user" || message.sender_type === "wholesaler";
+      if (sameContent && sameAuthor && isUserLike) return false;
+      return true;
+    });
+  }, [messagesData, inquiry]);
+
   // 답변 작성 성공 핸들러
   const handleReplySuccess = () => {
     // 문의 상세 정보 갱신
     queryClient.invalidateQueries({ queryKey: ["inquiry", inquiryId] });
     queryClient.invalidateQueries({ queryKey: ["inquiries-to-admin"] });
     queryClient.invalidateQueries({ queryKey: ["inquiry-messages", inquiryId] });
+  };
+
+  // 문의 수정 뮤테이션
+  const updateInquiryMutation = useMutation({
+    mutationFn: async (payload: { title: string; content: string }) => {
+      if (!inquiryId) throw new Error("문의 ID가 없습니다.");
+      console.log("✏️ [support-inquiry-detail-page] 문의 수정 요청", {
+        inquiryId,
+        payload,
+      });
+      const response = await fetch(`/api/wholesaler/inquiries/${inquiryId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "문의 수정에 실패했습니다.");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast.success("문의가 수정되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["inquiry", inquiryId] });
+      queryClient.invalidateQueries({ queryKey: ["inquiries-to-admin"] });
+      setIsEditDialogOpen(false);
+    },
+    onError: (err) => {
+      console.error("❌ [support-inquiry-detail-page] 문의 수정 오류:", err);
+      toast.error(
+        err instanceof Error ? err.message : "문의 수정 중 오류가 발생했습니다.",
+      );
+    },
+  });
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedTitle = editTitle.trim();
+    const trimmedContent = editContent.trim();
+
+    if (trimmedTitle.length === 0) {
+      toast.error("제목을 입력해주세요.");
+      return;
+    }
+    if (trimmedTitle.length > 120) {
+      toast.error("제목은 120자 이하로 입력해주세요.");
+      return;
+    }
+    if (trimmedContent.length < 10) {
+      toast.error("내용은 최소 10자 이상 입력해주세요.");
+      return;
+    }
+    if (trimmedContent.length > 5000) {
+      toast.error("내용은 최대 5000자까지 입력할 수 있습니다.");
+      return;
+    }
+
+    updateInquiryMutation.mutate({
+      title: trimmedTitle,
+      content: trimmedContent,
+    });
   };
 
   // 문의글 삭제 핸들러
@@ -350,6 +446,15 @@ export default function SupportInquiryDetailPage({
             </div>
             <div className="flex items-center gap-2">
               <InquiryStatusBadge status={inquiry.status} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditDialogOpen(true)}
+                className="text-sm"
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                수정
+              </Button>
               {/* 도매→관리자 문의인 경우에만 삭제 버튼 표시 */}
               <Button
                 variant="destructive"
@@ -414,7 +519,7 @@ export default function SupportInquiryDetailPage({
           <CardDescription>
             {isMessagesLoading
               ? "로딩 중..."
-              : `총 ${messagesData?.length ?? 0}개의 메시지`}
+              : `총 ${filteredMessages?.length ?? 0}개의 메시지`}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
@@ -424,7 +529,7 @@ export default function SupportInquiryDetailPage({
             </div>
           ) : (
             <InquiryMessageList
-              messages={messagesData || []}
+              messages={filteredMessages || []}
               userEmail={undefined}
               currentUserId={currentProfileId || undefined}
               onEdit={(message) => {
@@ -446,26 +551,18 @@ export default function SupportInquiryDetailPage({
         inquiry.status !== "closed" && (
           <Card>
             <CardHeader>
-              <CardTitle>
-                {inquiry.status === "open"
-                  ? "답변 대기 중"
-                  : "추가 질문 작성"}
-              </CardTitle>
+              <CardTitle>추가 질문 작성</CardTitle>
               <CardDescription>
-                {inquiry.status === "open"
-                  ? "관리자의 답변을 기다리고 있습니다."
-                  : "답변을 받으셨다면 추가로 궁금한 점이 있으시면 질문해주세요."}
+                추가 문의가 있다면 자유롭게 남겨주세요. 관리자 확인 후 안내해드릴게요.
               </CardDescription>
             </CardHeader>
-            {inquiry.status !== "open" && (
-              <CardContent>
-                <InquiryFollowUpForm
-                  inquiryId={inquiry.id}
-                  onSuccess={handleReplySuccess}
-                  apiEndpoint={`/api/wholesaler/inquiries/${inquiry.id}/follow-up`}
-                />
-              </CardContent>
-            )}
+            <CardContent>
+              <InquiryFollowUpForm
+                inquiryId={inquiry.id}
+                onSuccess={handleReplySuccess}
+                apiEndpoint={`/api/wholesaler/inquiries/${inquiry.id}/follow-up`}
+              />
+            </CardContent>
           </Card>
         )}
 
@@ -503,6 +600,52 @@ export default function SupportInquiryDetailPage({
         apiEndpoint="/api/wholesaler/inquiries/messages"
         inquiryId={inquiry.id}
       />
+
+      {/* 문의 수정 다이얼로그 */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>문의 수정</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">제목</label>
+              <Input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                maxLength={120}
+                placeholder="제목을 입력해주세요"
+              />
+              <p className="text-xs text-muted-foreground">{editTitle.length} / 120자</p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">내용</label>
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                rows={8}
+                maxLength={5000}
+                placeholder="내용을 입력해주세요 (최소 10자)"
+                className="resize-none"
+              />
+              <p className="text-xs text-muted-foreground">{editContent.length} / 5000자</p>
+            </div>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+                disabled={updateInquiryMutation.isPending}
+              >
+                취소
+              </Button>
+              <Button type="submit" disabled={updateInquiryMutation.isPending}>
+                {updateInquiryMutation.isPending ? "저장 중..." : "저장"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
