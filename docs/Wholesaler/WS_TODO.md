@@ -404,7 +404,7 @@ mkdir -p hooks
     - [x] 은행 목록 정의 (`BANKS`)
     - [x] 주문 상태 정의 (`ORDER_STATUS` - pending/confirmed/shipped/completed/cancelled)
     - [x] 도매 승인 상태 정의 (`WHOLESALER_STATUS`)
-    - [x] 배송 방법 정의 (`DELIVERY_METHODS` - courier/direct/quick/freight/pickup)
+    - [x] 배송 방법 정의 (`DELIVERY_METHODS` - courier/direct/quick/freight/dawn)
     - [x] 카테고리 목록 정의 (`CATEGORIES`)
     - [x] 단위 목록 정의 (`UNITS`)
     - [x] 문의 상태 정의 (`INQUIRY_STATUS` - open/answered/closed) (선택)
@@ -711,7 +711,7 @@ Anonymous Code 자동 생성 로직을 구현해줘.
     - [x] 재고 (0 이상)
     - [x] 단위 (기본값: ea)
     - [x] 배송비 (0 이상)
-    - [x] 배송 방법 (enum: courier/direct/quick/freight/pickup, 기본값: courier)
+    - [x] 배송 방법 (enum: courier/direct/quick/freight/dawn, 기본값: courier)
     - [x] 납기 (선택)
     - [x] 규격 정보 (무게, 크기, 원산지, 보관방법)
 

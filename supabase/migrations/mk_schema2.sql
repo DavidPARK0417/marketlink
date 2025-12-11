@@ -84,7 +84,7 @@ CREATE TABLE "products" (
     "updated_at" TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 COMMENT ON COLUMN "products"."ai_keywords" IS 'AI가 추출한 검색 키워드 배열';
-COMMENT ON COLUMN "products"."delivery_method" IS '배송 방법: courier(택배), direct(직배송), quick(퀵서비스), freight(화물), pickup(픽업)';
+COMMENT ON COLUMN "products"."delivery_method" IS '배송 방법: courier(택배), direct(직배송), quick(퀵서비스), freight(화물), dawn(새벽배송)';
 
 CREATE TABLE "product_variants" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -369,7 +369,7 @@ ALTER TABLE "products" ADD CONSTRAINT chk_products_moq
 ALTER TABLE "products" ADD CONSTRAINT chk_products_price 
   CHECK (price >= 0);
 ALTER TABLE "products" ADD CONSTRAINT chk_products_delivery_method 
-  CHECK (delivery_method IN ('courier', 'direct', 'quick', 'freight', 'pickup'));
+  CHECK (delivery_method IN ('courier', 'direct', 'quick', 'freight', 'dawn'));
 
 -- product_variants 테이블
 ALTER TABLE "product_variants" ADD CONSTRAINT chk_product_variants_price 

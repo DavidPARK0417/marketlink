@@ -31,6 +31,11 @@ export const metadata: Metadata = {
   title: "FarmToBiz - 도매 사업자 전용 플랫폼",
   description:
     "전국의 소매업체에게 상품을 판매하고 비즈니스를 확장하세요. 상품 등록, 주문 관리, 정산까지 한 번에 관리할 수 있는 도매 전문 플랫폼",
+  manifest: "/manifest.webmanifest",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#10B981" },
+    { media: "(prefers-color-scheme: dark)", color: "#10B981" },
+  ],
   icons: {
     icon: "/logo.ico",
     shortcut: "/logo.ico",

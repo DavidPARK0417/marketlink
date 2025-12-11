@@ -547,7 +547,7 @@ CREATE TABLE products (
   stock INTEGER DEFAULT 0,                -- 재고
   unit TEXT DEFAULT 'ea',                 -- 단위 (ea, kg, box 등)
   delivery_fee NUMERIC(10, 2) DEFAULT 0,  -- 배송비
-  delivery_method TEXT DEFAULT 'courier', -- 배송 방법 (courier: 택배, direct: 직배송, quick: 퀵서비스, freight: 화물, pickup: 픽업)
+  delivery_method TEXT DEFAULT 'courier', -- 배송 방법 (courier: 택배, direct: 직배송, quick: 퀵서비스, freight: 화물, dawn: 새벽배송)
   lead_time TEXT,                         -- 납기 (예: "익일배송", "2-3일")
   images TEXT[],                          -- 이미지 URL 배열
   specifications JSONB,                   -- 규격 정보 (무게, 크기, 원산지 등)
@@ -673,6 +673,7 @@ scheduledPayoutAt.setDate(scheduledPayoutAt.getDate() + 7); // D+7
 **법적 요구사항:**
 
 1. **전자상거래법 준수**
+
    - 판매자 정보가 명확히 등록되지 않으면 플랫폼이 판매자로 간주됨
    - 모든 법적 책임(환불, 민원, 배상)이 플랫폼에 전가됨
    - 도매자를 "입점 셀러"로 명시하여 책임 소재 명확화
@@ -684,10 +685,12 @@ scheduledPayoutAt.setDate(scheduledPayoutAt.getDate() + 7); // D+7
 **기능 요구사항:**
 
 1. **토스 Payments 정산**
+
    - 토스 Payments 정산을 사용하려면 "가맹점(판매자) 정보"가 필요
    - 예금주, 계좌, 신원 인증이 필요한 이유
 
 2. **세금계산서 발행**
+
    - 도매자가 셀러로 등록되어야 구매자와 도매자 간의 거래 구조가 성립
    - 세금계산서 발행 책임이 도매자에게 있음
 
@@ -1208,7 +1211,7 @@ export const DELIVERY_METHODS = {
   DIRECT: { value: "direct", label: "직배송" },
   QUICK: { value: "quick", label: "퀵서비스" },
   FREIGHT: { value: "freight", label: "화물" },
-  PICKUP: { value: "pickup", label: "픽업" },
+  DAWN: { value: "dawn", label: "새벽배송" },
 } as const;
 ```
 
@@ -1784,7 +1787,7 @@ export const productSchema = z.object({
   unit: z.string().default("ea"),
   delivery_fee: z.number().min(0, "배송비는 0 이상이어야 합니다"),
   delivery_method: z
-    .enum(["courier", "direct", "quick", "freight", "pickup"], {
+    .enum(["courier", "direct", "quick", "freight", "dawn"], {
       errorMap: () => ({ message: "배송 방법을 선택해주세요" }),
     })
     .default("courier"),
