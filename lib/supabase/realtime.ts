@@ -397,3 +397,186 @@ export function subscribeToAdminReplies(
     supabase.removeChannel(channel);
   };
 }
+
+/**
+ * 관리자용: 도매 승인 대기 구독
+ *
+ * 새 도매사업자가 가입하여 승인 대기 상태가 될 때 실시간으로 알림을 받습니다.
+ * wholesalers 테이블의 INSERT 이벤트를 구독합니다.
+ * status='pending'인 경우만 처리합니다.
+ *
+ * @param {SupabaseClient} supabase - Supabase 클라이언트 인스턴스
+ * @param {(wholesaler: Wholesaler) => void} onNewPendingWholesaler - 새 승인 대기 도매사업자가 생성될 때 호출되는 콜백 함수
+ * @returns {() => void} 구독 해제 함수 (cleanup)
+ *
+ * @example
+ * ```tsx
+ * const unsubscribe = subscribeToPendingWholesalers(
+ *   supabase,
+ *   (wholesaler) => {
+ *     toast({
+ *       title: "새 도매 승인 대기가 있습니다",
+ *       description: wholesaler.business_name,
+ *     });
+ *   }
+ * );
+ *
+ * // 나중에 구독 해제
+ * unsubscribe();
+ * ```
+ */
+export function subscribeToPendingWholesalers(
+  supabase: SupabaseClient,
+  onNewPendingWholesaler: (wholesaler: Wholesaler) => void,
+): () => void {
+  const channel = supabase
+    .channel("admin-pending-wholesalers")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "wholesalers",
+      },
+      (payload) => {
+        const wholesaler = payload.new as Wholesaler;
+        // status='pending'인 경우만 처리
+        if (wholesaler.status === "pending") {
+          console.log(
+            "🔔 [admin-realtime] 새 도매 승인 대기 알림:",
+            wholesaler,
+          );
+          onNewPendingWholesaler(wholesaler);
+        }
+      },
+    )
+    .subscribe();
+
+  // 반드시 cleanup 함수 반환 (메모리 누수 방지)
+  return () => {
+    console.log("🧹 [admin-realtime] 도매 승인 대기 구독 해제");
+    supabase.removeChannel(channel);
+  };
+}
+
+/**
+ * 관리자용: 도매 문의 구독
+ *
+ * 새 도매 문의(도매→관리자)가 생성될 때 실시간으로 알림을 받습니다.
+ * inquiries 테이블의 INSERT 이벤트를 구독합니다.
+ * inquiry_type='wholesaler_to_admin'이고 status='open'인 경우만 처리합니다.
+ *
+ * @param {SupabaseClient} supabase - Supabase 클라이언트 인스턴스
+ * @param {(inquiry: Inquiry) => void} onNewWholesalerInquiry - 새 도매 문의가 생성될 때 호출되는 콜백 함수
+ * @returns {() => void} 구독 해제 함수 (cleanup)
+ *
+ * @example
+ * ```tsx
+ * const unsubscribe = subscribeToWholesalerInquiries(
+ *   supabase,
+ *   (inquiry) => {
+ *     toast({
+ *       title: "새 도매 문의가 있습니다",
+ *       description: inquiry.title,
+ *     });
+ *   }
+ * );
+ *
+ * // 나중에 구독 해제
+ * unsubscribe();
+ * ```
+ */
+export function subscribeToWholesalerInquiries(
+  supabase: SupabaseClient,
+  onNewWholesalerInquiry: (inquiry: Inquiry) => void,
+): () => void {
+  const channel = supabase
+    .channel("admin-wholesaler-inquiries")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "inquiries",
+      },
+      (payload) => {
+        const inquiry = payload.new as Inquiry;
+        // inquiry_type='wholesaler_to_admin'이고 status='open'인 경우만 처리
+        if (
+          inquiry.inquiry_type === "wholesaler_to_admin" &&
+          inquiry.status === "open"
+        ) {
+          console.log("🔔 [admin-realtime] 새 도매 문의 알림:", inquiry);
+          onNewWholesalerInquiry(inquiry);
+        }
+      },
+    )
+    .subscribe();
+
+  // 반드시 cleanup 함수 반환 (메모리 누수 방지)
+  return () => {
+    console.log("🧹 [admin-realtime] 도매 문의 구독 해제");
+    supabase.removeChannel(channel);
+  };
+}
+
+/**
+ * 관리자용: 소매 문의 구독
+ *
+ * 새 소매 문의(소매→관리자)가 생성될 때 실시간으로 알림을 받습니다.
+ * inquiries 테이블의 INSERT 이벤트를 구독합니다.
+ * inquiry_type='retailer_to_admin'이고 status='open'인 경우만 처리합니다.
+ *
+ * @param {SupabaseClient} supabase - Supabase 클라이언트 인스턴스
+ * @param {(inquiry: Inquiry) => void} onNewRetailInquiry - 새 소매 문의가 생성될 때 호출되는 콜백 함수
+ * @returns {() => void} 구독 해제 함수 (cleanup)
+ *
+ * @example
+ * ```tsx
+ * const unsubscribe = subscribeToRetailInquiries(
+ *   supabase,
+ *   (inquiry) => {
+ *     toast({
+ *       title: "새 소매 문의가 있습니다",
+ *       description: inquiry.title,
+ *     });
+ *   }
+ * );
+ *
+ * // 나중에 구독 해제
+ * unsubscribe();
+ * ```
+ */
+export function subscribeToRetailInquiries(
+  supabase: SupabaseClient,
+  onNewRetailInquiry: (inquiry: Inquiry) => void,
+): () => void {
+  const channel = supabase
+    .channel("admin-retail-inquiries")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "inquiries",
+      },
+      (payload) => {
+        const inquiry = payload.new as Inquiry;
+        // inquiry_type='retailer_to_admin'이고 status='open'인 경우만 처리
+        if (
+          inquiry.inquiry_type === "retailer_to_admin" &&
+          inquiry.status === "open"
+        ) {
+          console.log("🔔 [admin-realtime] 새 소매 문의 알림:", inquiry);
+          onNewRetailInquiry(inquiry);
+        }
+      },
+    )
+    .subscribe();
+
+  // 반드시 cleanup 함수 반환 (메모리 누수 방지)
+  return () => {
+    console.log("🧹 [admin-realtime] 소매 문의 구독 해제");
+    supabase.removeChannel(channel);
+  };
+}

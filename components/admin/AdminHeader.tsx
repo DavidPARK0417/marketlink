@@ -19,7 +19,27 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserButton, useClerk, useUser } from "@clerk/nextjs";
-import { Menu, Search, X } from "lucide-react";
+import {
+  Menu,
+  Search,
+  X,
+  Bell,
+  Users,
+  MessageSquare,
+  MessageSquareDashed,
+  Clock,
+  Building2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAdminNotifications } from "@/hooks/use-admin-notifications";
+import { formatDateTime } from "@/lib/utils/format";
 
 const menuItems = [
   { href: "/admin/dashboard", label: "대시보드" },
@@ -36,7 +56,19 @@ export default function AdminHeader() {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
+
+  // 알림 훅 사용
+  const {
+    stats,
+    recentPendingWholesalers,
+    recentWholesalerInquiries,
+    recentRetailInquiries,
+    hasNewNotifications,
+    isLoading: isLoadingNotifications,
+    handleNotificationClick,
+  } = useAdminNotifications();
 
   // 클라이언트 사이드 마운트 확인 (Hydration 오류 방지)
   useEffect(() => {
@@ -109,8 +141,235 @@ export default function AdminHeader() {
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500 group-focus-within:text-[#10B981]" />
       </form>
 
-      {/* 우측: 메뉴 + 사용자 */}
+      {/* 우측: 알림 + 메뉴 + 사용자 */}
       <div className="relative flex items-center justify-end gap-2">
+        {/* 알림 드롭다운 메뉴 */}
+        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="relative flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              aria-label="알림"
+              disabled={isLoadingNotifications}
+            >
+              <Bell className="w-5 h-5" />
+              <span className="hidden md:inline text-sm">알림</span>
+              {/* 알림 배지 (새 알림이 있을 때만 표시) */}
+              {hasNewNotifications && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel className="flex items-center justify-between">
+              <span>알림</span>
+              {stats.totalCount > 0 && (
+                <span className="text-xs font-normal text-red-500 dark:text-red-400">
+                  읽지 않음 {stats.totalCount}개
+                </span>
+              )}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {isLoadingNotifications ? (
+              <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                알림을 불러오는 중...
+              </div>
+            ) : stats.totalCount === 0 ? (
+              <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                알림이 없습니다
+              </div>
+            ) : (
+              <div className="max-h-96 overflow-y-auto">
+                {/* 도매 승인 대기 섹션 */}
+                {recentPendingWholesalers.length > 0 && (
+                  <>
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                      도매 승인 대기
+                      {stats.pendingWholesalersCount > 0 && (
+                        <span className="ml-2 text-red-500 dark:text-red-400">
+                          ({stats.pendingWholesalersCount})
+                        </span>
+                      )}
+                    </div>
+                    {recentPendingWholesalers.map((wholesaler) => (
+                      <DropdownMenuItem
+                        key={`pending-${wholesaler.id}`}
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                        onClick={() => {
+                          handleNotificationClick("pending-wholesaler", wholesaler.id);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                            <span className="font-medium text-sm">
+                              {wholesaler.business_name}
+                            </span>
+                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatDateTime(wholesaler.created_at, "time-only")}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
+                          <span>대표자: {wholesaler.representative}</span>
+                          <span>사업자번호: {wholesaler.business_number}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                          <Clock className="w-3 h-3" />
+                          <span>
+                            {formatDateTime(wholesaler.created_at, "default")}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                    {(recentWholesalerInquiries.length > 0 ||
+                      recentRetailInquiries.length > 0) && (
+                      <DropdownMenuSeparator />
+                    )}
+                  </>
+                )}
+
+                {/* 도매 문의 섹션 */}
+                {recentWholesalerInquiries.length > 0 && (
+                  <>
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                      도매 문의
+                      {stats.wholesalerInquiriesCount > 0 && (
+                        <span className="ml-2 text-red-500 dark:text-red-400">
+                          ({stats.wholesalerInquiriesCount})
+                        </span>
+                      )}
+                    </div>
+                    {recentWholesalerInquiries.map((inquiry) => (
+                      <DropdownMenuItem
+                        key={`wholesaler-inquiry-${inquiry.id}`}
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                        onClick={() => {
+                          handleNotificationClick("wholesaler-inquiry", inquiry.id);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                            <span className="font-medium text-sm">{inquiry.title}</span>
+                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatDateTime(inquiry.created_at, "time-only")}
+                          </span>
+                        </div>
+                        {inquiry.business_name && (
+                          <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
+                            <span>도매점: {inquiry.business_name}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                          <Clock className="w-3 h-3" />
+                          <span>
+                            {formatDateTime(inquiry.created_at, "default")}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                    {recentRetailInquiries.length > 0 && <DropdownMenuSeparator />}
+                  </>
+                )}
+
+                {/* 소매 문의 섹션 */}
+                {recentRetailInquiries.length > 0 && (
+                  <>
+                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                      소매 문의
+                      {stats.retailInquiriesCount > 0 && (
+                        <span className="ml-2 text-red-500 dark:text-red-400">
+                          ({stats.retailInquiriesCount})
+                        </span>
+                      )}
+                    </div>
+                    {recentRetailInquiries.map((inquiry) => (
+                      <DropdownMenuItem
+                        key={`retail-inquiry-${inquiry.id}`}
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                        onClick={() => {
+                          handleNotificationClick("retail-inquiry", inquiry.id);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <MessageSquareDashed className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                            <span className="font-medium text-sm">{inquiry.title}</span>
+                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatDateTime(inquiry.created_at, "time-only")}
+                          </span>
+                        </div>
+                        {inquiry.user_anonymous_code && (
+                          <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
+                            <span>문의자: {inquiry.user_anonymous_code}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                          <Clock className="w-3 h-3" />
+                          <span>
+                            {formatDateTime(inquiry.created_at, "default")}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+
+            {(recentPendingWholesalers.length > 0 ||
+              recentWholesalerInquiries.length > 0 ||
+              recentRetailInquiries.length > 0) && (
+              <>
+                <DropdownMenuSeparator />
+                <div className="flex flex-col gap-1">
+                  {recentPendingWholesalers.length > 0 && (
+                    <DropdownMenuItem
+                      className="text-center justify-center cursor-pointer"
+                      onClick={() => {
+                        router.push("/admin/wholesalers/pending");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      모든 승인 대기 보기
+                    </DropdownMenuItem>
+                  )}
+                  {recentWholesalerInquiries.length > 0 && (
+                    <DropdownMenuItem
+                      className="text-center justify-center cursor-pointer"
+                      onClick={() => {
+                        router.push("/admin/inquiries");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      모든 도매 문의 보기
+                    </DropdownMenuItem>
+                  )}
+                  {recentRetailInquiries.length > 0 && (
+                    <DropdownMenuItem
+                      className="text-center justify-center cursor-pointer"
+                      onClick={() => {
+                        router.push("/admin/retail-inquiries");
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      모든 소매 문의 보기
+                    </DropdownMenuItem>
+                  )}
+                </div>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <button
           onClick={toggleMobileMenu}
           className="lg:hidden p-2 text-gray-600 hover:text-[#10B981] transition-colors"
