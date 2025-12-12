@@ -445,7 +445,7 @@ export default function InquiryDetailPage({
                     {inquiry.product.name}
                   </p>
                   <Link
-                    href={`/wholesaler/products/${inquiry.product_id}`}
+                    href={`/wholesaler/products/${inquiry.product_id}/edit`}
                     className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-1 inline-block"
                   >
                     상품 상세보기 →
