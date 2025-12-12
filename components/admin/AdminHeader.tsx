@@ -159,7 +159,7 @@ export default function AdminHeader() {
               )}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
+          <DropdownMenuContent align="end" className="w-80 overflow-x-hidden overflow-y-hidden">
             <DropdownMenuLabel className="flex items-center justify-between">
               <span>알림</span>
               {stats.totalCount > 0 && (
@@ -178,7 +178,7 @@ export default function AdminHeader() {
                 알림이 없습니다
               </div>
             ) : (
-              <div className="max-h-96 overflow-y-auto">
+              <div className="max-h-96 overflow-y-auto overflow-x-hidden">
                 {/* 도매 승인 대기 섹션 */}
                 {recentPendingWholesalers.length > 0 && (
                   <>
@@ -193,27 +193,27 @@ export default function AdminHeader() {
                     {recentPendingWholesalers.map((wholesaler) => (
                       <DropdownMenuItem
                         key={`pending-${wholesaler.id}`}
-                        className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
                         onClick={() => {
                           handleNotificationClick("pending-wholesaler", wholesaler.id);
                           setIsDropdownOpen(false);
                         }}
                       >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            <span className="font-medium text-sm">
+                        <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <Building2 className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                            <span className="font-medium text-sm truncate">
                               {wholesaler.business_name}
                             </span>
-                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
+                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full shrink-0"></span>
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
                             {formatDateTime(wholesaler.created_at, "time-only")}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
-                          <span>대표자: {wholesaler.representative}</span>
-                          <span>사업자번호: {wholesaler.business_number}</span>
+                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400 gap-2 min-w-0">
+                          <span className="truncate">대표자: {wholesaler.representative}</span>
+                          <span className="truncate shrink-0">사업자번호: {wholesaler.business_number}</span>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                           <Clock className="w-3 h-3" />
@@ -244,25 +244,25 @@ export default function AdminHeader() {
                     {recentWholesalerInquiries.map((inquiry) => (
                       <DropdownMenuItem
                         key={`wholesaler-inquiry-${inquiry.id}`}
-                        className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
                         onClick={() => {
                           handleNotificationClick("wholesaler-inquiry", inquiry.id);
                           setIsDropdownOpen(false);
                         }}
                       >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            <span className="font-medium text-sm">{inquiry.title}</span>
-                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
+                        <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                            <span className="font-medium text-sm truncate">{inquiry.title}</span>
+                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full shrink-0"></span>
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
                             {formatDateTime(inquiry.created_at, "time-only")}
                           </span>
                         </div>
                         {inquiry.business_name && (
-                          <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
-                            <span>도매점: {inquiry.business_name}</span>
+                          <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400 min-w-0">
+                            <span className="truncate">도매점: {inquiry.business_name}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
@@ -291,25 +291,25 @@ export default function AdminHeader() {
                     {recentRetailInquiries.map((inquiry) => (
                       <DropdownMenuItem
                         key={`retail-inquiry-${inquiry.id}`}
-                        className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
                         onClick={() => {
                           handleNotificationClick("retail-inquiry", inquiry.id);
                           setIsDropdownOpen(false);
                         }}
                       >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <MessageSquareDashed className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            <span className="font-medium text-sm">{inquiry.title}</span>
-                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
+                        <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <MessageSquareDashed className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                            <span className="font-medium text-sm truncate">{inquiry.title}</span>
+                            <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full shrink-0"></span>
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
                             {formatDateTime(inquiry.created_at, "time-only")}
                           </span>
                         </div>
                         {inquiry.user_anonymous_code && (
-                          <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
-                            <span>문의자: {inquiry.user_anonymous_code}</span>
+                          <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400 min-w-0">
+                            <span className="truncate">문의자: {inquiry.user_anonymous_code}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">

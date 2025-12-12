@@ -179,7 +179,7 @@ export default function WholesalerHeader({
               )}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
+          <DropdownMenuContent align="end" className="w-80 overflow-x-hidden overflow-y-hidden">
             <DropdownMenuLabel className="flex items-center justify-between">
               <span>알림</span>
               {totalUnreadCount > 0 && (
@@ -198,7 +198,7 @@ export default function WholesalerHeader({
                 알림이 없습니다
               </div>
             ) : (
-              <div className="max-h-96 overflow-y-auto">
+              <div className="max-h-96 overflow-y-auto overflow-x-hidden">
                 {/* 주문 알림 섹션 */}
                 {recentOrders.length > 0 && (
                   <>
@@ -213,26 +213,26 @@ export default function WholesalerHeader({
                     {recentOrders.map((order) => (
                       <DropdownMenuItem
                         key={`order-${order.id}`}
-                        className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
                         onClick={() => handleOrderClick(order.id)}
                       >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <Package className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            <span className="font-medium text-sm">
+                        <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <Package className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                            <span className="font-medium text-sm truncate">
                               {order.product.name}
                             </span>
                             {!order.is_read && (
-                              <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
+                              <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full shrink-0"></span>
                             )}
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
                             {formatDateTime(order.created_at, "time-only")}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
-                          <span>주문번호: {order.order_number}</span>
-                          <span className="font-medium">
+                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400 gap-2 min-w-0">
+                          <span className="truncate">주문번호: {order.order_number}</span>
+                          <span className="font-medium shrink-0">
                             {formatPrice(order.total_amount)}
                           </span>
                         </div>
@@ -262,29 +262,29 @@ export default function WholesalerHeader({
                     {recentInquiries.map((inquiry) => (
                       <DropdownMenuItem
                         key={`inquiry-${inquiry.id}`}
-                        className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                        className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
                         onClick={() => handleInquiryClick(inquiry.id)}
                       >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            <span className="font-medium text-sm">
+                        <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                            <span className="font-medium text-sm truncate">
                               {inquiry.title}
                             </span>
                             {inquiry.status === "open" && (
-                              <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full"></span>
+                              <span className="w-2 h-2 bg-red-500 dark:bg-red-400 rounded-full shrink-0"></span>
                             )}
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
                             {formatDateTime(inquiry.created_at, "time-only")}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-400 gap-2 min-w-0">
                           {inquiry.user_anonymous_code && (
-                            <span>문의자: {inquiry.user_anonymous_code}</span>
+                            <span className="truncate">문의자: {inquiry.user_anonymous_code}</span>
                           )}
                           <span
-                            className={`text-xs px-2 py-0.5 rounded ${
+                            className={`text-xs px-2 py-0.5 rounded shrink-0 ${
                               inquiry.status === "open"
                                 ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
                                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
