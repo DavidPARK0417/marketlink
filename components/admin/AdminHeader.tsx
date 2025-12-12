@@ -324,49 +324,6 @@ export default function AdminHeader() {
                 )}
               </div>
             )}
-
-            {(recentPendingWholesalers.length > 0 ||
-              recentWholesalerInquiries.length > 0 ||
-              recentRetailInquiries.length > 0) && (
-              <>
-                <DropdownMenuSeparator />
-                <div className="flex flex-col gap-1">
-                  {recentPendingWholesalers.length > 0 && (
-                    <DropdownMenuItem
-                      className="text-center justify-center cursor-pointer"
-                      onClick={() => {
-                        router.push("/admin/wholesalers/pending");
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      모든 승인 대기 보기
-                    </DropdownMenuItem>
-                  )}
-                  {recentWholesalerInquiries.length > 0 && (
-                    <DropdownMenuItem
-                      className="text-center justify-center cursor-pointer"
-                      onClick={() => {
-                        router.push("/admin/inquiries");
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      모든 도매 문의 보기
-                    </DropdownMenuItem>
-                  )}
-                  {recentRetailInquiries.length > 0 && (
-                    <DropdownMenuItem
-                      className="text-center justify-center cursor-pointer"
-                      onClick={() => {
-                        router.push("/admin/retail-inquiries");
-                        setIsDropdownOpen(false);
-                      }}
-                    >
-                      모든 소매 문의 보기
-                    </DropdownMenuItem>
-                  )}
-                </div>
-              </>
-            )}
           </DropdownMenuContent>
         </DropdownMenu>
 
