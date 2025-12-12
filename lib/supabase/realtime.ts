@@ -57,6 +57,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Order } from "@/types/order";
 import type { Wholesaler } from "@/types/wholesaler";
 import type { Inquiry } from "@/types/inquiry";
+import type { InquiryMessage } from "@/types/database";
 
 /**
  * 새 주문 구독
@@ -292,6 +293,106 @@ export function subscribeToNewInquiries(
   return () => {
     console.log(
       `🧹 Cleaning up inquiry subscription for wholesaler: ${wholesalerId}`,
+    );
+    supabase.removeChannel(channel);
+  };
+}
+
+/**
+ * 관리자 답변 구독 (도매→관리자 문의)
+ *
+ * 관리자가 도매점 문의에 답변을 달 때 실시간으로 알림을 받습니다.
+ * inquiry_messages 테이블의 INSERT 이벤트를 구독합니다.
+ * sender_type='admin'이고 inquiry_type='wholesaler_to_admin'인 경우만 처리합니다.
+ *
+ * @param {SupabaseClient} supabase - Supabase 클라이언트 인스턴스
+ * @param {string} wholesalerProfileId - 도매점의 profile_id (inquiries.user_id와 비교)
+ * @param {(message: InquiryMessage, inquiry: Inquiry) => void} onAdminReply - 관리자 답변이 생성될 때 호출되는 콜백 함수
+ * @returns {() => void} 구독 해제 함수 (cleanup)
+ *
+ * @example
+ * ```tsx
+ * const unsubscribe = subscribeToAdminReplies(
+ *   supabase,
+ *   wholesalerProfileId,
+ *   (message, inquiry) => {
+ *     toast({
+ *       title: "관리자 답변이 도착했습니다! 💬",
+ *       description: inquiry.title,
+ *     });
+ *   }
+ * );
+ *
+ * // 나중에 구독 해제
+ * unsubscribe();
+ * ```
+ */
+export function subscribeToAdminReplies(
+  supabase: SupabaseClient,
+  wholesalerProfileId: string,
+  onAdminReply: (message: InquiryMessage, inquiry: Inquiry) => void,
+): () => void {
+  const channel = supabase
+    .channel(`admin-replies-${wholesalerProfileId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "inquiry_messages",
+        filter: `sender_type=eq.admin`, // 관리자 메시지만 필터링
+      },
+      async (payload) => {
+        const message = payload.new as InquiryMessage;
+
+        console.log("🔔 [realtime] 관리자 메시지 INSERT 감지:", message);
+
+        // 해당 문의 정보 조회
+        const { data: inquiry, error: inquiryError } = await supabase
+          .from("inquiries")
+          .select("*")
+          .eq("id", message.inquiry_id)
+          .single();
+
+        if (inquiryError) {
+          console.error("❌ [realtime] 문의 조회 오류:", inquiryError);
+          return;
+        }
+
+        if (!inquiry) {
+          console.warn(
+            "⚠️ [realtime] 문의를 찾을 수 없음:",
+            message.inquiry_id,
+          );
+          return;
+        }
+
+        // 도매→관리자 문의이고, 현재 도매점의 문의인 경우만 처리
+        if (
+          inquiry.inquiry_type === "wholesaler_to_admin" &&
+          inquiry.user_id === wholesalerProfileId
+        ) {
+          console.log("📬 [realtime] 관리자 답변 알림:", {
+            messageId: message.id,
+            inquiryId: inquiry.id,
+            inquiryTitle: inquiry.title,
+          });
+          onAdminReply(message, inquiry);
+        } else {
+          console.log("⏭️ [realtime] 알림 대상 아님:", {
+            inquiryType: inquiry.inquiry_type,
+            inquiryUserId: inquiry.user_id,
+            wholesalerProfileId,
+          });
+        }
+      },
+    )
+    .subscribe();
+
+  // 반드시 cleanup 함수 반환 (메모리 누수 방지)
+  return () => {
+    console.log(
+      `🧹 Cleaning up admin reply subscription: ${wholesalerProfileId}`,
     );
     supabase.removeChannel(channel);
   };

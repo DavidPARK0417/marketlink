@@ -35,6 +35,7 @@ import {
 import {
   subscribeToNewOrders,
   subscribeToNewInquiries,
+  subscribeToAdminReplies,
 } from "@/lib/supabase/realtime";
 import { useWholesaler } from "@/hooks/useWholesaler";
 import { toast } from "sonner";
@@ -210,6 +211,47 @@ export function useWholesalerNotifications() {
       unsubscribe();
     };
   }, [wholesalerId, supabase, queryClient, router]);
+
+  // Realtime 구독 (관리자 답변 알림)
+  useEffect(() => {
+    if (!wholesalerId || !wholesaler?.profile_id) return;
+
+    console.log("🔔 [notifications-hook] 관리자 답변 구독 시작", {
+      wholesalerId,
+      profileId: wholesaler.profile_id,
+    });
+
+    const unsubscribe = subscribeToAdminReplies(
+      supabase,
+      wholesaler.profile_id, // inquiries.user_id와 비교할 profile_id
+      (message, inquiry) => {
+        console.log("🔔 [notifications-hook] 관리자 답변 알림:", {
+          messageId: message.id,
+          inquiryId: inquiry.id,
+        });
+
+        // Toast 알림 표시
+        toast.success("관리자 답변이 도착했습니다! 💬", {
+          description: inquiry.title,
+          action: {
+            label: "확인하기",
+            onClick: () => router.push(`/wholesaler/support/${inquiry.id}`),
+          },
+        });
+
+        // 최근 문의 목록 새로고침 (관리자 답변 포함)
+        queryClient.invalidateQueries({
+          queryKey: ["notifications", "recent-inquiries", wholesalerId],
+        });
+      },
+    );
+
+    // Cleanup
+    return () => {
+      console.log("🧹 [notifications-hook] 관리자 답변 구독 해제");
+      unsubscribe();
+    };
+  }, [wholesalerId, wholesaler?.profile_id, supabase, queryClient, router]);
 
   // 전체 읽지 않은 알림 개수
   const totalUnreadCount = unreadOrdersCount + unreadInquiriesCount;
