@@ -10,6 +10,7 @@
  * 2. 최근 항목 목록 조회 (React Query)
  * 3. Realtime 구독으로 실시간 업데이트
  * 4. 알림 클릭 시 읽음 처리 (문의의 경우 status 업데이트)
+ * 5. 실시간 업데이트만 사용 (자동 갱신 제거)
  *
  * @dependencies
  * - @tanstack/react-query
@@ -61,7 +62,7 @@ export function useAdminNotifications() {
     queryFn: async () => {
       return await getAdminNotificationStats(supabase);
     },
-    refetchInterval: 30000, // 30초마다 자동 새로고침
+    // 실시간 업데이트만 사용 (자동 갱신 제거)
   });
 
   // 최근 도매 승인 대기 목록 조회
