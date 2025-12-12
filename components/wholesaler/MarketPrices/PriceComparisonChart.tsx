@@ -116,8 +116,13 @@ export default function PriceComparisonChart({
   };
 
   // 날짜 포맷팅 함수 (YYYY-MM-DD -> MM/DD)
+  // 실제 날짜 형식일 때만 포맷팅, 그렇지 않으면 빈 문자열 반환
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
+    // "1년전", "1개월전" 같은 문자열은 날짜가 아니므로 빈 문자열 반환
+    if (dateStr.includes("년전") || dateStr.includes("개월전") || dateStr.includes("일전")) {
+      return "";
+    }
     if (dateStr.includes("-")) {
       const [, month, day] = dateStr.split("-");
       return `${month}/${day}`;
@@ -126,7 +131,7 @@ export default function PriceComparisonChart({
     if (dateStr.length === 8) {
       return `${dateStr.substring(4, 6)}/${dateStr.substring(6, 8)}`;
     }
-    return dateStr;
+    return "";
   };
 
   // 증감률 표시 컴포넌트 (한국 관행: 상승=빨강, 하락=파랑)
@@ -251,18 +256,23 @@ export default function PriceComparisonChart({
 
       {/* 가격 상세 정보 */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-        {chartData.map((item) => (
-          <div
-            key={item.period}
-            className="flex flex-col gap-1 p-3 rounded-xl border border-border bg-card"
-          >
-            <div className="text-xs text-muted-foreground">{item.label}</div>
-            <div className="text-sm font-semibold text-foreground">{formatPrice(item.price)}</div>
-            <div className="text-xs text-muted-foreground">
-              {formatDate(item.date)}
+        {chartData.map((item) => {
+          const formattedDate = formatDate(item.date);
+          return (
+            <div
+              key={item.period}
+              className="flex flex-col gap-1 p-3 rounded-xl border border-border bg-card"
+            >
+              <div className="text-xs text-muted-foreground">{item.label}</div>
+              <div className="text-sm font-semibold text-foreground">{formatPrice(item.price)}</div>
+              {formattedDate && (
+                <div className="text-xs text-muted-foreground">
+                  {formattedDate}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
