@@ -683,7 +683,7 @@ export async function getInquiryById(
       products!product_id (
         id,
         name,
-        image_urls
+        images
       )
     `,
     )
@@ -762,7 +762,7 @@ export async function getInquiryById(
         ? {
             id: inquiry.products.id,
             name: inquiry.products.name,
-            image_urls: inquiry.products.image_urls || null,
+            image_urls: inquiry.products.images || null,
           }
         : null,
     };
