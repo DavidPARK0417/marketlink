@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Eye, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   Table,
@@ -55,6 +56,7 @@ export default function OrderTable({
   onBatchStatusChange,
   isBatchProcessing = false,
 }: OrderTableProps) {
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
@@ -126,6 +128,12 @@ export default function OrderTable({
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
     if (!onBatchStatusChange) return;
     onBatchStatusChange([orderId], newStatus);
+  };
+
+  // 행 클릭 핸들러
+  const handleRowClick = (orderId: string) => {
+    console.log("🧭 [order-table] 행 클릭 → 상세 이동", { orderId });
+    router.push(`/wholesaler/orders/${orderId}`);
   };
 
   const columns: ColumnDef<OrderDetail>[] = React.useMemo(
@@ -380,7 +388,27 @@ export default function OrderTable({
                 return (
                   <tr
                     key={row.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+                    onClick={(e) => {
+                      // 체크박스나 select 클릭 시에는 이동하지 않도록
+                      const target = e.target as HTMLElement;
+                      if (
+                        target.closest('input[type="checkbox"]') ||
+                        target.closest('select')
+                      ) {
+                        return;
+                      }
+                      handleRowClick(order.id);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleRowClick(order.id);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`주문 ${order.order_number} 상세보기`}
                   >
                     <td className="px-4 py-4 text-sm text-muted-foreground dark:text-gray-100 text-center">
                       {rowNumber}
@@ -477,7 +505,24 @@ export default function OrderTable({
             return (
               <div
                 key={row.id}
-                className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 space-y-4"
+                className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 space-y-4 cursor-pointer"
+                onClick={(e) => {
+                  // select 클릭 시에는 이동하지 않도록
+                  const target = e.target as HTMLElement;
+                  if (target.closest('select')) {
+                    return;
+                  }
+                  handleRowClick(order.id);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleRowClick(order.id);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={`주문 ${order.order_number} 상세보기`}
               >
                 <div className="flex flex-col gap-3">
                   <div className="flex items-start gap-3">
