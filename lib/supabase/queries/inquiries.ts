@@ -679,6 +679,11 @@ export async function getInquiryById(
       orders!order_id (
         order_number,
         created_at
+      ),
+      products!product_id (
+        id,
+        name,
+        image_urls
       )
     `,
     )
@@ -751,6 +756,13 @@ export async function getInquiryById(
         ? {
             order_number: inquiry.orders.order_number,
             created_at: inquiry.orders.created_at,
+          }
+        : null,
+      product: inquiry.products
+        ? {
+            id: inquiry.products.id,
+            name: inquiry.products.name,
+            image_urls: inquiry.products.image_urls || null,
           }
         : null,
     };

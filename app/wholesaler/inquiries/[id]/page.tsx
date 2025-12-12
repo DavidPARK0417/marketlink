@@ -416,6 +416,46 @@ export default function InquiryDetailPage({
         />
       )}
 
+      {/* 관련 상품 정보 (소매→도매 문의이고 product_id가 있는 경우) */}
+      {inquiry.inquiry_type === "retailer_to_wholesaler" &&
+        inquiry.product_id &&
+        inquiry.product && (
+          <Card className="w-full max-w-full">
+            <CardHeader>
+              <CardTitle>관련 상품</CardTitle>
+              <CardDescription>
+                이 문의는 아래 상품에 대한 문의입니다.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                {inquiry.product.image_urls &&
+                  inquiry.product.image_urls.length > 0 && (
+                    <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border">
+                      <Image
+                        src={inquiry.product.image_urls[0]}
+                        alt={inquiry.product.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 dark:text-gray-100 break-words">
+                    {inquiry.product.name}
+                  </p>
+                  <Link
+                    href={`/wholesaler/products/${inquiry.product_id}`}
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline mt-1 inline-block"
+                  >
+                    상품 상세보기 →
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
       {/* 대화 이력 */}
       <Card className="w-full max-w-full">
         <CardHeader>

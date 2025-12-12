@@ -21,6 +21,7 @@ export interface Inquiry {
   inquiry_type: InquiryType | null; // 문의 유형
   wholesaler_id: string | null; // 소매→도매 문의의 경우 대상 도매점 ID
   order_id: string | null; // 소매→도매 문의의 경우 관련 주문 ID
+  product_id: string | null; // 소매→도매 문의의 경우 관련 상품 ID
   title: string;
   content: string;
   status: InquiryStatus;
@@ -38,6 +39,7 @@ export interface CreateInquiryRequest {
   inquiry_type: InquiryType;
   wholesaler_id?: string | null; // retailer_to_wholesaler인 경우 필수
   order_id?: string | null; // retailer_to_wholesaler인 경우 선택
+  product_id?: string | null; // retailer_to_wholesaler인 경우 선택 (상품 상세페이지에서 작성 시)
   title: string;
   content: string;
   attachment_urls?: string[] | null; // 첨부 이미지 URL 배열 (최대 5개)
@@ -96,5 +98,11 @@ export interface InquiryDetail extends Inquiry {
   order?: {
     order_number: string;
     created_at: string;
+  } | null;
+  // 상품 정보 (product_id가 있는 경우)
+  product?: {
+    id: string;
+    name: string;
+    image_urls?: string[] | null;
   } | null;
 }
