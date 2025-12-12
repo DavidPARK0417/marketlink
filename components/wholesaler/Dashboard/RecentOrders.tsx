@@ -46,7 +46,6 @@ export default function RecentOrders() {
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["recent-orders"],
     queryFn: fetchRecentOrders,
-    refetchInterval: 30000, // 30초마다 자동 갱신
   });
 
   const getStatusText = (status: string) => {

@@ -11,7 +11,7 @@
  *    - 주문 상태 변경 (orders UPDATE) → confirmedOrders 변경
  *    - 정산 완료 (settlements UPDATE) → weeklySettlementAmount 변경
  *    - 상품 재고 변경 (products UPDATE) → 재고 부족 알림용
- * 3. 주기적 자동 갱신 (30초마다)
+ * 3. 실시간 업데이트만 사용 (자동 갱신 제거)
  *
  * @dependencies
  * - @tanstack/react-query
@@ -184,7 +184,6 @@ export function useDashboardStats() {
   const query = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: fetchDashboardStats,
-    refetchInterval: 30000, // 30초마다 자동 갱신
     enabled: !!wholesaler, // 도매점 정보가 있을 때만 조회
   });
 

@@ -79,7 +79,6 @@ export default function DashboardPage() {
   } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: fetchDashboardStats,
-    refetchInterval: 30000, // 30초마다 자동 갱신
   });
 
   // 에러 로깅

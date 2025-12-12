@@ -35,7 +35,6 @@ export default function LowStockAlert() {
   const { data: lowStockProducts = [], isLoading } = useQuery({
     queryKey: ["low-stock-products"],
     queryFn: fetchLowStockProducts,
-    refetchInterval: 30000, // 30초마다 자동 갱신
   });
 
   if (isLoading) {
