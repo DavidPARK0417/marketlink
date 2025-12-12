@@ -132,11 +132,22 @@ export default function DashboardPage() {
   const weeklySettlementTrend = stats?.weeklySettlementTrend;
   const totalProducts = stats?.totalProducts ?? 0;
 
+  // 신규 주문 알림 배너 클릭 핸들러
+  const handleNewOrdersClick = () => {
+    console.log("🔔 [dashboard] 신규 주문 알림 배너 클릭", { todayOrders });
+    // 주문 관리 페이지로 이동 (대기 중 상태 필터 적용)
+    router.push("/wholesaler/orders?status=pending");
+  };
+
   return (
     <div className="space-y-6 lg:space-y-8">
       {/* 알림 배너 - 신규 주문 with 3D */}
       {!isStatsLoading && todayOrders > 0 && (
-        <div className="relative bg-gradient-to-br from-[#10B981] via-[#059669] to-[#047857] text-white rounded-3xl p-4 lg:p-5 shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:shadow-[0_25px_60px_rgba(16,185,129,0.4)] transition-all duration-300 hover:-translate-y-1 border border-white/20">
+        <button
+          onClick={handleNewOrdersClick}
+          className="relative w-full text-left bg-gradient-to-br from-[#10B981] via-[#059669] to-[#047857] text-white rounded-3xl p-4 lg:p-5 shadow-[0_20px_50px_rgba(16,185,129,0.3)] hover:shadow-[0_25px_60px_rgba(16,185,129,0.4)] transition-all duration-300 hover:-translate-y-1 border border-white/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-green-600 active:scale-[0.98]"
+          aria-label={`신규 주문 ${todayOrders}건 확인하기`}
+        >
           <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 rounded-3xl"></div>
           <div className="relative flex items-center gap-3">
             <div className="bg-white/20 backdrop-blur-sm p-2 rounded-xl shadow-lg">
@@ -152,7 +163,7 @@ export default function DashboardPage() {
             </div>
             <ChevronRight className="w-6 h-6 flex-shrink-0 drop-shadow-lg" />
           </div>
-        </div>
+        </button>
       )}
 
       {/* 간편 통계 카드 - 3D Effect */}

@@ -96,14 +96,29 @@ export default function OrdersPage() {
   // URL 쿼리 파라미터에서 초기값 읽기
   const initialSearchTerm = searchParams.get("search") || "";
   const initialCustomer = searchParams.get("customer") || "";
+  const initialStatus = searchParams.get("status") || "";
 
   // 필터 상태
-  const [activeTab, setActiveTab] = React.useState<string>("all");
+  // URL에서 status 파라미터가 있으면 해당 탭으로 초기화
+  const [activeTab, setActiveTab] = React.useState<string>(() => {
+    if (initialStatus === "pending") return "pending";
+    return "all";
+  });
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
   const [statusFilter, setStatusFilter] = React.useState<OrderStatus | "all">(
     "all",
   );
   const [searchTerm, setSearchTerm] = React.useState(initialSearchTerm);
+
+  // URL 파라미터 로깅
+  React.useEffect(() => {
+    if (initialStatus) {
+      console.log("🔍 [orders-page] URL 상태 파라미터 감지", {
+        status: initialStatus,
+        activeTab: initialStatus === "pending" ? "pending" : "all",
+      });
+    }
+  }, [initialStatus]);
 
   // 에러 로깅
   React.useEffect(() => {
