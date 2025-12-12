@@ -40,6 +40,7 @@ import {
   AlertCircle,
   ChevronRight,
   TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 
 /**
@@ -47,8 +48,10 @@ import {
  */
 interface DashboardStats {
   todayOrders: number;
+  todayOrdersTrend?: number;
   confirmedOrders: number;
   weeklySettlementAmount: number;
+  weeklySettlementTrend?: number;
   totalProducts: number;
 }
 
@@ -124,8 +127,10 @@ export default function DashboardPage() {
   }, [wholesalerId, supabase, router]);
 
   const todayOrders = stats?.todayOrders ?? 0;
+  const todayOrdersTrend = stats?.todayOrdersTrend;
   const confirmedOrders = stats?.confirmedOrders ?? 0;
   const weeklySettlementAmount = stats?.weeklySettlementAmount ?? 0;
+  const weeklySettlementTrend = stats?.weeklySettlementTrend;
   const totalProducts = stats?.totalProducts ?? 0;
 
   return (
@@ -165,13 +170,34 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">📦</div>
-                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">오늘 신규 주문</p>
-                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">{todayOrders}건</p>
-                <div className="flex items-center gap-1 text-xs text-[#10B981] font-semibold bg-[#10B981]/10 px-2 py-1 rounded-full w-fit">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>+12%</span>
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">
+                  📦
                 </div>
+                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">
+                  오늘 신규 주문
+                </p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">
+                  {todayOrders}건
+                </p>
+                {todayOrdersTrend !== undefined && (
+                  <div
+                    className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full w-fit ${
+                      todayOrdersTrend >= 0
+                        ? "text-[#10B981] bg-[#10B981]/10"
+                        : "text-red-500 bg-red-500/10"
+                    }`}
+                  >
+                    {todayOrdersTrend >= 0 ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    <span>
+                      {todayOrdersTrend >= 0 ? "+" : ""}
+                      {todayOrdersTrend.toFixed(1)}%
+                    </span>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -189,9 +215,15 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">⏰</div>
-                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">출고 예정</p>
-                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">{confirmedOrders}건</p>
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">
+                  ⏰
+                </div>
+                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">
+                  출고 예정
+                </p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">
+                  {confirmedOrders}건
+                </p>
                 <div className="text-xs text-[#fbbf24] font-semibold bg-[#fbbf24]/10 px-2 py-1 rounded-full w-fit">
                   처리 필요
                 </div>
@@ -212,15 +244,34 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">💰</div>
-                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">이번 주 정산</p>
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">
+                  💰
+                </div>
+                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">
+                  이번 주 정산
+                </p>
                 <p className="text-xl lg:text-2xl font-bold text-foreground dark:text-foreground mb-2">
                   {(weeklySettlementAmount / 10000).toFixed(0)}만원
                 </p>
-                <div className="flex items-center gap-1 text-xs text-[#10B981] font-semibold bg-[#10B981]/10 px-2 py-1 rounded-full w-fit">
-                  <TrendingUp className="w-3 h-3" />
-                  <span>+8%</span>
-                </div>
+                {weeklySettlementTrend !== undefined && (
+                  <div
+                    className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full w-fit ${
+                      weeklySettlementTrend >= 0
+                        ? "text-[#10B981] bg-[#10B981]/10"
+                        : "text-red-500 bg-red-500/10"
+                    }`}
+                  >
+                    {weeklySettlementTrend >= 0 ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    <span>
+                      {weeklySettlementTrend >= 0 ? "+" : ""}
+                      {weeklySettlementTrend.toFixed(1)}%
+                    </span>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -238,9 +289,15 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">🏪</div>
-                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">등록 상품</p>
-                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">{totalProducts}개</p>
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg">
+                  🏪
+                </div>
+                <p className="text-xs lg:text-sm text-[#6B7280] dark:text-gray-300 font-semibold mb-2">
+                  등록 상품
+                </p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground mb-2">
+                  {totalProducts}개
+                </p>
                 <div className="text-xs text-[#6B7280] dark:text-gray-300 font-semibold bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full w-fit">
                   관리 중
                 </div>

@@ -20,10 +20,14 @@ import { getUserProfile } from "@/lib/clerk/auth";
 export interface DashboardStats {
   /** 오늘 주문 건수 */
   todayOrders: number;
+  /** 오늘 주문 전주 대비 증가율 (%) */
+  todayOrdersTrend?: number;
   /** 출고 예정 건수 (status = confirmed) */
   confirmedOrders: number;
   /** 이번 주 정산 예정 금액 (settlements, status = pending, scheduled_payout_at 기준) */
   weeklySettlementAmount: number;
+  /** 이번 주 정산 전주 대비 증가율 (%) */
+  weeklySettlementTrend?: number;
   /** 전체 상품 개수 (is_active = true) */
   totalProducts: number;
 }
@@ -112,13 +116,57 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     throw new Error(`오늘 주문 조회 실패: ${todayOrdersError.message}`);
   }
 
-  // 2. 출고 예정 건수 조회 (status = confirmed)
+  // 1-1. 어제의 주문 건수 조회 (비교용)
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStart = yesterday.toISOString();
+  const yesterdayEnd = new Date(yesterday);
+  yesterdayEnd.setHours(23, 59, 59, 999);
+  const yesterdayEndISO = yesterdayEnd.toISOString();
+
+  const { count: yesterdayOrdersCount, error: yesterdayOrdersError } =
+    await supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true })
+      .eq("wholesaler_id", currentWholesalerId)
+      .gte("created_at", yesterdayStart)
+      .lte("created_at", yesterdayEndISO);
+
+  if (yesterdayOrdersError) {
+    console.error(
+      "❌ [dashboard-query] 어제 주문 조회 오류:",
+      yesterdayOrdersError,
+    );
+    // 에러가 나도 계속 진행 (증가율만 undefined로)
+  }
+
+  // 어제 대비 증가율 계산
+  const todayOrders = todayOrdersCount ?? 0;
+  const yesterdayOrders = yesterdayOrdersCount ?? 0;
+  let todayOrdersTrend: number | undefined = undefined;
+
+  if (yesterdayOrders > 0) {
+    // 증가율 = ((오늘 - 어제) / 어제) * 100
+    todayOrdersTrend =
+      ((todayOrders - yesterdayOrders) / yesterdayOrders) * 100;
+    console.log("📈 [dashboard-query] 어제 대비 증가율 계산:", {
+      todayOrders,
+      yesterdayOrders,
+      trend: todayOrdersTrend.toFixed(2) + "%",
+    });
+  } else if (todayOrders > 0 && yesterdayOrders === 0) {
+    // 어제에는 주문이 없었는데 오늘은 있으면 100% 증가로 표시
+    todayOrdersTrend = 100;
+    console.log("📈 [dashboard-query] 어제 대비 증가율: 신규 주문 (100%)");
+  }
+
+  // 2. 출고 예정 건수 조회 (status = pending 또는 confirmed)
   const { count: confirmedOrdersCount, error: confirmedOrdersError } =
     await supabase
       .from("orders")
       .select("*", { count: "exact", head: true })
       .eq("wholesaler_id", currentWholesalerId)
-      .eq("status", "confirmed");
+      .in("status", ["pending", "confirmed"]);
 
   if (confirmedOrdersError) {
     console.error(
@@ -154,6 +202,59 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       0,
     ) ?? 0;
 
+  // 3-1. 전주 정산 예정 금액 조회 (비교용)
+  const lastWeekStart = new Date(weekStart);
+  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+  const lastWeekStartISO = lastWeekStart.toISOString();
+
+  const lastWeekEnd = new Date(weekEnd);
+  lastWeekEnd.setDate(lastWeekEnd.getDate() - 7);
+  const lastWeekEndISO = lastWeekEnd.toISOString();
+
+  const { data: lastWeekSettlementsData, error: lastWeekSettlementsError } =
+    await supabase
+      .from("settlements")
+      .select("wholesaler_amount")
+      .eq("wholesaler_id", currentWholesalerId)
+      .eq("status", "pending")
+      .gte("scheduled_payout_at", lastWeekStartISO)
+      .lte("scheduled_payout_at", lastWeekEndISO);
+
+  if (lastWeekSettlementsError) {
+    console.error(
+      "❌ [dashboard-query] 전주 정산 예정 금액 조회 오류:",
+      lastWeekSettlementsError,
+    );
+    // 에러가 나도 계속 진행 (증가율만 undefined로)
+  }
+
+  // 전주 정산 예정 금액 합계 계산
+  const lastWeekSettlementAmount =
+    lastWeekSettlementsData?.reduce(
+      (sum, settlement) => sum + (settlement.wholesaler_amount || 0),
+      0,
+    ) ?? 0;
+
+  // 전주 대비 증가율 계산
+  let weeklySettlementTrend: number | undefined = undefined;
+
+  if (lastWeekSettlementAmount > 0) {
+    // 증가율 = ((이번 주 - 전주) / 전주) * 100
+    weeklySettlementTrend =
+      ((weeklySettlementAmount - lastWeekSettlementAmount) /
+        lastWeekSettlementAmount) *
+      100;
+    console.log("📈 [dashboard-query] 전주 대비 정산 증가율 계산:", {
+      weeklySettlementAmount,
+      lastWeekSettlementAmount,
+      trend: weeklySettlementTrend.toFixed(2) + "%",
+    });
+  } else if (weeklySettlementAmount > 0 && lastWeekSettlementAmount === 0) {
+    // 전주에는 정산이 없었는데 이번 주는 있으면 100% 증가로 표시
+    weeklySettlementTrend = 100;
+    console.log("📈 [dashboard-query] 전주 대비 정산 증가율: 신규 정산 (100%)");
+  }
+
   // 4. 전체 상품 개수 조회 (is_active = true)
   const { count: totalProductsCount, error: totalProductsError } =
     await supabase
@@ -171,9 +272,11 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   }
 
   const stats: DashboardStats = {
-    todayOrders: todayOrdersCount ?? 0,
+    todayOrders,
+    todayOrdersTrend,
     confirmedOrders: confirmedOrdersCount ?? 0,
     weeklySettlementAmount,
+    weeklySettlementTrend,
     totalProducts: totalProductsCount ?? 0,
   };
 
