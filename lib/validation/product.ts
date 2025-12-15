@@ -55,7 +55,9 @@ export const productSchema = z.object({
       message: "올바른 카테고리를 선택해주세요",
     }),
 
-  description: z.string().optional(),
+  description: z
+    .string()
+    .min(1, "상품 설명을 입력해주세요"),
 
   price: z
     .number({
@@ -90,9 +92,9 @@ export const productSchema = z.object({
 
   specification_value: z
     .string()
-    .optional()
+    .min(1, "규격 값을 입력해주세요")
     .refine(
-      (val) => !val || /^\d+(\.\d+)?$/.test(val),
+      (val) => /^\d+(\.\d+)?$/.test(val),
       { message: "숫자만 입력해주세요 (소수점 가능)" }
     ), // 단위와 함께 저장될 값 (소수점 포함 숫자만 허용)
 
@@ -126,9 +128,8 @@ export const productSchema = z.object({
 
   images: z
     .array(z.string().url("올바른 이미지 URL 형식이 아닙니다"))
-    .max(5, "이미지는 최대 5개까지 업로드할 수 있습니다")
-    .optional()
-    .default([]),
+    .min(1, "상품 이미지를 최소 1개 이상 업로드해주세요")
+    .max(5, "이미지는 최대 5개까지 업로드할 수 있습니다"),
 });
 
 /**

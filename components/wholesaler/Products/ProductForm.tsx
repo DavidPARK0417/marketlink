@@ -863,7 +863,7 @@ export default function ProductForm({
                 name="specification_value"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>규격 값</FormLabel>
+                    <FormLabel>규격 값 *</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -1039,7 +1039,7 @@ export default function ProductForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>상품 설명</FormLabel>
+                  <FormLabel>상품 설명 *</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="상품에 대한 상세 설명을 입력하세요..."
@@ -1049,12 +1049,53 @@ export default function ProductForm({
                     />
                   </FormControl>
                   <FormDescription>
-                    상품의 특징, 사용법 등을 자세히 설명해주세요 (선택사항).
+                    상품의 특징, 사용법 등을 자세히 설명해주세요.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* 원산지 및 생산지 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="specifications.origin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>원산지 *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="예: 국내산"
+                        {...field}
+                        value={field.value || ""}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="specifications.production_location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>생산지 *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="예: 경기도 안성시"
+                        {...field}
+                        value={field.value || ""}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* 이미지 업로드 */}
             <FormField
@@ -1062,7 +1103,7 @@ export default function ProductForm({
               name="images"
               render={() => (
                 <FormItem>
-                  <FormLabel>상품 이미지 (최대 5개)</FormLabel>
+                  <FormLabel>상품 이미지 (최대 5개) *</FormLabel>
                   <FormControl>
                     <div className="space-y-4">
                       {/* 드래그 앤 드롭 영역 */}
@@ -1139,8 +1180,7 @@ export default function ProductForm({
                     </div>
                   </FormControl>
                   <FormDescription>
-                    상품 이미지를 업로드하세요. 최대 5개까지 업로드할 수
-                    있습니다.
+                    상품 이미지를 최소 1개 이상 업로드해주세요. 최대 5개까지 업로드할 수 있습니다.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -1179,44 +1219,6 @@ export default function ProductForm({
                       <FormControl>
                         <Input
                           placeholder="예: 10cm x 10cm"
-                          {...field}
-                          value={field.value || ""}
-                          disabled={isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="specifications.origin"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>원산지 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="예: 국내산"
-                          {...field}
-                          value={field.value || ""}
-                          disabled={isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="specifications.production_location"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>생산지 *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="예: 경기도 안성시"
                           {...field}
                           value={field.value || ""}
                           disabled={isSubmitting}
