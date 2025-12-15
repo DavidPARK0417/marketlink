@@ -712,12 +712,63 @@ export async function getDailyMarketPrices(
     }
   }
 
-  // lastestDay 기준 내림차순 정렬
-  items.sort((a, b) => {
-    if (a.lastestDay > b.lastestDay) return -1;
-    if (a.lastestDay < b.lastestDay) return 1;
-    return 0;
-  });
+  // 정렬: 검색어가 있을 때는 정확히 일치하는 항목을 우선, 그 다음 날짜 기준 내림차순
+  if (params.itemName) {
+    const keyword = params.itemName.toLowerCase().trim();
+    
+    items.sort((a, b) => {
+      // 정확히 일치하는 항목을 우선순위로
+      const aProductName = (a.productName || "").toLowerCase();
+      const aItemName = (a.itemName || "").toLowerCase();
+      const bProductName = (b.productName || "").toLowerCase();
+      const bItemName = (b.itemName || "").toLowerCase();
+      
+      // 우선순위 계산 함수
+      const getPriority = (productName: string, itemName: string): number => {
+        // 1순위: 정확히 일치
+        if (productName === keyword || itemName === keyword) return 1;
+        
+        // 2순위: 검색어로 시작하고, 검색어 다음 문자가 특수문자이거나 끝나는 경우
+        // 예: "배/신고", "배(부사)", "배 " 등
+        const checkStartsWithBoundary = (name: string): boolean => {
+          if (!name.startsWith(keyword)) return false;
+          const nextChar = name[keyword.length];
+          // 검색어 다음 문자가 없거나(끝), 특수문자(/, (, 공백 등)인 경우
+          return !nextChar || /[\/\(\)\s\-]/.test(nextChar);
+        };
+        
+        if (checkStartsWithBoundary(productName) || checkStartsWithBoundary(itemName)) {
+          return 2;
+        }
+        
+        // 3순위: 검색어를 포함하지만 단어 경계가 아닌 경우 (예: "배추", "양배추")
+        if (productName.includes(keyword) || itemName.includes(keyword)) return 3;
+        
+        return 999; // 매칭 안 됨
+      };
+      
+      const aPriority = getPriority(aProductName, aItemName);
+      const bPriority = getPriority(bProductName, bItemName);
+      
+      // 우선순위가 높은 항목을 먼저
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
+      }
+      
+      // 같은 우선순위면 날짜 기준 내림차순
+      if (a.lastestDay > b.lastestDay) return -1;
+      if (a.lastestDay < b.lastestDay) return 1;
+      
+      return 0;
+    });
+  } else {
+    // 검색어가 없으면 날짜 기준 내림차순 정렬
+    items.sort((a, b) => {
+      if (a.lastestDay > b.lastestDay) return -1;
+      if (a.lastestDay < b.lastestDay) return 1;
+      return 0;
+    });
+  }
 
   console.log("✅ [시세 조회] 완료:", items.length, "건");
   return items;
