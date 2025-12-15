@@ -180,6 +180,10 @@ export default function ProductForm({
         storage: initialData?.specifications?.storage || "",
       },
       images: initialImages,
+      // 검색 키워드: 배열을 쉼표로 구분된 문자열로 변환
+      keywords: initialData?.ai_keywords && initialData.ai_keywords.length > 0
+        ? initialData.ai_keywords.join(", ")
+        : "",
     },
   });
 
@@ -392,8 +396,18 @@ export default function ProductForm({
       });
     }
 
+    // 검색 키워드 업데이트 (AI 추천 키워드가 있는 경우)
+    if (standardizeResult.keywords && standardizeResult.keywords.length > 0) {
+      console.log("✅ [ProductForm] 추천 키워드 적용:", standardizeResult.keywords);
+      const keywordsString = standardizeResult.keywords.join(", ");
+      form.setValue("keywords", keywordsString, {
+        shouldValidate: true,
+      });
+      console.log("✅ [ProductForm] 키워드 setValue 완료:", keywordsString);
+    }
+
     setStandardizeDialogOpen(false);
-    toast.success("표준화된 상품명, 카테고리, 단위가 적용되었습니다.");
+    toast.success("표준화된 상품명, 카테고리, 단위, 키워드가 적용되었습니다.");
   };
 
   // 폼 제출 핸들러
@@ -1050,6 +1064,29 @@ export default function ProductForm({
                   </FormControl>
                   <FormDescription>
                     상품의 특징, 사용법 등을 자세히 설명해주세요.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 검색 키워드 */}
+            <FormField
+              control={form.control}
+              name="keywords"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>검색 키워드</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="예: 사과, 후지, 대과, 과일"
+                      {...field}
+                      value={field.value || ""}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    검색에 활용될 키워드를 쉼표로 구분하여 입력하세요 (선택사항). AI 표준화를 사용하면 자동으로 추천됩니다.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

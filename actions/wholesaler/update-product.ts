@@ -122,6 +122,15 @@ export async function updateProduct(
     const specificationsData = data.specifications || {};
     console.log("specifications:", specificationsData);
 
+    // 검색 키워드 배열로 변환 (쉼표로 구분된 문자열 → 배열)
+    const keywordsArray = data.keywords
+      ? data.keywords
+          .split(",")
+          .map((k) => k.trim())
+          .filter((k) => k.length > 0)
+      : null;
+    console.log("keywords:", keywordsArray);
+
     // 4. 상품 정보 업데이트
     const { error: updateError } = await supabase
       .from("products")
@@ -139,6 +148,7 @@ export async function updateProduct(
         images,
         image_url: imageUrl,
         specifications: specificationsData,
+        ai_keywords: keywordsArray && keywordsArray.length > 0 ? keywordsArray : null, // 검색 키워드 저장
         // updated_at은 DB 트리거로 자동 업데이트됨
       })
       .eq("id", productId);

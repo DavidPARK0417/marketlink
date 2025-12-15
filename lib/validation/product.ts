@@ -130,6 +130,18 @@ export const productSchema = z.object({
     .array(z.string().url("올바른 이미지 URL 형식이 아닙니다"))
     .min(1, "상품 이미지를 최소 1개 이상 업로드해주세요")
     .max(5, "이미지는 최대 5개까지 업로드할 수 있습니다"),
+
+  // 검색 키워드 (선택사항, 쉼표로 구분된 문자열)
+  keywords: z
+    .string()
+    .optional()
+    .transform((val) => {
+      // 빈 문자열이나 공백만 있는 경우 undefined로 변환
+      if (!val || !val.trim()) {
+        return undefined;
+      }
+      return val.trim();
+    }),
 });
 
 /**

@@ -170,6 +170,15 @@ export default function NewProductPage() {
       const specificationsData = data.specifications || {};
       console.log("specifications:", specificationsData);
 
+      // 검색 키워드 배열로 변환 (쉼표로 구분된 문자열 → 배열)
+      const keywordsArray = data.keywords
+        ? data.keywords
+            .split(",")
+            .map((k) => k.trim())
+            .filter((k) => k.length > 0)
+        : null;
+      console.log("keywords:", keywordsArray);
+
       // products 테이블에 INSERT
       const { data: product, error } = await supabase
         .from("products")
@@ -188,6 +197,7 @@ export default function NewProductPage() {
           images,
           image_url: imageUrl, // 호환용(리스트/주문 등 단일 이미지 표시)
           specifications: specificationsData,
+          ai_keywords: keywordsArray && keywordsArray.length > 0 ? keywordsArray : null, // 검색 키워드 저장
           is_active: true,
         })
         .select()
