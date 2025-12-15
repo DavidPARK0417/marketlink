@@ -1354,7 +1354,7 @@ export default function ProductForm({
           open={standardizeDialogOpen}
           onOpenChange={setStandardizeDialogOpen}
         >
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>AI 표준화 결과</DialogTitle>
               <DialogDescription>
@@ -1363,7 +1363,7 @@ export default function ProductForm({
             </DialogHeader>
 
             {standardizeResult && (
-              <div className="space-y-6 py-4">
+              <div className="flex-1 overflow-y-auto pr-2 space-y-6 py-4">
                 {/* 원본 상품명 */}
                 <div>
                   <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
