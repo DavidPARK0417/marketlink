@@ -166,6 +166,10 @@ export default function NewProductPage() {
 
       console.log("image_url:", imageUrl);
 
+      // specifications 데이터 준비
+      const specificationsData = data.specifications || {};
+      console.log("specifications:", specificationsData);
+
       // products 테이블에 INSERT
       const { data: product, error } = await supabase
         .from("products")
@@ -182,6 +186,7 @@ export default function NewProductPage() {
           stock_quantity: data.stock,
           images,
           image_url: imageUrl, // 호환용(리스트/주문 등 단일 이미지 표시)
+          specifications: specificationsData,
           is_active: true,
         })
         .select()

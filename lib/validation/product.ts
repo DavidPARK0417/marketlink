@@ -112,14 +112,17 @@ export const productSchema = z.object({
 
   lead_time: z.string().optional(),
 
-  specifications: z
-    .object({
-      weight: z.string().optional(),
-      size: z.string().optional(),
-      origin: z.string().optional(),
-      storage: z.string().optional(),
-    })
-    .optional(),
+  specifications: z.object({
+    weight: z.string().optional(),
+    size: z.string().optional(),
+    origin: z
+      .string()
+      .min(1, "원산지를 입력해주세요"),
+    production_location: z
+      .string()
+      .min(1, "생산지를 입력해주세요"),
+    storage: z.string().optional(),
+  }),
 
   images: z
     .array(z.string().url("올바른 이미지 URL 형식이 아닙니다"))

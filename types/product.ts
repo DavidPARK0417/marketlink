@@ -15,6 +15,17 @@ import type { DeliveryMethod } from "./database";
  * 상품 테이블 타입
  * products 테이블과 일치
  */
+/**
+ * 상품 규격 정보 타입
+ */
+export interface ProductSpecifications {
+  weight?: string;
+  size?: string;
+  origin?: string; // 필수
+  production_location?: string; // 필수
+  storage?: string;
+}
+
 export interface Product {
   id: string;
   wholesaler_id: string;
@@ -29,6 +40,7 @@ export interface Product {
   stock_quantity: number;
   images: string[]; // 다중 이미지 (최대 5개)
   image_url: string | null;
+  specifications: ProductSpecifications | null; // 규격 정보 (원산지, 생산지 등)
   is_active: boolean;
   // AI 표준화 관련
   standardized_name: string | null; // AI 제안 수락한 표준화 이름
@@ -69,6 +81,7 @@ export interface CreateProductRequest {
   stock_quantity?: number; // 기본값: 0
   images?: string[];
   image_url?: string;
+  specifications?: ProductSpecifications;
   is_active?: boolean; // 기본값: true
   // AI 표준화 관련 (선택)
   standardized_name?: string;
@@ -91,6 +104,7 @@ export interface UpdateProductRequest {
   stock_quantity?: number;
   images?: string[];
   image_url?: string;
+  specifications?: ProductSpecifications;
   is_active?: boolean;
   standardized_name?: string;
   ai_suggested_category?: string;

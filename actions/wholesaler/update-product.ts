@@ -118,6 +118,10 @@ export async function updateProduct(
 
     console.log("images:", images.length, "image_url:", imageUrl);
 
+    // specifications 데이터 준비
+    const specificationsData = data.specifications || {};
+    console.log("specifications:", specificationsData);
+
     // 4. 상품 정보 업데이트
     const { error: updateError } = await supabase
       .from("products")
@@ -133,6 +137,7 @@ export async function updateProduct(
         stock_quantity: data.stock,
         images,
         image_url: imageUrl,
+        specifications: specificationsData,
         // updated_at은 DB 트리거로 자동 업데이트됨
       })
       .eq("id", productId);

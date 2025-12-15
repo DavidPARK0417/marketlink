@@ -173,10 +173,11 @@ export default function ProductForm({
       delivery_method: defaultDeliveryMethod,
       lead_time: initialData?.specification || "",
       specifications: {
-        weight: "",
-        size: "",
-        origin: "",
-        storage: "",
+        weight: initialData?.specifications?.weight || "",
+        size: initialData?.specifications?.size || "",
+        origin: initialData?.specifications?.origin || "",
+        production_location: initialData?.specifications?.production_location || "",
+        storage: initialData?.specifications?.storage || "",
       },
       images: initialImages,
     },
@@ -1193,10 +1194,29 @@ export default function ProductForm({
                   name="specifications.origin"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>원산지</FormLabel>
+                      <FormLabel>원산지 *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="예: 국내산"
+                          {...field}
+                          value={field.value || ""}
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="specifications.production_location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>생산지 *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="예: 경기도 안성시"
                           {...field}
                           value={field.value || ""}
                           disabled={isSubmitting}
