@@ -134,6 +134,7 @@ export async function updateProduct(
         moq: data.moq,
         shipping_fee: data.delivery_fee,
         delivery_method: data.delivery_method,
+        lead_time: data.lead_time || null, // 납기 정보 저장
         stock_quantity: data.stock,
         images,
         image_url: imageUrl,

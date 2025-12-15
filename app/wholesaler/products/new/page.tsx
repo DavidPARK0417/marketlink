@@ -183,6 +183,7 @@ export default function NewProductPage() {
           moq: data.moq,
           shipping_fee: data.delivery_fee,
           delivery_method: data.delivery_method,
+          lead_time: data.lead_time || null, // 납기 정보 저장
           stock_quantity: data.stock,
           images,
           image_url: imageUrl, // 호환용(리스트/주문 등 단일 이미지 표시)

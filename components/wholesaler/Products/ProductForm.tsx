@@ -171,7 +171,7 @@ export default function ProductForm({
       specification_value: parsedSpec.value,
       delivery_fee: initialData?.shipping_fee || 0,
       delivery_method: defaultDeliveryMethod,
-      lead_time: initialData?.specification || "",
+      lead_time: initialData?.lead_time || "",
       specifications: {
         weight: initialData?.specifications?.weight || "",
         size: initialData?.specifications?.size || "",

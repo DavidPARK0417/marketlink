@@ -37,6 +37,7 @@ export interface Product {
   moq: number; // 최소주문수량 (Minimum Order Quantity)
   shipping_fee: number;
   delivery_method: DeliveryMethod;
+  lead_time: string | null; // 납기 (예: "익일배송", "2-3일", "2~3일")
   stock_quantity: number;
   images: string[]; // 다중 이미지 (최대 5개)
   image_url: string | null;
@@ -78,6 +79,7 @@ export interface CreateProductRequest {
   moq?: number; // 기본값: 1
   shipping_fee?: number; // 기본값: 0
   delivery_method?: DeliveryMethod; // 기본값: "courier"
+  lead_time?: string | null; // 납기 (예: "익일배송", "2-3일", "2~3일")
   stock_quantity?: number; // 기본값: 0
   images?: string[];
   image_url?: string;
@@ -101,6 +103,7 @@ export interface UpdateProductRequest {
   moq?: number;
   shipping_fee?: number;
   delivery_method?: DeliveryMethod;
+  lead_time?: string | null; // 납기 (예: "익일배송", "2-3일", "2~3일")
   stock_quantity?: number;
   images?: string[];
   image_url?: string;
