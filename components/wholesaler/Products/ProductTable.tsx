@@ -913,7 +913,7 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
 
       {/* 삭제 확인 다이얼로그 */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>상품 삭제 확인</DialogTitle>
             <DialogDescription>

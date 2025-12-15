@@ -48,7 +48,7 @@ export default function SettlementDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>정산 상세 정보</DialogTitle>
           <DialogDescription>
@@ -56,7 +56,7 @@ export default function SettlementDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="flex-1 overflow-y-auto pr-2 space-y-6 py-4">
           {/* 1. 주문 정보 */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">주문 정보</h3>

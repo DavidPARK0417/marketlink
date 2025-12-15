@@ -85,7 +85,7 @@ export default function MarketPriceModal({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="w-[calc(100%-24px)] sm:w-[calc(100%-32px)] md:w-[calc(100%-40px)] lg:w-[calc(100%-56px)] xl:w-[calc(100%-72px)] sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl xl:max-w-6xl max-h-[90vh] overflow-y-auto overflow-x-hidden"
+        className="w-[calc(100%-24px)] sm:w-[calc(100%-32px)] md:w-[calc(100%-40px)] lg:w-[calc(100%-56px)] xl:w-[calc(100%-72px)] sm:max-w-screen-md md:max-w-screen-lg lg:max-w-screen-xl xl:max-w-6xl max-h-[90vh] flex flex-col overflow-x-hidden"
       >
         <DialogHeader>
           <DialogTitle>시세 조회</DialogTitle>
@@ -94,7 +94,7 @@ export default function MarketPriceModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
+        <div className="flex-1 overflow-y-auto pr-2 space-y-6 mt-4">
           {/* 필터 */}
           <div className="bg-card rounded-lg border">
             <PriceFilter
