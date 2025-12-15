@@ -90,6 +90,7 @@ function WholesalerLayoutContent({
   const { signOut } = useClerk();
   const { data: wholesaler, isLoading: isLoadingWholesaler } = useWholesaler();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   // 데스크톱과 모바일 드롭다운을 분리하여 중복 렌더링 문제 해결
   const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
@@ -117,11 +118,21 @@ function WholesalerLayoutContent({
 
   // 드롭다운이 열릴 때 읽음 처리 (데스크톱 또는 모바일 중 하나라도 열리면)
   useEffect(() => {
-    if ((isDesktopDropdownOpen || isMobileDropdownOpen) && hasNewNotifications && !isMarkingAsRead) {
+    if (
+      (isDesktopDropdownOpen || isMobileDropdownOpen) &&
+      hasNewNotifications &&
+      !isMarkingAsRead
+    ) {
       console.log("🔔 [layout] 드롭다운 열림 - 읽음 처리 시작");
       markAsRead();
     }
-  }, [isDesktopDropdownOpen, isMobileDropdownOpen, hasNewNotifications, isMarkingAsRead, markAsRead]);
+  }, [
+    isDesktopDropdownOpen,
+    isMobileDropdownOpen,
+    hasNewNotifications,
+    isMarkingAsRead,
+    markAsRead,
+  ]);
 
   // 모바일 메뉴 열릴 때 스크롤 방지
   useEffect(() => {
@@ -135,6 +146,18 @@ function WholesalerLayoutContent({
       document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
+
+  // ESC 키로 검색창 닫기
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isMobileSearchOpen) {
+        setIsMobileSearchOpen(false);
+        setSearchQuery("");
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isMobileSearchOpen]);
 
   // 로그아웃 처리
   const handleLogout = async () => {
@@ -200,46 +223,53 @@ function WholesalerLayoutContent({
   };
 
   // 검색어 타입 판별 함수
-  const detectSearchType = (query: string): 'order' | 'product' | 'customer' => {
+  const detectSearchType = (
+    query: string,
+  ): "order" | "product" | "customer" => {
     const trimmed = query.trim();
-    
+
     // 주문번호 패턴: ORD-로 시작하거나 숫자-숫자-숫자-숫자 패턴
     if (/^ORD-/.test(trimmed) || /^\d{4}-\d{2}-\d{2}-\d+/.test(trimmed)) {
-      return 'order';
+      return "order";
     }
-    
+
     // 기본적으로 상품명으로 간주
     // (고객명은 주문 페이지에서만 검색 가능하므로, 여기서는 상품명으로 처리)
-    return 'product';
+    return "product";
   };
 
   // 검색 실행 핸들러
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!searchQuery.trim()) {
       return;
     }
-    
+
     const searchType = detectSearchType(searchQuery);
     const trimmedQuery = searchQuery.trim();
-    
+
     console.log("🔍 [layout-search] 검색 실행", {
       query: trimmedQuery,
       type: searchType,
       currentPath: pathname,
     });
-    
-    if (searchType === 'order') {
+
+    if (searchType === "order") {
       // 주문번호 검색 → 주문 페이지로 이동
-      router.push(`/wholesaler/orders?search=${encodeURIComponent(trimmedQuery)}`);
+      router.push(
+        `/wholesaler/orders?search=${encodeURIComponent(trimmedQuery)}`,
+      );
     } else {
       // 상품명 검색 → 상품 페이지로 이동
-      router.push(`/wholesaler/products?search=${encodeURIComponent(trimmedQuery)}`);
+      router.push(
+        `/wholesaler/products?search=${encodeURIComponent(trimmedQuery)}`,
+      );
     }
-    
-    // 검색 후 입력 필드 초기화 (선택사항)
-    // setSearchQuery("");
+
+    // 검색 후 검색창 닫기 및 입력 필드 초기화
+    setIsMobileSearchOpen(false);
+    setSearchQuery("");
   };
 
   return (
@@ -265,9 +295,9 @@ function WholesalerLayoutContent({
 
             let isActive = false;
             if (item.href.includes("?")) {
-              const targetTab = new URLSearchParams(item.href.split("?")[1]).get(
-                "tab",
-              );
+              const targetTab = new URLSearchParams(
+                item.href.split("?")[1],
+              ).get("tab");
               const currentTab = searchParams.get("tab");
               isActive = pathname === cleanHref && targetTab === currentTab;
             } else {
@@ -361,7 +391,10 @@ function WholesalerLayoutContent({
         {/* Desktop Header (Search & Utility) */}
         <header className="hidden lg:block sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 px-8 py-4">
           <div className="flex items-center justify-between gap-8">
-            <form onSubmit={handleSearch} className="flex-1 max-w-2xl relative group">
+            <form
+              onSubmit={handleSearch}
+              className="flex-1 max-w-2xl relative group"
+            >
               <input
                 type="text"
                 placeholder="상품, 주문번호, 고객명을 검색해보세요"
@@ -386,7 +419,10 @@ function WholesalerLayoutContent({
               )}
 
               {/* 알림 드롭다운 메뉴 (데스크톱) */}
-              <DropdownMenu open={isDesktopDropdownOpen} onOpenChange={setIsDesktopDropdownOpen}>
+              <DropdownMenu
+                open={isDesktopDropdownOpen}
+                onOpenChange={setIsDesktopDropdownOpen}
+              >
                 <DropdownMenuTrigger asChild>
                   <button
                     id="wholesaler-desktop-notifications-trigger"
@@ -403,7 +439,10 @@ function WholesalerLayoutContent({
                     <span className="text-sm font-medium">알림</span>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 overflow-x-hidden overflow-y-hidden">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-80 overflow-x-hidden overflow-y-hidden"
+                >
                   <DropdownMenuLabel className="flex items-center justify-between">
                     <span>알림</span>
                     {totalUnreadCount > 0 && (
@@ -443,7 +482,7 @@ function WholesalerLayoutContent({
                             >
                               <div className="flex items-center justify-between w-full min-w-0 gap-2">
                                 <div className="flex items-center gap-2 min-w-0 flex-1">
-                                    <Package className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                                  <Package className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
                                   <span className="font-medium text-sm truncate">
                                     {order.product.name}
                                   </span>
@@ -451,12 +490,17 @@ function WholesalerLayoutContent({
                                     <span className="w-2 h-2 bg-red-500 rounded-full shrink-0"></span>
                                   )}
                                 </div>
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
-                                  {formatDateTime(order.created_at, "time-only")}
+                                <span className="text-xs text-gray-500 dark:text-gray-400 shrink-0">
+                                  {formatDateTime(
+                                    order.created_at,
+                                    "time-only",
+                                  )}
                                 </span>
                               </div>
-                                <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-300 gap-2 min-w-0">
-                                <span className="truncate">주문번호: {order.order_number}</span>
+                              <div className="flex items-center justify-between w-full text-xs text-gray-600 dark:text-gray-300 gap-2 min-w-0">
+                                <span className="truncate">
+                                  주문번호: {order.order_number}
+                                </span>
                                 <span className="font-medium shrink-0">
                                   {formatPrice(order.total_amount)}
                                 </span>
@@ -497,12 +541,17 @@ function WholesalerLayoutContent({
                                   )}
                                 </div>
                                 <span className="text-xs text-gray-500 shrink-0">
-                                  {formatDateTime(inquiry.created_at, "time-only")}
+                                  {formatDateTime(
+                                    inquiry.created_at,
+                                    "time-only",
+                                  )}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between w-full text-xs text-gray-600 gap-2 min-w-0">
                                 {inquiry.user_anonymous_code && (
-                                  <span className="truncate">문의자: {inquiry.user_anonymous_code}</span>
+                                  <span className="truncate">
+                                    문의자: {inquiry.user_anonymous_code}
+                                  </span>
                                 )}
                                 <span
                                   className={`text-xs px-2 py-0.5 rounded shrink-0 ${
@@ -511,7 +560,9 @@ function WholesalerLayoutContent({
                                       : "bg-gray-100 text-gray-700"
                                   }`}
                                 >
-                                  {inquiry.status === "open" ? "미답변" : "답변완료"}
+                                  {inquiry.status === "open"
+                                    ? "미답변"
+                                    : "답변완료"}
                                 </span>
                               </div>
                             </DropdownMenuItem>
@@ -577,12 +628,9 @@ function WholesalerLayoutContent({
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               {/* Mobile Logo */}
-              <Link
-                href="/wholesaler/dashboard"
-                className="flex items-center"
-              >
+              <Link href="/wholesaler/dashboard" className="flex items-center">
                 <Image
-                  src="/farmtobiz_logo.png"
+                  src="/logo.png"
                   alt="FarmToBiz"
                   width={120}
                   height={46}
@@ -593,17 +641,46 @@ function WholesalerLayoutContent({
 
               {/* Mobile Search & Menu */}
               <div className="flex items-center gap-1">
-                <form onSubmit={handleSearch} className="flex-1 max-w-xs relative mr-2">
-                  <input
-                    type="text"
-                    placeholder="검색..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-gray-800 border-0 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white dark:focus:bg-gray-700 transition-all"
-                  />
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
-                </form>
-                
+                {/* 검색 아이콘 버튼 (검색창이 닫혀있을 때만 표시) */}
+                {!isMobileSearchOpen && (
+                  <button
+                    onClick={() => setIsMobileSearchOpen(true)}
+                    className="p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    aria-label="검색"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                )}
+
+                {/* 검색창 (열렸을 때만 표시) */}
+                {isMobileSearchOpen && (
+                  <form
+                    onSubmit={handleSearch}
+                    className="flex-1 max-w-xs relative mr-2"
+                  >
+                    <input
+                      type="text"
+                      placeholder="검색..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
+                      className="w-full bg-gray-50 dark:bg-gray-800 border-0 rounded-lg pl-9 pr-9 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white dark:focus:bg-gray-700 transition-all"
+                    />
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileSearchOpen(false);
+                        setSearchQuery("");
+                      }}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="검색 닫기"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </form>
+                )}
+
                 {/* Mobile 알림, 설정, 고객센터 버튼 */}
                 <div className="flex items-center gap-1 mr-1">
                   {role === "admin" && (
@@ -618,11 +695,14 @@ function WholesalerLayoutContent({
                   )}
 
                   {/* 알림 드롭다운 메뉴 (모바일) */}
-                  <DropdownMenu open={isMobileDropdownOpen} onOpenChange={setIsMobileDropdownOpen}>
+                  <DropdownMenu
+                    open={isMobileDropdownOpen}
+                    onOpenChange={setIsMobileDropdownOpen}
+                  >
                     <DropdownMenuTrigger asChild>
                       <button
-                    id="wholesaler-mobile-notifications-trigger"
-                      className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                        id="wholesaler-mobile-notifications-trigger"
+                        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                         aria-label="알림"
                         disabled={isLoadingNotifications}
                       >
@@ -634,7 +714,10 @@ function WholesalerLayoutContent({
                         </div>
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-80 overflow-x-hidden overflow-y-hidden">
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-80 overflow-x-hidden overflow-y-hidden"
+                    >
                       <DropdownMenuLabel className="flex items-center justify-between">
                         <span>알림</span>
                         {totalUnreadCount > 0 && (
@@ -683,11 +766,16 @@ function WholesalerLayoutContent({
                                       )}
                                     </div>
                                     <span className="text-xs text-gray-500 shrink-0">
-                                      {formatDateTime(order.created_at, "time-only")}
+                                      {formatDateTime(
+                                        order.created_at,
+                                        "time-only",
+                                      )}
                                     </span>
                                   </div>
                                   <div className="flex items-center justify-between w-full text-xs text-gray-600 gap-2 min-w-0">
-                                    <span className="truncate">주문번호: {order.order_number}</span>
+                                    <span className="truncate">
+                                      주문번호: {order.order_number}
+                                    </span>
                                     <span className="font-medium shrink-0">
                                       {formatPrice(order.total_amount)}
                                     </span>
@@ -728,12 +816,17 @@ function WholesalerLayoutContent({
                                       )}
                                     </div>
                                     <span className="text-xs text-gray-500 shrink-0">
-                                      {formatDateTime(inquiry.created_at, "time-only")}
+                                      {formatDateTime(
+                                        inquiry.created_at,
+                                        "time-only",
+                                      )}
                                     </span>
                                   </div>
                                   <div className="flex items-center justify-between w-full text-xs text-gray-600 gap-2 min-w-0">
                                     {inquiry.user_anonymous_code && (
-                                      <span className="truncate">문의자: {inquiry.user_anonymous_code}</span>
+                                      <span className="truncate">
+                                        문의자: {inquiry.user_anonymous_code}
+                                      </span>
                                     )}
                                     <span
                                       className={`text-xs px-2 py-0.5 rounded shrink-0 ${
@@ -742,7 +835,9 @@ function WholesalerLayoutContent({
                                           : "bg-gray-100 text-gray-700"
                                       }`}
                                     >
-                                      {inquiry.status === "open" ? "미답변" : "답변완료"}
+                                      {inquiry.status === "open"
+                                        ? "미답변"
+                                        : "답변완료"}
                                     </span>
                                   </div>
                                 </DropdownMenuItem>
@@ -752,7 +847,8 @@ function WholesalerLayoutContent({
                         </div>
                       )}
 
-                      {(recentOrders.length > 0 || recentInquiries.length > 0) && (
+                      {(recentOrders.length > 0 ||
+                        recentInquiries.length > 0) && (
                         <>
                           <DropdownMenuSeparator />
                           <div className="flex gap-2">
@@ -852,12 +948,12 @@ function WholesalerLayoutContent({
                   </button>
                 </div>
               </nav>
-          </div>
-        )}
+            </div>
+          )}
         </header>
 
         {/* 메인 컨텐츠 - 반응형 패딩 */}
-      <main className="w-full px-4 lg:px-8 py-6 lg:py-8 flex-1 max-w-[1920px] mx-auto overflow-x-hidden bg-background">
+        <main className="w-full px-4 lg:px-8 py-6 lg:py-8 flex-1 max-w-[1920px] mx-auto overflow-x-hidden bg-background">
           {children}
         </main>
 
