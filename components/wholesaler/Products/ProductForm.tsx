@@ -312,19 +312,51 @@ export default function ProductForm({
         body: JSON.stringify({ productName: currentName }),
       });
 
-      const data = await response.json();
+      // 응답 상태 확인
+      console.log("📡 [ProductForm] 응답 상태:", response.status, response.statusText);
+      
+      // Content-Type 확인
+      const contentType = response.headers.get("content-type");
+      console.log("📋 [ProductForm] Content-Type:", contentType);
 
-      if (!response.ok) {
-        console.error("❌ [ProductForm] 표준화 실패:", data);
-        throw new Error(data.error || "표준화에 실패했습니다.");
+      // 응답 본문을 텍스트로 먼저 읽기 (JSON 파싱 전에 확인)
+      const responseText = await response.text();
+      console.log("📄 [ProductForm] 응답 본문:", responseText);
+
+      // 빈 응답 체크
+      if (!responseText || responseText.trim() === "") {
+        console.error("❌ [ProductForm] 빈 응답 받음");
+        throw new Error("서버로부터 응답을 받지 못했습니다.");
       }
 
+      // JSON 파싱 시도
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("❌ [ProductForm] JSON 파싱 실패:", parseError);
+        console.error("❌ [ProductForm] 파싱 실패한 응답:", responseText);
+        throw new Error("서버 응답 형식이 올바르지 않습니다.");
+      }
+
+      // 에러 응답 처리
+      if (!response.ok) {
+        console.error("❌ [ProductForm] 표준화 실패:", {
+          status: response.status,
+          statusText: response.statusText,
+          data: data,
+        });
+        throw new Error(data?.error || data?.message || `표준화에 실패했습니다. (${response.status})`);
+      }
+
+      // 성공 응답 처리
       if (data.success && data.data) {
         console.log("✅ [ProductForm] 표준화 성공:", data.data);
         setStandardizeResult(data.data);
         setStandardizeDialogOpen(true);
       } else {
-        throw new Error("표준화 결과를 받지 못했습니다.");
+        console.error("❌ [ProductForm] 표준화 결과 없음:", data);
+        throw new Error(data?.error || "표준화 결과를 받지 못했습니다.");
       }
     } catch (error) {
       console.error("❌ [ProductForm] 표준화 오류:", error);
