@@ -490,15 +490,18 @@ export default function InquiryDetailPage({
         </CardContent>
       </Card>
 
-      {/* 답변 작성 폼 (소매→도매 문의인 경우, status가 'open'인 경우만) */}
+      {/* 답변 작성 폼 (소매→도매 문의인 경우, status가 'open' 또는 'answered'인 경우) */}
       {inquiry.inquiry_type === "retailer_to_wholesaler" &&
-        inquiry.status === "open" && (
+        inquiry.status !== "closed" && (
           <Card className="w-full max-w-full">
             <CardHeader>
-              <CardTitle>답변 작성</CardTitle>
+              <CardTitle>
+                {inquiry.status === "open" ? "답변 작성" : "추가 답변 작성"}
+              </CardTitle>
               <CardDescription>
-                문의에 대한 답변을 작성해주세요. 답변 작성 후 상태가
-                &quot;답변완료&quot;로 변경됩니다.
+                {inquiry.status === "open"
+                  ? "문의에 대한 답변을 작성해주세요. 답변 작성 후 상태가 &quot;답변완료&quot;로 변경됩니다."
+                  : "추가 답변이 필요한 경우 작성해주세요."}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -539,17 +542,18 @@ export default function InquiryDetailPage({
         )}
 
       {/* 이미 답변 완료된 경우 안내 */}
-      {inquiry.status === "answered" && (
-        <Card className="w-full max-w-full">
-          <CardContent className="pt-6">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-sm text-green-800">
-                답변이 완료되었습니다.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {inquiry.status === "answered" &&
+        inquiry.inquiry_type === "retailer_to_wholesaler" && (
+          <Card className="w-full max-w-full">
+            <CardContent className="pt-6">
+              <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-800 rounded-lg p-4 transition-colors duration-200">
+                <p className="text-sm text-green-800 dark:text-green-100">
+                  답변이 완료되었습니다. 추가로 안내할 내용이 있다면 메시지를 남겨주세요.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       {/* 이미 종료된 경우 안내 */}
       {inquiry.status === "closed" && (
