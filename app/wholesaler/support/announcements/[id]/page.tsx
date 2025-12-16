@@ -108,10 +108,10 @@ export default function AnnouncementDetailPage({
 
   if (!announcementId) {
     return (
-      <div className="flex items-center justify-center p-8">
+          <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">로딩 중...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 dark:border-gray-700 border-t-blue-600 dark:border-t-blue-400 mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-300">로딩 중...</p>
         </div>
       </div>
     );
@@ -120,8 +120,8 @@ export default function AnnouncementDetailPage({
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
-        <div className="h-64 animate-pulse rounded bg-gray-200" />
+        <div className="h-8 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
       </div>
     );
   }
@@ -139,8 +139,10 @@ export default function AnnouncementDetailPage({
         </Button>
         <Card>
           <CardHeader>
-            <CardTitle>공지사항을 불러올 수 없습니다</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-gray-900 dark:text-gray-100">
+              공지사항을 불러올 수 없습니다
+            </CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-400">
               {error instanceof Error
                 ? error.message
                 : "공지사항을 찾을 수 없습니다."}
@@ -170,13 +172,15 @@ export default function AnnouncementDetailPage({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 {isNew && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200">
                     NEW
                   </span>
                 )}
-                <CardTitle>{announcement.title}</CardTitle>
+                <CardTitle className="text-gray-900 dark:text-gray-100">
+                  {announcement.title}
+                </CardTitle>
               </div>
-              <CardDescription>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
                 작성일:{" "}
                 {format(new Date(announcement.created_at), "yyyy년 MM월 dd일", {
                   locale: ko,
@@ -186,7 +190,7 @@ export default function AnnouncementDetailPage({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="whitespace-pre-wrap text-gray-700">
+          <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200">
             {announcement.content}
           </div>
         </CardContent>

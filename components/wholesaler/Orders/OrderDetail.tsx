@@ -428,8 +428,8 @@ export default function OrderDetail({ order }: OrderDetailProps) {
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-full ${
                         item.completed
-                          ? "bg-green-100 text-green-600"
-                          : "bg-gray-100 text-gray-400"
+                          ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400"
+                          : "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500"
                       }`}
                     >
                       <Icon className="h-5 w-5" />
@@ -437,18 +437,22 @@ export default function OrderDetail({ order }: OrderDetailProps) {
                     <div className="flex-1">
                       <p
                         className={`font-medium ${
-                          item.completed ? "text-gray-900" : "text-gray-400"
+                          item.completed
+                            ? "text-gray-900 dark:text-gray-100"
+                            : "text-gray-400 dark:text-gray-500"
                         }`}
                       >
                         {item.label}
                       </p>
                       {item.date && (
-                        <p className="mt-1 text-sm text-gray-600">
+                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                           {formatDateTime(item.date, "ko")}
                         </p>
                       )}
                       {!item.date && !item.completed && (
-                        <p className="mt-1 text-sm text-gray-400">대기 중</p>
+                        <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
+                          대기 중
+                        </p>
                       )}
                     </div>
                   </div>
