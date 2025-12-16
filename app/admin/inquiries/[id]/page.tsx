@@ -400,7 +400,7 @@ export default function AdminInquiryDetailPage({
             </CardTitle>
             <CardDescription>
               {inquiry.status === "open"
-                ? "문의에 대한 답변을 작성해주세요. 답변 작성 후 상태가 &quot;답변완료&quot;로 변경됩니다."
+                ? '문의에 대한 답변을 작성해주세요. 답변 작성 후 상태가 "답변완료"로 변경됩니다.'
                 : "추가 답변이 필요한 경우 작성해주세요."}
             </CardDescription>
           </CardHeader>
