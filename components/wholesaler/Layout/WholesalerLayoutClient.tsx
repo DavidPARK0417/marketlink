@@ -58,6 +58,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { formatPrice, formatDateTime } from "@/lib/utils/format";
+import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/database";
 
 interface WholesalerLayoutClientProps {
@@ -626,21 +627,29 @@ function WholesalerLayoutContent({
         {/* Mobile Header */}
         <header className="lg:hidden bg-gradient-to-b from-emerald-50/50 via-white/90 to-white/95 dark:from-gray-900/60 dark:via-gray-900/70 dark:to-gray-900/80 shadow-sm sticky top-0 z-50 backdrop-blur-xl border-b border-gray-100/50 dark:border-gray-800/60 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-16">
-              {/* Mobile Logo */}
-              <Link href="/wholesaler/dashboard" className="flex items-center">
-                <Image
-                  src="/logo.png"
-                  alt="FarmToBiz"
-                  width={120}
-                  height={46}
-                  className="h-8 w-auto object-contain"
-                  priority
-                />
-              </Link>
+            <div className={cn(
+              "flex items-center h-16",
+              isMobileSearchOpen ? "justify-start" : "justify-between"
+            )}>
+              {/* Mobile Logo - 검색창이 열려있을 때는 숨김 */}
+              {!isMobileSearchOpen && (
+                <Link href="/wholesaler/dashboard" className="flex items-center">
+                  <Image
+                    src="/logo.png"
+                    alt="FarmToBiz"
+                    width={120}
+                    height={46}
+                    className="h-8 w-auto object-contain"
+                    priority
+                  />
+                </Link>
+              )}
 
               {/* Mobile Search & Menu */}
-              <div className="flex items-center gap-1">
+              <div className={cn(
+                "flex items-center gap-1",
+                isMobileSearchOpen && "flex-1"
+              )}>
                 {/* 검색 아이콘 버튼 (검색창이 닫혀있을 때만 표시) */}
                 {!isMobileSearchOpen && (
                   <button
@@ -656,7 +665,7 @@ function WholesalerLayoutContent({
                 {isMobileSearchOpen && (
                   <form
                     onSubmit={handleSearch}
-                    className="flex-1 max-w-xs relative mr-2"
+                    className="flex-1 relative"
                   >
                     <input
                       type="text"
@@ -681,8 +690,9 @@ function WholesalerLayoutContent({
                   </form>
                 )}
 
-                {/* Mobile 알림, 설정, 고객센터 버튼 */}
-                <div className="flex items-center gap-1 mr-1">
+                {/* Mobile 알림, 설정, 고객센터 버튼 - 검색창이 열려있을 때는 숨김 */}
+                {!isMobileSearchOpen && (
+                  <div className="flex items-center gap-1 mr-1">
                   {role === "admin" && (
                     <button
                       type="button"
@@ -897,7 +907,8 @@ function WholesalerLayoutContent({
                   >
                     <HelpCircle className="w-5 h-5 text-current" />
                   </Link>
-                </div>
+                  </div>
+                )}
 
                 {/* 햄버거 메뉴 버튼 */}
                 <button
