@@ -141,7 +141,8 @@ export default function PriceComparisonChart({
     if (direction === "1") {
       // 상승 - 빨강, 절댓값 표시
       return (
-        <span className="flex items-center gap-1 text-red-500" role="status" aria-label={`상승 ${Math.abs(value).toFixed(1)}%`}>
+        <span className="flex items-center gap-1 text-red-500" role="status" aria-label={`전일 대비 상승 ${Math.abs(value).toFixed(1)}%`}>
+          <span className="font-semibold">전일대비</span>
           <TrendingUp className="w-4 h-4" aria-hidden="true" />
           <span className="font-semibold">{Math.abs(value).toFixed(1)}%</span>
         </span>
@@ -149,7 +150,8 @@ export default function PriceComparisonChart({
     } else if (direction === "2") {
       // 하락 - 파랑, 절댓값 표시
       return (
-        <span className="flex items-center gap-1 text-[#10B981]" role="status" aria-label={`하락 ${Math.abs(value).toFixed(1)}%`}>
+        <span className="flex items-center gap-1 text-[#10B981]" role="status" aria-label={`전일 대비 하락 ${Math.abs(value).toFixed(1)}%`}>
+          <span className="font-semibold">전일대비</span>
           <TrendingDown className="w-4 h-4" aria-hidden="true" />
           <span className="font-semibold">{Math.abs(value).toFixed(1)}%</span>
         </span>
@@ -157,7 +159,8 @@ export default function PriceComparisonChart({
     } else {
       // 보합 - 회색, "-" 표시
       return (
-        <span className="flex items-center gap-1 text-gray-500" role="status" aria-label="보합">
+        <span className="flex items-center gap-1 text-gray-500" role="status" aria-label="전일 대비 보합">
+          <span className="font-semibold">전일대비</span>
           <Minus className="w-4 h-4" aria-hidden="true" />
           <span className="font-semibold">-</span>
         </span>
