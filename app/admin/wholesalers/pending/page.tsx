@@ -33,7 +33,7 @@ interface PendingWholesaler {
   created_at: string;
   profiles: {
     email: string;
-  };
+  }[];
 }
 
 export default async function PendingWholesalersPage() {

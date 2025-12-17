@@ -21,7 +21,7 @@ interface PendingWholesaler {
   created_at: string;
   profiles: {
     email: string;
-  };
+  }[];
 }
 
 interface WholesalerTableProps {
@@ -82,10 +82,9 @@ export default function WholesalerTable({
               // 타입 안전성을 위해 타입 단언
               const wholesalerData = wholesaler as unknown as PendingWholesaler;
               const profileData =
-                typeof wholesalerData.profiles === "object" &&
-                wholesalerData.profiles !== null &&
-                "email" in wholesalerData.profiles
-                  ? (wholesalerData.profiles as { email: string })
+                Array.isArray(wholesalerData.profiles) &&
+                wholesalerData.profiles.length > 0
+                  ? wholesalerData.profiles[0]
                   : null;
 
               return (
@@ -109,10 +108,9 @@ export default function WholesalerTable({
         {wholesalers.map((wholesaler) => {
           const wholesalerData = wholesaler as unknown as PendingWholesaler;
           const profileData =
-            typeof wholesalerData.profiles === "object" &&
-            wholesalerData.profiles !== null &&
-            "email" in wholesalerData.profiles
-              ? (wholesalerData.profiles as { email: string })
+            Array.isArray(wholesalerData.profiles) &&
+            wholesalerData.profiles.length > 0
+              ? wholesalerData.profiles[0]
               : null;
 
           const formatDate = (dateString: string) => {
