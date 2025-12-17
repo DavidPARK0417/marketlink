@@ -60,7 +60,7 @@ export default function PriceFilter({
               value={countyCode}
               onChange={(e) => setCountyCode(e.target.value)}
               disabled={isLoading}
-              className="w-full appearance-none px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all pr-8 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full appearance-none px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl text-xs md:text-sm font-medium text-gray-700 dark:text-foreground focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:border-[#10B981] transition-all pr-8 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="all">전체</option>
               {availableCounties.map(([name, code]) => (
