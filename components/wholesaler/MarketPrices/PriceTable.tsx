@@ -84,17 +84,37 @@ export default function PriceTable({
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {/* 모바일~노트북: 카드 스타일 로딩 */}
-        <div className="2xl:hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm transition-colors duration-200">
-          <span className="text-sm text-[#6B7280] dark:text-gray-300" role="status" aria-live="polite">
-            로딩 중...
-          </span>
+        {/* 모바일~노트북: 카드 스켈레톤 (2xl 미만) */}
+        <div className="2xl:hidden space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm transition-colors duration-200"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="space-y-1 flex-1">
+                  <div className="h-3 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-4 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-3 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                </div>
+                <div className="h-6 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <div key={j} className="flex flex-col gap-1">
+                    <div className="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* 데스크톱: 기존 테이블 스켈레톤 */}
-        <div className="hidden xl:block bg-white dark:bg-gray-900 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50 dark:border-gray-800 transition-colors duration-200">
-        <div className="overflow-x-auto px-4 md:px-6">
-            <table className="w-full min-w-full md:min-w-0 lg:min-w-[760px] xl:min-w-[920px]" role="table" aria-label="시세 조회 테이블">
+        {/* 데스크톱: 테이블 스켈레톤 (2xl 이상) */}
+        <div className="hidden 2xl:block bg-white dark:bg-gray-900 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] overflow-hidden border border-gray-100/50 dark:border-gray-800 transition-colors duration-200">
+          <div className="overflow-x-auto px-4 md:px-6">
+            <table className="w-full min-w-full md:min-w-0 lg:min-w-full 2xl:min-w-[920px]" role="table" aria-label="시세 조회 테이블">
               <thead className="bg-[#F8F9FA] dark:bg-gray-900">
                 <tr>
                   <th scope="col" className="px-4 md:px-6 py-4 text-left text-sm font-semibold text-foreground dark:text-foreground whitespace-nowrap">구분</th>
@@ -108,11 +128,34 @@ export default function PriceTable({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                <tr>
-                  <td colSpan={8} className="px-4 md:px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                    <span role="status" aria-live="polite">로딩 중...</span>
-                  </td>
-                </tr>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-4 md:px-6 py-4">
+                      <div className="h-4 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                    </td>
+                    <td className="px-4 md:px-6 py-4">
+                      <div className="h-4 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                    </td>
+                    <td className="px-4 md:px-6 py-4">
+                      <div className="h-4 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                    </td>
+                    <td className="px-4 md:px-6 py-4 text-right">
+                      <div className="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700 ml-auto" />
+                    </td>
+                    <td className="px-4 md:px-6 py-4 text-right">
+                      <div className="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700 ml-auto" />
+                    </td>
+                    <td className="px-4 md:px-6 py-4 text-right">
+                      <div className="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700 ml-auto" />
+                    </td>
+                    <td className="px-4 md:px-6 py-4 text-right">
+                      <div className="h-4 w-20 animate-pulse rounded bg-gray-200 dark:bg-gray-700 ml-auto" />
+                    </td>
+                    <td className="px-4 md:px-6 py-4 text-right">
+                      <div className="h-6 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700 ml-auto" />
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

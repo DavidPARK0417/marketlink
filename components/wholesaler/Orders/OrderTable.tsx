@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import OrderTableSkeleton from "./OrderTableSkeleton";
 import type { OrderDetail } from "@/types/order";
 import type { OrderStatus } from "@/types/database";
 
@@ -299,11 +300,7 @@ export default function OrderTable({
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">로딩 중...</div>
-      </div>
-    );
+    return <OrderTableSkeleton />;
   }
 
   if (orders.length === 0) {
