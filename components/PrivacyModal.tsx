@@ -130,7 +130,7 @@ export default function PrivacyModal({ open, onOpenChange }: PrivacyModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[80vh] max-w-3xl flex flex-col">
+      <DialogContent className="max-h-[80vh] w-full max-w-[calc(100%-2rem)] sm:max-w-lg lg:max-w-3xl flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-left text-xl font-bold text-gray-900 dark:text-gray-100">
             개인정보 처리방침
