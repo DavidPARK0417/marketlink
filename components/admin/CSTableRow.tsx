@@ -56,14 +56,14 @@ export default function CSTableRow({
   return (
     <tr
       onClick={handleRowClick}
-      className="hover:bg-gray-50 transition-colors cursor-pointer"
+      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
     >
       <td className="px-6 py-4">
-        <div className="text-sm font-medium text-gray-900">{title}</div>
+        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <div className="text-sm text-gray-900">{email}</div>
+          <div className="text-sm text-gray-900 dark:text-gray-100">{email}</div>
           <RoleBadge role={role} />
         </div>
       </td>
@@ -71,10 +71,10 @@ export default function CSTableRow({
         <CSStatusBadge status={status} />
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-500">{formatDate(created_at)}</div>
+        <div className="text-sm text-gray-500 dark:text-gray-400">{formatDate(created_at)}</div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <span className="text-[#10B981] hover:text-emerald-900 font-medium">
+        <span className="text-[#10B981] dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-medium">
           상세보기
         </span>
       </td>

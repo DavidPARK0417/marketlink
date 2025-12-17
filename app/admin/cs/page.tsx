@@ -24,9 +24,7 @@
 
 import { requireAdmin } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
-import CSTableRow from "@/components/admin/CSTableRow";
-import { Card, CardContent } from "@/components/ui/card";
-import EmptyState from "@/components/common/EmptyState";
+import CSTable from "@/components/admin/CSTable";
 import CSFilter from "@/components/admin/CSFilter";
 import type { CsThreadStatus } from "@/types/database";
 
@@ -137,77 +135,12 @@ export default async function AdminCSPage({ searchParams }: CSPageProps) {
       <CSFilter currentStatus={statusFilter} currentRole={roleFilter} />
 
       {/* 테이블 영역 */}
-      {threads.length > 0 ? (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    제목
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    사용자
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    상태
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    생성일
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    액션
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {threads.map((thread) => {
-                  const profileData =
-                    typeof thread.profiles === "object" &&
-                    thread.profiles !== null &&
-                    "email" in thread.profiles
-                      ? (thread.profiles as { email: string; role: string | null })
-                      : null;
-
-                  // role 타입 가드: 유효한 role 값인지 확인
-                  const validRole =
-                    profileData?.role === "wholesaler" ||
-                    profileData?.role === "retailer" ||
-                    profileData?.role === "admin"
-                      ? (profileData.role as "wholesaler" | "retailer" | "admin")
-                      : null;
-
-                  return (
-                    <CSTableRow
-                      key={thread.id}
-                      id={thread.id}
-                      title={thread.title}
-                      email={profileData?.email || "-"}
-                      role={validRole}
-                      status={thread.status}
-                      created_at={thread.created_at}
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        // 빈 목록 처리
-        <Card>
-          <CardContent className="p-12">
-            <EmptyState
-              message="CS 문의가 없습니다"
-              description={
-                statusFilter || roleFilter
-                  ? "선택한 필터 조건에 맞는 CS 문의가 없습니다. 필터를 변경해보세요."
-                  : "현재 등록된 CS 문의가 없습니다. 새로운 문의가 들어오면 여기에 표시됩니다."
-              }
-            />
-          </CardContent>
-        </Card>
-      )}
+      <CSTable
+        threads={threads}
+        isLoading={false}
+        statusFilter={statusFilter}
+        roleFilter={roleFilter}
+      />
     </div>
   );
 }

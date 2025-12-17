@@ -21,9 +21,7 @@
 
 import { requireAdmin } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
-import WholesalerTableRow from "@/components/admin/WholesalerTableRow";
-import { Card, CardContent } from "@/components/ui/card";
-import EmptyState from "@/components/common/EmptyState";
+import WholesalerTable from "@/components/admin/WholesalerTable";
 
 export const dynamic = "force-dynamic";
 
@@ -86,70 +84,7 @@ export default async function PendingWholesalersPage() {
       </div>
 
       {/* 테이블 영역 */}
-      {wholesalers && wholesalers.length > 0 ? (
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors duration-200">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-              <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
-                    상호명
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
-                    사업자번호
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
-                    대표자
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
-                    이메일
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
-                    신청일
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
-                    액션
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                {wholesalers.map((wholesaler) => {
-                  // 타입 안전성을 위해 타입 단언
-                  const wholesalerData = wholesaler as unknown as PendingWholesaler;
-                  const profileData =
-                    typeof wholesalerData.profiles === "object" &&
-                    wholesalerData.profiles !== null &&
-                    "email" in wholesalerData.profiles
-                      ? (wholesalerData.profiles as { email: string })
-                      : null;
-
-                  return (
-                    <WholesalerTableRow
-                      key={wholesalerData.id}
-                      id={wholesalerData.id}
-                      business_name={wholesalerData.business_name}
-                      business_number={wholesalerData.business_number}
-                      representative={wholesalerData.representative}
-                      email={profileData?.email || null}
-                      created_at={wholesalerData.created_at}
-                    />
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        // 빈 목록 처리
-        <Card>
-          <CardContent className="p-12">
-            <EmptyState
-              message="승인 대기 중인 도매사업자가 없습니다"
-              description="현재 승인 대기 상태인 도매사업자가 없습니다. 새로운 신청이 들어오면 여기에 표시됩니다."
-            />
-          </CardContent>
-        </Card>
-      )}
+      <WholesalerTable wholesalers={wholesalers || []} isLoading={false} />
     </div>
   );
 }

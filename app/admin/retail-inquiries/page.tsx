@@ -29,6 +29,7 @@ import { useRouter } from "next/navigation";
 
 import PageHeader from "@/components/common/PageHeader";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
+import RetailInquiryTableSkeleton from "@/components/admin/RetailInquiryTableSkeleton";
 import type { InquiryFilter as InquiryFilterType } from "@/types/inquiry";
 import type { InquiryStatus } from "@/types/database";
 
@@ -289,44 +290,36 @@ export default function AdminRetailInquiriesPage() {
       <InquiryFilter filter={filter} onFilterChange={setFilter} />
 
       {/* 테이블 */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 text-xs uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-16 text-center">
-                  번호
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40">
-                  문의자명
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32">
-                  연락처
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800">
-                  문의 내용
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-28 text-center">
-                  상태
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32 text-center">
-                  생성일
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
-              {isLoading && (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
-                  >
-                    로딩 중...
-                  </td>
+      {isLoading ? (
+        <RetailInquiryTableSkeleton />
+      ) : (
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 text-xs uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-16 text-center">
+                    번호
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40">
+                    문의자명
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32">
+                    연락처
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800">
+                    문의 내용
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-28 text-center">
+                    상태
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32 text-center">
+                    생성일
+                  </th>
                 </tr>
-              )}
-              {!isLoading &&
-                data?.inquiries?.map((inquiry, index) => {
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+                {data?.inquiries?.map((inquiry, index) => {
                   const number = data.total
                     ? data.total - ((data.page - 1) * (data.pageSize || 20) + index)
                     : index + 1;
@@ -382,29 +375,23 @@ export default function AdminRetailInquiriesPage() {
                     </tr>
                   );
                 })}
-              {!isLoading && data?.inquiries?.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
-                  >
-                    소매 문의가 없습니다.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                {data?.inquiries?.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
+                    >
+                      소매 문의가 없습니다.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        {/* 모바일 카드 */}
-        <div className="lg:hidden divide-y divide-gray-100 dark:divide-gray-800">
-          {isLoading && (
-            <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
-              로딩 중...
-            </div>
-          )}
-          {!isLoading &&
-            data?.inquiries?.map((inquiry, index) => {
+          {/* 모바일 카드 */}
+          <div className="lg:hidden divide-y divide-gray-100 dark:divide-gray-800">
+            {data?.inquiries?.map((inquiry, index) => {
               const number = data.total
                 ? data.total - ((data.page - 1) * (data.pageSize || 20) + index)
                 : index + 1;
@@ -444,13 +431,14 @@ export default function AdminRetailInquiriesPage() {
                 </Link>
               );
             })}
-          {!isLoading && data?.inquiries?.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
-              소매 문의가 없습니다.
-            </div>
-          )}
+            {data?.inquiries?.length === 0 && (
+              <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
+                소매 문의가 없습니다.
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
