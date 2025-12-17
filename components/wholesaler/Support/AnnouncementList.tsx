@@ -60,13 +60,23 @@ export default function AnnouncementList({
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="h-20 w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800"
-          />
-        ))}
+      <div className="space-y-6">
+        <div className="h-7 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="p-5 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3 flex-1">
+                <div className="h-5 w-8 animate-pulse rounded bg-gray-200 dark:bg-gray-700 shrink-0" />
+                <div className="h-5 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700 shrink-0" />
+                <div className="h-5 w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700 flex-1" />
+              </div>
+              <div className="h-4 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700 shrink-0 ml-4" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

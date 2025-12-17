@@ -65,11 +65,23 @@ export default function FAQList({
   if (isLoading) {
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
-        {[...Array(5)].map((_, i) => (
+        <div className="h-7 w-40 animate-pulse rounded bg-gray-200 dark:bg-gray-700 mx-auto mb-6" />
+        {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="h-20 w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-800"
-          />
+            className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden"
+          >
+            <div className="w-full flex items-center justify-between p-5">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="h-6 w-6 animate-pulse rounded bg-gray-200 dark:bg-gray-700 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-5 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                </div>
+              </div>
+              <div className="h-5 w-5 animate-pulse rounded bg-gray-200 dark:bg-gray-700 shrink-0 ml-4" />
+            </div>
+          </div>
         ))}
       </div>
     );

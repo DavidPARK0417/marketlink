@@ -74,6 +74,7 @@ import type { DaumPostcodeData } from "@/types/daum";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import DeleteAccountModal from "@/components/wholesaler/DeleteAccountModal";
+import SettingsSkeleton from "@/components/wholesaler/SettingsSkeleton";
 
 export default function SettingsPage() {
   const { user } = useUser();
@@ -334,11 +335,7 @@ export default function SettingsPage() {
   };
 
   if (isLoadingWholesaler) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-      </div>
-    );
+    return <SettingsSkeleton />;
   }
 
   if (!wholesaler) {

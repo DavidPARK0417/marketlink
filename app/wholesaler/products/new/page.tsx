@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import ProductForm from "@/components/wholesaler/Products/ProductForm";
+import ProductFormSkeleton from "@/components/wholesaler/Products/ProductFormSkeleton";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 import type { ProductFormData } from "@/lib/validation/product";
 import PageHeader from "@/components/common/PageHeader";
@@ -240,12 +241,7 @@ export default function NewProductPage() {
           title="상품 등록"
           description="새로운 상품을 등록하세요."
         />
-        <div className="flex items-center justify-center p-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-            <p className="text-gray-600">로딩 중...</p>
-          </div>
-        </div>
+        <ProductFormSkeleton />
       </div>
     );
   }

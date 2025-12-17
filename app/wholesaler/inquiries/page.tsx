@@ -35,6 +35,7 @@ import {
 
 import PageHeader from "@/components/common/PageHeader";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
+import InquiryListSkeleton from "@/components/wholesaler/Inquiries/InquiryListSkeleton";
 import { Button } from "@/components/ui/button";
 import type {
   InquiryFilter as InquiryFilterType,
@@ -310,42 +311,34 @@ export default function InquiriesPage() {
       <InquiryFilter filter={filter} onFilterChange={setFilter} />
 
       {/* 문의 목록 테이블 + 모바일 카드 (관리자 소매 문의 관리와 동일한 패턴) */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
-        {/* 데스크톱 테이블 */}
-        <div className="hidden lg:block overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 text-xs uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-16 text-center">
-                  번호
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40">
-                  고객 코드
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800">
-                  문의 제목 / 내용
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-28 text-center">
-                  상태
-                </th>
-                <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40 text-center">
-                  생성일
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
-              {isLoading && (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
-                  >
-                    로딩 중...
-                  </td>
+      {isLoading ? (
+        <InquiryListSkeleton />
+      ) : (
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
+          {/* 데스크톱 테이블 */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 text-xs uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-16 text-center">
+                    번호
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40">
+                    고객 코드
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800">
+                    문의 제목 / 내용
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-28 text-center">
+                    상태
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40 text-center">
+                    생성일
+                  </th>
                 </tr>
-              )}
-              {!isLoading &&
-                data?.inquiries?.map((inquiry, index) => {
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+                {data?.inquiries?.map((inquiry, index) => {
                   const number = data.total
                     ? data.total -
                       ((data.page - 1) * (data.pageSize || pageSize) + index)
@@ -402,29 +395,23 @@ export default function InquiriesPage() {
                     </tr>
                   );
                 })}
-              {!isLoading && data?.inquiries?.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
-                  >
-                    해당 조건의 문의가 없습니다.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                {data?.inquiries?.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
+                    >
+                      해당 조건의 문의가 없습니다.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        {/* 모바일 카드 */}
-        <div className="lg:hidden divide-y divide-gray-100 dark:divide-gray-800">
-          {isLoading && (
-            <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
-              로딩 중...
-            </div>
-          )}
-          {!isLoading &&
-            data?.inquiries?.map((inquiry, index) => {
+          {/* 모바일 카드 */}
+          <div className="lg:hidden divide-y divide-gray-100 dark:divide-gray-800">
+            {data?.inquiries?.map((inquiry, index) => {
               const number = data.total
                 ? data.total -
                   ((data.page - 1) * (data.pageSize || pageSize) + index)
@@ -465,13 +452,14 @@ export default function InquiriesPage() {
                 </Link>
               );
             })}
-          {!isLoading && data?.inquiries?.length === 0 && (
-            <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
-              해당 조건의 문의가 없습니다.
-            </div>
-          )}
+            {data?.inquiries?.length === 0 && (
+              <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
+                해당 조건의 문의가 없습니다.
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 페이지네이션 */}
       {data && data.totalPages > 1 && (

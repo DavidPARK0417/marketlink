@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import InquiryTableSkeleton from "./InquiryTableSkeleton";
 import type { InquiryDetail } from "@/types/inquiry";
 
 interface InquiryTableProps {
@@ -78,15 +79,7 @@ export default function InquiryTable({
   };
 
   if (isLoading) {
-    return (
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
-        <div className="p-12 text-center">
-          <div className="animate-pulse text-muted-foreground dark:text-muted-foreground">
-            로딩 중...
-          </div>
-        </div>
-      </div>
-    );
+    return <InquiryTableSkeleton />;
   }
 
   if (inquiries.length === 0) {
