@@ -883,32 +883,32 @@ function WholesalerLayoutContent({
                   {/* 설정 버튼 */}
                   <Link
                     href="/wholesaler/settings"
-                    className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+                    className="p-2 text-gray-600 dark:text-gray-200 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     aria-label="설정"
                   >
-                    <Settings className="w-5 h-5" />
+                    <Settings className="w-5 h-5 text-current" />
                   </Link>
 
                   {/* 고객센터 버튼 */}
                   <Link
                     href="/wholesaler/support"
-                    className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+                    className="p-2 text-gray-600 dark:text-gray-200 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     aria-label="고객센터"
                   >
-                    <HelpCircle className="w-5 h-5" />
+                    <HelpCircle className="w-5 h-5 text-current" />
                   </Link>
                 </div>
 
                 {/* 햄버거 메뉴 버튼 */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+                  className="p-2 text-gray-600 dark:text-gray-200 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   aria-label="메뉴"
                 >
                   {isMobileMenuOpen ? (
-                    <X className="w-6 h-6" />
+                    <X className="w-6 h-6 text-current" />
                   ) : (
-                    <Menu className="w-6 h-6" />
+                    <Menu className="w-6 h-6 text-current" />
                   )}
                 </button>
               </div>
