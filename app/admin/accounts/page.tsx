@@ -94,8 +94,37 @@ export default async function AccountManagementPage({
         fullError: JSON.stringify(error, null, 2),
       });
     } else {
-      wholesalers = data || [];
+      // 데이터 정규화: profiles 배열을 단일 객체로 변환
+      wholesalers = (data || []).map((wholesaler: any) => {
+        // profiles 데이터 추출 및 정규화
+        let email: string | null = null;
+        
+        if (wholesaler.profiles) {
+          if (Array.isArray(wholesaler.profiles)) {
+            email = wholesaler.profiles.length > 0 ? wholesaler.profiles[0]?.email || null : null;
+          } else if (typeof wholesaler.profiles === 'object' && 'email' in wholesaler.profiles) {
+            email = wholesaler.profiles.email || null;
+          }
+        }
+        
+        return {
+          ...wholesaler,
+          profiles: email ? [{ email }] : [],
+          email, // 직접 접근을 위한 email 필드 추가
+        };
+      });
       wholesalersCount = count ?? 0;
+      
+      // 디버깅: 첫 번째 데이터 구조 확인
+      if (wholesalers.length > 0) {
+        const firstAccount = wholesalers[0];
+        console.log("🔍 [admin] 도매 계정 데이터 구조 확인:", {
+          accountId: firstAccount?.id,
+          email: firstAccount?.email,
+          profilesEmail: firstAccount?.profiles?.[0]?.email,
+          accountKeys: Object.keys(firstAccount || {}),
+        });
+      }
     }
   }
 
@@ -131,8 +160,37 @@ export default async function AccountManagementPage({
         fullError: JSON.stringify(error, null, 2),
       });
     } else {
-      retailers = data || [];
+      // 데이터 정규화: profiles 배열을 단일 객체로 변환
+      retailers = (data || []).map((retailer: any) => {
+        // profiles 데이터 추출 및 정규화
+        let email: string | null = null;
+        
+        if (retailer.profiles) {
+          if (Array.isArray(retailer.profiles)) {
+            email = retailer.profiles.length > 0 ? retailer.profiles[0]?.email || null : null;
+          } else if (typeof retailer.profiles === 'object' && 'email' in retailer.profiles) {
+            email = retailer.profiles.email || null;
+          }
+        }
+        
+        return {
+          ...retailer,
+          profiles: email ? [{ email }] : [],
+          email, // 직접 접근을 위한 email 필드 추가
+        };
+      });
       retailersCount = count ?? 0;
+      
+      // 디버깅: 첫 번째 데이터 구조 확인
+      if (retailers.length > 0) {
+        const firstAccount = retailers[0];
+        console.log("🔍 [admin] 소매 계정 데이터 구조 확인:", {
+          accountId: firstAccount?.id,
+          email: firstAccount?.email,
+          profilesEmail: firstAccount?.profiles?.[0]?.email,
+          accountKeys: Object.keys(firstAccount || {}),
+        });
+      }
     }
   }
 

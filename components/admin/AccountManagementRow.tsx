@@ -76,6 +76,7 @@ interface WholesalerAccount {
   profiles: {
     email: string;
   }[];
+  email?: string | null; // 서버에서 정규화된 email 필드
 }
 
 interface RetailerAccount {
@@ -89,6 +90,7 @@ interface RetailerAccount {
   profiles: {
     email: string;
   }[];
+  email?: string | null; // 서버에서 정규화된 email 필드
 }
 
 interface AccountManagementRowProps {
@@ -123,10 +125,42 @@ export default function AccountManagementRow({
     (!isWholesaler && account.status === "active");
 
   // 프로필 데이터 추출
-  const profileData =
-    Array.isArray(account.profiles) && account.profiles.length > 0
-      ? account.profiles[0]
-      : null;
+  // 1. 서버에서 정규화된 email 필드 우선 사용
+  // 2. 없으면 profiles 배열에서 추출
+  const email = (() => {
+    // 서버에서 정규화된 email 필드가 있으면 사용
+    if ('email' in account && account.email) {
+      return account.email;
+    }
+    
+    // profiles 배열에서 추출
+    if (account.profiles) {
+      if (Array.isArray(account.profiles)) {
+        return account.profiles.length > 0 ? account.profiles[0]?.email || null : null;
+      }
+      
+      // 객체인 경우 (1:1 관계일 때 단일 객체로 반환될 수 있음)
+      if (typeof account.profiles === 'object' && 'email' in account.profiles) {
+        return account.profiles.email || null;
+      }
+    }
+    
+    return null;
+  })();
+  
+  // 디버깅 로그 (이메일이 없을 때만)
+  if (!email) {
+    console.warn('⚠️ [AccountManagementRow] 이메일 데이터 없음:', {
+      accountId: account.id,
+      accountType,
+      hasEmailField: 'email' in account,
+      emailFieldValue: 'email' in account ? account.email : 'N/A',
+      profilesType: typeof account.profiles,
+      profilesIsArray: Array.isArray(account.profiles),
+      profilesValue: account.profiles,
+      accountKeys: Object.keys(account),
+    });
+  }
 
   // 날짜 포맷팅
   const formatDate = (dateString: string) => {
@@ -337,7 +371,7 @@ export default function AccountManagementRow({
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm text-muted-foreground dark:text-muted-foreground">
-                {profileData?.email || "-"}
+                {email || "-"}
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
@@ -366,7 +400,7 @@ export default function AccountManagementRow({
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="text-sm text-muted-foreground dark:text-muted-foreground">
-                {profileData?.email || "-"}
+                {email || "-"}
               </div>
             </td>
             <td className="px-6 py-4">
@@ -435,7 +469,7 @@ export default function AccountManagementRow({
           </>
         )}
         <div>
-          <span className="font-medium">이메일:</span> {profileData?.email || "-"}
+          <span className="font-medium">이메일:</span> {email || "-"}
         </div>
         <div>
           <span className="font-medium">가입일:</span> {formatDate(account.created_at)}
