@@ -32,6 +32,7 @@ export default async function ProductsPage({
 }: {
   searchParams: Promise<{
     page?: string;
+    pageSize?: string;
     category?: string;
     status?: string;
     search?: string;
@@ -43,6 +44,7 @@ export default async function ProductsPage({
 
   // 쿼리 파라미터 파싱
   const page = parseInt(params.page ?? "1", 10);
+  const pageSize = parseInt(params.pageSize ?? "20", 10);
   const category = params.category;
   const status = params.status; // "active" | "inactive" | undefined
   const search = params.search;
@@ -75,7 +77,7 @@ export default async function ProductsPage({
   try {
     productsData = await getProducts({
       page,
-      pageSize: 10,
+      pageSize,
       sortBy,
       sortOrder,
       filter,
@@ -87,7 +89,7 @@ export default async function ProductsPage({
       products: [],
       total: 0,
       page: 1,
-      pageSize: 10,
+      pageSize,
       totalPages: 0,
     };
   }

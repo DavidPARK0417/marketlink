@@ -24,7 +24,16 @@ import type { Announcement } from "@/types/announcement";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminAnnouncementsPage() {
+interface AdminAnnouncementsPageProps {
+  searchParams: Promise<{
+    page?: string;
+    pageSize?: string;
+  }>;
+}
+
+export default async function AdminAnnouncementsPage({
+  searchParams,
+}: AdminAnnouncementsPageProps) {
   // 관리자 권한 확인
   const profile = await requireAdmin();
 
@@ -33,18 +42,29 @@ export default async function AdminAnnouncementsPage() {
     role: profile.role,
   });
 
-  // 공지사항 목록 조회
+  // 쿼리 파라미터 파싱
+  const params = await searchParams;
+  const page = parseInt(params.page ?? "1", 10);
+  const pageSize = parseInt(params.pageSize ?? "20", 10);
+
+  // 공지사항 목록 조회 (페이지네이션 적용)
   const supabase = await createClerkSupabaseClient();
-  const { data: announcements, error } = await supabase
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data: announcements, error, count } = await supabase
     .from("announcements")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   if (error) {
     console.error("❌ [admin/announcements] 공지사항 목록 조회 오류:", error);
   }
 
   const typedAnnouncements = (announcements || []) as Announcement[];
+  const total = count ?? 0;
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div className="space-y-6">
@@ -57,7 +77,13 @@ export default async function AdminAnnouncementsPage() {
       </div>
 
       {/* 공지사항 관리 클라이언트 컴포넌트 */}
-      <AnnouncementManagementClient initialAnnouncements={typedAnnouncements} />
+      <AnnouncementManagementClient
+        initialAnnouncements={typedAnnouncements}
+        initialPage={page}
+        initialPageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

@@ -30,6 +30,13 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import SettlementTableSkeleton from "@/components/wholesaler/Settlements/SettlementTableSkeleton";
 import SettlementDetailDialog from "@/components/wholesaler/Settlements/SettlementDetailDialog";
 import OrderDateRangePicker from "@/components/wholesaler/Orders/OrderDateRangePicker";
@@ -133,7 +140,7 @@ export default function SettlementsPage() {
 
   // 페이지네이션 상태
   const [page, setPage] = React.useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = React.useState(20);
 
   // Dialog 상태
   const [selectedSettlement, setSelectedSettlement] =
@@ -170,6 +177,11 @@ export default function SettlementsPage() {
     queryFn: () => fetchSettlements(filter, page, pageSize, sortBy, sortOrder),
     enabled: !!wholesaler?.id,
   });
+
+  // 필터 변경 시 페이지를 1로 리셋
+  React.useEffect(() => {
+    setPage(1);
+  }, [filter, sortBy, sortOrder]);
 
   // 정산 통계 조회 (헤더용)
   const { data: statsData } = useQuery({
@@ -612,35 +624,65 @@ export default function SettlementsPage() {
             </div>
 
             {/* 페이지네이션 */}
-            {totalPages > 1 && (
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between px-6 py-4 border-t border-gray-200">
-                {/* 총 개수 정보 */}
-                <div className="text-sm text-gray-600">
-                  총 {totalCount}개 중{" "}
-                  {Math.min((page - 1) * pageSize + 1, totalCount)}-
-                  {Math.min(page * pageSize, totalCount)}개 표시
+            {totalPages > 0 && (
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-800">
+                {/* 페이지 정보 및 페이지 크기 선택 */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  {/* 현재 페이지 정보 */}
+                  <div className="text-sm text-muted-foreground dark:text-gray-300">
+                    {(() => {
+                      const startIndex = (page - 1) * pageSize + 1;
+                      const endIndex = Math.min(page * pageSize, totalCount);
+                      return `${startIndex}-${endIndex} / ${totalCount}건`;
+                    })()}
+                  </div>
+
+                  {/* 페이지 크기 선택 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
+                      페이지당:
+                    </span>
+                    <Select
+                      value={String(pageSize)}
+                      onValueChange={(value) => {
+                        setPageSize(Number(value));
+                        setPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="w-[80px] h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                {/* 페이지네이션 컨트롤 */}
+                {/* 페이지 네비게이션 */}
                 <div className="flex items-center gap-2">
                   {/* 이전 버튼 */}
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
+                    disabled={page <= 1}
+                    className="h-9 px-3"
                   >
                     이전
                   </Button>
 
-                  {/* 페이지 번호 */}
-                  <div className="flex items-center gap-1">
+                  {/* 페이지 번호 버튼 (데스크톱/태블릿만 표시) */}
+                  <div className="hidden md:flex items-center gap-1">
                     {pageNumbers.map((pageNum, index) => {
                       if (pageNum === "...") {
                         return (
                           <span
                             key={`ellipsis-${index}`}
-                            className="px-2 text-sm text-gray-500"
+                            className="px-2 text-sm text-muted-foreground dark:text-gray-400"
                           >
                             ...
                           </span>
@@ -648,16 +690,19 @@ export default function SettlementsPage() {
                       }
 
                       const pageNumber = pageNum as number;
-                      const isCurrentPage = pageNumber === page;
+                      const isActive = pageNumber === page;
 
                       return (
                         <Button
                           key={pageNumber}
-                          variant={isCurrentPage ? "default" : "outline"}
+                          variant={isActive ? "default" : "outline"}
                           size="sm"
-                          className="min-w-[2.5rem]"
                           onClick={() => setPage(pageNumber)}
-                          disabled={isCurrentPage}
+                          className={`h-9 min-w-[36px] ${
+                            isActive
+                              ? "bg-[#10B981] hover:bg-[#059669] text-white border-[#10B981]"
+                              : ""
+                          }`}
                         >
                           {pageNumber}
                         </Button>
@@ -665,12 +710,18 @@ export default function SettlementsPage() {
                     })}
                   </div>
 
+                  {/* 현재 페이지 번호 (모바일만 표시) */}
+                  <div className="md:hidden px-3 py-1.5 text-sm font-medium text-foreground dark:text-foreground">
+                    {page} / {totalPages}
+                  </div>
+
                   {/* 다음 버튼 */}
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
+                    disabled={page >= totalPages}
+                    className="h-9 px-3"
                   >
                     다음
                   </Button>

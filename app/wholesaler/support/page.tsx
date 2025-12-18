@@ -30,6 +30,13 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import SupportBanner from "@/components/wholesaler/Support/SupportBanner";
 import InquiryCreateModal from "@/components/wholesaler/Support/InquiryCreateModal";
@@ -43,14 +50,24 @@ import type { FAQ } from "@/types/faq";
 import type { Announcement } from "@/types/announcement";
 
 // 관리자 문의 목록 조회 함수
-async function fetchInquiriesToAdmin(filter: InquiryFilterType = {}) {
-  console.log("🔍 [support-page] 관리자 문의 목록 조회 요청", { filter });
+async function fetchInquiriesToAdmin(
+  filter: InquiryFilterType = {},
+  page: number = 1,
+  pageSize: number = 20,
+) {
+  console.log("🔍 [support-page] 관리자 문의 목록 조회 요청", {
+    filter,
+    page,
+    pageSize,
+  });
 
   const response = await fetch("/api/wholesaler/inquiries/to-admin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       filter,
+      page,
+      pageSize,
       sortOrder: "desc", // 최신 글이 위에 (내림차순)
     }),
   });
@@ -118,10 +135,14 @@ async function fetchFAQs(searchQuery?: string) {
 }
 
 // 공지사항 목록 조회 함수
-async function fetchAnnouncements() {
-  console.log("🔍 [support-page] 공지사항 목록 조회 요청");
+async function fetchAnnouncements(page: number = 1, pageSize: number = 20) {
+  console.log("🔍 [support-page] 공지사항 목록 조회 요청", { page, pageSize });
 
-  const response = await fetch("/api/wholesaler/announcements");
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+
+  const response = await fetch(`/api/wholesaler/announcements?${params.toString()}`);
 
   if (!response.ok) {
     throw new Error("공지사항 목록 조회 실패");
@@ -130,9 +151,10 @@ async function fetchAnnouncements() {
   const data = await response.json();
   console.log("✅ [support-page] 공지사항 목록 조회 성공", {
     announcementsCount: data.announcements?.length ?? 0,
+    total: data.total,
   });
 
-  return data.announcements as Announcement[];
+  return data;
 }
 
 export default function SupportPage() {
@@ -153,6 +175,17 @@ export default function SupportPage() {
   const [searchQuery, setSearchQuery] = React.useState<string>(initialSearch);
   const [isInquiryModalOpen, setIsInquiryModalOpen] = React.useState(false);
   const [filter, setFilter] = React.useState<InquiryFilterType>({});
+
+  // 페이지네이션 상태
+  const [inquiryPage, setInquiryPage] = React.useState(1);
+  const [inquiryPageSize, setInquiryPageSize] = React.useState(20);
+  const [announcementPage, setAnnouncementPage] = React.useState(1);
+  const [announcementPageSize, setAnnouncementPageSize] = React.useState(20);
+
+  // 필터 변경 시 페이지를 1로 리셋
+  React.useEffect(() => {
+    setInquiryPage(1);
+  }, [filter]);
 
   // URL 쿼리 파라미터 업데이트
   React.useEffect(() => {
@@ -204,8 +237,8 @@ export default function SupportPage() {
     isLoading: isInquiriesLoading,
     error: inquiriesError,
   } = useQuery({
-    queryKey: ["inquiries-to-admin", filter],
-    queryFn: () => fetchInquiriesToAdmin(filter),
+    queryKey: ["inquiries-to-admin", filter, inquiryPage, inquiryPageSize],
+    queryFn: () => fetchInquiriesToAdmin(filter, inquiryPage, inquiryPageSize),
     enabled: activeTab === "inquiry",
     staleTime: 30 * 1000,
   });
@@ -219,13 +252,15 @@ export default function SupportPage() {
   });
 
   // 공지사항 목록 조회
-  const { data: announcements = [], isLoading: isAnnouncementsLoading } =
-    useQuery({
-      queryKey: ["announcements"],
-      queryFn: fetchAnnouncements,
-      enabled: activeTab === "announcements",
-      staleTime: 60 * 1000,
-    });
+  const {
+    data: announcementsData,
+    isLoading: isAnnouncementsLoading,
+  } = useQuery({
+    queryKey: ["announcements", announcementPage, announcementPageSize],
+    queryFn: () => fetchAnnouncements(announcementPage, announcementPageSize),
+    enabled: activeTab === "announcements",
+    staleTime: 60 * 1000,
+  });
 
   // 에러 처리
   React.useEffect(() => {
@@ -319,11 +354,162 @@ export default function SupportPage() {
               total={inquiriesData?.total}
             />
 
-            {/* 통계 정보 */}
-            {inquiriesData && (
-              <div className="text-sm text-gray-600">
-                총 {inquiriesData.total}개의 문의 (페이지 {inquiriesData.page} /{" "}
-                {inquiriesData.totalPages})
+            {/* 페이지네이션 */}
+            {inquiriesData && inquiriesData.totalPages > 0 && (
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                {/* 페이지 정보 및 페이지 크기 선택 */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  {/* 현재 페이지 정보 */}
+                  <div className="text-sm text-muted-foreground dark:text-gray-300">
+                    {(() => {
+                      const startIndex = (inquiryPage - 1) * inquiryPageSize + 1;
+                      const endIndex = Math.min(
+                        inquiryPage * inquiryPageSize,
+                        inquiriesData.total,
+                      );
+                      return `${startIndex}-${endIndex} / ${inquiriesData.total}건`;
+                    })()}
+                  </div>
+
+                  {/* 페이지 크기 선택 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
+                      페이지당:
+                    </span>
+                    <Select
+                      value={String(inquiryPageSize)}
+                      onValueChange={(value) => {
+                        setInquiryPageSize(Number(value));
+                        setInquiryPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="w-[80px] h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* 페이지 네비게이션 */}
+                <div className="flex items-center gap-2">
+                  {/* 이전 버튼 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setInquiryPage((p) => Math.max(1, p - 1))}
+                    disabled={inquiryPage <= 1}
+                    className="h-9 px-3"
+                  >
+                    이전
+                  </Button>
+
+                  {/* 페이지 번호 버튼 (데스크톱/태블릿만 표시) */}
+                  <div className="hidden md:flex items-center gap-1">
+                    {(() => {
+                      const totalPages = inquiriesData.totalPages;
+                      const maxPages = 5;
+                      const currentPage = inquiryPage;
+
+                      // 페이지 번호 배열 생성
+                      const getPageNumbers = (): (number | string)[] => {
+                        const pages: (number | string)[] = [];
+
+                        if (totalPages <= maxPages) {
+                          // 전체 페이지가 5개 이하면 모두 표시
+                          for (let i = 1; i <= totalPages; i++) {
+                            pages.push(i);
+                          }
+                        } else {
+                          // 현재 페이지 중심으로 5개 표시
+                          if (currentPage <= 3) {
+                            // 앞부분
+                            for (let i = 1; i <= 5; i++) {
+                              pages.push(i);
+                            }
+                            pages.push("...");
+                            pages.push(totalPages);
+                          } else if (currentPage >= totalPages - 2) {
+                            // 뒷부분
+                            pages.push(1);
+                            pages.push("...");
+                            for (let i = totalPages - 4; i <= totalPages; i++) {
+                              pages.push(i);
+                            }
+                          } else {
+                            // 중간
+                            pages.push(1);
+                            pages.push("...");
+                            for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                              pages.push(i);
+                            }
+                            pages.push("...");
+                            pages.push(totalPages);
+                          }
+                        }
+
+                        return pages;
+                      };
+
+                      const pageNumbers = getPageNumbers();
+
+                      return pageNumbers.map((pageNum, index) => {
+                        if (pageNum === "...") {
+                          return (
+                            <span
+                              key={`ellipsis-${index}`}
+                              className="px-2 text-sm text-muted-foreground dark:text-gray-400"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+
+                        const pageNumber = pageNum as number;
+                        const isActive = pageNumber === currentPage;
+
+                        return (
+                          <Button
+                            key={pageNumber}
+                            variant={isActive ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setInquiryPage(pageNumber)}
+                            className={`h-9 min-w-[36px] ${
+                              isActive
+                                ? "bg-[#10B981] hover:bg-[#059669] text-white border-[#10B981]"
+                                : ""
+                            }`}
+                          >
+                            {pageNumber}
+                          </Button>
+                        );
+                      });
+                    })()}
+                  </div>
+
+                  {/* 현재 페이지 번호 (모바일만 표시) */}
+                  <div className="md:hidden px-3 py-1.5 text-sm font-medium text-foreground dark:text-foreground">
+                    {inquiryPage} / {inquiriesData.totalPages}
+                  </div>
+
+                  {/* 다음 버튼 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setInquiryPage((p) => Math.min(inquiriesData.totalPages, p + 1))
+                    }
+                    disabled={inquiryPage >= inquiriesData.totalPages}
+                    className="h-9 px-3"
+                  >
+                    다음
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -340,12 +526,180 @@ export default function SupportPage() {
 
         {/* 공지사항 탭 */}
         {activeTab === "announcements" && (
-          <AnnouncementList
-            announcements={announcements}
-            isLoading={isAnnouncementsLoading}
-            startNumber={1}
-            total={announcements.length}
-          />
+          <div className="space-y-6">
+            <AnnouncementList
+              announcements={announcementsData?.announcements || []}
+              isLoading={isAnnouncementsLoading}
+              startNumber={
+                announcementsData
+                  ? (announcementsData.page - 1) * announcementsData.pageSize + 1
+                  : 1
+              }
+              total={announcementsData?.total}
+            />
+
+            {/* 페이지네이션 */}
+            {announcementsData && announcementsData.totalPages > 0 && (
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                {/* 페이지 정보 및 페이지 크기 선택 */}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                  {/* 현재 페이지 정보 */}
+                  <div className="text-sm text-muted-foreground dark:text-gray-300">
+                    {(() => {
+                      const startIndex =
+                        (announcementPage - 1) * announcementPageSize + 1;
+                      const endIndex = Math.min(
+                        announcementPage * announcementPageSize,
+                        announcementsData.total,
+                      );
+                      return `${startIndex}-${endIndex} / ${announcementsData.total}건`;
+                    })()}
+                  </div>
+
+                  {/* 페이지 크기 선택 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
+                      페이지당:
+                    </span>
+                    <Select
+                      value={String(announcementPageSize)}
+                      onValueChange={(value) => {
+                        setAnnouncementPageSize(Number(value));
+                        setAnnouncementPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="w-[80px] h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* 페이지 네비게이션 */}
+                <div className="flex items-center gap-2">
+                  {/* 이전 버튼 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAnnouncementPage((p) => Math.max(1, p - 1))}
+                    disabled={announcementPage <= 1}
+                    className="h-9 px-3"
+                  >
+                    이전
+                  </Button>
+
+                  {/* 페이지 번호 버튼 (데스크톱/태블릿만 표시) */}
+                  <div className="hidden md:flex items-center gap-1">
+                    {(() => {
+                      const totalPages = announcementsData.totalPages;
+                      const maxPages = 5;
+                      const currentPage = announcementPage;
+
+                      // 페이지 번호 배열 생성
+                      const getPageNumbers = (): (number | string)[] => {
+                        const pages: (number | string)[] = [];
+
+                        if (totalPages <= maxPages) {
+                          // 전체 페이지가 5개 이하면 모두 표시
+                          for (let i = 1; i <= totalPages; i++) {
+                            pages.push(i);
+                          }
+                        } else {
+                          // 현재 페이지 중심으로 5개 표시
+                          if (currentPage <= 3) {
+                            // 앞부분
+                            for (let i = 1; i <= 5; i++) {
+                              pages.push(i);
+                            }
+                            pages.push("...");
+                            pages.push(totalPages);
+                          } else if (currentPage >= totalPages - 2) {
+                            // 뒷부분
+                            pages.push(1);
+                            pages.push("...");
+                            for (let i = totalPages - 4; i <= totalPages; i++) {
+                              pages.push(i);
+                            }
+                          } else {
+                            // 중간
+                            pages.push(1);
+                            pages.push("...");
+                            for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                              pages.push(i);
+                            }
+                            pages.push("...");
+                            pages.push(totalPages);
+                          }
+                        }
+
+                        return pages;
+                      };
+
+                      const pageNumbers = getPageNumbers();
+
+                      return pageNumbers.map((pageNum, index) => {
+                        if (pageNum === "...") {
+                          return (
+                            <span
+                              key={`ellipsis-${index}`}
+                              className="px-2 text-sm text-muted-foreground dark:text-gray-400"
+                            >
+                              ...
+                            </span>
+                          );
+                        }
+
+                        const pageNumber = pageNum as number;
+                        const isActive = pageNumber === currentPage;
+
+                        return (
+                          <Button
+                            key={pageNumber}
+                            variant={isActive ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setAnnouncementPage(pageNumber)}
+                            className={`h-9 min-w-[36px] ${
+                              isActive
+                                ? "bg-[#10B981] hover:bg-[#059669] text-white border-[#10B981]"
+                                : ""
+                            }`}
+                          >
+                            {pageNumber}
+                          </Button>
+                        );
+                      });
+                    })()}
+                  </div>
+
+                  {/* 현재 페이지 번호 (모바일만 표시) */}
+                  <div className="md:hidden px-3 py-1.5 text-sm font-medium text-foreground dark:text-foreground">
+                    {announcementPage} / {announcementsData.totalPages}
+                  </div>
+
+                  {/* 다음 버튼 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setAnnouncementPage((p) =>
+                        Math.min(announcementsData.totalPages, p + 1),
+                      )
+                    }
+                    disabled={announcementPage >= announcementsData.totalPages}
+                    className="h-9 px-3"
+                  >
+                    다음
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 

@@ -29,14 +29,19 @@ import {
   MessageSquare,
   Clock,
   CheckCircle,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 
 import PageHeader from "@/components/common/PageHeader";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
 import InquiryListSkeleton from "@/components/wholesaler/Inquiries/InquiryListSkeleton";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type {
   InquiryFilter as InquiryFilterType,
   InquiryDetail,
@@ -148,7 +153,7 @@ export default function InquiriesPage() {
   const [filter, setFilter] = React.useState<InquiryFilterType>({});
   // 페이지 상태
   const [page, setPage] = React.useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = React.useState(20);
   const router = useRouter();
 
   // activeTab을 filter.status로부터 계산 (동기화 보장)
@@ -167,7 +172,7 @@ export default function InquiriesPage() {
 
   // 문의 목록 조회
   const { data, isLoading, error } = useQuery({
-    queryKey: ["inquiries", filter, page],
+    queryKey: ["inquiries", filter, page, pageSize],
     queryFn: () => fetchInquiries(filter, page, pageSize),
     staleTime: 30 * 1000, // 30초
   });
@@ -462,58 +467,156 @@ export default function InquiriesPage() {
       )}
 
       {/* 페이지네이션 */}
-      {data && data.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-200">
-          <div className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">
-            총 <span className="text-[#10B981] font-bold">{data.total}</span>개
-            중{" "}
-            <span className="text-[#10B981] font-bold">
-              {(data.page - 1) * data.pageSize + 1}
-            </span>
-            -
-            <span className="text-[#10B981] font-bold">
-              {Math.min(data.page * data.pageSize, data.total)}
-            </span>
-            개 표시
+      {data && data.totalPages > 0 && (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* 페이지 정보 및 페이지 크기 선택 */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            {/* 현재 페이지 정보 */}
+            <div className="text-sm text-muted-foreground dark:text-gray-300">
+              {(() => {
+                const startIndex = (data.page - 1) * pageSize + 1;
+                const endIndex = Math.min(data.page * pageSize, data.total);
+                return `${startIndex}-${endIndex} / ${data.total}건`;
+              })()}
+            </div>
+
+            {/* 페이지 크기 선택 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
+                페이지당:
+              </span>
+              <Select
+                value={String(pageSize)}
+                onValueChange={(value) => {
+                  setPageSize(Number(value));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[80px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {/* 페이지 네비게이션 */}
           <div className="flex items-center gap-2">
+            {/* 이전 버튼 */}
             <Button
               variant="outline"
               size="sm"
-              disabled={data.page === 1}
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-              className="border-gray-200 dark:border-gray-700 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={data.page <= 1}
+              className="h-9 px-3"
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
               이전
             </Button>
-            <div className="flex items-center gap-1 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-foreground">
-              <span>{data.page}</span>
-              <span className="text-gray-500 dark:text-muted-foreground">
-                /
-              </span>
-              <span>{data.totalPages}</span>
+
+            {/* 페이지 번호 버튼 (데스크톱/태블릿만 표시) */}
+            <div className="hidden md:flex items-center gap-1">
+              {(() => {
+                const totalPages = data.totalPages;
+                const maxPages = 5;
+                const currentPage = data.page;
+
+                // 페이지 번호 배열 생성
+                const getPageNumbers = (): (number | string)[] => {
+                  const pages: (number | string)[] = [];
+
+                  if (totalPages <= maxPages) {
+                    // 전체 페이지가 5개 이하면 모두 표시
+                    for (let i = 1; i <= totalPages; i++) {
+                      pages.push(i);
+                    }
+                  } else {
+                    // 현재 페이지 중심으로 5개 표시
+                    if (currentPage <= 3) {
+                      // 앞부분
+                      for (let i = 1; i <= 5; i++) {
+                        pages.push(i);
+                      }
+                      pages.push("...");
+                      pages.push(totalPages);
+                    } else if (currentPage >= totalPages - 2) {
+                      // 뒷부분
+                      pages.push(1);
+                      pages.push("...");
+                      for (let i = totalPages - 4; i <= totalPages; i++) {
+                        pages.push(i);
+                      }
+                    } else {
+                      // 중간
+                      pages.push(1);
+                      pages.push("...");
+                      for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                        pages.push(i);
+                      }
+                      pages.push("...");
+                      pages.push(totalPages);
+                    }
+                  }
+
+                  return pages;
+                };
+
+                const pageNumbers = getPageNumbers();
+
+                return pageNumbers.map((pageNum, index) => {
+                  if (pageNum === "...") {
+                    return (
+                      <span
+                        key={`ellipsis-${index}`}
+                        className="px-2 text-sm text-muted-foreground dark:text-gray-400"
+                      >
+                        ...
+                      </span>
+                    );
+                  }
+
+                  const pageNumber = pageNum as number;
+                  const isActive = pageNumber === currentPage;
+
+                  return (
+                    <Button
+                      key={pageNumber}
+                      variant={isActive ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setPage(pageNumber)}
+                      className={`h-9 min-w-[36px] ${
+                        isActive
+                          ? "bg-[#10B981] hover:bg-[#059669] text-white border-[#10B981]"
+                          : ""
+                      }`}
+                    >
+                      {pageNumber}
+                    </Button>
+                  );
+                });
+              })()}
             </div>
+
+            {/* 현재 페이지 번호 (모바일만 표시) */}
+            <div className="md:hidden px-3 py-1.5 text-sm font-medium text-foreground dark:text-foreground">
+              {data.page} / {data.totalPages}
+            </div>
+
+            {/* 다음 버튼 */}
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
               disabled={data.page >= data.totalPages}
-              onClick={() =>
-                setPage((prev) => Math.min(data.totalPages, prev + 1))
-              }
-              className="border-gray-200 dark:border-gray-700 hover:border-[#10B981] hover:text-[#10B981] hover:bg-[#10B981]/5 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="h-9 px-3"
             >
               다음
-              <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
-        </div>
-      )}
-
-      {/* 통계 정보 (페이지가 1개일 때만 표시) */}
-      {data && data.totalPages <= 1 && (
-        <div className="text-sm text-gray-600 dark:text-gray-300">
-          총 {data.total}개의 문의
         </div>
       )}
     </div>
