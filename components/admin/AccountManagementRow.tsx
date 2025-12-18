@@ -352,80 +352,80 @@ export default function AccountManagementRow({
     </div>
   );
 
-  // 데스크톱 테이블 행
+  // 데스크톱/태블릿 테이블 행
   if (!isMobile) {
     return (
       <tr className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
-        <td className="px-6 py-4 whitespace-nowrap">
-          <div className="text-sm text-muted-foreground dark:text-muted-foreground text-center">
+        <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+          <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground text-center">
             {rowNumber}
           </div>
         </td>
         {isWholesaler ? (
           <>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm font-medium text-foreground dark:text-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+              <div className="text-xs md:text-sm font-medium text-foreground dark:text-foreground">
                 {(account as WholesalerAccount).business_name}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden lg:table-cell">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
                 {(account as WholesalerAccount).business_number}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden xl:table-cell">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
                 {(account as WholesalerAccount).representative}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden lg:table-cell">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground truncate max-w-[150px]">
                 {email || "-"}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
               <StatusBadge status={account.status} />
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden xl:table-cell">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
                 {formatDate(account.created_at)}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-right">
               <ActionButtons />
             </td>
           </>
         ) : (
           <>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm font-medium text-foreground dark:text-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+              <div className="text-xs md:text-sm font-medium text-foreground dark:text-foreground">
                 {(account as RetailerAccount).business_name}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
                 {(account as RetailerAccount).phone}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden lg:table-cell">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground truncate max-w-[150px]">
                 {email || "-"}
               </div>
             </td>
-            <td className="px-6 py-4">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground max-w-xs truncate">
+            <td className="px-3 md:px-6 py-3 md:py-4 hidden xl:table-cell">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground max-w-xs truncate">
                 {(account as RetailerAccount).address}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
               <StatusBadge status={account.status} />
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden xl:table-cell">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
                 {formatDate(account.created_at)}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right">
+            <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-right">
               <ActionButtons />
             </td>
           </>

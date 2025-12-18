@@ -88,6 +88,17 @@ export default function AccountManagementTable({
   const [searchQuery, setSearchQuery] = React.useState(
     searchParams.get("search") || ""
   );
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  // 화면 크기 감지
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // URL 파라미터 변경 시 검색어 상태 동기화
   React.useEffect(() => {
@@ -150,17 +161,21 @@ export default function AccountManagementTable({
         <div className="p-4 md:p-6 border-b border-gray-200 dark:border-gray-800">
           <form onSubmit={handleSearch} className="relative">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500" />
               <Input
                 type="text"
                 placeholder={
                   isWholesalersTab
-                    ? "상호명, 이메일, 전화번호, 대표자명으로 검색"
-                    : "상호명, 이메일, 전화번호로 검색"
+                    ? isMobile
+                      ? "상호명, 이메일, 전화번호 검색"
+                      : "상호명, 이메일, 전화번호, 대표자명으로 검색"
+                    : isMobile
+                      ? "상호명, 이메일, 전화번호 검색"
+                      : "상호명, 이메일, 전화번호로 검색"
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10 w-full"
+                className="pl-9 md:pl-10 pr-9 md:pr-10 w-full text-sm md:text-base"
               />
               {searchQuery && (
                 <button
@@ -182,24 +197,28 @@ export default function AccountManagementTable({
             <button
               onClick={() => handleTabChange("wholesalers")}
               className={cn(
-                "px-6 py-4 text-sm font-medium transition-colors duration-200 border-b-2",
+                "px-3 py-3 md:px-6 md:py-4 text-xs md:text-sm font-medium transition-colors duration-200 border-b-2",
                 activeTab === "wholesalers"
                   ? "border-[#10B981] text-[#10B981] bg-[#10B981]/5"
                   : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300",
               )}
             >
-              도매 계정 ({wholesalers.length})
+              <span className="hidden sm:inline">도매 계정</span>
+              <span className="sm:hidden">도매</span>
+              <span className="ml-1">({wholesalers.length})</span>
             </button>
             <button
               onClick={() => handleTabChange("retailers")}
               className={cn(
-                "px-6 py-4 text-sm font-medium transition-colors duration-200 border-b-2",
+                "px-3 py-3 md:px-6 md:py-4 text-xs md:text-sm font-medium transition-colors duration-200 border-b-2",
                 activeTab === "retailers"
                   ? "border-[#10B981] text-[#10B981] bg-[#10B981]/5"
                   : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300",
               )}
             >
-              소매 계정 ({retailers.length})
+              <span className="hidden sm:inline">소매 계정</span>
+              <span className="sm:hidden">소매</span>
+              <span className="ml-1">({retailers.length})</span>
             </button>
           </div>
         </div>
@@ -230,59 +249,59 @@ export default function AccountManagementTable({
         {/* 테이블 */}
         {!isLoading && accounts.length > 0 && (
           <>
-            {/* 데스크톱 테이블 */}
-            <div className="hidden lg:block overflow-x-auto">
-              <table className="w-full">
+            {/* 태블릿/데스크톱 테이블 */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full min-w-[640px]">
                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">
-                          번호
-                        </th>
+                    <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12 md:w-16">
+                      번호
+                    </th>
                     {isWholesalersTab ? (
                       <>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-[120px]">
                           상호명
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell min-w-[100px]">
                           사업자번호
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden xl:table-cell min-w-[80px]">
                           대표자
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell min-w-[150px]">
                           이메일
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20">
                           상태
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden xl:table-cell min-w-[120px]">
                           가입일
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">
                           관리
                         </th>
                       </>
                     ) : (
                       <>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-[120px]">
                           상호명
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-[100px]">
                           연락처
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden lg:table-cell min-w-[150px]">
                           이메일
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden xl:table-cell min-w-[200px]">
                           주소
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20">
                           상태
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden xl:table-cell min-w-[120px]">
                           가입일
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">
                           관리
                         </th>
                       </>
@@ -306,7 +325,7 @@ export default function AccountManagementTable({
             </div>
 
             {/* 모바일 카드 */}
-            <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
+            <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-800">
               {accounts.map((account, index) => {
                 const rowNumber = (page - 1) * pageSize + index + 1;
                 return (
@@ -323,16 +342,16 @@ export default function AccountManagementTable({
 
             {/* 페이지네이션 */}
             {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+              <div className="px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
+                <div className="flex items-center gap-2 justify-center sm:justify-start">
+                  <span className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
                     페이지 크기:
                   </span>
                   <Select
                     value={pageSize.toString()}
                     onValueChange={handlePageSizeChange}
                   >
-                    <SelectTrigger className="w-20">
+                    <SelectTrigger className="w-16 md:w-20 h-8 md:h-9 text-xs md:text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -342,16 +361,17 @@ export default function AccountManagementTable({
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-center sm:justify-end">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
+                    className="h-8 md:h-9 text-xs md:text-sm px-3 md:px-4"
                   >
                     이전
                   </Button>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-xs md:text-sm text-muted-foreground whitespace-nowrap">
                     {page} / {totalPages}
                   </span>
                   <Button
@@ -359,6 +379,7 @@ export default function AccountManagementTable({
                     size="sm"
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page >= totalPages}
+                    className="h-8 md:h-9 text-xs md:text-sm px-3 md:px-4"
                   >
                     다음
                   </Button>
