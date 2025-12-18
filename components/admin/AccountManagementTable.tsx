@@ -153,7 +153,7 @@ export default function AccountManagementTable({
         {!isLoading && accounts.length === 0 && (
           <div className="py-12">
             <EmptyState
-              title="계정이 없습니다"
+              message="계정이 없습니다"
               description={
                 isWholesalersTab
                   ? "승인된 도매 계정이 없습니다."
