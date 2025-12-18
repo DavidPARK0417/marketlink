@@ -22,14 +22,23 @@
  */
 
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 /**
  * Clerk 미들웨어
  *
- * 모든 요청에 대해 Clerk 인증을 처리합니다.
- * 인증되지 않은 사용자는 Clerk가 자동으로 로그인 페이지로 리다이렉트합니다.
+ * 모든 요청에 대해 Clerk 인증을 처리하고,
+ * 현재 경로 정보를 헤더에 추가합니다.
  */
-export default clerkMiddleware();
+export default clerkMiddleware(async (auth, req) => {
+  const response = NextResponse.next();
+  
+  // 현재 경로를 헤더에 추가 (레이아웃에서 사용)
+  const pathname = req.nextUrl.pathname;
+  response.headers.set("x-pathname", pathname);
+  
+  return response;
+});
 
 /**
  * 미들웨어 실행 조건 설정

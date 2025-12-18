@@ -23,6 +23,7 @@
  */
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { requireWholesaler } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import WholesalerLayoutClient from "@/components/wholesaler/Layout/WholesalerLayoutClient";
@@ -37,6 +38,13 @@ export default async function WholesalerLayout({
 }) {
   try {
     console.log("🔍 [wholesaler-layout] 레이아웃 접근 시작");
+
+    // 현재 경로 확인 (suspended 페이지 예외 처리용)
+    const headersList = await headers();
+    const pathname = headersList.get("x-pathname") || "";
+    const isSuspendedPage = pathname === "/wholesaler/suspended";
+    
+    console.log("📍 [wholesaler-layout] 현재 경로:", pathname, "| suspended 페이지 여부:", isSuspendedPage);
 
     // 1. 도매점 또는 관리자 권한 확인 (requireWholesaler 사용)
     const profile = await requireWholesaler();
@@ -61,7 +69,7 @@ export default async function WholesalerLayout({
     // profile_id로 도매점 정보 조회
     const { data: wholesaler, error } = await supabase
       .from("wholesalers")
-      .select("id, status, rejection_reason")
+      .select("id, status, suspension_reason")
       .eq("profile_id", profile.id)
       .maybeSingle();
 
@@ -95,8 +103,16 @@ export default async function WholesalerLayout({
       redirect("/");
     }
 
-    // 6. status = 'suspended'이면 정지 페이지로 리다이렉트
+    // 6. status = 'suspended'인 경우 처리
     if (wholesaler.status === "suspended") {
+      // 이미 suspended 페이지에 있으면 레이아웃 구조 없이 children만 렌더링
+      if (isSuspendedPage) {
+        console.log(
+          "🚫 [wholesaler-layout] 정지 페이지 접근 - 레이아웃 구조 없이 렌더링",
+        );
+        return <>{children}</>;
+      }
+      // suspended 페이지가 아니면 정지 페이지로 리다이렉트
       console.log(
         "🚫 [wholesaler-layout] 계정 정지 상태, 정지 페이지로 리다이렉트",
       );
