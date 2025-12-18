@@ -92,30 +92,33 @@ export default function WholesalerTable({
       {/* 데스크톱 테이블 */}
       <div className="hidden lg:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-          <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+          <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+              <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20 min-w-[60px]">
+                번호
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 상호명
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 사업자번호
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 대표자
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 이메일
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 신청일
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 액션
               </th>
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-            {wholesalers.map((wholesaler) => {
+            {wholesalers.map((wholesaler, index) => {
               // 타입 안전성을 위해 타입 단언
               const wholesalerData = wholesaler as unknown as PendingWholesaler;
               
@@ -131,6 +134,9 @@ export default function WholesalerTable({
                 }
               }
 
+              // 페이지네이션을 고려한 번호 계산
+              const rowNumber = (page - 1) * pageSize + index + 1;
+
               return (
                 <WholesalerTableRow
                   key={wholesalerData.id}
@@ -140,6 +146,7 @@ export default function WholesalerTable({
                   representative={wholesalerData.representative}
                   email={email}
                   created_at={wholesalerData.created_at}
+                  rowNumber={rowNumber}
                 />
               );
             })}
@@ -149,7 +156,7 @@ export default function WholesalerTable({
 
       {/* 모바일 카드 */}
       <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
-        {wholesalers.map((wholesaler) => {
+        {wholesalers.map((wholesaler, index) => {
           const wholesalerData = wholesaler as unknown as PendingWholesaler;
           
           // email 필드가 직접 포함되어 있으면 사용, 없으면 profiles에서 추출
@@ -163,6 +170,9 @@ export default function WholesalerTable({
               email = (wholesalerData.profiles as { email: string }).email;
             }
           }
+
+          // 페이지네이션을 고려한 번호 계산
+          const rowNumber = (page - 1) * pageSize + index + 1;
 
           const formatDate = (dateString: string) => {
             const date = new Date(dateString);
@@ -184,36 +194,41 @@ export default function WholesalerTable({
               className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
             >
               <div className="space-y-3">
-                <div className="text-sm font-medium text-foreground dark:text-foreground">
-                  {wholesalerData.business_name}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground dark:text-gray-300 font-medium">
+                    {rowNumber}.
+                  </span>
+                  <div className="text-sm font-medium text-foreground dark:text-white">
+                    {wholesalerData.business_name}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <div className="text-muted-foreground dark:text-muted-foreground mb-1">
+                    <div className="text-muted-foreground dark:text-gray-300 mb-1">
                       사업자번호
                     </div>
-                    <div className="text-foreground dark:text-foreground">
+                    <div className="text-foreground dark:text-gray-200">
                       {wholesalerData.business_number}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground dark:text-muted-foreground mb-1">
+                    <div className="text-muted-foreground dark:text-gray-300 mb-1">
                       대표자
                     </div>
-                    <div className="text-foreground dark:text-foreground">
+                    <div className="text-foreground dark:text-gray-200">
                       {wholesalerData.representative}
                     </div>
                   </div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-muted-foreground dark:text-muted-foreground mb-1">
+                  <div className="text-muted-foreground dark:text-gray-300 mb-1">
                     이메일
                   </div>
-                  <div className="text-foreground dark:text-foreground">
+                  <div className="text-foreground dark:text-gray-200">
                     {email || "-"}
                   </div>
                 </div>
-                <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+                <div className="text-sm text-muted-foreground dark:text-gray-300">
                   {formatDate(wholesalerData.created_at)}
                 </div>
               </div>

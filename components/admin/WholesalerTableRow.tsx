@@ -20,6 +20,7 @@ interface WholesalerTableRowProps {
   representative: string;
   email: string | null;
   created_at: string;
+  rowNumber?: number;
 }
 
 export default function WholesalerTableRow({
@@ -29,6 +30,7 @@ export default function WholesalerTableRow({
   representative,
   email,
   created_at,
+  rowNumber,
 }: WholesalerTableRowProps) {
   const router = useRouter();
 
@@ -53,28 +55,33 @@ export default function WholesalerTableRow({
       onClick={handleRowClick}
       className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
     >
+      <td className="px-3 py-4 whitespace-nowrap w-20 min-w-[60px] text-center">
+        <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
+          {rowNumber}
+        </div>
+      </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-foreground dark:text-foreground">
+        <div className="text-sm font-medium text-foreground dark:text-white">
           {business_name}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+        <div className="text-sm text-muted-foreground dark:text-gray-300">
           {business_number}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+        <div className="text-sm text-muted-foreground dark:text-gray-300">
           {representative}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+        <div className="text-sm text-muted-foreground dark:text-gray-300">
           {email || "-"}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+        <div className="text-sm text-muted-foreground dark:text-gray-300">
           {formatDate(created_at)}
         </div>
       </td>
