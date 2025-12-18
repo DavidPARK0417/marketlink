@@ -139,7 +139,7 @@ export default function AdminHeader() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-gray-50 dark:bg-gray-800 border-0 rounded-xl pl-11 pr-4 py-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white dark:focus:bg-gray-700 transition-all"
         />
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500 group-focus-within:text-[#10B981]" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-300 group-focus-within:text-[#10B981]" />
       </form>
 
       {/* 우측: 알림 + 메뉴 + 사용자 */}
@@ -148,7 +148,7 @@ export default function AdminHeader() {
         <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <button
-              className="relative flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="relative flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
               aria-label="알림"
               disabled={isLoadingNotifications}
             >
@@ -330,7 +330,7 @@ export default function AdminHeader() {
 
         <button
           onClick={toggleMobileMenu}
-          className="lg:hidden p-2 text-gray-600 hover:text-[#10B981] transition-colors"
+          className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:text-[#10B981] transition-colors"
           aria-label="메뉴"
         >
           {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
