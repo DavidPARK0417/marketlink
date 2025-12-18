@@ -274,13 +274,13 @@ export default async function AccountManagementPage({
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8">
       {/* 페이지 헤더 */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground dark:text-foreground">
+      <div className="space-y-1 md:space-y-2">
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground">
           계정 관리
         </h1>
-        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+        <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
           도매 및 소매 계정을 관리하고 정지/해제 처리를 진행하세요.
         </p>
       </div>

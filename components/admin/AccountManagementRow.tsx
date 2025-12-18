@@ -257,16 +257,17 @@ export default function AccountManagementRow({
           onClick={handleUnsuspend}
           disabled={isUnsuspending}
           size="sm"
-          className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
+          className="bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white h-8 md:h-9 px-3 md:px-4 text-xs md:text-sm"
         >
           {isUnsuspending ? (
             <>
-              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-              해제 중...
+              <Loader2 className="mr-1 h-3 w-3 md:h-4 md:w-4 animate-spin" />
+              <span className="hidden sm:inline">해제 중...</span>
+              <span className="sm:hidden">해제 중</span>
             </>
           ) : (
             <>
-              <CheckCircle className="mr-1 h-3 w-3" />
+              <CheckCircle className="mr-1 h-3 w-3 md:h-4 md:w-4" />
               해제
             </>
           )}
@@ -278,8 +279,9 @@ export default function AccountManagementRow({
               variant="destructive"
               size="sm"
               disabled={isSuspending}
+              className="h-8 md:h-9 px-3 md:px-4 text-xs md:text-sm"
             >
-              <Ban className="mr-1 h-3 w-3" />
+              <Ban className="mr-1 h-3 w-3 md:h-4 md:w-4" />
               정지
             </Button>
           </DialogTrigger>
@@ -436,21 +438,21 @@ export default function AccountManagementRow({
 
   // 모바일 카드
   return (
-    <div className="p-4 bg-white dark:bg-gray-900">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
+    <div className="p-4 md:p-5 bg-white dark:bg-gray-900">
+      <div className="flex items-start justify-between mb-2 md:mb-3">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground dark:text-gray-300 font-medium">
+            <span className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 font-medium">
               {rowNumber}.
             </span>
-            <h3 className="text-sm font-medium text-foreground dark:text-white">
+            <h3 className="text-sm md:text-base font-medium text-foreground dark:text-white truncate">
               {isWholesaler
                 ? (account as WholesalerAccount).business_name
                 : (account as RetailerAccount).business_name}
             </h3>
           </div>
           {isWholesaler && (
-            <p className="text-xs text-muted-foreground dark:text-gray-300 mt-1">
+            <p className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 mt-1 break-all">
               {(account as WholesalerAccount).business_number}
             </p>
           )}
@@ -458,32 +460,33 @@ export default function AccountManagementRow({
         <StatusBadge status={account.status} />
       </div>
 
-      <div className="space-y-2 text-sm text-muted-foreground dark:text-gray-300 mb-4">
+      <div className="space-y-2 md:space-y-3 text-xs md:text-sm text-muted-foreground dark:text-gray-300 mb-3 md:mb-4">
         {isWholesaler ? (
           <>
             <div>
               <span className="font-medium">대표자:</span>{" "}
-              {(account as WholesalerAccount).representative}
+              <span className="break-words">{(account as WholesalerAccount).representative}</span>
             </div>
             <div>
               <span className="font-medium">연락처:</span>{" "}
-              {(account as WholesalerAccount).phone}
+              <span className="break-all">{(account as WholesalerAccount).phone}</span>
             </div>
           </>
         ) : (
           <>
             <div>
               <span className="font-medium">연락처:</span>{" "}
-              {(account as RetailerAccount).phone}
+              <span className="break-all">{(account as RetailerAccount).phone}</span>
             </div>
             <div>
               <span className="font-medium">주소:</span>{" "}
-              {(account as RetailerAccount).address}
+              <span className="break-words">{(account as RetailerAccount).address}</span>
             </div>
           </>
         )}
         <div>
-          <span className="font-medium">이메일:</span> {email || "-"}
+          <span className="font-medium">이메일:</span>{" "}
+          <span className="break-all">{email || "-"}</span>
         </div>
         <div>
           <span className="font-medium">가입일:</span> {formatDate(account.created_at)}

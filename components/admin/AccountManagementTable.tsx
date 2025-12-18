@@ -341,11 +341,11 @@ export default function AccountManagementTable({
             </div>
 
             {/* 페이지네이션 */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 dark:border-gray-800">
+            <div className="flex flex-col gap-3 md:gap-4 sm:flex-row sm:items-center sm:justify-between px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 dark:border-gray-800">
               {/* 페이지 정보 및 페이지 크기 선택 */}
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex flex-col gap-2 md:gap-3 sm:flex-row sm:items-center sm:gap-4">
                 {/* 현재 페이지 정보 */}
-                <div className="text-sm text-muted-foreground dark:text-gray-300">
+                <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
                   {(() => {
                     const startIndex = (page - 1) * pageSize + 1;
                     const endIndex = Math.min(page * pageSize, total);
@@ -355,7 +355,7 @@ export default function AccountManagementTable({
 
                 {/* 페이지 크기 선택 */}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
+                  <span className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
                     페이지당:
                   </span>
                   <Select
@@ -366,7 +366,7 @@ export default function AccountManagementTable({
                       handlePageChange(1);
                     }}
                   >
-                    <SelectTrigger className="w-[80px] h-9">
+                    <SelectTrigger className="w-[70px] md:w-[80px] h-8 md:h-9 text-xs md:text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -387,7 +387,7 @@ export default function AccountManagementTable({
                   size="sm"
                   onClick={() => handlePageChange(page - 1)}
                   disabled={page <= 1}
-                  className="h-9 px-3"
+                  className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm"
                 >
                   이전
                 </Button>
@@ -444,7 +444,7 @@ export default function AccountManagementTable({
                         return (
                           <span
                             key={`ellipsis-${index}`}
-                            className="px-2 text-sm text-muted-foreground dark:text-gray-400"
+                            className="px-1 md:px-2 text-xs md:text-sm text-muted-foreground dark:text-gray-400"
                           >
                             ...
                           </span>
@@ -460,7 +460,7 @@ export default function AccountManagementTable({
                           variant={isActive ? "default" : "outline"}
                           size="sm"
                           onClick={() => handlePageChange(pageNumValue)}
-                          className={`h-9 min-w-[36px] ${
+                          className={`h-8 md:h-9 min-w-[32px] md:min-w-[36px] text-xs md:text-sm ${
                             isActive
                               ? "bg-[#10B981] hover:bg-[#059669] text-white border-[#10B981]"
                               : ""
@@ -474,7 +474,7 @@ export default function AccountManagementTable({
                 </div>
 
                 {/* 현재 페이지 번호 (모바일만 표시) */}
-                <div className="md:hidden px-3 py-1.5 text-sm font-medium text-foreground dark:text-foreground">
+                <div className="md:hidden px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-medium text-foreground dark:text-foreground">
                   {page} / {totalPages}
                 </div>
 
@@ -484,7 +484,7 @@ export default function AccountManagementTable({
                   size="sm"
                   onClick={() => handlePageChange(page + 1)}
                   disabled={page >= totalPages}
-                  className="h-9 px-3"
+                  className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm"
                 >
                   다음
                 </Button>
