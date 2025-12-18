@@ -632,18 +632,32 @@ function WholesalerLayoutContent({
               isMobileSearchOpen ? "justify-start" : "justify-between"
             )}>
               {/* Mobile Logo - 검색창이 열려있을 때는 숨김 */}
-              {!isMobileSearchOpen && (
-                <Link href="/wholesaler/dashboard" className="flex items-center">
-                  <Image
-                    src="/logo.png"
-                    alt="FarmToBiz"
-                    width={120}
-                    height={46}
-                    className="h-8 w-auto object-contain"
-                    priority
-                  />
-                </Link>
-              )}
+              <Link 
+                href="/wholesaler/dashboard" 
+                className={cn(
+                  "flex items-center",
+                  isMobileSearchOpen && "hidden"
+                )}
+              >
+                {/* 모바일용 로고 */}
+                <Image
+                  src="/logo.png"
+                  alt="FarmToBiz"
+                  width={120}
+                  height={46}
+                  className="block md:hidden h-8 w-auto object-contain"
+                  priority
+                />
+                {/* 태블릿/노트북용 로고 */}
+                <Image
+                  src="/farmtobiz_logo.png"
+                  alt="FarmToBiz"
+                  width={180}
+                  height={69}
+                  className="hidden md:block h-12 w-auto object-contain"
+                  priority
+                />
+              </Link>
 
               {/* Mobile Search & Menu */}
               <div className={cn(
