@@ -29,8 +29,8 @@ import { SuspendedPageClient } from "./SuspendedPageClient";
 export const dynamic = "force-dynamic";
 
 // 문의 정보 (환경 변수 또는 상수로 관리 가능)
-const CONTACT_EMAIL = "contact@yourplatform.com";
-const CONTACT_PHONE = "1588-XXXX";
+const CONTACT_EMAIL = "decidepyb@gmail.com";
+const CONTACT_PHONE = "1588-0000";
 
 export default async function SuspendedPage() {
   console.log("🔍 [suspended] 정지 페이지 접근 시작");
