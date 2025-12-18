@@ -356,8 +356,8 @@ export default function AccountManagementRow({
   if (!isMobile) {
     return (
       <tr className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
-        <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-          <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 text-center">
+        <td className="px-2 md:px-4 py-3 md:py-4 whitespace-nowrap w-20 text-center">
+          <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
             {rowNumber}
           </div>
         </td>

@@ -64,10 +64,59 @@ export interface ProfileWithDetails extends Profile {
  */
 export async function getCurrentUser() {
   try {
+    // Clerk 환경 변수 확인
+    const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+    const clerkSecretKey = process.env.CLERK_SECRET_KEY;
+    
+    if (!clerkPublishableKey || !clerkSecretKey) {
+      console.error("❌ [auth] getCurrentUser: Clerk 환경 변수가 설정되지 않았습니다", {
+        hasPublishableKey: !!clerkPublishableKey,
+        hasSecretKey: !!clerkSecretKey,
+      });
+      return null;
+    }
+
+    console.log("🔍 [auth] getCurrentUser: Clerk 사용자 조회 시작");
     const user = await currentUser();
+    
+    if (!user) {
+      console.log("⚠️ [auth] getCurrentUser: 사용자 인증되지 않음");
+      return null;
+    }
+
+    console.log("✅ [auth] getCurrentUser: 사용자 조회 성공", {
+      userId: user.id,
+      email: user.emailAddresses[0]?.emailAddress,
+    });
+    
     return user;
   } catch (error) {
-    console.error("❌ [auth] getCurrentUser 오류:", error);
+    // 에러 타입별 상세 로깅
+    if (error instanceof Error) {
+      console.error("❌ [auth] getCurrentUser 오류:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause,
+      });
+    } else {
+      console.error("❌ [auth] getCurrentUser 알 수 없는 오류:", {
+        error,
+        errorType: typeof error,
+        errorString: String(error),
+      });
+    }
+    
+    // Clerk API 에러인 경우 추가 정보 로깅
+    if (error && typeof error === 'object' && 'status' in error) {
+      console.error("❌ [auth] getCurrentUser: Clerk API 에러 상세:", {
+        status: (error as any).status,
+        statusText: (error as any).statusText,
+        data: (error as any).data,
+        clerkTraceId: (error as any).clerkTraceId,
+      });
+    }
+    
     return null;
   }
 }

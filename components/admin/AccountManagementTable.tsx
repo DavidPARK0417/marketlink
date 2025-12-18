@@ -254,7 +254,7 @@ export default function AccountManagementTable({
               <table className="w-full min-w-[640px]">
                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                   <tr>
-                    <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider min-w-[60px] w-16">
+                    <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20">
                       번호
                     </th>
                     {isWholesalersTab ? (
