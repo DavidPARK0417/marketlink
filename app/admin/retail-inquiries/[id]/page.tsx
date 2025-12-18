@@ -295,6 +295,15 @@ export default function AdminRetailInquiryDetailPage({
             <div className="flex-1 min-w-0">
               <CardTitle className="mb-2 break-words">{inquiry.title}</CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-4 break-words">
+                {inquiry.retailer_business_name && (
+                  <span>문의자명: {inquiry.retailer_business_name}</span>
+                )}
+                {inquiry.retailer_phone && (
+                  <span>연락처: {inquiry.retailer_phone}</span>
+                )}
+                {inquiry.user_anonymous_code && (
+                  <span>소매사업자 코드: {inquiry.user_anonymous_code}</span>
+                )}
                 <span>
                   문의일:{" "}
                   {format(new Date(inquiry.created_at), "yyyy-MM-dd HH:mm", {

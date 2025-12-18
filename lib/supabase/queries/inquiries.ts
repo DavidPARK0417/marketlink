@@ -847,13 +847,47 @@ export async function getInquiryById(
       throw new Error("이 문의를 조회할 권한이 없습니다.");
     }
 
+    // 관리자가 조회하는 경우 소매사업자 정보 포함
+    let retailerBusinessName: string | null = null;
+    let retailerPhone: string | null = null;
+    let anonymousCode: string | null = null;
+
+    if (profile.role === "admin") {
+      // 소매사업자 정보 조회
+      const { data: inquiryProfile } = await supabase
+        .from("profiles")
+        .select("id, role")
+        .eq("id", inquiry.user_id)
+        .single();
+
+      if (inquiryProfile?.role === "retailer") {
+        const { data: retailer } = await supabase
+          .from("retailers")
+          .select("business_name, phone, anonymous_code")
+          .eq("profile_id", inquiryProfile.id)
+          .single();
+
+        if (retailer) {
+          retailerBusinessName = retailer.business_name || null;
+          retailerPhone = retailer.phone || null;
+          anonymousCode = retailer.anonymous_code || null;
+        }
+      }
+    }
+
     const inquiryDetail: InquiryDetail = {
       ...inquiry,
-      user_anonymous_code: null,
+      user_anonymous_code: anonymousCode,
+      retailer_business_name: retailerBusinessName,
+      retailer_phone: retailerPhone,
       order: null,
     };
 
-    console.log("✅ [inquiries] 문의 상세 조회 완료 (소매→관리자)");
+    console.log("✅ [inquiries] 문의 상세 조회 완료 (소매→관리자)", {
+      retailerBusinessName,
+      retailerPhone,
+      anonymousCode,
+    });
     console.groupEnd();
 
     return inquiryDetail;
