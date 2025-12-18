@@ -934,7 +934,7 @@ export default function ProductForm({
               name="delivery_fee"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>배송비 (원) *</FormLabel>
+                  <FormLabel>배송비 (원)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -1021,7 +1021,7 @@ export default function ProductForm({
                       disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormDescription>배송비를 입력하세요.</FormDescription>
+                  <FormDescription>배송비를 입력하세요(선택사항).</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

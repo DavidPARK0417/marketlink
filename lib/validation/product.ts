@@ -100,11 +100,11 @@ export const productSchema = z.object({
 
   delivery_fee: z
     .number({
-      required_error: "배송비를 입력해주세요",
       invalid_type_error: "배송비는 숫자여야 합니다",
     })
     .int("배송비는 정수여야 합니다")
-    .min(0, "배송비는 0 이상이어야 합니다"),
+    .min(0, "배송비는 0 이상이어야 합니다")
+    .default(0),
 
   delivery_method: z
     .enum(["courier", "direct", "quick", "freight", "dawn"], {

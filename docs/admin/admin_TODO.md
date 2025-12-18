@@ -358,24 +358,35 @@ Phase 2 (선택): ░░░░░░░░░░░░░░░░  0% (0/4 완�
 
 ---
 
-### 6단계: 도매 계정 정지/해제 🔴 진행 예정
+### 6단계: 계정 정지/해제 (도매 + 소매) 🔴 진행 예정
 
-**목적**: 문제가 있는 도매사업자의 계정을 정지하거나 해제
+**목적**: 문제가 있는 도매사업자 및 소매사업자의 계정을 정지하거나 해제
+
+#### 6.1 데이터베이스 마이그레이션 (필수)
+
+**파일**: `supabase/migrations/YYYYMMDDHHmmss_add_retailer_status.sql`
+
+- [ ] **retailers 테이블에 status, suspension_reason 필드 추가**
+  - [ ] `status TEXT DEFAULT 'active'` (active, suspended)
+  - [ ] `suspension_reason TEXT NULL`
+  - [ ] 기존 데이터는 모두 'active'로 설정
+
+#### 6.2 도매 계정 정지/해제
 
 **파일**: `actions/admin/account-management.ts`
 
 - [ ] **suspendWholesaler() Server Action**
 
   - [ ] `wholesalers.status`를 `'suspended'`로 변경
-  - [ ] `suspension_reason` 저장
-  - [ ] `audit_logs`에 기록
+  - [ ] `suspension_reason` 저장 (wholesalers 테이블에 suspension_reason 필드 추가 필요 시 마이그레이션)
+  - [ ] `audit_logs`에 기록 (action: 'wholesaler_suspend')
   - [ ] IP 주소 기록
   - [ ] 에러 처리 및 로깅
 
 - [ ] **unsuspendWholesaler() Server Action**
   - [ ] `wholesalers.status`를 `'approved'`로 복구
   - [ ] `suspension_reason`을 `null`로 설정
-  - [ ] `audit_logs`에 기록
+  - [ ] `audit_logs`에 기록 (action: 'wholesaler_unsuspend')
   - [ ] IP 주소 기록
   - [ ] 에러 처리 및 로깅
 
@@ -394,30 +405,80 @@ Phase 2 (선택): ░░░░░░░░░░░░░░░░  0% (0/4 완�
   - [ ] Server Action 호출
   - [ ] 에러 처리
 
+#### 6.3 소매 계정 정지/해제
+
+**파일**: `actions/admin/account-management.ts` (동일 파일에 추가)
+
+- [ ] **suspendRetailer() Server Action**
+
+  - [ ] `retailers.status`를 `'suspended'`로 변경
+  - [ ] `suspension_reason` 저장
+  - [ ] `audit_logs`에 기록 (action: 'retailer_suspend')
+  - [ ] IP 주소 기록
+  - [ ] 에러 처리 및 로깅
+
+- [ ] **unsuspendRetailer() Server Action**
+  - [ ] `retailers.status`를 `'active'`로 복구
+  - [ ] `suspension_reason`을 `null`로 설정
+  - [ ] `audit_logs`에 기록 (action: 'retailer_unsuspend')
+  - [ ] IP 주소 기록
+  - [ ] 에러 처리 및 로깅
+
+**파일**: `app/admin/retailers/[id]/page.tsx` (수정 또는 생성)
+
+- [ ] **소매 상세 페이지에 정지/해제 버튼 추가**
+  - [ ] 정지 버튼 (정지 사유 입력 모달)
+  - [ ] 해제 버튼 (확인 모달)
+  - [ ] 현재 상태에 따라 버튼 표시
+  - [ ] 소매 상세 페이지가 없는 경우 생성 필요
+
+**파일**: `components/admin/RetailerSuspensionForm.tsx`
+
+- [ ] **정지 폼 컴포넌트**
+  - [ ] 정지 사유 입력 (최소 10자)
+  - [ ] react-hook-form + zod
+  - [ ] Server Action 호출
+  - [ ] 에러 처리
+  - [ ] `WholesalerSuspensionForm`과 유사한 구조로 재사용 가능하게 구현
+
 **커서 AI 프롬프트:**
 
 ```
-도매 계정 정지/해제 기능을 만들어줘.
+도매 및 소매 계정 정지/해제 기능을 만들어줘.
 
 요구사항:
-- suspendWholesaler() 함수: status='suspended', suspension_reason 저장
-- unsuspendWholesaler() 함수: status='approved', suspension_reason=null
-- audit_logs 테이블에 기록
+도매 계정:
+- suspendWholesaler() 함수: wholesalers.status='suspended', suspension_reason 저장
+- unsuspendWholesaler() 함수: wholesalers.status='approved', suspension_reason=null
+
+소매 계정:
+- suspendRetailer() 함수: retailers.status='suspended', suspension_reason 저장
+- unsuspendRetailer() 함수: retailers.status='active', suspension_reason=null
+
+공통:
+- audit_logs 테이블에 기록 (action: 'wholesaler_suspend', 'wholesaler_unsuspend', 'retailer_suspend', 'retailer_unsuspend')
 - IP 주소 추출 및 기록
 - 정지 사유 입력 모달 (최소 10자)
 - 에러 처리 및 로깅
 
+데이터베이스:
+- retailers 테이블에 status, suspension_reason 필드 추가 필요 (마이그레이션 파일 생성)
+
 파일:
 - actions/admin/account-management.ts
 - components/admin/WholesalerSuspensionForm.tsx
+- components/admin/RetailerSuspensionForm.tsx
+- supabase/migrations/YYYYMMDDHHmmss_add_retailer_status.sql
 ```
 
 **테스트**:
 
-- [ ] 정지 기능이 정상 작동하는지 확인
-- [ ] 해제 기능이 정상 작동하는지 확인
-- [ ] 정지된 계정으로 로그인 시 접근 차단되는지 확인
-- [ ] 감사 로그가 정상적으로 기록되는지 확인
+- [ ] 도매 계정 정지 기능이 정상 작동하는지 확인
+- [ ] 도매 계정 해제 기능이 정상 작동하는지 확인
+- [ ] 소매 계정 정지 기능이 정상 작동하는지 확인
+- [ ] 소매 계정 해제 기능이 정상 작동하는지 확인
+- [ ] 정지된 계정으로 로그인 시 접근 차단되는지 확인 (도매 + 소매)
+- [ ] 감사 로그가 정상적으로 기록되는지 확인 (도매 + 소매)
 
 ---
 
@@ -880,6 +941,7 @@ CS 답변 및 티켓 종료 Server Action을 만들어줘.
 - [x] 도매 문의 목록이 정상적으로 표시됨 ✅
 - [x] 도매 문의 상세 및 답변이 정상 작동함 ✅
 - [ ] 도매 계정 정지/해제가 정상 작동함
+- [ ] 소매 계정 정지/해제가 정상 작동함
 - [ ] CS 목록이 도매와 소매 통합 조회됨
 - [ ] CS 답변 작성 및 티켓 종료가 정상 작동함
 - [ ] 감사 로그가 정상적으로 기록 및 조회됨
@@ -907,8 +969,9 @@ CS 답변 및 티켓 종료 Server Action을 만들어줘.
 
 - [ ] 도매사업자 승인 후 로그인 가능
 - [ ] 도매사업자 정지 후 로그인 차단
+- [ ] 소매사업자 정지 후 로그인 차단
 - [ ] CS 답변 작성 후 사용자가 확인 가능
-- [ ] 감사 로그에 모든 액션 기록됨
+- [ ] 감사 로그에 모든 액션 기록됨 (도매 + 소매 계정 정지/해제 포함)
 - [ ] 소매 팀과 DB 스키마 협의 완료 (Phase 2)
 
 ---
