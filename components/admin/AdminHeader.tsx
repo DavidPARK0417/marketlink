@@ -16,6 +16,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserButton, useClerk, useUser } from "@clerk/nextjs";
@@ -40,6 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAdminNotifications } from "@/hooks/use-admin-notifications";
 import { formatDateTime } from "@/lib/utils/format";
+import { cn } from "@/lib/utils";
 
 const menuItems = [
   { href: "/admin/dashboard", label: "대시보드" },
@@ -57,6 +59,7 @@ export default function AdminHeader() {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
 
@@ -107,11 +110,17 @@ export default function AdminHeader() {
 
     console.log("🔍 [admin-header-search] 검색 실행", { query: trimmed, type, target });
     router.push(target);
+    // 모바일에서 검색 후 검색창 닫기
+    setIsMobileSearchOpen(false);
   };
 
   const toggleMobileMenu = () => {
     console.log("📱 [admin-header] 모바일 메뉴 토글", { next: !isMobileMenuOpen });
     setIsMobileMenuOpen((prev) => !prev);
+    // 모바일 메뉴 열 때 검색창 닫기
+    if (!isMobileMenuOpen) {
+      setIsMobileSearchOpen(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -127,10 +136,10 @@ export default function AdminHeader() {
 
   return (
     <header className="flex w-full sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 h-16 items-center justify-between px-4 sm:px-5 md:px-6 lg:px-8 gap-3">
-      {/* 좌측/중앙: 검색창 */}
+      {/* 데스크톱: 검색창 (항상 표시) */}
       <form
         onSubmit={handleSearch}
-        className="flex-1 relative group"
+        className="hidden lg:flex flex-1 relative group"
       >
         <input
           type="text"
@@ -142,24 +151,92 @@ export default function AdminHeader() {
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-300 group-focus-within:text-[#10B981]" />
       </form>
 
-      {/* 우측: 알림 + 메뉴 + 사용자 */}
-      <div className="relative flex items-center justify-end gap-2">
-        {/* 알림 드롭다운 메뉴 */}
-        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-          <DropdownMenuTrigger asChild>
+      {/* 모바일/태블릿: 로고 */}
+      <div className={cn(
+        "lg:hidden flex items-center h-16",
+        isMobileSearchOpen ? "justify-start flex-1" : "justify-start"
+      )}>
+        {/* 모바일 로고 - 검색창이 열려있을 때는 숨김 */}
+        {!isMobileSearchOpen && (
+          <Link href="/admin/dashboard" className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="FarmToBiz"
+              width={120}
+              height={46}
+              className="h-8 w-auto object-contain"
+              priority
+            />
+          </Link>
+        )}
+
+        {/* 모바일 검색창 (열렸을 때만 표시) */}
+        {isMobileSearchOpen && (
+          <form
+            onSubmit={handleSearch}
+            className="flex-1 relative"
+          >
+            <input
+              type="text"
+              placeholder="사업자번호, 문의, 공지, FAQ 검색"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+              className="w-full bg-gray-50 dark:bg-gray-800 border-0 rounded-lg pl-9 pr-9 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white dark:focus:bg-gray-700 transition-all"
+            />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <button
-              className="relative flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              aria-label="알림"
-              disabled={isLoadingNotifications}
+              type="button"
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setSearchQuery("");
+              }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              aria-label="검색 닫기"
             >
-              <Bell className="w-5 h-5" />
-              <span className="hidden md:inline text-sm">알림</span>
-              {/* 알림 배지 (새 알림이 있을 때만 표시) */}
-              {hasNewNotifications && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              )}
+              <X className="w-4 h-4" />
             </button>
-          </DropdownMenuTrigger>
+          </form>
+        )}
+      </div>
+
+      {/* 우측: 검색 아이콘 + 알림 + 메뉴 + 사용자 */}
+      <div className={cn(
+        "relative flex items-center justify-end gap-2",
+        isMobileSearchOpen && "lg:flex hidden"
+      )}>
+        {/* 모바일 검색 아이콘 버튼 (검색창이 닫혀있을 때만 표시, 모바일/태블릿에서만) */}
+        {!isMobileSearchOpen && (
+          <button
+            onClick={() => {
+              setIsMobileSearchOpen(true);
+              // 검색창 열 때 모바일 메뉴 닫기
+              setIsMobileMenuOpen(false);
+            }}
+            className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            aria-label="검색"
+          >
+            <Search className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* 알림 드롭다운 메뉴 - 모바일에서 검색창이 열려있을 때는 숨김 */}
+        {!isMobileSearchOpen && (
+          <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="relative flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                aria-label="알림"
+                disabled={isLoadingNotifications}
+              >
+                <Bell className="w-5 h-5" />
+                <span className="hidden md:inline text-sm">알림</span>
+                {/* 알림 배지 (새 알림이 있을 때만 표시) */}
+                {hasNewNotifications && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                )}
+              </button>
+            </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80 overflow-x-hidden overflow-y-hidden">
             <DropdownMenuLabel className="flex items-center justify-between">
               <span>알림</span>
@@ -327,14 +404,18 @@ export default function AdminHeader() {
             )}
           </DropdownMenuContent>
         </DropdownMenu>
+        )}
 
-        <button
-          onClick={toggleMobileMenu}
-          className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:text-[#10B981] transition-colors"
-          aria-label="메뉴"
-        >
-          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* 모바일 메뉴 버튼 - 검색창이 열려있을 때는 숨김 */}
+        {!isMobileSearchOpen && (
+          <button
+            onClick={toggleMobileMenu}
+            className="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:text-[#10B981] transition-colors"
+            aria-label="메뉴"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        )}
         <div className="hidden sm:flex">
           {mounted && isLoaded && <UserButton afterSignOutUrl="/sign-in" />}
         </div>
