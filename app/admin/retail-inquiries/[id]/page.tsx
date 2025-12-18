@@ -313,7 +313,7 @@ export default function AdminRetailInquiryDetailPage({
               </CardDescription>
             </div>
             <div className="shrink-0">
-              <InquiryStatusBadge status={inquiry.status} />
+            <InquiryStatusBadge status={inquiry.status} />
             </div>
           </div>
         </CardHeader>

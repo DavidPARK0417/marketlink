@@ -177,14 +177,6 @@ export default function InquiryTable({
                     >
                       {inquiry.title}
                     </Link>
-                    {inquiry.admin_reply && (
-                      <div className="mt-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-muted-foreground dark:text-muted-foreground text-xs transition-colors duration-200">
-                        <span className="font-bold text-[#10B981] mr-1">
-                          [답변]
-                        </span>
-                        {inquiry.admin_reply}
-                      </div>
-                    )}
                   </td>
                   <td className="p-4 text-center">
                     <span
@@ -244,13 +236,6 @@ export default function InquiryTable({
               <h3 className="text-base font-bold text-foreground dark:text-foreground mb-1">
                 {inquiry.title}
               </h3>
-
-              {inquiry.admin_reply && (
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-muted-foreground dark:text-muted-foreground text-xs mt-2 transition-colors duration-200">
-                  <span className="font-bold text-[#10B981] mr-1">[답변]</span>
-                  {inquiry.admin_reply}
-                </div>
-              )}
             </Link>
           );
         })}

@@ -353,10 +353,10 @@ export default function SupportInquiryDetailPage({
 
   if (!inquiryId) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-4 md:p-8">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">로딩 중...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 mx-auto mb-3 md:mb-4" />
+          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">로딩 중...</p>
         </div>
       </div>
     );
@@ -364,9 +364,9 @@ export default function SupportInquiryDetailPage({
 
   if (isLoading) {
     return (
-      <div className="space-y-6 w-full max-w-full">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
-        <div className="h-64 animate-pulse rounded bg-gray-200" />
+      <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8 w-full max-w-full">
+        <div className="h-8 w-32 md:w-48 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="h-48 md:h-64 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
       </div>
     );
   }
@@ -376,17 +376,17 @@ export default function SupportInquiryDetailPage({
 
   if (error || !inquiry) {
     return (
-      <div className="space-y-6 w-full max-w-full">
+      <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8 w-full max-w-full">
         <Link href={backPath}>
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+          <Button variant="ghost" size="sm" className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm">
+            <ArrowLeft className="mr-2 h-3 w-3 md:h-4 md:w-4" />
             목록으로
           </Button>
         </Link>
-        <Card>
-          <CardHeader>
-            <CardTitle>문의를 불러올 수 없습니다</CardTitle>
-            <CardDescription>
+        <Card className="w-full max-w-full">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg md:text-xl">문의를 불러올 수 없습니다</CardTitle>
+            <CardDescription className="text-xs md:text-sm">
               {error instanceof Error
                 ? error.message
                 : "문의를 찾을 수 없습니다."}
@@ -400,17 +400,17 @@ export default function SupportInquiryDetailPage({
   // 도매→관리자 문의가 아니면 에러
   if (inquiry.inquiry_type !== "wholesaler_to_admin") {
     return (
-      <div className="space-y-6 w-full max-w-full">
+      <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8 w-full max-w-full">
         <Link href={backPath}>
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+          <Button variant="ghost" size="sm" className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm">
+            <ArrowLeft className="mr-2 h-3 w-3 md:h-4 md:w-4" />
             목록으로
           </Button>
         </Link>
-        <Card>
-          <CardHeader>
-            <CardTitle>잘못된 문의 유형</CardTitle>
-            <CardDescription>
+        <Card className="w-full max-w-full">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg md:text-xl">잘못된 문의 유형</CardTitle>
+            <CardDescription className="text-xs md:text-sm">
               이 문의는 고객지원 페이지에서 조회할 수 없습니다.
             </CardDescription>
           </CardHeader>
@@ -420,22 +420,22 @@ export default function SupportInquiryDetailPage({
   }
 
   return (
-    <div className="space-y-6 w-full max-w-full">
+    <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8 w-full max-w-full">
       {/* 뒤로가기 버튼 */}
       <Link href={backPath}>
-        <Button variant="ghost" size="sm">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+        <Button variant="ghost" size="sm" className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm">
+          <ArrowLeft className="mr-2 h-3 w-3 md:h-4 md:w-4" />
           목록으로
         </Button>
       </Link>
 
       {/* 문의 정보 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <CardTitle className="mb-2">{inquiry.title}</CardTitle>
-              <CardDescription className="flex items-center gap-4">
+      <Card className="w-full max-w-full">
+        <CardHeader className="p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 md:gap-4">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="mb-2 md:mb-3 text-lg md:text-xl lg:text-2xl break-words">{inquiry.title}</CardTitle>
+              <CardDescription className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 md:gap-4 text-xs md:text-sm break-words">
                 <span>
                   문의일:{" "}
                   {format(new Date(inquiry.created_at), "yyyy-MM-dd HH:mm", {
@@ -444,15 +444,15 @@ export default function SupportInquiryDetailPage({
                 </span>
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <InquiryStatusBadge status={inquiry.status} />
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsEditDialogOpen(true)}
-                className="text-sm"
+                className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm"
               >
-                <Pencil className="mr-2 h-4 w-4" />
+                <Pencil className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                 수정
               </Button>
               {/* 도매→관리자 문의인 경우에만 삭제 버튼 표시 */}
@@ -460,24 +460,24 @@ export default function SupportInquiryDetailPage({
                 variant="destructive"
                 size="sm"
                 onClick={handleDeleteInquiry}
-                className="ml-2"
+                className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="mr-1.5 md:mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                 삭제
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-100 mb-4 transition-colors duration-200">
+        <CardContent className="p-4 md:p-6">
+          <div className="whitespace-pre-wrap break-words text-xs md:text-sm lg:text-base text-gray-800 dark:text-gray-100 mb-3 md:mb-4 w-full max-w-full overflow-x-hidden transition-colors duration-200">
             {inquiry.content}
           </div>
 
           {/* 첨부 이미지 */}
           {inquiry.attachment_urls && inquiry.attachment_urls.length > 0 && (
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="text-sm font-medium mb-3">첨부 이미지</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t">
+              <h3 className="text-xs md:text-sm font-medium mb-2 md:mb-3">첨부 이미지</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
                 {inquiry.attachment_urls.map((url, index) => (
                   <div
                     key={index}
@@ -513,10 +513,10 @@ export default function SupportInquiryDetailPage({
       )}
 
       {/* 대화 이력 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>대화 이력</CardTitle>
-          <CardDescription>
+      <Card className="w-full max-w-full">
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl">대화 이력</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             {isMessagesLoading
               ? "로딩 중..."
               : `총 ${filteredMessages?.length ?? 0}개의 메시지`}
@@ -524,7 +524,7 @@ export default function SupportInquiryDetailPage({
         </CardHeader>
         <CardContent className="p-0">
           {isMessagesLoading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-8 md:py-12">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
             </div>
           ) : (
@@ -549,14 +549,14 @@ export default function SupportInquiryDetailPage({
       {/* 추가 질문 폼 (도매→관리자 문의인 경우) */}
       {inquiry.inquiry_type === "wholesaler_to_admin" &&
         inquiry.status !== "closed" && (
-          <Card>
-            <CardHeader>
-              <CardTitle>추가 질문 작성</CardTitle>
-              <CardDescription>
+          <Card className="w-full max-w-full">
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="text-lg md:text-xl">추가 질문 작성</CardTitle>
+              <CardDescription className="text-xs md:text-sm">
                 추가 문의가 있다면 자유롭게 남겨주세요. 관리자 확인 후 안내해드릴게요.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 md:p-6 space-y-4 md:space-y-6">
               <InquiryFollowUpForm
                 inquiryId={inquiry.id}
                 onSuccess={handleReplySuccess}
@@ -568,10 +568,10 @@ export default function SupportInquiryDetailPage({
 
       {/* 이미 답변 완료된 경우 안내 */}
       {inquiry.status === "answered" && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-sm text-green-800">
+        <Card className="w-full max-w-full">
+          <CardContent className="p-4 md:p-6">
+            <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-800 rounded-lg p-3 md:p-4 transition-colors duration-200">
+              <p className="text-xs md:text-sm text-green-800 dark:text-green-100">
                 답변이 완료되었습니다.
               </p>
             </div>
@@ -581,10 +581,10 @@ export default function SupportInquiryDetailPage({
 
       {/* 이미 종료된 경우 안내 */}
       {inquiry.status === "closed" && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <p className="text-sm text-gray-800">
+        <Card className="w-full max-w-full">
+          <CardContent className="p-4 md:p-6">
+            <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-3 md:p-4 transition-colors duration-200">
+              <p className="text-xs md:text-sm text-gray-800 dark:text-gray-100">
                 이 문의는 종료되었습니다.
               </p>
             </div>
@@ -603,43 +603,49 @@ export default function SupportInquiryDetailPage({
 
       {/* 문의 수정 다이얼로그 */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg w-[calc(100%-2rem)] md:w-full">
           <DialogHeader>
-            <DialogTitle>문의 수정</DialogTitle>
+            <DialogTitle className="text-base md:text-lg">문의 수정</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleEditSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">제목</label>
+          <form onSubmit={handleEditSubmit} className="space-y-3 md:space-y-4">
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-xs md:text-sm font-medium text-foreground">제목</label>
               <Input
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 maxLength={120}
                 placeholder="제목을 입력해주세요"
+                className="text-sm md:text-base"
               />
               <p className="text-xs text-muted-foreground">{editTitle.length} / 120자</p>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">내용</label>
+            <div className="space-y-1.5 md:space-y-2">
+              <label className="text-xs md:text-sm font-medium text-foreground">내용</label>
               <Textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                rows={8}
+                rows={6}
                 maxLength={5000}
                 placeholder="내용을 입력해주세요 (최소 10자)"
-                className="resize-none"
+                className="resize-none text-sm md:text-base"
               />
               <p className="text-xs text-muted-foreground">{editContent.length} / 5000자</p>
             </div>
-            <DialogFooter className="flex justify-end gap-2">
+            <DialogFooter className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsEditDialogOpen(false)}
                 disabled={updateInquiryMutation.isPending}
+                className="w-full sm:w-auto h-9 md:h-10 text-xs md:text-sm"
               >
                 취소
               </Button>
-              <Button type="submit" disabled={updateInquiryMutation.isPending}>
+              <Button 
+                type="submit" 
+                disabled={updateInquiryMutation.isPending}
+                className="w-full sm:w-auto h-9 md:h-10 text-xs md:text-sm"
+              >
                 {updateInquiryMutation.isPending ? "저장 중..." : "저장"}
               </Button>
             </DialogFooter>
