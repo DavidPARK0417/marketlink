@@ -94,25 +94,25 @@ export default function WholesalerTable({
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
           <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <tr>
-              <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20 min-w-[60px]">
+              <th className="px-2 lg:px-3 py-2 lg:py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-20 min-w-[60px]">
                 번호
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 lg:px-6 py-2 lg:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 상호명
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 lg:px-6 py-2 lg:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 사업자번호
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 lg:px-6 py-2 lg:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 대표자
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 lg:px-6 py-2 lg:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 이메일
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 lg:px-6 py-2 lg:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 신청일
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-3 lg:px-6 py-2 lg:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 액션
               </th>
             </tr>
@@ -191,44 +191,44 @@ export default function WholesalerTable({
               onClick={() => {
                 window.location.href = `/admin/wholesalers/${wholesalerData.id}`;
               }}
-              className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+              className="p-4 md:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
             >
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground dark:text-gray-300 font-medium">
+                  <span className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 font-medium">
                     {rowNumber}.
                   </span>
-                  <div className="text-sm font-medium text-foreground dark:text-white">
+                  <div className="text-sm md:text-base font-medium text-foreground dark:text-white">
                     {wholesalerData.business_name}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="grid grid-cols-2 gap-2 md:gap-3 text-xs md:text-sm">
                   <div>
-                    <div className="text-muted-foreground dark:text-gray-300 mb-1">
+                    <div className="text-muted-foreground dark:text-gray-300 mb-1 text-xs">
                       사업자번호
                     </div>
-                    <div className="text-foreground dark:text-gray-200">
+                    <div className="text-foreground dark:text-gray-200 break-all">
                       {wholesalerData.business_number}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground dark:text-gray-300 mb-1">
+                    <div className="text-muted-foreground dark:text-gray-300 mb-1 text-xs">
                       대표자
                     </div>
-                    <div className="text-foreground dark:text-gray-200">
+                    <div className="text-foreground dark:text-gray-200 break-words">
                       {wholesalerData.representative}
                     </div>
                   </div>
                 </div>
-                <div className="text-sm">
+                <div className="text-xs md:text-sm">
                   <div className="text-muted-foreground dark:text-gray-300 mb-1">
                     이메일
                   </div>
-                  <div className="text-foreground dark:text-gray-200">
+                  <div className="text-foreground dark:text-gray-200 break-all">
                     {email || "-"}
                   </div>
                 </div>
-                <div className="text-sm text-muted-foreground dark:text-gray-300">
+                <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
                   {formatDate(wholesalerData.created_at)}
                 </div>
               </div>
@@ -239,11 +239,11 @@ export default function WholesalerTable({
 
       {/* 페이지네이션 */}
       {totalPages > 0 && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex flex-col gap-3 md:gap-4 sm:flex-row sm:items-center sm:justify-between px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 dark:border-gray-800">
           {/* 페이지 정보 및 페이지 크기 선택 */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-col gap-2 md:gap-3 sm:flex-row sm:items-center sm:gap-4">
             {/* 현재 페이지 정보 */}
-            <div className="text-sm text-muted-foreground dark:text-gray-300">
+            <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
               {(() => {
                 const startIndex = (page - 1) * pageSize + 1;
                 const endIndex = Math.min(page * pageSize, total);
@@ -253,7 +253,7 @@ export default function WholesalerTable({
 
             {/* 페이지 크기 선택 */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
+              <span className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
                 페이지당:
               </span>
               <Select
@@ -262,7 +262,7 @@ export default function WholesalerTable({
                   handlePageSizeChange(Number(value));
                 }}
               >
-                <SelectTrigger className="w-[80px] h-9">
+                <SelectTrigger className="w-[70px] md:w-[80px] h-8 md:h-9 text-xs md:text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -276,14 +276,14 @@ export default function WholesalerTable({
           </div>
 
           {/* 페이지 네비게이션 */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             {/* 이전 버튼 */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => handlePageChange(page - 1)}
               disabled={page <= 1}
-              className="h-9 px-3"
+              className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm"
             >
               이전
             </Button>
@@ -340,7 +340,7 @@ export default function WholesalerTable({
                     return (
                       <span
                         key={`ellipsis-${index}`}
-                        className="px-2 text-sm text-muted-foreground dark:text-gray-400"
+                        className="px-1 md:px-2 text-xs md:text-sm text-muted-foreground dark:text-gray-400"
                       >
                         ...
                       </span>
@@ -356,7 +356,7 @@ export default function WholesalerTable({
                       variant={isActive ? "default" : "outline"}
                       size="sm"
                       onClick={() => handlePageChange(pageNumber)}
-                      className={`h-9 min-w-[36px] ${
+                      className={`h-8 md:h-9 min-w-[32px] md:min-w-[36px] text-xs md:text-sm ${
                         isActive
                           ? "bg-[#10B981] hover:bg-[#059669] text-white border-[#10B981]"
                           : ""
@@ -370,7 +370,7 @@ export default function WholesalerTable({
             </div>
 
             {/* 현재 페이지 번호 (모바일만 표시) */}
-            <div className="md:hidden px-3 py-1.5 text-sm font-medium text-foreground dark:text-foreground">
+            <div className="md:hidden px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-medium text-foreground dark:text-foreground">
               {page} / {totalPages}
             </div>
 
@@ -380,7 +380,7 @@ export default function WholesalerTable({
               size="sm"
               onClick={() => handlePageChange(page + 1)}
               disabled={page >= totalPages}
-              className="h-9 px-3"
+              className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm"
             >
               다음
             </Button>

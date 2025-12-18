@@ -149,11 +149,13 @@ export default async function PendingWholesalersPage({
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">도매 승인 대기</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
+          도매 승인 대기
+        </h1>
+        <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">
           승인 대기 중인 도매사업자 목록입니다. 상세 정보를 확인하고 승인 또는 반려 처리를 진행하세요.
         </p>
       </div>

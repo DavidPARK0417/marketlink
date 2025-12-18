@@ -55,37 +55,37 @@ export default function WholesalerTableRow({
       onClick={handleRowClick}
       className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
     >
-      <td className="px-3 py-4 whitespace-nowrap w-20 min-w-[60px] text-center">
-        <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
+      <td className="px-2 lg:px-3 py-3 lg:py-4 whitespace-nowrap w-20 min-w-[60px] text-center">
+        <div className="text-xs lg:text-sm text-muted-foreground dark:text-gray-300">
           {rowNumber}
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm font-medium text-foreground dark:text-white">
+      <td className="px-3 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+        <div className="text-xs lg:text-sm font-medium text-foreground dark:text-white">
           {business_name}
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-muted-foreground dark:text-gray-300">
+      <td className="px-3 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+        <div className="text-xs lg:text-sm text-muted-foreground dark:text-gray-300">
           {business_number}
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-muted-foreground dark:text-gray-300">
+      <td className="px-3 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+        <div className="text-xs lg:text-sm text-muted-foreground dark:text-gray-300">
           {representative}
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-muted-foreground dark:text-gray-300">
+      <td className="px-3 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+        <div className="text-xs lg:text-sm text-muted-foreground dark:text-gray-300 break-all">
           {email || "-"}
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-muted-foreground dark:text-gray-300">
+      <td className="px-3 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+        <div className="text-xs lg:text-sm text-muted-foreground dark:text-gray-300">
           {formatDate(created_at)}
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm">
+      <td className="px-3 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-xs lg:text-sm">
         <span className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-medium">
           상세보기
         </span>
