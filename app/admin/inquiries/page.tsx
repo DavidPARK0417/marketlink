@@ -406,7 +406,7 @@ export default function AdminInquiriesPage() {
                       </div>
                     </div>
                     <div className="ml-2 shrink-0">
-                      {renderStatusBadge(inquiry.status)}
+                    {renderStatusBadge(inquiry.status)}
                     </div>
                   </div>
                   <div className="text-sm md:text-base font-semibold text-foreground dark:text-foreground mb-1 break-words">
