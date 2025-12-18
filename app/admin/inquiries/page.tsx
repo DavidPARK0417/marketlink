@@ -201,7 +201,7 @@ export default function AdminInquiriesPage() {
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 md:space-y-8 p-4 md:p-6 lg:p-8 pb-8 md:pb-12">
       {/* 페이지 헤더 */}
       <PageHeader
         title="도매 문의 관리"
@@ -209,23 +209,23 @@ export default function AdminInquiriesPage() {
       />
 
       {/* 문의 통계 카드 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* 전체 문의 카드 */}
         <button
           onClick={() => handleStatsCardClick("all")}
-          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
+          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-4 md:p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
             activeTab === "all" ? "ring-2 ring-[#10B981]" : "hover:shadow-lg"
           }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground font-medium">전체 문의</p>
-              <p className="text-3xl font-bold text-foreground mt-2">
+              <p className="text-xs md:text-sm text-muted-foreground font-medium">전체 문의</p>
+              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1 md:mt-2">
                 {statsData?.total ?? 0}건
               </p>
             </div>
-            <div className="p-2">
-              <MessageSquare className="w-12 h-12 text-[#10B981]" strokeWidth={1.5} />
+            <div className="p-1 md:p-2">
+              <MessageSquare className="w-8 h-8 md:w-12 md:h-12 text-[#10B981]" strokeWidth={1.5} />
             </div>
           </div>
         </button>
@@ -233,19 +233,19 @@ export default function AdminInquiriesPage() {
         {/* 답변 대기 카드 */}
         <button
           onClick={() => handleStatsCardClick("open")}
-          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
+          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-4 md:p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
             activeTab === "open" ? "ring-2 ring-[#fbbf24]" : "hover:shadow-lg"
           }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground font-medium">답변 대기</p>
-              <p className="text-3xl font-bold text-foreground mt-2">
+              <p className="text-xs md:text-sm text-muted-foreground font-medium">답변 대기</p>
+              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1 md:mt-2">
                 {statsData?.open ?? 0}건
               </p>
             </div>
-            <div className="p-2">
-              <Clock className="w-12 h-12 text-green-500" strokeWidth={1.5} />
+            <div className="p-1 md:p-2">
+              <Clock className="w-8 h-8 md:w-12 md:h-12 text-green-500" strokeWidth={1.5} />
             </div>
           </div>
         </button>
@@ -253,19 +253,19 @@ export default function AdminInquiriesPage() {
         {/* 답변 완료 카드 */}
         <button
           onClick={() => handleStatsCardClick("answered")}
-          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
+          className={`bg-white dark:bg-gray-900 rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-4 md:p-6 text-left transition-colors duration-200 hover:-translate-y-1 ${
             activeTab === "answered" ? "ring-2 ring-[#10B981]" : "hover:shadow-lg"
           }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground font-medium">답변 완료</p>
-              <p className="text-3xl font-bold text-foreground mt-2">
+              <p className="text-xs md:text-sm text-muted-foreground font-medium">답변 완료</p>
+              <p className="text-2xl md:text-3xl font-bold text-foreground mt-1 md:mt-2">
                 {statsData?.answered ?? 0}건
               </p>
             </div>
-            <div className="p-2">
-              <CheckCircle className="w-12 h-12 text-purple-500" strokeWidth={1.5} />
+            <div className="p-1 md:p-2">
+              <CheckCircle className="w-8 h-8 md:w-12 md:h-12 text-purple-500" strokeWidth={1.5} />
             </div>
           </div>
         </button>
@@ -283,27 +283,27 @@ export default function AdminInquiriesPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 text-xs uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
-                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-16 text-center">
+                  <th className="px-3 lg:px-4 py-2 lg:py-4 font-bold border-b border-gray-100 dark:border-gray-800 w-16 text-center">
                     번호
                   </th>
-                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40">
+                  <th className="px-3 lg:px-4 py-2 lg:py-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40">
                     문의자명
                   </th>
-                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32">
+                  <th className="px-3 lg:px-4 py-2 lg:py-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32">
                     연락처
                   </th>
-                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800">
+                  <th className="px-3 lg:px-4 py-2 lg:py-4 font-bold border-b border-gray-100 dark:border-gray-800">
                     문의 내용
                   </th>
-                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-28 text-center">
+                  <th className="px-3 lg:px-4 py-2 lg:py-4 font-bold border-b border-gray-100 dark:border-gray-800 w-28 text-center">
                     상태
                   </th>
-                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32 text-center">
+                  <th className="px-3 lg:px-4 py-2 lg:py-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32 text-center">
                     생성일
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-xs lg:text-sm">
                 {data?.inquiries?.map((inquiry, index) => {
                   const number = data.total
                     ? data.total - ((data.page - 1) * (data.pageSize || 20) + index)
@@ -323,32 +323,32 @@ export default function AdminInquiriesPage() {
                         }
                       }}
                     >
-                      <td className="p-4 text-center text-muted-foreground dark:text-muted-foreground font-medium">
+                      <td className="px-3 lg:px-4 py-3 lg:py-4 text-center text-muted-foreground dark:text-muted-foreground font-medium">
                         {number}
                       </td>
-                      <td className="p-4">
-                        <div className="text-foreground dark:text-foreground font-semibold">
+                      <td className="px-3 lg:px-4 py-3 lg:py-4">
+                        <div className="text-foreground dark:text-foreground font-semibold break-words">
                           {inquiry.wholesaler_business_name || "미등록 상호"}
                         </div>
                       </td>
-                      <td className="p-4 text-foreground dark:text-foreground">
+                      <td className="px-3 lg:px-4 py-3 lg:py-4 text-foreground dark:text-foreground break-all">
                         {inquiry.wholesaler_phone || "-"}
                       </td>
-                      <td className="p-4">
+                      <td className="px-3 lg:px-4 py-3 lg:py-4">
                         <Link
                           href={detailHref}
-                          className="font-semibold text-foreground dark:text-foreground mb-1 hover:text-[#10B981] transition-colors"
+                          className="font-semibold text-foreground dark:text-foreground mb-1 hover:text-[#10B981] transition-colors break-words"
                         >
                           {inquiry.title}
                         </Link>
-                        <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
+                        <p className="text-xs lg:text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
                           {inquiry.content}
                         </p>
                       </td>
-                      <td className="p-4 text-center">
+                      <td className="px-3 lg:px-4 py-3 lg:py-4 text-center">
                         {renderStatusBadge(inquiry.status)}
                       </td>
-                      <td className="p-4 text-center text-muted-foreground dark:text-muted-foreground">
+                      <td className="px-3 lg:px-4 py-3 lg:py-4 text-center text-muted-foreground dark:text-muted-foreground">
                         {new Date(inquiry.created_at).toLocaleDateString("ko-KR", {
                           year: "numeric",
                           month: "2-digit",
@@ -385,11 +385,11 @@ export default function AdminInquiriesPage() {
                 <Link
                   key={inquiry.id}
                   href={detailHref}
-                  className="block p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                  className="block p-4 md:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="text-xs text-muted-foreground dark:text-muted-foreground">
+                  <div className="flex items-start justify-between mb-2 md:mb-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-muted-foreground dark:text-muted-foreground mb-1">
                         #{number} •{" "}
                         {new Date(inquiry.created_at).toLocaleDateString("ko-KR", {
                           month: "short",
@@ -398,19 +398,21 @@ export default function AdminInquiriesPage() {
                           minute: "2-digit",
                         })}
                       </div>
-                      <div className="text-sm font-semibold text-foreground dark:text-foreground">
+                      <div className="text-sm md:text-base font-semibold text-foreground dark:text-foreground break-words">
                         {inquiry.wholesaler_business_name || "미등록 상호"}
                       </div>
-                      <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+                      <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground break-all">
                         {inquiry.wholesaler_phone || "-"}
                       </div>
                     </div>
-                    {renderStatusBadge(inquiry.status)}
+                    <div className="ml-2 shrink-0">
+                      {renderStatusBadge(inquiry.status)}
+                    </div>
                   </div>
-                  <div className="text-base font-semibold text-foreground dark:text-foreground mb-1">
+                  <div className="text-sm md:text-base font-semibold text-foreground dark:text-foreground mb-1 break-words">
                     {inquiry.title}
                   </div>
-                  <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
+                  <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
                     {inquiry.content}
                   </p>
                 </Link>
@@ -427,11 +429,11 @@ export default function AdminInquiriesPage() {
 
       {/* 페이지네이션 */}
       {data && data.totalPages > 0 && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 md:gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* 페이지 정보 및 페이지 크기 선택 */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-col gap-2 md:gap-3 sm:flex-row sm:items-center sm:gap-4">
             {/* 현재 페이지 정보 */}
-            <div className="text-sm text-muted-foreground dark:text-gray-300">
+            <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
               {(() => {
                 const startIndex = (currentPage - 1) * pageSize + 1;
                 const endIndex = Math.min(currentPage * pageSize, data.total);
@@ -441,7 +443,7 @@ export default function AdminInquiriesPage() {
 
             {/* 페이지 크기 선택 */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
+              <span className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
                 페이지당:
               </span>
               <Select
@@ -451,7 +453,7 @@ export default function AdminInquiriesPage() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-[80px] h-9">
+                <SelectTrigger className="w-[70px] md:w-[80px] h-8 md:h-9 text-xs md:text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -472,7 +474,7 @@ export default function AdminInquiriesPage() {
               size="sm"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage <= 1}
-              className="h-9 px-3"
+              className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm"
             >
               이전
             </Button>
@@ -530,7 +532,7 @@ export default function AdminInquiriesPage() {
                     return (
                       <span
                         key={`ellipsis-${index}`}
-                        className="px-2 text-sm text-muted-foreground dark:text-gray-400"
+                        className="px-1 md:px-2 text-xs md:text-sm text-muted-foreground dark:text-gray-400"
                       >
                         ...
                       </span>
@@ -546,7 +548,7 @@ export default function AdminInquiriesPage() {
                       variant={isActive ? "default" : "outline"}
                       size="sm"
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`h-9 min-w-[36px] ${
+                      className={`h-8 md:h-9 min-w-[32px] md:min-w-[36px] text-xs md:text-sm ${
                         isActive
                           ? "bg-[#10B981] hover:bg-[#059669] text-white border-[#10B981]"
                           : ""
@@ -560,7 +562,7 @@ export default function AdminInquiriesPage() {
             </div>
 
             {/* 현재 페이지 번호 (모바일만 표시) */}
-            <div className="md:hidden px-3 py-1.5 text-sm font-medium text-foreground dark:text-foreground">
+            <div className="md:hidden px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm font-medium text-foreground dark:text-foreground">
               {currentPage} / {data.totalPages}
             </div>
 
@@ -570,7 +572,7 @@ export default function AdminInquiriesPage() {
               size="sm"
               onClick={() => setCurrentPage((p) => Math.min(data.totalPages, p + 1))}
               disabled={currentPage >= data.totalPages}
-              className="h-9 px-3"
+              className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm"
             >
               다음
             </Button>

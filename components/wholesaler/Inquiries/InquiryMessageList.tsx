@@ -138,22 +138,22 @@ function InquiryMessageItem({
       )}>
         {/* 발신자 라벨 */}
         <div className={cn(
-          "flex items-center gap-2 px-2",
+          "flex items-center gap-1 md:gap-2 px-1 md:px-2",
           isLeft ? "justify-start" : "justify-end"
         )}>
           {isLeft && (
-            <span className="text-xs font-medium text-gray-600">
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
               {style.label}
             </span>
           )}
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-gray-400 dark:text-gray-500">
             {formattedDate}
             {isEdited && (
-              <span className="ml-1 text-gray-400">(수정됨)</span>
+              <span className="ml-1">(수정됨)</span>
             )}
           </span>
           {!isLeft && (
-            <span className="text-xs font-medium text-gray-600">
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
               {style.label}
             </span>
           )}
@@ -163,7 +163,7 @@ function InquiryMessageItem({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 text-xs"
+                  className="h-6 md:h-7 px-1.5 md:px-2 text-xs"
                   onClick={() => onEdit(message)}
                 >
                   수정
@@ -173,7 +173,7 @@ function InquiryMessageItem({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="h-6 md:h-7 px-1.5 md:px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
                   onClick={() => onDelete(message)}
                 >
                   <Trash2 className="h-3 w-3" />
@@ -186,11 +186,11 @@ function InquiryMessageItem({
         {/* 메시지 버블 */}
         <div
           className={cn(
-            "rounded-lg px-4 py-2.5 shadow-sm",
+            "rounded-lg px-3 md:px-4 py-2 md:py-2.5 shadow-sm",
             style.bubble,
           )}
         >
-          <p className="text-sm whitespace-pre-wrap break-words">
+          <p className="text-xs md:text-sm whitespace-pre-wrap break-words">
             {message.content}
           </p>
         </div>
@@ -212,14 +212,14 @@ export default function InquiryMessageList({
 }: InquiryMessageListProps) {
   if (messages.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
-        <p className="text-sm">대화 이력이 없습니다.</p>
+      <div className="text-center py-8 md:py-12 text-gray-500 dark:text-gray-400">
+        <p className="text-xs md:text-sm">대화 이력이 없습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 md:p-6 w-full max-w-full overflow-x-hidden">
+    <div className="flex flex-col gap-3 md:gap-4 p-3 md:p-4 lg:p-6 w-full max-w-full overflow-x-hidden">
       {messages.map((message) => (
         <InquiryMessageItem
           key={message.id}

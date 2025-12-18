@@ -136,40 +136,52 @@ export default function InquiryReplyForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 md:space-y-4">
         <FormField
           control={form.control}
           name="admin_reply"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>답변 내용</FormLabel>
+              <FormLabel className="text-xs md:text-sm">답변 내용</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
                   placeholder="문의에 대한 답변을 입력해주세요. (최소 10자)"
-                  rows={8}
-                  className="resize-none"
+                  rows={6}
+                  className="resize-none text-xs md:text-sm min-h-[120px] md:min-h-[160px]"
                 />
               </FormControl>
               <FormMessage />
-              <div className="text-sm text-gray-500">
+              <div className="text-xs md:text-sm text-gray-500">
                 {field.value.length} / 5000자
               </div>
             </FormItem>
           )}
         />
 
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col sm:flex-row justify-end gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => form.reset()}
             disabled={mutation.isPending}
+            className="h-9 md:h-10 px-3 md:px-4 text-xs md:text-sm w-full sm:w-auto"
           >
             취소
           </Button>
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "작성 중..." : "답변 작성"}
+          <Button 
+            type="submit" 
+            disabled={mutation.isPending}
+            className="h-9 md:h-10 px-3 md:px-4 text-xs md:text-sm w-full sm:w-auto"
+          >
+            {mutation.isPending ? (
+              <>
+                <span className="hidden sm:inline">작성 중...</span>
+                <span className="sm:hidden">작성 중</span>
+              </>
+            ) : (
+              "답변 작성"
+            )}
           </Button>
         </div>
       </form>
