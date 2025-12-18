@@ -357,29 +357,29 @@ export default function AccountManagementRow({
     return (
       <tr className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
         <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-          <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground text-center">
+          <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 text-center">
             {rowNumber}
           </div>
         </td>
         {isWholesaler ? (
           <>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-              <div className="text-xs md:text-sm font-medium text-foreground dark:text-foreground">
+              <div className="text-xs md:text-sm font-medium text-foreground dark:text-white">
                 {(account as WholesalerAccount).business_name}
               </div>
             </td>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden lg:table-cell">
-              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
                 {(account as WholesalerAccount).business_number}
               </div>
             </td>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden xl:table-cell">
-              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
                 {(account as WholesalerAccount).representative}
               </div>
             </td>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden lg:table-cell">
-              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground truncate max-w-[150px]">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 truncate max-w-[150px]">
                 {email || "-"}
               </div>
             </td>
@@ -387,7 +387,7 @@ export default function AccountManagementRow({
               <StatusBadge status={account.status} />
             </td>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden xl:table-cell">
-              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
                 {formatDate(account.created_at)}
               </div>
             </td>
@@ -398,22 +398,22 @@ export default function AccountManagementRow({
         ) : (
           <>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-              <div className="text-xs md:text-sm font-medium text-foreground dark:text-foreground">
+              <div className="text-xs md:text-sm font-medium text-foreground dark:text-white">
                 {(account as RetailerAccount).business_name}
               </div>
             </td>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
                 {(account as RetailerAccount).phone}
               </div>
             </td>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden lg:table-cell">
-              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground truncate max-w-[150px]">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 truncate max-w-[150px]">
                 {email || "-"}
               </div>
             </td>
             <td className="px-3 md:px-6 py-3 md:py-4 hidden xl:table-cell">
-              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground max-w-xs truncate">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300 max-w-xs truncate">
                 {(account as RetailerAccount).address}
               </div>
             </td>
@@ -421,7 +421,7 @@ export default function AccountManagementRow({
               <StatusBadge status={account.status} />
             </td>
             <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap hidden xl:table-cell">
-              <div className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
+              <div className="text-xs md:text-sm text-muted-foreground dark:text-gray-300">
                 {formatDate(account.created_at)}
               </div>
             </td>
@@ -440,17 +440,17 @@ export default function AccountManagementRow({
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground dark:text-muted-foreground font-medium">
+            <span className="text-xs text-muted-foreground dark:text-gray-300 font-medium">
               {rowNumber}.
             </span>
-            <h3 className="text-sm font-medium text-foreground dark:text-foreground">
+            <h3 className="text-sm font-medium text-foreground dark:text-white">
               {isWholesaler
                 ? (account as WholesalerAccount).business_name
                 : (account as RetailerAccount).business_name}
             </h3>
           </div>
           {isWholesaler && (
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground dark:text-gray-300 mt-1">
               {(account as WholesalerAccount).business_number}
             </p>
           )}
@@ -458,7 +458,7 @@ export default function AccountManagementRow({
         <StatusBadge status={account.status} />
       </div>
 
-      <div className="space-y-2 text-sm text-muted-foreground dark:text-muted-foreground mb-4">
+      <div className="space-y-2 text-sm text-muted-foreground dark:text-gray-300 mb-4">
         {isWholesaler ? (
           <>
             <div>
