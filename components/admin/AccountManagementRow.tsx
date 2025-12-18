@@ -140,8 +140,10 @@ export default function AccountManagementRow({
       }
       
       // 객체인 경우 (1:1 관계일 때 단일 객체로 반환될 수 있음)
-      if (typeof account.profiles === 'object' && 'email' in account.profiles) {
-        return account.profiles.email || null;
+      // 타입 단언을 사용하여 안전하게 처리
+      const profilesObj = account.profiles as { email?: string };
+      if (profilesObj && typeof profilesObj === 'object' && 'email' in profilesObj) {
+        return profilesObj.email || null;
       }
     }
     
