@@ -533,7 +533,7 @@ export default function AnnouncementManagementClient({
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto pr-2">
-            <div className="whitespace-pre-wrap text-gray-700">
+            <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-200">
               {viewingAnnouncement?.content}
             </div>
           </div>
