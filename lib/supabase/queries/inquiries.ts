@@ -566,6 +566,7 @@ export async function getInquiriesForAdmin(
         wholesalers (
           id,
           business_name,
+          phone,
           anonymous_code
         )
       )
@@ -619,13 +620,24 @@ export async function getInquiriesForAdmin(
   // InquiryDetail 타입으로 변환
   const inquiriesWithDetails: InquiryDetail[] = (data || []).map(
     (inquiry: any) => {
-      // 도매사업자 익명 코드 추출
+      // 도매사업자 정보 추출
       const wholesaler = inquiry.profiles?.wholesalers?.[0];
       const anonymousCode = wholesaler?.anonymous_code || null;
+      const businessName = wholesaler?.business_name || null;
+      const phone = wholesaler?.phone || null;
+
+      console.log("🔍 [inquiries] 도매사업자 정보 추출:", {
+        inquiryId: inquiry.id,
+        businessName,
+        phone,
+        anonymousCode,
+      });
 
       return {
         ...inquiry,
         user_anonymous_code: anonymousCode, // 도매사업자 익명 코드
+        wholesaler_business_name: businessName, // 도매사업자명 (소매문의와 동일한 구조)
+        wholesaler_phone: phone, // 도매사업자 연락처 (소매문의와 동일한 구조)
         order: null, // 주문 연결 없음
       };
     },

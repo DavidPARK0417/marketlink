@@ -13,8 +13,8 @@
  *
  * @dependencies
  * - lib/supabase/queries/inquiries.ts
- * - components/wholesaler/Inquiries/InquiryTable.tsx
  * - components/wholesaler/Inquiries/InquiryFilter.tsx
+ * - components/wholesaler/Inquiries/InquiryTableSkeleton.tsx
  * - lib/clerk/auth.ts (requireAdmin)
  */
 
@@ -24,10 +24,12 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MessageSquare, Clock, CheckCircle } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import PageHeader from "@/components/common/PageHeader";
-import InquiryTable from "@/components/wholesaler/Inquiries/InquiryTable";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
+import InquiryTableSkeleton from "@/components/wholesaler/Inquiries/InquiryTableSkeleton";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -120,6 +122,7 @@ async function fetchInquiryStatsForAdmin() {
 export default function AdminInquiriesPage() {
   // 필터 상태
   const [filter, setFilter] = React.useState<InquiryFilterType>({});
+  const router = useRouter();
 
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -172,6 +175,29 @@ export default function AdminInquiriesPage() {
       ...prev,
       status: status === "all" ? undefined : status,
     }));
+  };
+
+  const renderStatusBadge = (status: InquiryStatus) => {
+    const statusText: Record<InquiryStatus, string> = {
+      open: "답변 대기",
+      answered: "답변 완료",
+      closed: "종료",
+    };
+
+    const statusClass =
+      status === "open"
+        ? "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-100"
+        : status === "answered"
+          ? "bg-[#D1FAE5] text-[#10B981] dark:bg-emerald-900/40 dark:text-emerald-200"
+          : "bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-200";
+
+    return (
+      <span
+        className={`inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold ${statusClass}`}
+      >
+        {statusText[status]}
+      </span>
+    );
   };
 
   return (
@@ -248,18 +274,156 @@ export default function AdminInquiriesPage() {
       {/* 필터 */}
       <InquiryFilter filter={filter} onFilterChange={setFilter} />
 
-      {/* 문의 테이블 */}
-      <InquiryTable
-        inquiries={data?.inquiries || []}
-        isLoading={isLoading}
-        basePath="/admin/inquiries"
-        startNumber={
-          data
-            ? (data.page - 1) * (data.pageSize || 20) + 1
-            : 1
-        }
-        total={data?.total}
-      />
+      {/* 테이블 */}
+      {isLoading ? (
+        <InquiryTableSkeleton />
+      ) : (
+        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden transition-colors duration-200">
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-200 text-xs uppercase tracking-wider border-b border-gray-100 dark:border-gray-800">
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-16 text-center">
+                    번호
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-40">
+                    문의자명
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32">
+                    연락처
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800">
+                    문의 내용
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-28 text-center">
+                    상태
+                  </th>
+                  <th className="p-4 font-bold border-b border-gray-100 dark:border-gray-800 w-32 text-center">
+                    생성일
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+                {data?.inquiries?.map((inquiry, index) => {
+                  const number = data.total
+                    ? data.total - ((data.page - 1) * (data.pageSize || 20) + index)
+                    : index + 1;
+                  const detailHref = `/admin/inquiries/${inquiry.id}`;
+
+                  return (
+                    <tr
+                      key={inquiry.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+                      onClick={() => router.push(detailHref)}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          router.push(detailHref);
+                        }
+                      }}
+                    >
+                      <td className="p-4 text-center text-muted-foreground dark:text-muted-foreground font-medium">
+                        {number}
+                      </td>
+                      <td className="p-4">
+                        <div className="text-foreground dark:text-foreground font-semibold">
+                          {inquiry.wholesaler_business_name || "미등록 상호"}
+                        </div>
+                      </td>
+                      <td className="p-4 text-foreground dark:text-foreground">
+                        {inquiry.wholesaler_phone || "-"}
+                      </td>
+                      <td className="p-4">
+                        <Link
+                          href={detailHref}
+                          className="font-semibold text-foreground dark:text-foreground mb-1 hover:text-[#10B981] transition-colors"
+                        >
+                          {inquiry.title}
+                        </Link>
+                        <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
+                          {inquiry.content}
+                        </p>
+                      </td>
+                      <td className="p-4 text-center">
+                        {renderStatusBadge(inquiry.status)}
+                      </td>
+                      <td className="p-4 text-center text-muted-foreground dark:text-muted-foreground">
+                        {new Date(inquiry.created_at).toLocaleDateString("ko-KR", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {data?.inquiries?.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="p-8 text-center text-muted-foreground dark:text-muted-foreground"
+                    >
+                      도매 문의가 없습니다.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 모바일 카드 */}
+          <div className="lg:hidden divide-y divide-gray-100 dark:divide-gray-800">
+            {data?.inquiries?.map((inquiry, index) => {
+              const number = data.total
+                ? data.total - ((data.page - 1) * (data.pageSize || 20) + index)
+                : index + 1;
+              const detailHref = `/admin/inquiries/${inquiry.id}`;
+              return (
+                <Link
+                  key={inquiry.id}
+                  href={detailHref}
+                  className="block p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <div className="text-xs text-muted-foreground dark:text-muted-foreground">
+                        #{number} •{" "}
+                        {new Date(inquiry.created_at).toLocaleDateString("ko-KR", {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                      <div className="text-sm font-semibold text-foreground dark:text-foreground">
+                        {inquiry.wholesaler_business_name || "미등록 상호"}
+                      </div>
+                      <div className="text-sm text-muted-foreground dark:text-muted-foreground">
+                        {inquiry.wholesaler_phone || "-"}
+                      </div>
+                    </div>
+                    {renderStatusBadge(inquiry.status)}
+                  </div>
+                  <div className="text-base font-semibold text-foreground dark:text-foreground mb-1">
+                    {inquiry.title}
+                  </div>
+                  <p className="text-sm text-muted-foreground dark:text-muted-foreground break-words line-clamp-2">
+                    {inquiry.content}
+                  </p>
+                </Link>
+              );
+            })}
+            {data?.inquiries?.length === 0 && (
+              <div className="p-8 text-center text-muted-foreground dark:text-muted-foreground">
+                도매 문의가 없습니다.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 페이지네이션 */}
       {data && data.totalPages > 0 && (
