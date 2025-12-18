@@ -85,8 +85,12 @@ export default function AuditLogFilter({
       params.set("action", value);
     }
 
-    // 페이지를 1로 리셋
+    // 페이지를 1로 리셋 (pageSize는 유지)
     params.set("page", "1");
+    // pageSize가 있으면 유지
+    if (!params.has("pageSize")) {
+      params.set("pageSize", "20");
+    }
 
     router.push(`/admin/audit-logs?${params.toString()}`);
   };
@@ -108,8 +112,12 @@ export default function AuditLogFilter({
       params.delete("date_to");
     }
 
-    // 페이지를 1로 리셋
+    // 페이지를 1로 리셋 (pageSize는 유지)
     params.set("page", "1");
+    // pageSize가 있으면 유지
+    if (!params.has("pageSize")) {
+      params.set("pageSize", "20");
+    }
 
     router.push(`/admin/audit-logs?${params.toString()}`);
   };
@@ -124,8 +132,12 @@ export default function AuditLogFilter({
       params.set("user_id", value);
     }
 
-    // 페이지를 1로 리셋
+    // 페이지를 1로 리셋 (pageSize는 유지)
     params.set("page", "1");
+    // pageSize가 있으면 유지
+    if (!params.has("pageSize")) {
+      params.set("pageSize", "20");
+    }
 
     router.push(`/admin/audit-logs?${params.toString()}`);
   };

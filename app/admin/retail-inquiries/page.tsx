@@ -30,6 +30,14 @@ import { useRouter } from "next/navigation";
 import PageHeader from "@/components/common/PageHeader";
 import InquiryFilter from "@/components/wholesaler/Inquiries/InquiryFilter";
 import RetailInquiryTableSkeleton from "@/components/admin/RetailInquiryTableSkeleton";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { InquiryFilter as InquiryFilterType } from "@/types/inquiry";
 import type { InquiryStatus } from "@/types/database";
 
@@ -55,9 +63,13 @@ type RetailInquiryResponse = {
 // 관리자용 소매 문의 목록 조회
 async function fetchRetailInquiriesForAdmin(
   filter: InquiryFilterType = {},
+  page: number = 1,
+  pageSize: number = 20,
 ): Promise<RetailInquiryResponse> {
   console.log("🔍 [admin-retail-inquiries-page] 소매 문의 목록 조회 요청", {
     filter,
+    page,
+    pageSize,
   });
 
   const response = await fetch("/api/admin/retail-inquiries", {
@@ -65,6 +77,8 @@ async function fetchRetailInquiriesForAdmin(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       filter,
+      page,
+      pageSize,
       sortOrder: "desc",
       sortBy: "created_at",
     }),
@@ -151,6 +165,15 @@ export default function AdminRetailInquiriesPage() {
   const [filter, setFilter] = React.useState<InquiryFilterType>({});
   const router = useRouter();
 
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(20);
+
+  // 필터 변경 시 페이지를 1로 리셋
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
+
   const activeTab = React.useMemo(() => {
     if (filter.status === "open") return "open";
     if (filter.status === "answered") return "answered";
@@ -164,8 +187,8 @@ export default function AdminRetailInquiriesPage() {
   });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["admin-retail-inquiries", filter],
-    queryFn: () => fetchRetailInquiriesForAdmin(filter),
+    queryKey: ["admin-retail-inquiries", filter, currentPage, pageSize],
+    queryFn: () => fetchRetailInquiriesForAdmin(filter, currentPage, pageSize),
     staleTime: 30 * 1000,
   });
 
@@ -436,6 +459,159 @@ export default function AdminRetailInquiriesPage() {
                 소매 문의가 없습니다.
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 페이지네이션 */}
+      {data && data.totalPages > 0 && (
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* 페이지 정보 및 페이지 크기 선택 */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            {/* 현재 페이지 정보 */}
+            <div className="text-sm text-muted-foreground dark:text-gray-300">
+              {(() => {
+                const startIndex = (currentPage - 1) * pageSize + 1;
+                const endIndex = Math.min(currentPage * pageSize, data.total);
+                return `${startIndex}-${endIndex} / ${data.total}건`;
+              })()}
+            </div>
+
+            {/* 페이지 크기 선택 */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground dark:text-gray-300 whitespace-nowrap">
+                페이지당:
+              </span>
+              <Select
+                value={String(pageSize)}
+                onValueChange={(value) => {
+                  setPageSize(Number(value));
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[80px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* 페이지 네비게이션 */}
+          <div className="flex items-center gap-2">
+            {/* 이전 버튼 */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage <= 1}
+              className="h-9 px-3"
+            >
+              이전
+            </Button>
+
+            {/* 페이지 번호 버튼 (데스크톱/태블릿만 표시) */}
+            <div className="hidden md:flex items-center gap-1">
+              {(() => {
+                const totalPages = data.totalPages;
+                const maxPages = 5;
+
+                // 페이지 번호 배열 생성
+                const getPageNumbers = (): (number | string)[] => {
+                  const pages: (number | string)[] = [];
+
+                  if (totalPages <= maxPages) {
+                    // 전체 페이지가 5개 이하면 모두 표시
+                    for (let i = 1; i <= totalPages; i++) {
+                      pages.push(i);
+                    }
+                  } else {
+                    // 현재 페이지 중심으로 5개 표시
+                    if (currentPage <= 3) {
+                      // 앞부분
+                      for (let i = 1; i <= 5; i++) {
+                        pages.push(i);
+                      }
+                      pages.push("...");
+                      pages.push(totalPages);
+                    } else if (currentPage >= totalPages - 2) {
+                      // 뒷부분
+                      pages.push(1);
+                      pages.push("...");
+                      for (let i = totalPages - 4; i <= totalPages; i++) {
+                        pages.push(i);
+                      }
+                    } else {
+                      // 중간
+                      pages.push(1);
+                      pages.push("...");
+                      for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                        pages.push(i);
+                      }
+                      pages.push("...");
+                      pages.push(totalPages);
+                    }
+                  }
+
+                  return pages;
+                };
+
+                const pageNumbers = getPageNumbers();
+
+                return pageNumbers.map((pageNum, index) => {
+                  if (pageNum === "...") {
+                    return (
+                      <span
+                        key={`ellipsis-${index}`}
+                        className="px-2 text-sm text-muted-foreground dark:text-gray-400"
+                      >
+                        ...
+                      </span>
+                    );
+                  }
+
+                  const pageNumber = pageNum as number;
+                  const isActive = pageNumber === currentPage;
+
+                  return (
+                    <Button
+                      key={pageNumber}
+                      variant={isActive ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNumber)}
+                      className={`h-9 min-w-[36px] ${
+                        isActive
+                          ? "bg-[#10B981] hover:bg-[#059669] text-white border-[#10B981]"
+                          : ""
+                      }`}
+                    >
+                      {pageNumber}
+                    </Button>
+                  );
+                });
+              })()}
+            </div>
+
+            {/* 현재 페이지 번호 (모바일만 표시) */}
+            <div className="md:hidden px-3 py-1.5 text-sm font-medium text-foreground dark:text-foreground">
+              {currentPage} / {data.totalPages}
+            </div>
+
+            {/* 다음 버튼 */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(data.totalPages, p + 1))}
+              disabled={currentPage >= data.totalPages}
+              className="h-9 px-3"
+            >
+              다음
+            </Button>
           </div>
         </div>
       )}

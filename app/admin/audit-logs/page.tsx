@@ -31,9 +31,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import EmptyState from "@/components/common/EmptyState";
 import AuditLogFilter from "@/components/admin/AuditLogFilter";
 import AuditLogTableRow from "@/components/admin/AuditLogTableRow";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import AuditLogPagination from "@/components/admin/AuditLogPagination";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +53,7 @@ interface AuditLogWithProfile {
 interface AuditLogsPageProps {
   searchParams: Promise<{
     page?: string;
+    pageSize?: string;
     action?: string;
     date_from?: string;
     date_to?: string;
@@ -85,6 +84,7 @@ export default async function AuditLogsPage({
   // URL 쿼리 파라미터 파싱
   const params = await searchParams;
   const page = parseInt(params.page || "1", 10);
+  const pageSize = parseInt(params.pageSize || "20", 10);
   const actionFilter = params.action;
   const dateFrom = params.date_from;
   const dateTo = params.date_to;
@@ -92,6 +92,7 @@ export default async function AuditLogsPage({
 
   console.log("🔍 [admin] 감사 로그 필터:", {
     page,
+    pageSize,
     action: actionFilter,
     dateFrom,
     dateTo,
@@ -102,7 +103,6 @@ export default async function AuditLogsPage({
   const supabase = createClerkSupabaseClient();
 
   // 페이지네이션 설정
-  const pageSize = 20;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
@@ -264,61 +264,16 @@ export default async function AuditLogsPage({
           </div>
 
           {/* 페이지네이션 */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-800">
-              <div className="text-sm text-muted-foreground dark:text-muted-foreground">
-                총 {total}개 중 {from + 1}-
-                {Math.min(to + 1, total)}개 표시
-              </div>
-              <div className="flex gap-2">
-                <Link
-                  href={{
-                    pathname: "/admin/audit-logs",
-                    query: {
-                      ...(actionFilter && { action: actionFilter }),
-                      ...(dateFrom && { date_from: dateFrom }),
-                      ...(dateTo && { date_to: dateTo }),
-                      ...(userIdFilter && { user_id: userIdFilter }),
-                      page: page > 1 ? page - 1 : 1,
-                    },
-                  }}
-                >
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page === 1}
-                  >
-                    <ChevronLeft className="h-4 w-4 mr-1" />
-                    이전
-                  </Button>
-                </Link>
-                <div className="flex items-center px-4 text-sm text-muted-foreground dark:text-muted-foreground">
-                  {page} / {totalPages}
-                </div>
-                <Link
-                  href={{
-                    pathname: "/admin/audit-logs",
-                    query: {
-                      ...(actionFilter && { action: actionFilter }),
-                      ...(dateFrom && { date_from: dateFrom }),
-                      ...(dateTo && { date_to: dateTo }),
-                      ...(userIdFilter && { user_id: userIdFilter }),
-                      page: page < totalPages ? page + 1 : totalPages,
-                    },
-                  }}
-                >
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page >= totalPages}
-                  >
-                    다음
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          )}
+          <AuditLogPagination
+            total={total}
+            page={page}
+            pageSize={pageSize}
+            totalPages={totalPages}
+            actionFilter={actionFilter}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            userIdFilter={userIdFilter}
+          />
         </div>
       ) : (
         // 빈 목록 처리

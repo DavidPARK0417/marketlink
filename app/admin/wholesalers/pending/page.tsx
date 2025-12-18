@@ -36,7 +36,16 @@ interface PendingWholesaler {
   }[];
 }
 
-export default async function PendingWholesalersPage() {
+interface PendingWholesalersPageProps {
+  searchParams: Promise<{
+    page?: string;
+    pageSize?: string;
+  }>;
+}
+
+export default async function PendingWholesalersPage({
+  searchParams,
+}: PendingWholesalersPageProps) {
   // 관리자 권한 확인
   const profile = await requireAdmin();
 
@@ -45,12 +54,21 @@ export default async function PendingWholesalersPage() {
     role: profile.role,
   });
 
+  // 쿼리 파라미터 파싱
+  const params = await searchParams;
+  const page = parseInt(params.page ?? "1", 10);
+  const pageSize = parseInt(params.pageSize ?? "20", 10);
+
   // Supabase 클라이언트 생성
   const supabase = createClerkSupabaseClient();
 
+  // 페이지네이션 적용
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
   // 승인 대기 중인 도매사업자 목록 조회
   // profiles 테이블과 조인하여 이메일 정보 포함
-  const { data: wholesalers, error } = await supabase
+  const { data: wholesalers, error, count } = await supabase
     .from("wholesalers")
     .select(
       `
@@ -63,15 +81,25 @@ export default async function PendingWholesalersPage() {
         email
       )
     `,
+      { count: "exact" },
     )
     .eq("status", "pending")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   if (error) {
     console.error("❌ [admin] 도매 승인 대기 목록 조회 오류:", error);
   }
 
-  console.log("📊 [admin] 승인 대기 도매사업자 수:", wholesalers?.length || 0);
+  const total = count ?? 0;
+  const totalPages = Math.ceil(total / pageSize);
+
+  console.log("📊 [admin] 승인 대기 도매사업자 수:", {
+    current: wholesalers?.length || 0,
+    total,
+    page,
+    totalPages,
+  });
 
   return (
     <div className="space-y-6">
@@ -84,7 +112,14 @@ export default async function PendingWholesalersPage() {
       </div>
 
       {/* 테이블 영역 */}
-      <WholesalerTable wholesalers={wholesalers || []} isLoading={false} />
+      <WholesalerTable
+        wholesalers={wholesalers || []}
+        isLoading={false}
+        total={total}
+        page={page}
+        pageSize={pageSize}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

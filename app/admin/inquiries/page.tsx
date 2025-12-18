@@ -357,7 +357,7 @@ export default function AdminInquiriesPage() {
                   }
 
                   return pages;
-                }};
+                };
 
                 const pageNumbers = getPageNumbers();
 
