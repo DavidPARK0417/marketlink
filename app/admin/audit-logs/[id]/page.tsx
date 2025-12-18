@@ -137,8 +137,8 @@ export default async function AuditLogDetailPage({
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">감사 로그 상세</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">감사 로그 상세</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               생성일: {formattedDate}
             </p>
           </div>
@@ -154,36 +154,36 @@ export default async function AuditLogDetailPage({
         <CardContent>
           <div className="space-y-4">
             <div>
-              <span className="text-sm font-medium text-gray-700">관리자:</span>
-              <p className="text-sm text-gray-900 mt-1">{adminEmail}</p>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">관리자:</span>
+              <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">{adminEmail}</p>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">액션:</span>
-              <p className="text-sm text-gray-900 mt-1">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">액션:</span>
+              <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
                 {formatAction(log.action)}
               </p>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">대상 타입:</span>
-              <p className="text-sm text-gray-900 mt-1">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">대상 타입:</span>
+              <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
                 {log.target_type || "-"}
               </p>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">대상 ID:</span>
-              <p className="text-sm text-gray-900 mt-1 font-mono">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">대상 ID:</span>
+              <p className="text-sm text-gray-900 dark:text-gray-100 mt-1 font-mono">
                 {log.target_id || "-"}
               </p>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">IP 주소:</span>
-              <p className="text-sm text-gray-900 mt-1 font-mono">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">IP 주소:</span>
+              <p className="text-sm text-gray-900 dark:text-gray-100 mt-1 font-mono">
                 {log.ip_address || "-"}
               </p>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">생성일시:</span>
-              <p className="text-sm text-gray-900 mt-1">{formattedDate}</p>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">생성일시:</span>
+              <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">{formattedDate}</p>
             </div>
           </div>
         </CardContent>
@@ -214,7 +214,7 @@ export default async function AuditLogDetailPage({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-500">상세 정보 없음</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">상세 정보 없음</p>
           </CardContent>
         </Card>
       )}

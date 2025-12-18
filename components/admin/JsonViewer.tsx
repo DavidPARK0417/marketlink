@@ -35,10 +35,10 @@ function formatJson(data: unknown): string {
 function formatJsonToHtml(jsonString: string): string {
   // 기본적인 JSON 구문 강조 (간단한 버전)
   return jsonString
-    .replace(/(".*?"):/g, '<span class="text-[#10B981] font-semibold">$1</span>:')
-    .replace(/:\s*(".*?")/g, ': <span class="text-green-600">$1</span>')
-    .replace(/:\s*(\d+)/g, ': <span class="text-purple-600">$1</span>')
-    .replace(/:\s*(true|false|null)/g, ': <span class="text-orange-600">$1</span>');
+    .replace(/(".*?"):/g, '<span class="text-[#10B981] dark:text-green-400 font-semibold">$1</span>:')
+    .replace(/:\s*(".*?")/g, ': <span class="text-green-600 dark:text-green-400">$1</span>')
+    .replace(/:\s*(\d+)/g, ': <span class="text-purple-600 dark:text-purple-400">$1</span>')
+    .replace(/:\s*(true|false|null)/g, ': <span class="text-orange-600 dark:text-orange-400">$1</span>');
 }
 
 export default function JsonViewer({ data, className }: JsonViewerProps) {
@@ -47,11 +47,11 @@ export default function JsonViewer({ data, className }: JsonViewerProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-gray-200 bg-gray-50 p-4 overflow-x-auto",
+        "rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4 overflow-x-auto",
         className,
       )}
     >
-      <pre className="text-sm font-mono text-gray-800 whitespace-pre-wrap break-words">
+      <pre className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
         <code dangerouslySetInnerHTML={{ __html: formatJsonToHtml(jsonString) }} />
       </pre>
     </div>
