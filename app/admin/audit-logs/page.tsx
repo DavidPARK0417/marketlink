@@ -190,11 +190,11 @@ export default async function AuditLogsPage({
   ).sort();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* 페이지 헤더 */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">감사 로그</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">감사 로그</h1>
+        <p className="text-xs md:text-sm text-muted-foreground mt-1">
           모든 관리자 액션을 추적하고 조회합니다. 액션 유형, 날짜 범위, 관리자별로
           필터링할 수 있습니다.
         </p>
@@ -213,26 +213,26 @@ export default async function AuditLogsPage({
       {/* 테이블 영역 */}
       {logs.length > 0 ? (
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-800 transition-colors duration-200">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 md:mx-0">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-              <thead className="bg-gray-50 dark:bg-gray-900">
+              <thead className="bg-gray-50 dark:bg-gray-900 hidden md:table-header-group">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
                     관리자
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
                     액션
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
                     대상 타입
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden xl:table-cell">
                     대상 ID
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden xl:table-cell">
                     IP 주소
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
                     날짜/시간
                   </th>
                 </tr>
@@ -278,7 +278,7 @@ export default async function AuditLogsPage({
       ) : (
         // 빈 목록 처리
         <Card>
-          <CardContent className="p-12">
+          <CardContent className="p-6 md:p-12">
             <EmptyState
               message="감사 로그가 없습니다"
               description={

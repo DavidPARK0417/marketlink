@@ -55,41 +55,90 @@ export default function AuditLogTableRow({
   };
 
   return (
-    <tr
-      className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
-      onClick={handleRowClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleRowClick();
-        }
-      }}
-    >
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground dark:text-foreground">
-        {adminEmail}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground dark:text-foreground">
-        {formatAction(action)}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground dark:text-muted-foreground">
-        {targetType || "-"}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground dark:text-muted-foreground">
-        {targetId ? (
-          <span className="font-mono text-xs">{targetId.slice(0, 8)}...</span>
-        ) : (
-          "-"
-        )}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground dark:text-muted-foreground">
-        {ipAddress || "-"}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground dark:text-muted-foreground">
-        {formattedDate}
-      </td>
-    </tr>
+    <>
+      {/* 모바일 카드 뷰 */}
+      <tr className="md:hidden">
+        <td colSpan={6} className="px-4 py-4">
+          <div
+            className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 space-y-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            onClick={handleRowClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleRowClick();
+              }
+            }}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground dark:text-foreground truncate">
+                  {adminEmail}
+                </p>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">
+                  {formatAction(action)}
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
+                {formattedDate.split(' ')[0]}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
+              {targetType && (
+                <span>타입: {targetType}</span>
+              )}
+              {targetId && (
+                <span className="font-mono">ID: {targetId.slice(0, 8)}...</span>
+              )}
+              {ipAddress && (
+                <span>IP: {ipAddress}</span>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground dark:text-muted-foreground">
+              {formattedDate}
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      {/* 데스크톱/태블릿 테이블 뷰 */}
+      <tr
+        className="hidden md:table-row hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
+        onClick={handleRowClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleRowClick();
+          }
+        }}
+      >
+        <td className="px-3 md:px-6 py-4 text-sm text-foreground dark:text-foreground">
+          <div className="max-w-[200px] truncate">{adminEmail}</div>
+        </td>
+        <td className="px-3 md:px-6 py-4 text-sm text-foreground dark:text-foreground">
+          {formatAction(action)}
+        </td>
+        <td className="px-3 md:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden lg:table-cell">
+          {targetType || "-"}
+        </td>
+        <td className="px-3 md:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden xl:table-cell">
+          {targetId ? (
+            <span className="font-mono text-xs">{targetId.slice(0, 8)}...</span>
+          ) : (
+            "-"
+          )}
+        </td>
+        <td className="px-3 md:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden xl:table-cell">
+          {ipAddress || "-"}
+        </td>
+        <td className="px-3 md:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
+          {formattedDate}
+        </td>
+      </tr>
+    </>
   );
 }
 
