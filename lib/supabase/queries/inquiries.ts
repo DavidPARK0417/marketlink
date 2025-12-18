@@ -796,14 +796,47 @@ export async function getInquiryById(
       throw new Error("이 문의를 조회할 권한이 없습니다.");
     }
 
-    // 관리자 문의는 익명 코드 불필요
+    // 관리자가 조회하는 경우 도매사업자 정보 포함
+    let wholesalerBusinessName: string | null = null;
+    let wholesalerPhone: string | null = null;
+    let anonymousCode: string | null = null;
+
+    if (profile.role === "admin") {
+      // 도매사업자 정보 조회
+      const { data: inquiryProfile } = await supabase
+        .from("profiles")
+        .select("id, role")
+        .eq("id", inquiry.user_id)
+        .single();
+
+      if (inquiryProfile?.role === "wholesaler") {
+        const { data: wholesaler } = await supabase
+          .from("wholesalers")
+          .select("business_name, phone, anonymous_code")
+          .eq("profile_id", inquiryProfile.id)
+          .single();
+
+        if (wholesaler) {
+          wholesalerBusinessName = wholesaler.business_name || null;
+          wholesalerPhone = wholesaler.phone || null;
+          anonymousCode = wholesaler.anonymous_code || null;
+        }
+      }
+    }
+
     const inquiryDetail: InquiryDetail = {
       ...inquiry,
-      user_anonymous_code: null,
+      user_anonymous_code: anonymousCode,
+      wholesaler_business_name: wholesalerBusinessName,
+      wholesaler_phone: wholesalerPhone,
       order: null,
     };
 
-    console.log("✅ [inquiries] 문의 상세 조회 완료 (도매→관리자)");
+    console.log("✅ [inquiries] 문의 상세 조회 완료 (도매→관리자)", {
+      wholesalerBusinessName,
+      wholesalerPhone,
+      anonymousCode,
+    });
     console.groupEnd();
 
     return inquiryDetail;

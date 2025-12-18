@@ -293,15 +293,21 @@ export default function AdminInquiryDetailPage({
             <div className="flex-1 min-w-0">
               <CardTitle className="mb-2 break-words">{inquiry.title}</CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-4 break-words">
+                {inquiry.wholesaler_business_name && (
+                  <span>문의자명: {inquiry.wholesaler_business_name}</span>
+                )}
+                {inquiry.wholesaler_phone && (
+                  <span>연락처: {inquiry.wholesaler_phone}</span>
+                )}
+                {inquiry.user_anonymous_code && (
+                  <span>도매사업자 코드: {inquiry.user_anonymous_code}</span>
+                )}
                 <span>
                   문의일:{" "}
                   {format(new Date(inquiry.created_at), "yyyy-MM-dd HH:mm", {
                     locale: ko,
                   })}
                 </span>
-                {inquiry.user_anonymous_code && (
-                  <span>도매사업자: {inquiry.user_anonymous_code}</span>
-                )}
               </CardDescription>
             </div>
             <InquiryStatusBadge status={inquiry.status} />
