@@ -29,9 +29,12 @@ interface PendingWholesaler {
   business_number: string;
   representative: string;
   created_at: string;
-  profiles: {
+  email: string | null; // 이메일을 직접 포함
+  profiles?: {
     email: string;
-  }[];
+  }[] | {
+    email: string;
+  } | null; // Supabase 조인 결과 (호환성 유지)
 }
 
 interface WholesalerTableProps {
@@ -115,11 +118,18 @@ export default function WholesalerTable({
             {wholesalers.map((wholesaler) => {
               // 타입 안전성을 위해 타입 단언
               const wholesalerData = wholesaler as unknown as PendingWholesaler;
-              const profileData =
-                Array.isArray(wholesalerData.profiles) &&
-                wholesalerData.profiles.length > 0
-                  ? wholesalerData.profiles[0]
-                  : null;
+              
+              // email 필드가 직접 포함되어 있으면 사용, 없으면 profiles에서 추출
+              let email: string | null = wholesalerData.email || null;
+              
+              // email이 없고 profiles가 있는 경우에만 추출 시도
+              if (!email && wholesalerData.profiles) {
+                if (Array.isArray(wholesalerData.profiles) && wholesalerData.profiles.length > 0) {
+                  email = wholesalerData.profiles[0].email;
+                } else if (typeof wholesalerData.profiles === 'object' && 'email' in wholesalerData.profiles) {
+                  email = (wholesalerData.profiles as { email: string }).email;
+                }
+              }
 
               return (
                 <WholesalerTableRow
@@ -128,7 +138,7 @@ export default function WholesalerTable({
                   business_name={wholesalerData.business_name}
                   business_number={wholesalerData.business_number}
                   representative={wholesalerData.representative}
-                  email={profileData?.email || null}
+                  email={email}
                   created_at={wholesalerData.created_at}
                 />
               );
@@ -141,11 +151,18 @@ export default function WholesalerTable({
       <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
         {wholesalers.map((wholesaler) => {
           const wholesalerData = wholesaler as unknown as PendingWholesaler;
-          const profileData =
-            Array.isArray(wholesalerData.profiles) &&
-            wholesalerData.profiles.length > 0
-              ? wholesalerData.profiles[0]
-              : null;
+          
+          // email 필드가 직접 포함되어 있으면 사용, 없으면 profiles에서 추출
+          let email: string | null = wholesalerData.email || null;
+          
+          // email이 없고 profiles가 있는 경우에만 추출 시도
+          if (!email && wholesalerData.profiles) {
+            if (Array.isArray(wholesalerData.profiles) && wholesalerData.profiles.length > 0) {
+              email = wholesalerData.profiles[0].email;
+            } else if (typeof wholesalerData.profiles === 'object' && 'email' in wholesalerData.profiles) {
+              email = (wholesalerData.profiles as { email: string }).email;
+            }
+          }
 
           const formatDate = (dateString: string) => {
             const date = new Date(dateString);
@@ -193,7 +210,7 @@ export default function WholesalerTable({
                     이메일
                   </div>
                   <div className="text-foreground dark:text-foreground">
-                    {profileData?.email || "-"}
+                    {email || "-"}
                   </div>
                 </div>
                 <div className="text-sm text-muted-foreground dark:text-muted-foreground">

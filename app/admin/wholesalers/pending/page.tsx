@@ -31,9 +31,12 @@ interface PendingWholesaler {
   business_number: string;
   representative: string;
   created_at: string;
-  profiles: {
+  email: string | null; // 이메일을 직접 포함
+  profiles?: {
     email: string;
-  }[];
+  }[] | {
+    email: string;
+  } | null; // Supabase 조인 결과 (배열 또는 객체)
 }
 
 interface PendingWholesalersPageProps {
@@ -68,6 +71,7 @@ export default async function PendingWholesalersPage({
 
   // 승인 대기 중인 도매사업자 목록 조회
   // profiles 테이블과 조인하여 이메일 정보 포함
+  // 외래키 이름을 명시하여 1:1 관계로 조인
   const { data: wholesalers, error, count } = await supabase
     .from("wholesalers")
     .select(
@@ -77,7 +81,7 @@ export default async function PendingWholesalersPage({
       business_number,
       representative,
       created_at,
-      profiles!inner (
+      profiles!fk_wholesalers_profile (
         email
       )
     `,
@@ -89,13 +93,56 @@ export default async function PendingWholesalersPage({
 
   if (error) {
     console.error("❌ [admin] 도매 승인 대기 목록 조회 오류:", error);
+    console.error("❌ [admin] 에러 상세:", JSON.stringify(error, null, 2));
   }
+
+  // 디버깅: 조회된 데이터 확인
+  console.log("🔍 [admin] 조회된 도매사업자 데이터 샘플:", {
+    count: wholesalers?.length || 0,
+    firstItem: wholesalers?.[0] ? {
+      id: wholesalers[0].id,
+      business_name: wholesalers[0].business_name,
+      profiles: wholesalers[0].profiles,
+      profilesType: Array.isArray(wholesalers[0].profiles) ? 'array' : typeof wholesalers[0].profiles,
+    } : null,
+  });
+
+  // 데이터 변환: profiles 배열/객체에서 email 추출하여 직접 포함
+  const transformedWholesalers: PendingWholesaler[] = (wholesalers || []).map((wholesaler: any) => {
+    let email: string | null = null;
+    
+    // profiles가 배열인 경우
+    if (Array.isArray(wholesaler.profiles) && wholesaler.profiles.length > 0) {
+      email = wholesaler.profiles[0].email;
+    }
+    // profiles가 단일 객체인 경우
+    else if (wholesaler.profiles && typeof wholesaler.profiles === 'object' && 'email' in wholesaler.profiles) {
+      email = (wholesaler.profiles as { email: string }).email;
+    }
+
+    console.log("📧 [admin] 이메일 추출:", {
+      id: wholesaler.id,
+      business_name: wholesaler.business_name,
+      email,
+      profilesType: Array.isArray(wholesaler.profiles) ? 'array' : typeof wholesaler.profiles,
+    });
+
+    return {
+      id: wholesaler.id,
+      business_name: wholesaler.business_name,
+      business_number: wholesaler.business_number,
+      representative: wholesaler.representative,
+      created_at: wholesaler.created_at,
+      email, // 이메일을 직접 포함
+      profiles: wholesaler.profiles, // 원본 데이터도 유지 (호환성)
+    };
+  });
 
   const total = count ?? 0;
   const totalPages = Math.ceil(total / pageSize);
 
   console.log("📊 [admin] 승인 대기 도매사업자 수:", {
-    current: wholesalers?.length || 0,
+    current: transformedWholesalers.length,
     total,
     page,
     totalPages,
@@ -113,7 +160,7 @@ export default async function PendingWholesalersPage({
 
       {/* 테이블 영역 */}
       <WholesalerTable
-        wholesalers={wholesalers || []}
+        wholesalers={transformedWholesalers}
         isLoading={false}
         total={total}
         page={page}
