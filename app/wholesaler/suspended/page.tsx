@@ -7,7 +7,7 @@
  *
  * 주요 기능:
  * 1. 계정 정지 안내 메시지
- * 2. 정지 사유 표시 (wholesalers.rejection_reason 또는 별도 필드)
+ * 2. 정지 사유 표시 (wholesalers.suspension_reason)
  * 3. 고객센터 연락처 표시
  * 4. 로그아웃 버튼
  * 5. 경고 아이콘 (XCircle)
@@ -54,7 +54,7 @@ export default async function SuspendedPage() {
 
   const { data: wholesaler, error } = await supabase
     .from("wholesalers")
-    .select("id, status, rejection_reason")
+    .select("id, status, suspension_reason")
     .eq("profile_id", profile.id)
     .maybeSingle();
 
@@ -78,7 +78,7 @@ export default async function SuspendedPage() {
 
   return (
     <SuspendedPageClient
-      rejectionReason={wholesaler.rejection_reason}
+      suspensionReason={wholesaler.suspension_reason}
       contactEmail={CONTACT_EMAIL}
       contactPhone={CONTACT_PHONE}
     />
