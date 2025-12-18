@@ -31,8 +31,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import EmptyState from "@/components/common/EmptyState";
-import { Loader2 } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 interface WholesalerAccount {
   id: string;
@@ -84,6 +85,37 @@ export default function AccountManagementTable({
 }: AccountManagementTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = React.useState(
+    searchParams.get("search") || ""
+  );
+
+  // URL 파라미터 변경 시 검색어 상태 동기화
+  React.useEffect(() => {
+    const searchParam = searchParams.get("search") || "";
+    setSearchQuery(searchParam);
+  }, [searchParams]);
+
+  // 검색 핸들러
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const params = new URLSearchParams(searchParams.toString());
+    if (searchQuery.trim()) {
+      params.set("search", searchQuery.trim());
+    } else {
+      params.delete("search");
+    }
+    params.set("page", "1"); // 검색 시 첫 페이지로
+    router.push(`/admin/accounts?${params.toString()}`);
+  };
+
+  // 검색어 초기화 핸들러
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    params.set("page", "1");
+    router.push(`/admin/accounts?${params.toString()}`);
+  };
 
   // 탭 전환 핸들러
   const handleTabChange = (tab: string) => {
@@ -114,6 +146,36 @@ export default function AccountManagementTable({
   return (
     <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
       <CardContent className="p-0">
+        {/* 검색 영역 */}
+        <div className="p-4 md:p-6 border-b border-gray-200 dark:border-gray-800">
+          <form onSubmit={handleSearch} className="relative">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+              <Input
+                type="text"
+                placeholder={
+                  isWholesalersTab
+                    ? "상호명, 이메일, 전화번호, 대표자명으로 검색"
+                    : "상호명, 이메일, 전화번호로 검색"
+                }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10 w-full"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  aria-label="검색어 초기화"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
         {/* 탭 메뉴 */}
         <div className="border-b border-gray-200 dark:border-gray-800">
           <div className="flex">
@@ -153,11 +215,13 @@ export default function AccountManagementTable({
         {!isLoading && accounts.length === 0 && (
           <div className="py-12">
             <EmptyState
-              message="계정이 없습니다"
+              message={searchQuery ? "검색 결과가 없습니다" : "계정이 없습니다"}
               description={
-                isWholesalersTab
-                  ? "승인된 도매 계정이 없습니다."
-                  : "활성화된 소매 계정이 없습니다."
+                searchQuery
+                  ? `"${searchQuery}"에 대한 검색 결과가 없습니다. 다른 검색어를 시도해보세요.`
+                  : isWholesalersTab
+                    ? "승인된 도매 계정이 없습니다."
+                    : "활성화된 소매 계정이 없습니다."
               }
             />
           </div>
@@ -171,6 +235,9 @@ export default function AccountManagementTable({
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                   <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">
+                          번호
+                        </th>
                     {isWholesalersTab ? (
                       <>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -223,27 +290,35 @@ export default function AccountManagementTable({
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                  {accounts.map((account) => (
-                    <AccountManagementRow
-                      key={account.id}
-                      account={account}
-                      accountType={isWholesalersTab ? "wholesaler" : "retailer"}
-                    />
-                  ))}
+                  {accounts.map((account, index) => {
+                    const rowNumber = (page - 1) * pageSize + index + 1;
+                    return (
+                      <AccountManagementRow
+                        key={account.id}
+                        account={account}
+                        accountType={isWholesalersTab ? "wholesaler" : "retailer"}
+                        rowNumber={rowNumber}
+                      />
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* 모바일 카드 */}
             <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
-              {accounts.map((account) => (
-                <AccountManagementRow
-                  key={account.id}
-                  account={account}
-                  accountType={isWholesalersTab ? "wholesaler" : "retailer"}
-                  isMobile
-                />
-              ))}
+              {accounts.map((account, index) => {
+                const rowNumber = (page - 1) * pageSize + index + 1;
+                return (
+                  <AccountManagementRow
+                    key={account.id}
+                    account={account}
+                    accountType={isWholesalersTab ? "wholesaler" : "retailer"}
+                    isMobile
+                    rowNumber={rowNumber}
+                  />
+                );
+              })}
             </div>
 
             {/* 페이지네이션 */}

@@ -97,12 +97,14 @@ interface AccountManagementRowProps {
   account: WholesalerAccount | RetailerAccount;
   accountType: "wholesaler" | "retailer";
   isMobile?: boolean;
+  rowNumber?: number;
 }
 
 export default function AccountManagementRow({
   account,
   accountType,
   isMobile = false,
+  rowNumber,
 }: AccountManagementRowProps) {
   const router = useRouter();
   const [isSuspending, setIsSuspending] = useState(false);
@@ -354,6 +356,11 @@ export default function AccountManagementRow({
   if (!isMobile) {
     return (
       <tr className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="text-sm text-muted-foreground dark:text-muted-foreground text-center">
+            {rowNumber}
+          </div>
+        </td>
         {isWholesaler ? (
           <>
             <td className="px-6 py-4 whitespace-nowrap">
@@ -432,11 +439,16 @@ export default function AccountManagementRow({
     <div className="p-4 bg-white dark:bg-gray-900">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="text-sm font-medium text-foreground dark:text-foreground">
-            {isWholesaler
-              ? (account as WholesalerAccount).business_name
-              : (account as RetailerAccount).business_name}
-          </h3>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground dark:text-muted-foreground font-medium">
+              {rowNumber}.
+            </span>
+            <h3 className="text-sm font-medium text-foreground dark:text-foreground">
+              {isWholesaler
+                ? (account as WholesalerAccount).business_name
+                : (account as RetailerAccount).business_name}
+            </h3>
+          </div>
           {isWholesaler && (
             <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">
               {(account as WholesalerAccount).business_number}

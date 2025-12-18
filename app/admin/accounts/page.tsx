@@ -29,6 +29,7 @@ interface AccountManagementPageProps {
     tab?: string;
     page?: string;
     pageSize?: string;
+    search?: string;
   }>;
 }
 
@@ -48,6 +49,13 @@ export default async function AccountManagementPage({
   const activeTab = params.tab || "wholesalers";
   const page = parseInt(params.page ?? "1", 10);
   const pageSize = parseInt(params.pageSize ?? "20", 10);
+  const searchQuery = params.search?.trim() || "";
+
+  console.log("🔍 [admin] 검색 파라미터:", {
+    searchQuery,
+    activeTab,
+    page,
+  });
 
   // Supabase 클라이언트 생성
   const supabase = createClerkSupabaseClient();
@@ -63,7 +71,7 @@ export default async function AccountManagementPage({
 
   // 도매 계정 목록 조회 (approved, suspended 상태만)
   if (activeTab === "wholesalers") {
-    const { data, error, count } = await supabase
+    let query = supabase
       .from("wholesalers")
       .select(
         `
@@ -81,7 +89,19 @@ export default async function AccountManagementPage({
       `,
         { count: "exact" },
       )
-      .in("status", ["approved", "suspended"])
+      .in("status", ["approved", "suspended"]);
+
+    // 검색어가 있으면 필터 적용
+    if (searchQuery) {
+      // 여러 필드에 대해 OR 조건으로 검색
+      // PostgreSQL의 ilike를 사용하여 대소문자 구분 없이 부분 일치 검색
+      // profiles.email은 조인된 테이블이므로 별도 처리 필요
+      query = query.or(
+        `business_name.ilike.%${searchQuery}%,phone.ilike.%${searchQuery}%,representative.ilike.%${searchQuery}%`
+      );
+    }
+
+    const { data, error, count } = await query
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -95,7 +115,7 @@ export default async function AccountManagementPage({
       });
     } else {
       // 데이터 정규화: profiles 배열을 단일 객체로 변환
-      wholesalers = (data || []).map((wholesaler: any) => {
+      let filteredData = (data || []).map((wholesaler: any) => {
         // profiles 데이터 추출 및 정규화
         let email: string | null = null;
         
@@ -113,7 +133,25 @@ export default async function AccountManagementPage({
           email, // 직접 접근을 위한 email 필드 추가
         };
       });
-      wholesalersCount = count ?? 0;
+
+      // 이메일 검색 필터링 (조인된 테이블 필드는 서버 사이드에서 직접 필터링 불가)
+      if (searchQuery) {
+        const lowerSearchQuery = searchQuery.toLowerCase();
+        filteredData = filteredData.filter((wholesaler: any) => {
+          // 이미 서버 사이드에서 business_name, phone, representative는 필터링됨
+          // 이메일도 검색에 포함
+          const emailMatch = wholesaler.email?.toLowerCase().includes(lowerSearchQuery);
+          const nameMatch = wholesaler.business_name?.toLowerCase().includes(lowerSearchQuery);
+          const phoneMatch = wholesaler.phone?.toLowerCase().includes(lowerSearchQuery);
+          const repMatch = wholesaler.representative?.toLowerCase().includes(lowerSearchQuery);
+          
+          return emailMatch || nameMatch || phoneMatch || repMatch;
+        });
+      }
+
+      wholesalers = filteredData;
+      // 검색이 있을 때는 필터링된 결과의 개수를 사용 (정확한 개수는 전체 데이터 조회 필요)
+      wholesalersCount = searchQuery ? filteredData.length : (count ?? 0);
       
       // 디버깅: 첫 번째 데이터 구조 확인
       if (wholesalers.length > 0) {
@@ -130,7 +168,7 @@ export default async function AccountManagementPage({
 
   // 소매 계정 목록 조회 (active, suspended 상태만)
   if (activeTab === "retailers") {
-    const { data, error, count } = await supabase
+    let query = supabase
       .from("retailers")
       .select(
         `
@@ -147,7 +185,18 @@ export default async function AccountManagementPage({
       `,
         { count: "exact" },
       )
-      .in("status", ["active", "suspended"])
+      .in("status", ["active", "suspended"]);
+
+    // 검색어가 있으면 필터 적용
+    if (searchQuery) {
+      // 여러 필드에 대해 OR 조건으로 검색
+      // profiles.email은 조인된 테이블이므로 별도 처리 필요
+      query = query.or(
+        `business_name.ilike.%${searchQuery}%,phone.ilike.%${searchQuery}%`
+      );
+    }
+
+    const { data, error, count } = await query
       .order("created_at", { ascending: false })
       .range(from, to);
 
@@ -161,7 +210,7 @@ export default async function AccountManagementPage({
       });
     } else {
       // 데이터 정규화: profiles 배열을 단일 객체로 변환
-      retailers = (data || []).map((retailer: any) => {
+      let filteredData = (data || []).map((retailer: any) => {
         // profiles 데이터 추출 및 정규화
         let email: string | null = null;
         
@@ -179,7 +228,24 @@ export default async function AccountManagementPage({
           email, // 직접 접근을 위한 email 필드 추가
         };
       });
-      retailersCount = count ?? 0;
+
+      // 이메일 검색 필터링 (조인된 테이블 필드는 서버 사이드에서 직접 필터링 불가)
+      if (searchQuery) {
+        const lowerSearchQuery = searchQuery.toLowerCase();
+        filteredData = filteredData.filter((retailer: any) => {
+          // 이미 서버 사이드에서 business_name, phone은 필터링됨
+          // 이메일도 검색에 포함
+          const emailMatch = retailer.email?.toLowerCase().includes(lowerSearchQuery);
+          const nameMatch = retailer.business_name?.toLowerCase().includes(lowerSearchQuery);
+          const phoneMatch = retailer.phone?.toLowerCase().includes(lowerSearchQuery);
+          
+          return emailMatch || nameMatch || phoneMatch;
+        });
+      }
+
+      retailers = filteredData;
+      // 검색이 있을 때는 필터링된 결과의 개수를 사용 (정확한 개수는 전체 데이터 조회 필요)
+      retailersCount = searchQuery ? filteredData.length : (count ?? 0);
       
       // 디버깅: 첫 번째 데이터 구조 확인
       if (retailers.length > 0) {
@@ -200,6 +266,7 @@ export default async function AccountManagementPage({
 
   console.log("📊 [admin] 계정 목록:", {
     tab: activeTab,
+    searchQuery,
     wholesalersCount,
     retailersCount,
     currentPage: page,
