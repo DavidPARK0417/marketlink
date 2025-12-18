@@ -115,27 +115,27 @@ export default function AuditLogTableRow({
           }
         }}
       >
-        <td className="px-3 md:px-6 py-4 text-sm text-foreground dark:text-foreground">
-          <div className="max-w-[200px] truncate">{adminEmail}</div>
+        <td className="px-3 md:px-4 lg:px-6 py-4 text-sm text-foreground dark:text-foreground">
+          <div className="max-w-[120px] md:max-w-[150px] lg:max-w-[200px] truncate">{adminEmail}</div>
         </td>
-        <td className="px-3 md:px-6 py-4 text-sm text-foreground dark:text-foreground">
-          {formatAction(action)}
+        <td className="px-3 md:px-4 lg:px-6 py-4 text-sm text-foreground dark:text-foreground">
+          <div className="max-w-[100px] md:max-w-[120px] truncate">{formatAction(action)}</div>
         </td>
-        <td className="px-3 md:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden lg:table-cell">
-          {targetType || "-"}
+        <td className="px-3 md:px-4 lg:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden lg:table-cell">
+          <div className="max-w-[100px] truncate">{targetType || "-"}</div>
         </td>
-        <td className="px-3 md:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden xl:table-cell">
+        <td className="px-3 md:px-4 lg:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden xl:table-cell">
           {targetId ? (
             <span className="font-mono text-xs">{targetId.slice(0, 8)}...</span>
           ) : (
             "-"
           )}
         </td>
-        <td className="px-3 md:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden xl:table-cell">
-          {ipAddress || "-"}
+        <td className="px-3 md:px-4 lg:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden xl:table-cell">
+          <div className="max-w-[120px] truncate">{ipAddress || "-"}</div>
         </td>
-        <td className="px-3 md:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground whitespace-nowrap">
-          {formattedDate}
+        <td className="px-3 md:px-4 lg:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground">
+          <div className="whitespace-nowrap">{formattedDate}</div>
         </td>
       </tr>
     </>

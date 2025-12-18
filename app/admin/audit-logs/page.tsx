@@ -213,26 +213,26 @@ export default async function AuditLogsPage({
       {/* 테이블 영역 */}
       {logs.length > 0 ? (
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-800 transition-colors duration-200">
-          <div className="overflow-x-auto -mx-4 md:mx-0">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+          <div className="overflow-x-auto">
+            <table className="w-full divide-y divide-gray-200 dark:divide-gray-800">
               <thead className="bg-gray-50 dark:bg-gray-900 hidden md:table-header-group">
                 <tr>
-                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-4 lg:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
                     관리자
                   </th>
-                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-4 lg:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
                     액션
                   </th>
-                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
+                  <th className="px-3 md:px-4 lg:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden lg:table-cell">
                     대상 타입
                   </th>
-                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden xl:table-cell">
+                  <th className="px-3 md:px-4 lg:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden xl:table-cell">
                     대상 ID
                   </th>
-                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden xl:table-cell">
+                  <th className="px-3 md:px-4 lg:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider hidden xl:table-cell">
                     IP 주소
                   </th>
-                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
+                  <th className="px-3 md:px-4 lg:px-6 py-3 text-left text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wider">
                     날짜/시간
                   </th>
                 </tr>
