@@ -239,10 +239,10 @@ export default function AdminRetailInquiryDetailPage({
 
   if (!inquiryId) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-4 md:p-8">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">로딩 중...</p>
+          <div className="h-6 w-6 md:h-8 md:w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 mx-auto mb-3 md:mb-4" />
+          <p className="text-xs md:text-sm text-gray-600">로딩 중...</p>
         </div>
       </div>
     );
@@ -250,26 +250,26 @@ export default function AdminRetailInquiryDetailPage({
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
-        <div className="h-64 animate-pulse rounded bg-gray-200" />
+      <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8">
+        <div className="h-6 md:h-8 w-32 md:w-48 animate-pulse rounded bg-gray-200" />
+        <div className="h-48 md:h-64 animate-pulse rounded bg-gray-200" />
       </div>
     );
   }
 
   if (error || !inquiry) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8">
         <Link href="/admin/retail-inquiries">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+          <Button variant="ghost" size="sm" className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm">
+            <ArrowLeft className="mr-2 h-3 w-3 md:h-4 md:w-4" />
             목록으로
           </Button>
         </Link>
         <Card className="w-full max-w-full">
-          <CardHeader>
-            <CardTitle>문의를 불러올 수 없습니다</CardTitle>
-            <CardDescription>
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg md:text-xl">문의를 불러올 수 없습니다</CardTitle>
+            <CardDescription className="text-xs md:text-sm">
               {error instanceof Error ? error.message : "문의를 찾을 수 없습니다."}
             </CardDescription>
           </CardHeader>
@@ -279,30 +279,32 @@ export default function AdminRetailInquiryDetailPage({
   }
 
   return (
-    <div className="w-full max-w-full space-y-6">
+    <div className="w-full max-w-full space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8">
       {/* 뒤로가기 */}
       <Link href="/admin/retail-inquiries">
-        <Button variant="ghost" size="sm">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+        <Button variant="ghost" size="sm" className="h-8 md:h-9 px-2 md:px-3 text-xs md:text-sm">
+          <ArrowLeft className="mr-2 h-3 w-3 md:h-4 md:w-4" />
           목록으로
         </Button>
       </Link>
 
       {/* 문의 정보 */}
       <Card className="w-full max-w-full">
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
+        <CardHeader className="p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 md:gap-4">
             <div className="flex-1 min-w-0">
-              <CardTitle className="mb-2 break-words">{inquiry.title}</CardTitle>
-              <CardDescription className="flex flex-wrap items-center gap-4 break-words">
+              <CardTitle className="mb-2 md:mb-3 text-lg md:text-xl lg:text-2xl break-words">
+                {inquiry.title}
+              </CardTitle>
+              <CardDescription className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 md:gap-4 text-xs md:text-sm break-words">
                 {inquiry.retailer_business_name && (
                   <span>문의자명: {inquiry.retailer_business_name}</span>
                 )}
                 {inquiry.retailer_phone && (
-                  <span>연락처: {inquiry.retailer_phone}</span>
+                  <span className="break-all">연락처: {inquiry.retailer_phone}</span>
                 )}
                 {inquiry.user_anonymous_code && (
-                  <span>소매사업자 코드: {inquiry.user_anonymous_code}</span>
+                  <span className="break-all">소매사업자 코드: {inquiry.user_anonymous_code}</span>
                 )}
                 <span>
                   문의일:{" "}
@@ -312,19 +314,21 @@ export default function AdminRetailInquiryDetailPage({
                 </span>
               </CardDescription>
             </div>
-            <InquiryStatusBadge status={inquiry.status} />
+            <div className="shrink-0">
+              <InquiryStatusBadge status={inquiry.status} />
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="whitespace-pre-wrap break-words text-gray-800 dark:text-gray-100 mb-4 w-full max-w-full overflow-x-hidden">
+        <CardContent className="p-4 md:p-6">
+          <div className="whitespace-pre-wrap break-words text-xs md:text-sm lg:text-base text-gray-800 dark:text-gray-100 mb-3 md:mb-4 w-full max-w-full overflow-x-hidden">
             {inquiry.content}
           </div>
 
           {/* 첨부 이미지 */}
           {inquiry.attachment_urls && inquiry.attachment_urls.length > 0 && (
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="text-sm font-medium mb-3">첨부 이미지</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t">
+              <h3 className="text-xs md:text-sm font-medium mb-2 md:mb-3">첨부 이미지</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
                 {inquiry.attachment_urls.map((url: string, index: number) => (
                   <div
                     key={url}
@@ -342,7 +346,7 @@ export default function AdminRetailInquiryDetailPage({
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Download className="h-6 w-6 text-white" />
+                        <Download className="h-5 w-5 md:h-6 md:w-6 text-white" />
                       </div>
                     </div>
                   </div>
@@ -366,9 +370,9 @@ export default function AdminRetailInquiryDetailPage({
 
       {/* 대화 이력 */}
       <Card className="w-full max-w-full">
-        <CardHeader>
-          <CardTitle>대화 이력</CardTitle>
-          <CardDescription>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl">대화 이력</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             {isMessagesLoading
               ? "로딩 중..."
               : `총 ${messagesData?.length ?? 0}개의 메시지`}
@@ -421,17 +425,17 @@ export default function AdminRetailInquiryDetailPage({
       {/* 추가 질문/답변 입력 */}
       {inquiry.status !== "closed" && (
         <Card className="w-full max-w-full">
-          <CardHeader>
-            <CardTitle>
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="text-lg md:text-xl">
               {inquiry.status === "open" ? "답변 작성" : "추가 답변 작성"}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs md:text-sm">
               {inquiry.status === "open"
                 ? "문의에 대한 답변을 작성해주세요. 답변 작성 후 상태가 \"답변완료\"로 변경됩니다."
                 : "추가 답변이 필요한 경우 작성해주세요."}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="p-4 md:p-6">
             <InquiryReplyForm
               inquiryId={inquiry.id}
               onSuccess={handleReplySuccess}
@@ -444,9 +448,9 @@ export default function AdminRetailInquiryDetailPage({
       {/* 답변 완료 안내 */}
       {inquiry.status === "answered" && (
         <Card className="w-full max-w-full">
-          <CardContent className="pt-6">
-            <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-800 rounded-lg p-4 transition-colors duration-200">
-              <p className="text-sm text-green-800 dark:text-green-100">
+          <CardContent className="p-4 md:p-6">
+            <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-800 rounded-lg p-3 md:p-4 transition-colors duration-200">
+              <p className="text-xs md:text-sm text-green-800 dark:text-green-100">
                 답변이 완료되었습니다. 추가 안내가 필요하면 메시지를 남겨주세요.
               </p>
             </div>
