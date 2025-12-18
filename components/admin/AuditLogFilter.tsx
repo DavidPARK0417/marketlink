@@ -152,9 +152,9 @@ export default function AuditLogFilter({
     currentAction || currentDateFrom || currentDateTo || currentUserId;
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between w-full">
       {/* 필터 컨트롤 */}
-      <div className="flex flex-1 flex-col gap-3 md:flex-row md:items-center md:gap-4">
+      <div className="flex flex-1 flex-col gap-4 md:flex-row md:items-center">
         {/* 액션 유형 필터 */}
         <div className="flex flex-col gap-2 md:flex-row md:items-center">
           <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
@@ -181,12 +181,10 @@ export default function AuditLogFilter({
         </div>
 
         {/* 날짜 범위 선택 */}
-        <div className="w-full md:w-auto">
-          <OrderDateRangePicker
-            dateRange={dateRange}
-            onDateRangeChange={handleDateRangeChange}
-          />
-        </div>
+        <OrderDateRangePicker
+          dateRange={dateRange}
+          onDateRangeChange={handleDateRangeChange}
+        />
 
         {/* 관리자 필터 */}
         <div className="flex flex-col gap-2 md:flex-row md:items-center">
@@ -214,7 +212,7 @@ export default function AuditLogFilter({
 
       {/* 필터 초기화 버튼 */}
       {hasActiveFilters && (
-        <Button variant="outline" size="sm" onClick={handleReset} className="w-full md:w-auto">
+        <Button variant="outline" size="sm" onClick={handleReset}>
           <X className="mr-2 h-4 w-4" />
           초기화
         </Button>
