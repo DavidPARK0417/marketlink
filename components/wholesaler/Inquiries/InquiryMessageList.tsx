@@ -133,37 +133,37 @@ function InquiryMessageItem({
   return (
     <div className={cn("w-full", style.container)}>
       <div className={cn(
-        "max-w-[80%] md:max-w-[70%] space-y-1",
+        "w-full max-w-[85%] sm:max-w-[80%] md:max-w-[75%] lg:max-w-[70%] space-y-2 md:space-y-2.5",
         isLeft ? "items-start" : "items-end"
       )}>
         {/* 발신자 라벨 */}
         <div className={cn(
-          "flex items-center gap-1 md:gap-2 px-1 md:px-2",
+          "flex items-center gap-1.5 md:gap-2 px-1 md:px-2",
           isLeft ? "justify-start" : "justify-end"
         )}>
           {isLeft && (
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+            <span className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300">
               {style.label}
             </span>
           )}
-          <span className="text-xs text-gray-400 dark:text-gray-500">
+          <span className="text-xs md:text-sm text-gray-400 dark:text-gray-500">
             {formattedDate}
             {isEdited && (
               <span className="ml-1">(수정됨)</span>
             )}
           </span>
           {!isLeft && (
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+            <span className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300">
               {style.label}
             </span>
           )}
           {canEdit && (
-            <div className="flex gap-1">
+            <div className="flex gap-1 md:gap-1.5">
               {onEdit && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 md:h-7 px-1.5 md:px-2 text-xs"
+                  className="h-7 md:h-8 px-2 md:px-2.5 text-xs md:text-sm"
                   onClick={() => onEdit(message)}
                 >
                   수정
@@ -173,10 +173,10 @@ function InquiryMessageItem({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 md:h-7 px-1.5 md:px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                  className="h-7 md:h-8 px-2 md:px-2.5 text-xs md:text-sm text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
                   onClick={() => onDelete(message)}
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
                 </Button>
               )}
             </div>
@@ -186,11 +186,11 @@ function InquiryMessageItem({
         {/* 메시지 버블 */}
         <div
           className={cn(
-            "rounded-lg px-3 md:px-4 py-2 md:py-2.5 shadow-sm",
+            "rounded-lg px-4 md:px-5 py-3 md:py-3.5 shadow-sm",
             style.bubble,
           )}
         >
-          <p className="text-xs md:text-sm whitespace-pre-wrap break-words">
+          <p className="text-sm md:text-base lg:text-base whitespace-pre-wrap break-words leading-relaxed">
             {message.content}
           </p>
         </div>
@@ -219,7 +219,7 @@ export default function InquiryMessageList({
   }
 
   return (
-    <div className="flex flex-col gap-3 md:gap-4 p-3 md:p-4 lg:p-6 w-full max-w-full overflow-x-hidden">
+    <div className="flex flex-col gap-4 md:gap-5 p-4 md:p-5 lg:p-6 w-full max-w-full overflow-x-hidden">
       {messages.map((message) => (
         <InquiryMessageItem
           key={message.id}
