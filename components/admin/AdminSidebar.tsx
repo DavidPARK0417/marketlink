@@ -36,6 +36,7 @@ import {
   MessageCircle,
   MessageSquareDashed,
   LogOut,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +50,11 @@ const menuItems = [
     href: "/admin/wholesalers/pending",
     label: "도매 승인 대기",
     icon: Users,
+  },
+  {
+    href: "/admin/accounts",
+    label: "계정 관리",
+    icon: Shield,
   },
   {
     href: "/admin/inquiries",

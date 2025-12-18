@@ -46,6 +46,7 @@ import { cn } from "@/lib/utils";
 const menuItems = [
   { href: "/admin/dashboard", label: "대시보드" },
   { href: "/admin/wholesalers/pending", label: "도매 승인 대기" },
+  { href: "/admin/accounts", label: "계정 관리" },
   { href: "/admin/inquiries", label: "도매 문의 관리" },
   { href: "/admin/retail-inquiries", label: "소매 문의 관리" },
   { href: "/admin/faqs", label: "FAQ 관리" },
