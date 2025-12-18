@@ -56,7 +56,10 @@ function formatAction(action: string): string {
 async function getAuditLogDetail(logId: string) {
   const supabase = createClerkSupabaseClient();
 
+  console.log("🔍 [admin/audit-logs] 감사 로그 상세 조회 시작", { logId });
+
   // 감사 로그 정보 조회 (profiles 조인)
+  // 외래키 이름을 명시적으로 지정하여 조인 관계 명확화
   const { data: log, error } = await supabase
     .from("audit_logs")
     .select(
@@ -69,7 +72,7 @@ async function getAuditLogDetail(logId: string) {
       details,
       ip_address,
       created_at,
-      profiles!inner (
+      profiles!fk_audit_logs_profile (
         id,
         email
       )
@@ -78,24 +81,44 @@ async function getAuditLogDetail(logId: string) {
     .eq("id", logId)
     .single();
 
-  if (error || !log) {
+  if (error) {
     console.error("❌ [admin/audit-logs] 감사 로그 조회 오류:", error);
     return null;
   }
 
-  return log as {
-    id: string;
-    user_id: string;
-    action: string;
-    target_type: string | null;
-    target_id: string | null;
-    details: Record<string, unknown> | null;
-    ip_address: string | null;
-    created_at: string;
-    profiles: {
+  if (!log) {
+    console.error("❌ [admin/audit-logs] 감사 로그를 찾을 수 없음:", logId);
+    return null;
+  }
+
+  console.log("✅ [admin/audit-logs] 감사 로그 조회 성공", {
+    logId: log.id,
+    userId: log.user_id,
+    profiles: log.profiles,
+    profilesType: typeof log.profiles,
+    profilesIsArray: Array.isArray(log.profiles),
+  });
+
+  // profiles가 배열이 아닌 경우 처리
+  const profilesArray = Array.isArray(log.profiles)
+    ? log.profiles
+    : log.profiles
+      ? [log.profiles]
+      : [];
+
+  return {
+    id: log.id,
+    user_id: log.user_id,
+    action: log.action,
+    target_type: log.target_type,
+    target_id: log.target_id,
+    details: log.details,
+    ip_address: log.ip_address,
+    created_at: log.created_at,
+    profiles: profilesArray as {
       id: string;
       email: string;
-    }[];
+    }[],
   };
 }
 
@@ -121,7 +144,16 @@ export default async function AuditLogDetailPage({
     notFound();
   }
 
-  const adminEmail = log.profiles[0]?.email || "-";
+  // profiles 배열에서 관리자 이메일 추출
+  const adminEmail = log.profiles && log.profiles.length > 0
+    ? log.profiles[0].email
+    : "-";
+
+  console.log("🔍 [admin/audit-logs] 관리자 정보 추출", {
+    profilesLength: log.profiles?.length || 0,
+    adminEmail,
+    profiles: log.profiles,
+  });
   const formattedDate = format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss", {
     locale: ko,
   });

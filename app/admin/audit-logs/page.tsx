@@ -108,6 +108,7 @@ export default async function AuditLogsPage({
 
   // 감사 로그 목록 조회
   // profiles 테이블과 조인하여 관리자 정보 포함
+  // 외래키 이름을 명시적으로 지정하여 조인 관계 명확화
   let query = supabase
     .from("audit_logs")
     .select(
@@ -120,7 +121,7 @@ export default async function AuditLogsPage({
       details,
       ip_address,
       created_at,
-      profiles!inner (
+      profiles!fk_audit_logs_profile (
         id,
         email
       )
@@ -239,12 +240,18 @@ export default async function AuditLogsPage({
               </thead>
               <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                 {logs.map((log) => {
-                  const profileData =
+                  // profiles가 배열인 경우와 단일 객체인 경우 모두 처리
+                  let profileData: { id: string; email: string } | null = null;
+                  
+                  if (Array.isArray(log.profiles) && log.profiles.length > 0) {
+                    profileData = log.profiles[0] as { id: string; email: string };
+                  } else if (
                     typeof log.profiles === "object" &&
                     log.profiles !== null &&
                     "email" in log.profiles
-                      ? (log.profiles as { id: string; email: string })
-                      : null;
+                  ) {
+                    profileData = log.profiles as { id: string; email: string };
+                  }
 
                   return (
                     <AuditLogTableRow
