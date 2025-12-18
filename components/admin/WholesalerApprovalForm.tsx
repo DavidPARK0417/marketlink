@@ -141,22 +141,23 @@ export default function WholesalerApprovalForm({
   };
 
   return (
-    <div className="mt-8 bg-white dark:bg-gray-950 rounded-lg shadow border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 p-6 transition-colors duration-200">
-      <h2 className="text-lg font-semibold text-foreground dark:text-foreground mb-4 transition-colors duration-200">
+    <div className="mt-6 md:mt-8 bg-white dark:bg-gray-950 rounded-lg shadow border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 p-4 md:p-6 transition-colors duration-200">
+      <h2 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground mb-3 md:mb-4 transition-colors duration-200">
         승인/반려 처리
       </h2>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
         {/* 승인 버튼 */}
         <Button
           onClick={handleApprove}
           disabled={isApproving || isRejecting}
-          className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-98"
+          className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-98 h-10 md:h-11 text-sm md:text-base"
         >
           {isApproving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              승인 중...
+              <span className="hidden sm:inline">승인 중...</span>
+              <span className="sm:hidden">승인 중</span>
             </>
           ) : (
             <>
@@ -172,7 +173,7 @@ export default function WholesalerApprovalForm({
             <Button
               variant="destructive"
               disabled={isApproving || isRejecting}
-              className="flex-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-98"
+              className="flex-1 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-98 h-10 md:h-11 text-sm md:text-base"
             >
               <XCircle className="mr-2 h-4 w-4" />
               반려

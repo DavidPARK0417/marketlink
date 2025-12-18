@@ -117,99 +117,102 @@ export default async function WholesalerDetailPage({
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 p-4 md:p-6 lg:p-8">
       {/* 페이지 헤더 */}
-      <div>
+      <div className="space-y-2 md:space-y-3">
         <Link
           href="/admin/wholesalers/pending"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-foreground mb-4 transition-colors duration-200"
+          className="inline-flex items-center gap-2 text-xs md:text-sm text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-foreground mb-3 md:mb-4 transition-colors duration-200"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3 w-3 md:h-4 md:w-4" />
           목록으로
         </Link>
-        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground dark:text-foreground">
+          도매사업자 상세 정보
+        </h1>
+        <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground">
           도매사업자의 상세 정보를 확인하고 승인 또는 반려 처리를 진행하세요.
         </p>
       </div>
 
       {/* 사업자 정보 카드 */}
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-800 overflow-hidden transition-colors duration-200">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-          <h2 className="text-lg font-semibold text-foreground dark:text-foreground">
+        <div className="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+          <h2 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground">
             사업자 정보
           </h2>
         </div>
-        <div className="px-6 py-6 bg-white dark:bg-gray-900">
-          <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="px-4 md:px-6 py-4 md:py-6 bg-white dark:bg-gray-900">
+          <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 상호명
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground break-words">
                 {wholesalerData.business_name}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 사업자번호
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground break-all">
                 {wholesalerData.business_number}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 대표자
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground break-words">
                 {wholesalerData.representative}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 연락처
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground break-all">
                 {wholesalerData.phone}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 이메일
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground break-all">
                 {profileData?.email || "이메일 정보 없음"}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 주소
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground break-words">
                 {wholesalerData.address}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 계좌정보
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground break-all">
                 {wholesalerData.bank_account}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 익명 코드
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground break-all">
                 {wholesalerData.anonymous_code}
               </dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              <dt className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
                 신청일
               </dt>
-              <dd className="mt-1 text-sm text-foreground dark:text-foreground">
+              <dd className="mt-1 text-xs md:text-sm text-foreground dark:text-foreground">
                 {new Date(wholesalerData.created_at).toLocaleString("ko-KR", {
                   year: "numeric",
                   month: "long",

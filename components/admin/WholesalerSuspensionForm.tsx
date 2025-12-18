@@ -152,24 +152,25 @@ export default function WholesalerSuspensionForm({
   // 정지된 경우 해제 버튼만 표시
   if (currentStatus === "suspended") {
     return (
-      <div className="mt-8 bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 p-6 transition-colors duration-200">
-        <h2 className="text-lg font-semibold text-foreground dark:text-foreground mb-4 transition-colors duration-200">
+      <div className="mt-6 md:mt-8 bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 p-4 md:p-6 transition-colors duration-200">
+        <h2 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground mb-3 md:mb-4 transition-colors duration-200">
           계정 정지 관리
         </h2>
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-4">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 md:p-4 mb-3 md:mb-4">
+          <p className="text-xs md:text-sm text-yellow-800 dark:text-yellow-200">
             ⚠️ 이 계정은 현재 정지 상태입니다.
           </p>
         </div>
         <Button
           onClick={handleUnsuspend}
           disabled={isUnsuspending}
-          className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-98"
+          className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-98 h-10 md:h-11 text-sm md:text-base"
         >
           {isUnsuspending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              해제 중...
+              <span className="hidden sm:inline">해제 중...</span>
+              <span className="sm:hidden">해제 중</span>
             </>
           ) : (
             <>
@@ -185,8 +186,8 @@ export default function WholesalerSuspensionForm({
   // 승인된 경우 정지 버튼만 표시
   if (currentStatus === "approved") {
     return (
-      <div className="mt-8 bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 p-6 transition-colors duration-200">
-        <h2 className="text-lg font-semibold text-foreground dark:text-foreground mb-4 transition-colors duration-200">
+      <div className="mt-6 md:mt-8 bg-white dark:bg-gray-900 rounded-lg shadow border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 p-4 md:p-6 transition-colors duration-200">
+        <h2 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground mb-3 md:mb-4 transition-colors duration-200">
           계정 정지 관리
         </h2>
         <Dialog open={isSuspendDialogOpen} onOpenChange={setIsSuspendDialogOpen}>
@@ -194,7 +195,7 @@ export default function WholesalerSuspensionForm({
             <Button
               variant="destructive"
               disabled={isSuspending || isUnsuspending}
-              className="w-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-98"
+              className="w-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-98 h-10 md:h-11 text-sm md:text-base"
             >
               <Ban className="mr-2 h-4 w-4" />
               계정 정지
