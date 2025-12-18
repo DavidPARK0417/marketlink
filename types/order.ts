@@ -78,7 +78,8 @@ export interface OrderFilter {
   retailer_id?: string;
   wholesaler_id?: string;
   product_id?: string;
-  status?: OrderStatus;
+  status?: OrderStatus; // 단일 상태 필터
+  statuses?: OrderStatus[]; // 다중 상태 필터 (status와 동시 사용 불가)
   start_date?: string; // ISO 8601 형식
   end_date?: string; // ISO 8601 형식
   order_number?: string; // 주문번호 (정확 일치)

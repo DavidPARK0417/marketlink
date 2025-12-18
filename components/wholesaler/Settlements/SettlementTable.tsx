@@ -19,7 +19,6 @@ import * as React from "react";
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   flexRender,
   type ColumnDef,
@@ -48,12 +47,23 @@ interface SettlementTableProps {
   settlements: SettlementWithOrder[];
   isLoading?: boolean;
   totalPendingAmount?: number; // 총 정산 예정 금액 (하단 표시용)
+  // 서버 사이드 페이지네이션 props
+  total: number;
+  currentPage: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
 export default function SettlementTable({
   settlements,
   isLoading = false,
   totalPendingAmount = 0,
+  total,
+  currentPage,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
 }: SettlementTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [selectedSettlement, setSelectedSettlement] =
@@ -269,14 +279,9 @@ export default function SettlementTable({
     data: settlements,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // 서버 사이드 페이지네이션 사용하므로 getPaginationRowModel 제거
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
-    initialState: {
-      pagination: {
-        pageSize: 20,
-      },
-    },
     state: {
       sorting,
     },
@@ -294,19 +299,15 @@ export default function SettlementTable({
     return null; // EmptyState는 페이지에서 처리
   }
 
-  // 페이지네이션 정보
-  const pageIndex = table.getState().pagination.pageIndex;
-  const pageSize = table.getState().pagination.pageSize;
-  const totalCount = settlements.length;
-  const startIndex = pageIndex * pageSize + 1;
-  const endIndex = Math.min((pageIndex + 1) * pageSize, totalCount);
-  const totalPages = table.getPageCount();
+  // 서버 사이드 페이지네이션 정보
+  const totalPages = Math.ceil(total / pageSize);
+  const startIndex = (currentPage - 1) * pageSize + 1;
+  const endIndex = Math.min(currentPage * pageSize, total);
 
   // 페이지 번호 배열 생성 (최대 5개, 현재 페이지 중심)
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const maxPages = 5;
-    const currentPage = pageIndex + 1;
 
     if (totalPages <= maxPages) {
       // 전체 페이지가 5개 이하면 모두 표시
@@ -416,7 +417,7 @@ export default function SettlementTable({
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           {/* 총 개수 정보 */}
           <div className="text-sm text-muted-foreground">
-            총 {totalCount}개 중 {startIndex}-{endIndex}개 표시
+            총 {total}개 중 {startIndex}-{endIndex}개 표시
           </div>
 
           {/* 페이지네이션 컨트롤 */}
@@ -425,8 +426,8 @@ export default function SettlementTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage <= 1}
             >
               이전
             </Button>
@@ -446,7 +447,7 @@ export default function SettlementTable({
                 }
 
                 const pageNum = page as number;
-                const isCurrentPage = pageNum === pageIndex + 1;
+                const isCurrentPage = pageNum === currentPage;
 
                 return (
                   <Button
@@ -454,7 +455,7 @@ export default function SettlementTable({
                     variant={isCurrentPage ? "default" : "outline"}
                     size="sm"
                     className="min-w-[2.5rem]"
-                    onClick={() => table.setPageIndex(pageNum - 1)}
+                    onClick={() => onPageChange(pageNum)}
                     disabled={isCurrentPage}
                   >
                     {pageNum}
@@ -467,8 +468,8 @@ export default function SettlementTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages}
             >
               다음
             </Button>

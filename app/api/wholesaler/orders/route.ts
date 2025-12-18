@@ -17,11 +17,19 @@ export async function POST(request: NextRequest) {
     console.log("🔍 [orders-api] API 요청 수신");
     
     const body = await request.json();
-    const { filter = {} }: { filter?: OrderFilter } = body;
+    const { 
+      filter = {}, 
+      page = 1, 
+      pageSize = 20 
+    }: { 
+      filter?: OrderFilter; 
+      page?: number; 
+      pageSize?: number;
+    } = body;
 
-    console.log("🔍 [orders-api] 주문 목록 조회 요청", { filter });
+    console.log("🔍 [orders-api] 주문 목록 조회 요청", { filter, page, pageSize });
 
-    const result = await getOrders({ filter });
+    const result = await getOrders({ filter, page, pageSize });
 
     console.log("✅ [orders-api] 주문 목록 조회 성공", {
       ordersCount: result.orders.length,

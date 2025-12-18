@@ -51,13 +51,21 @@ import type { OrderStatus } from "@/types/database";
 import type { OrderFilter } from "@/types/order";
 
 // 주문 목록 조회 함수 (클라이언트에서 직접 호출)
-async function fetchOrders(filter: OrderFilter = {}) {
-  console.log("🔍 [orders-page] 주문 목록 조회 요청", { filter });
+async function fetchOrders(
+  filter: OrderFilter = {},
+  page: number = 1,
+  pageSize: number = 20,
+) {
+  console.log("🔍 [orders-page] 주문 목록 조회 요청", {
+    filter,
+    page,
+    pageSize,
+  });
 
   const response = await fetch("/api/wholesaler/orders", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filter }),
+    body: JSON.stringify({ filter, page, pageSize }),
   });
 
   if (!response.ok) {
@@ -110,29 +118,9 @@ export default function OrdersPage() {
   );
   const [searchTerm, setSearchTerm] = React.useState(initialSearchTerm);
 
-  // URL 파라미터 로깅
-  React.useEffect(() => {
-    if (initialStatus) {
-      console.log("🔍 [orders-page] URL 상태 파라미터 감지", {
-        status: initialStatus,
-        activeTab: initialStatus === "pending" ? "pending" : "all",
-      });
-    }
-  }, [initialStatus]);
-
-  // 에러 로깅
-  React.useEffect(() => {
-    if (wholesalerError) {
-      console.error(
-        "❌ [orders-page] 도매점 정보 조회 오류:",
-        wholesalerError instanceof Error
-          ? wholesalerError.message
-          : JSON.stringify(wholesalerError, null, 2),
-      );
-    }
-  }, [wholesalerError]);
-
-  const wholesalerId = wholesaler?.id ?? null;
+  // 서버 사이드 페이지네이션 상태
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(20);
 
   // 필터 객체 생성
   const filter: OrderFilter = React.useMemo(() => {
@@ -147,10 +135,8 @@ export default function OrdersPage() {
     if (activeTab === "pending") {
       filterObj.status = "pending";
     } else if (activeTab === "confirmed") {
-      // 처리중: confirmed와 shipped를 모두 포함해야 하지만,
-      // 서버에서는 단일 status만 필터링 가능하므로 클라이언트에서 필터링
-      // 서버에서는 필터를 보내지 않음 (전체 조회 후 클라이언트에서 필터링)
-      // filterObj.status는 설정하지 않음
+      // 처리중: confirmed와 shipped를 모두 포함
+      filterObj.statuses = ["confirmed", "shipped"];
     } else if (activeTab === "completed") {
       filterObj.status = "completed";
     }
@@ -183,37 +169,49 @@ export default function OrdersPage() {
     return filterObj;
   }, [activeTab, dateRange, statusFilter, searchTerm, initialCustomer]);
 
+  // 필터 변경 시 페이지를 1로 리셋
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, dateRange, statusFilter, searchTerm, initialCustomer]);
+
+  // URL 파라미터 로깅
+  React.useEffect(() => {
+    if (initialStatus) {
+      console.log("🔍 [orders-page] URL 상태 파라미터 감지", {
+        status: initialStatus,
+        activeTab: initialStatus === "pending" ? "pending" : "all",
+      });
+    }
+  }, [initialStatus]);
+
+  // 에러 로깅
+  React.useEffect(() => {
+    if (wholesalerError) {
+      console.error(
+        "❌ [orders-page] 도매점 정보 조회 오류:",
+        wholesalerError instanceof Error
+          ? wholesalerError.message
+          : JSON.stringify(wholesalerError, null, 2),
+      );
+    }
+  }, [wholesalerError]);
+
+  const wholesalerId = wholesaler?.id ?? null;
+
   // 주문 목록 조회
   const {
     data: ordersData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["orders", filter],
-    queryFn: () => fetchOrders(filter),
+    queryKey: ["orders", filter, currentPage, pageSize],
+    queryFn: () => fetchOrders(filter, currentPage, pageSize),
     enabled: !!wholesalerId, // 도매점 ID가 있을 때만 조회
   });
 
-  // 처리중 탭인 경우 클라이언트에서 confirmed와 shipped 필터링
-  const filteredOrders = React.useMemo(() => {
-    if (!ordersData?.orders) return [];
-    
-    // 처리중 탭인 경우 confirmed와 shipped만 필터링
-    if (activeTab === "confirmed") {
-      const filtered = ordersData.orders.filter(
-        (order) => order.status === "confirmed" || order.status === "shipped"
-      );
-      console.log("🔍 [orders-page] 처리중 필터링", {
-        total: ordersData.orders.length,
-        filtered: filtered.length,
-        confirmed: ordersData.orders.filter((o) => o.status === "confirmed").length,
-        shipped: ordersData.orders.filter((o) => o.status === "shipped").length,
-      });
-      return filtered;
-    }
-    
-    return ordersData.orders;
-  }, [ordersData?.orders, activeTab]);
+  // 서버 사이드 페이지네이션 사용하므로 클라이언트 필터링 제거
+  // 서버에서 이미 필터링된 데이터를 받음
+  const filteredOrders = ordersData?.orders ?? [];
 
   // 일괄 상태 변경 Mutation
   const batchStatusChangeMutation = useMutation({
@@ -332,7 +330,7 @@ export default function OrdersPage() {
       cancelled: 0,
       processing: 0,
     };
-    
+
     return [
       {
         label: "전체",
@@ -359,7 +357,11 @@ export default function OrdersPage() {
 
   // 필터 버튼 클릭 핸들러
   const handleFilterClick = (value: string) => {
-    console.log("🔍 [orders-page] 필터 버튼 클릭", { value, activeTab, statusFilter });
+    console.log("🔍 [orders-page] 필터 버튼 클릭", {
+      value,
+      activeTab,
+      statusFilter,
+    });
     setActiveTab(value);
     // 탭 선택 시 상태 드롭다운을 "all"로 리셋하여 충돌 방지
     // 탭 필터가 우선 적용되도록 함
@@ -430,7 +432,10 @@ export default function OrdersPage() {
         <Select
           value={statusFilter}
           onValueChange={(value) => {
-            console.log("🔍 [orders-page] 상태 드롭다운 변경", { value, activeTab });
+            console.log("🔍 [orders-page] 상태 드롭다운 변경", {
+              value,
+              activeTab,
+            });
             setStatusFilter(value as OrderStatus | "all");
             // 상태 드롭다운 선택 시 탭을 "all"로 리셋하여 충돌 방지
             if (value !== "all") {
@@ -486,6 +491,11 @@ export default function OrdersPage() {
           isLoading={isLoading}
           onBatchStatusChange={handleBatchStatusChange}
           isBatchProcessing={batchStatusChangeMutation.isPending}
+          total={ordersData?.total ?? 0}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
         />
       )}
     </div>

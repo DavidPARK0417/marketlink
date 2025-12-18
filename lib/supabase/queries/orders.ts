@@ -241,7 +241,14 @@ export async function getOrders(
     .eq("wholesaler_id", currentWholesalerId);
 
   // 필터 적용
-  if (filter.status) {
+  if (filter.statuses && filter.statuses.length > 0) {
+    // 다중 상태 필터 (처리중 탭 등)
+    query = query.in("status", filter.statuses);
+    console.log("🔍 [orders-query] 다중 상태 필터 적용", {
+      statuses: filter.statuses,
+    });
+  } else if (filter.status) {
+    // 단일 상태 필터
     query = query.eq("status", filter.status);
   }
 
@@ -272,10 +279,16 @@ export async function getOrders(
   // 정렬 적용
   query = query.order(sortBy, { ascending: sortOrder === "asc" });
 
-  // 페이지네이션 적용
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  query = query.range(from, to);
+  // 페이지네이션 적용 (pageSize가 매우 큰 값(999999 이상)이면 전체 데이터 조회)
+  if (pageSize && pageSize >= 999999) {
+    console.log("🔍 [orders-query] 페이지네이션 없음 - 전체 데이터 조회");
+    // range를 적용하지 않아 전체 데이터 조회
+  } else {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+    console.log("🔍 [orders-query] 페이지네이션 적용", { from, to, pageSize });
+  }
 
   const { data, error, count } = await query;
 
@@ -290,7 +303,9 @@ export async function getOrders(
   }
 
   const total = count ?? 0;
-  const totalPages = Math.ceil(total / pageSize);
+  // pageSize가 매우 큰 값이면 전체 데이터이므로 totalPages는 1
+  const totalPages =
+    pageSize && pageSize >= 999999 ? 1 : Math.ceil(total / pageSize);
 
   // 각 상태별 카운트 계산 (필터 조건은 유지하되, status 필터는 제외)
   // 날짜 범위나 주문번호 필터는 유지하여 정확한 카운트 계산
@@ -329,7 +344,14 @@ export async function getOrders(
   };
 
   // 각 상태별로 카운트 조회
-  const [allResult, pendingResult, confirmedResult, shippedResult, completedResult, cancelledResult] = await Promise.all([
+  const [
+    allResult,
+    pendingResult,
+    confirmedResult,
+    shippedResult,
+    completedResult,
+    cancelledResult,
+  ] = await Promise.all([
     buildCountsQuery(),
     buildCountsQuery("pending"),
     buildCountsQuery("confirmed"),
