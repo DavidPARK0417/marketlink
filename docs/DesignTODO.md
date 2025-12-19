@@ -2,7 +2,7 @@
 
 **작성일**: 2024-12-04  
 **목표**: Blue 테마 → Green 테마 (Farm to Biz 디자인 시스템)  
-**참고 URL**: https://marketlink-sigma.vercel.app/wholesaler/dashboard  
+**참고 URL**: https://farmtobiz-sigma.vercel.app/wholesaler/dashboard  
 **디자인 핸드오프 경로**: `docs/design-handoff_D/`
 
 ---

@@ -72,9 +72,9 @@
 
 **⚠️ 프로젝트 분리 구조:**
 
-- **메인 랜딩 페이지**: 별도 도메인(`www.marketlink.com`)에서 관리
-- **도매 프로젝트**: 이 프로젝트 (`wholesale.marketlink.com`) - 순수 도매 기능만
-- **소매 프로젝트**: 별도 도메인/프로젝트 (`retail.marketlink.com`) - 팀원 담당
+- **메인 랜딩 페이지**: 별도 도메인(`www.farmtobiz.com`)에서 관리
+- **도매 프로젝트**: 이 프로젝트 (`wholesale.farmtobiz.com`) - 순수 도매 기능만
+- **소매 프로젝트**: 별도 도메인/프로젝트 (`retail.farmtobiz.com`) - 팀원 담당
 - **Supabase DB**: 통합 사용 (3개 프로젝트 공유)
 
 ### 1.2 핵심 기능 (MVP)
@@ -1057,9 +1057,9 @@ pnpm add react-hook-form zod @hookform/resolvers date-fns @tanstack/react-table 
 **플로우:**
 
 ```
-1. 외부 메인 랜딩 페이지 (www.marketlink.com)
+1. 외부 메인 랜딩 페이지 (www.farmtobiz.com)
    ↓ "도매업자로 시작하기" 버튼 클릭
-2. wholesale.marketlink.com/sign-in/wholesaler 접속
+2. wholesale.farmtobiz.com/sign-in/wholesaler 접속
    ↓
 3. Clerk 회원가입 또는 로그인
    ↓
@@ -1073,7 +1073,7 @@ pnpm add react-hook-form zod @hookform/resolvers date-fns @tanstack/react-table 
 **⚠️ 역할 선택 단계 없음:**
 
 - 도매 전용 도메인이므로 역할이 이미 결정됨
-- 소매 사용자는 다른 도메인(`retail.marketlink.com`) 사용
+- 소매 사용자는 다른 도메인(`retail.farmtobiz.com`) 사용
 
 **구현 완료된 페이지:**
 
@@ -1100,7 +1100,7 @@ import { redirect } from "next/navigation";
  * @description 도매 프로젝트 루트 페이지 - 로그인으로 리다이렉트
  *
  * 이 프로젝트는 도매 사업자 전용 플랫폼입니다.
- * 메인 랜딩 페이지는 별도 도메인(www.marketlink.com)에서 관리되므로,
+ * 메인 랜딩 페이지는 별도 도메인(www.farmtobiz.com)에서 관리되므로,
  * 루트 경로(/)에 접근 시 도매 로그인 페이지로 자동 리다이렉트합니다.
  */
 export default function RootPage() {
@@ -1110,7 +1110,7 @@ export default function RootPage() {
 
 **진입점:**
 
-- 외부 링크: `www.marketlink.com` → "도매업자로 시작하기" 클릭 → `wholesale.marketlink.com/sign-in/wholesaler`
+- 외부 링크: `www.farmtobiz.com` → "도매업자로 시작하기" 클릭 → `wholesale.farmtobiz.com/sign-in/wholesaler`
 - 루트 접근: `/` → `/sign-in/wholesaler` (자동 리다이렉트)
 - 북마크/직접 접속: `/sign-in/wholesaler`
 

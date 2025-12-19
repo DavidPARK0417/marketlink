@@ -1,7 +1,7 @@
 # 디자인 시스템 참고 가이드 (Design System Reference)
 
 **작성일**: 2024-12-04  
-**프로젝트**: MarketLink  
+**프로젝트**: FarmToBiz  
 **디자인 시스템**: Farm to Biz
 
 ---
@@ -11,10 +11,11 @@
 ### Primary 색상
 
 ```css
---primary: #10B981; /* Emerald Green */
+--primary: #10b981; /* Emerald Green */
 ```
 
 **사용 방법**:
+
 - Tailwind 클래스: `bg-[#10B981]`, `text-[#10B981]`, `border-[#10B981]`
 - CSS 변수: `var(--primary)`
 - Emerald 계열: `bg-emerald-500`, `text-emerald-600`, `bg-emerald-100` 등
@@ -22,6 +23,7 @@
 ### 색상 팔레트
 
 #### Green 계열 (Primary)
+
 - `#10B981` - Primary Green (메인 색상)
 - `#059669` - Dark Green (호버 상태)
 - `#34D399` - Light Green (배경/강조)
@@ -32,6 +34,7 @@
 - `bg-emerald-700` - 매우 진한 색상
 
 #### Gray 계열 (Neutral)
+
 - `text-gray-600` - 보조 텍스트
 - `text-gray-700` - 일반 텍스트
 - `text-gray-900` - 강조 텍스트
@@ -42,6 +45,7 @@
 ### 색상 사용 가이드
 
 #### 버튼
+
 ```tsx
 // Primary 버튼
 <Button className="bg-[#10B981] hover:bg-[#059669] text-white">
@@ -55,6 +59,7 @@
 ```
 
 #### 배지 (Badge)
+
 ```tsx
 // 활성 상태
 <span className="bg-emerald-100 text-emerald-700 border border-emerald-200">
@@ -68,6 +73,7 @@
 ```
 
 #### 아이콘
+
 ```tsx
 // Primary 아이콘
 <Icon className="w-6 h-6 text-[#10B981]" />
@@ -86,18 +92,21 @@
 
 ```css
 --font-sans: "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui,
-  Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR",
-  "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
+  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
 ```
 
 **CDN**:
+
 ```html
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+@import
+url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
 ```
 
 ### 폰트 크기 및 스타일
 
 #### 제목 (Headings)
+
 ```tsx
 // H1
 <h1 className="text-4xl font-bold text-gray-900">제목</h1>
@@ -110,6 +119,7 @@
 ```
 
 #### 본문 (Body)
+
 ```tsx
 // 큰 본문
 <p className="text-lg text-gray-700">본문 텍스트</p>
@@ -122,6 +132,7 @@
 ```
 
 #### 강조 텍스트
+
 ```tsx
 // 굵게
 <span className="font-bold text-gray-900">강조</span>
@@ -137,6 +148,7 @@
 ### 버튼 (Button)
 
 #### 기본 스타일
+
 - **Border Radius**: `rounded-xl` (12px)
 - **Primary 색상**: `bg-[#10B981]`
 - **호버 색상**: `hover:bg-[#059669]`
@@ -153,6 +165,7 @@
 ### 카드 (Card)
 
 #### 기본 스타일
+
 - **Border Radius**: `rounded-2xl` (16px) 또는 `rounded-3xl` (24px)
 - **그림자**: `shadow-md`, `hover:shadow-xl`
 - **호버 효과**: `hover:-translate-y-1`
@@ -167,6 +180,7 @@
 ### 입력 필드 (Input)
 
 #### 기본 스타일
+
 - **Border Radius**: `rounded-xl` (12px)
 - **포커스 링**: `focus:ring-[#10B981]`
 - **트랜지션**: `transition-colors duration-150`
@@ -178,13 +192,12 @@
 ### 모달 (Modal/Dialog)
 
 #### 기본 스타일
+
 - **Border Radius**: `rounded-2xl` (16px)
 - **백드롭**: `backdrop-blur-sm`
 
 ```tsx
-<DialogContent className="rounded-2xl">
-  모달 내용
-</DialogContent>
+<DialogContent className="rounded-2xl">모달 내용</DialogContent>
 ```
 
 ---
@@ -248,14 +261,17 @@
 ## 🚫 사용 금지 사항
 
 ### 색상
+
 - ❌ `bg-blue-*`, `text-blue-*`, `border-blue-*` (Blue 계열 클래스)
 - ❌ 하드코딩된 Blue 색상 코드 (`#137fec` 등)
 
 ### 폰트
+
 - ❌ Geist 폰트 사용
 - ❌ 시스템 기본 폰트만 사용 (Pretendard 없이)
 
 ### 스타일링
+
 - ❌ 인라인 `style` 속성 사용 (Tailwind 클래스 사용)
 - ❌ `margin`을 통한 형제 요소 간격 조정 (`gap` 사용)
 
@@ -285,4 +301,3 @@
 ---
 
 **최종 업데이트**: 2024-12-04
-

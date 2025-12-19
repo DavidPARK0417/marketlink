@@ -63,16 +63,16 @@
 └─────────────────────────────────────────────────────────┘
 
 1️⃣ 메인 랜딩 페이지 (별도 도메인)
-   └─ www.marketlink.com
+   └─ www.farmtobiz.com
    └─ 역할 선택 및 안내
 
 2️⃣ 도매 프로젝트 (이 프로젝트)
-   └─ wholesale.marketlink.com
+   └─ wholesale.farmtobiz.com
    ├─ /wholesaler/* (도매 페이지)
    └─ /admin/* (관리자 페이지) ⭐
 
 3️⃣ 소매 프로젝트 (별도 팀, 별도 도메인)
-   └─ retail.marketlink.com
+   └─ retail.farmtobiz.com
    └─ /retailer/* (소매 페이지)
 
 🗄️ Supabase DB (공유)
@@ -611,7 +611,7 @@ Supabase 대시보드의 SQL Editor에서 실행:
 INSERT INTO profiles (clerk_user_id, email, role, status)
 VALUES (
   'user_2abc123...',  -- Clerk User ID
-  'admin@marketlink.com',
+  'admin@farmtobiz.com',
   'admin',
   'active'
 );

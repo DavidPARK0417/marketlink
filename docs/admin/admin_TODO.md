@@ -46,7 +46,7 @@ Phase 2 (선택): ░░░░░░░░░░░░░░░░  0% (0/4 완�
     INSERT INTO profiles (clerk_user_id, email, role, status)
     VALUES (
       'user_2abc123...',
-      'admin@marketlink.com',
+      'admin@farmtobiz.com',
       'admin',
       'active'
     );
