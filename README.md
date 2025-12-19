@@ -10,11 +10,11 @@
     <img src="https://img.shields.io/badge/-Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="supabase" />
   </div>
 
-  <h1 align="center">SaaS 템플릿</h1>
-  <h3 align="center">Next.js 15 + Clerk + Supabase</h3>
+  <h1 align="center">FarmToBiz</h1>
+  <h3 align="center">도매-소매 중개 플랫폼</h3>
 
   <p align="center">
-    프로덕션 레디 SaaS 애플리케이션을 위한 풀스택 보일러플레이트
+    AI 기반 도매-소매 중개 플랫폼 (도매 업체 전용 프로젝트)
   </p>
 </div>
 
@@ -29,11 +29,21 @@
 
 ## 소개
 
-Next.js 15, Clerk, Supabase를 활용한 모던 SaaS 애플리케이션 템플릿입니다.
+FarmToBiz는 도매 업체와 소매점을 연결하는 AI 기반 중개 플랫폼입니다. 이 프로젝트는 도매 업체 전용 웹 애플리케이션으로, 상품 관리, 주문 처리, 정산 관리 등의 기능을 제공합니다.
+
+**프로젝트 구조:**
+
+- **도매 프로젝트** (이 프로젝트): `wholesale.farmtobiz.com` - 도매 업체 전용
+- **소매 프로젝트**: `retail.farmtobiz.com` - 소매점 전용 (별도 프로젝트)
+- **메인 랜딩**: `www.farmtobiz.com` - 역할 선택 및 안내 (별도 프로젝트)
+- **공유 데이터베이스**: Supabase (3개 프로젝트 공유)
 
 **핵심 특징:**
+
 - ✨ Next.js 15 + React 19 최신 기능 활용
 - 🔐 Clerk와 Supabase 네이티브 통합 (2025년 권장 방식)
+- 🤖 AI 기반 상품명 표준화 (Google Gemini 2.5 Flash)
+- 📊 실시간 시세 조회 (공공 API 연동)
 - 🎨 Tailwind CSS v4 + shadcn/ui
 - 📱 완전한 반응형 디자인
 - 🌐 한국어 지원 (Clerk 한국어 로컬라이제이션)
@@ -71,29 +81,55 @@ Next.js 15, Clerk, Supabase를 활용한 모던 SaaS 애플리케이션 템플�
 
 ## 주요 기능
 
+### 🏪 도매 업체 기능
+
+- **회원가입 및 인증**: 사업자 정보 입력, 관리자 승인 대기
+- **대시보드**: 오늘의 주문, 출고 예정, 정산 요약 보기
+- **상품 관리**: 상품 등록/수정/비활성화, 이미지 업로드
+- **AI 상품명 표준화**: Gemini 2.5 Flash로 상품명 자동 표준화 및 카테고리 추천
+- **시세 조회**: 공공 API 연동 실시간 농수산물 경매가격 조회
+- **주문 관리**: 주문 확인 및 상태 변경 (접수 → 출고 → 완료)
+- **정산 관리**: 정산 예정/완료 내역 조회
+- **문의 관리**: 소매점 및 관리자와의 문의 처리
+- **실시간 알림**: 새 주문 알림, 승인 상태 변경 알림
+
+### 👨‍💼 관리자 기능
+
+- **도매 업체 승인**: 신규 도매 업체 가입 승인/거부
+- **계정 관리**: 도매/소매 계정 관리 및 정지
+- **CS 통합 관리**: 문의사항 통합 관리 및 답변
+- **공지사항 관리**: 도매 업체 대상 공지사항 작성
+- **FAQ 관리**: 자주 묻는 질문 관리
+- **감사 로그**: 관리자 액션 추적 및 기록
+
 ### 🔐 인증 시스템
+
 - Clerk를 통한 안전한 사용자 인증
 - 소셜 로그인 지원 (Google 등)
 - Clerk 사용자 자동으로 Supabase DB에 동기화
 - 한국어 UI 지원
 
 ### 🗄️ 데이터베이스 통합
+
 - Clerk 토큰 기반 Supabase 인증 (JWT 템플릿 불필요)
 - 환경별 Supabase 클라이언트 분리:
   - Client Component용 (`useClerkSupabaseClient`)
   - Server Component용 (`createClerkSupabaseClient`)
   - 관리자 권한용 (`createServiceRoleClient`)
 - SQL 마이그레이션 시스템
+- Row Level Security (RLS) 정책 적용
 
 ### 🎨 UI/UX
+
 - shadcn/ui 기반 모던 컴포넌트
 - 완전한 반응형 디자인
 - 다크/라이트 모드 지원 가능
 - 접근성 준수 (WCAG)
 
 ### 🏗️ 아키텍처
-- Server Actions 우선 사용
-- 타입 안전성 보장
+
+- Server Actions 우선 사용 (`actions/` 디렉토리)
+- 타입 안전성 보장 (TypeScript strict mode)
 - 모듈화된 코드 구조
 - Next.js 15 최신 패턴 적용
 
@@ -133,7 +169,7 @@ npm install -g pnpm
 1. [Clerk Dashboard](https://dashboard.clerk.com/)에 접속하여 로그인
 2. **"Create application"** 클릭
 3. 애플리케이션 정보 입력:
-   - **Application name**: 원하는 이름 (예: `SaaS Template`)
+   - **Application name**: 원하는 이름 (예: `FarmToBiz`)
    - **Sign-in options**: Email, Google 등 원하는 인증 방식 선택
 4. **"Create application"** 클릭
 5. Quick Start 화면에서 **"Continue in Dashboard"** 클릭
@@ -158,9 +194,11 @@ npm install -g pnpm
 
    - **Provider Name**: `Clerk` (또는 원하는 이름)
    - **JWT Issuer (Issuer URL)**:
+
      ```
      https://your-app-12.clerk.accounts.dev
      ```
+
      (`your-app-12` 부분을 실제 Clerk Frontend API URL로 교체)
 
    - **JWKS Endpoint (JWKS URI)**:
@@ -190,12 +228,23 @@ npm install -g pnpm
 
 1. Supabase Dashboard → **SQL Editor** 메뉴
 2. **"New query"** 클릭
-3. `supabase/migrations/schema.sql` 파일 내용을 복사하여 붙여넣기
+3. `supabase/migrations/setup_schema.sql` 파일 내용을 복사하여 붙여넣기
 4. **"Run"** 클릭하여 실행
 5. 성공 메시지 확인 (`Success. No rows returned`)
+6. 추가 마이그레이션 파일들도 순서대로 적용 (필요시)
 
-**생성되는 테이블:**
-- `users`: Clerk 사용자와 동기화되는 사용자 정보 테이블
+**주요 테이블:**
+
+- `profiles`: Clerk 사용자와 동기화되는 사용자 정보 및 역할 관리
+- `wholesalers`: 도매 업체 정보
+- `products`: 상품 정보
+- `orders`: 주문 정보
+- `order_items`: 주문 상세 항목
+- `settlements`: 정산 정보
+- `inquiries`: 문의사항
+- `announcements`: 공지사항
+- `faqs`: 자주 묻는 질문
+- 기타 관련 테이블들
 
 #### 6. 환경 변수 설정
 
@@ -203,7 +252,7 @@ npm install -g pnpm
 
 ```bash
 git clone <your-repository-url>
-cd saas-template
+cd farmtobiz
 pnpm install
 ```
 
@@ -282,7 +331,20 @@ pnpm dev
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인합니다.
 
+**주요 페이지:**
+
+- `/`: 홈페이지
+- `/wholesaler/dashboard`: 도매 업체 대시보드
+- `/wholesaler/products`: 상품 관리
+- `/wholesaler/orders`: 주문 관리
+- `/wholesaler/settlements`: 정산 관리
+- `/wholesaler/market-prices`: 시세 조회
+- `/admin/dashboard`: 관리자 대시보드
+- `/admin/wholesalers`: 도매 업체 관리
+- `/admin/cs`: CS 통합 관리
+
 **테스트 페이지:**
+
 - `/auth-test`: Clerk + Supabase 인증 통합 테스트
 - `/storage-test`: Supabase Storage 업로드 테스트
 
@@ -310,35 +372,30 @@ pnpm lint
 
 ### Supabase RLS (Row Level Security) 정책
 
-프로젝트의 `users` 테이블에는 기본 RLS 정책이 설정되어 있습니다:
+프로젝트의 모든 테이블에는 RLS 정책이 설정되어 있습니다. 개발 중에는 RLS를 비활성화할 수 있으나, 프로덕션에서는 반드시 활성화해야 합니다.
 
-- **SELECT**: 사용자는 자신의 데이터만 조회 가능
-- **INSERT**: 새 사용자 생성 가능
-- **UPDATE**: 사용자는 자신의 데이터만 수정 가능
+**RLS 정책 파일:**
 
-추가 테이블 생성 시 RLS 정책을 반드시 설정하세요:
+- `supabase/RLS_POLICIES_FIXED.sql`: 전체 RLS 정책 정의
+
+**주요 정책 원칙:**
+
+- 도매 업체는 자신의 데이터만 조회/수정 가능
+- 관리자는 모든 데이터 접근 가능
+- 소매점 정보는 도매 업체에 노출되지 않음 (민감 정보 보호)
+
+**개발 환경에서 RLS 비활성화:**
 
 ```sql
--- 테이블 생성
-CREATE TABLE your_table (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id TEXT NOT NULL REFERENCES users(clerk_id),
-  -- 기타 컬럼들
-);
-
--- RLS 활성화
-ALTER TABLE your_table ENABLE ROW LEVEL SECURITY;
-
--- SELECT 정책
-CREATE POLICY "Users can view their own data"
-  ON your_table FOR SELECT
-  USING (auth.jwt()->>'sub' = user_id);
-
--- INSERT 정책
-CREATE POLICY "Users can insert their own data"
-  ON your_table FOR INSERT
-  WITH CHECK (auth.jwt()->>'sub' = user_id);
+-- 개발 중 RLS 비활성화 (프로덕션에서는 사용 금지)
+ALTER TABLE your_table DISABLE ROW LEVEL SECURITY;
 ```
+
+**프로덕션 배포 전 확인사항:**
+
+1. 모든 테이블에 RLS 활성화 확인
+2. 적절한 정책이 설정되어 있는지 확인
+3. 테스트 계정으로 권한 테스트 수행
 
 ### 추가 로그인 방식 설정
 
@@ -352,61 +409,128 @@ Clerk에서 추가 로그인 방식을 활성화하려면:
 ## 프로젝트 구조
 
 ```
-saas-template/
-├── app/                    # Next.js App Router
-│   ├── api/               # API Routes
-│   │   └── sync-user/    # Clerk → Supabase 사용자 동기화
-│   ├── auth-test/        # 인증 테스트 페이지
-│   ├── storage-test/     # 스토리지 테스트 페이지
-│   ├── layout.tsx        # Root Layout (Clerk Provider)
-│   ├── page.tsx          # 홈페이지
-│   └── globals.css       # 전역 스타일 (Tailwind v4 설정)
+farmtobiz/
+├── app/                          # Next.js App Router
+│   ├── (auth)/                   # 인증 관련 페이지
+│   │   ├── sign-in/             # 로그인
+│   │   ├── sign-up/             # 회원가입
+│   │   └── wholesaler-onboarding/ # 도매 업체 온보딩
+│   ├── admin/                    # 관리자 페이지
+│   │   ├── dashboard/           # 관리자 대시보드
+│   │   ├── wholesalers/          # 도매 업체 관리
+│   │   ├── retailers/           # 소매점 관리
+│   │   ├── cs/                  # CS 통합 관리
+│   │   ├── announcements/       # 공지사항 관리
+│   │   ├── faqs/                # FAQ 관리
+│   │   └── audit-logs/          # 감사 로그
+│   ├── wholesaler/               # 도매 업체 페이지
+│   │   ├── dashboard/           # 도매 대시보드
+│   │   ├── products/            # 상품 관리
+│   │   ├── orders/              # 주문 관리
+│   │   ├── settlements/         # 정산 관리
+│   │   ├── market-prices/       # 시세 조회
+│   │   ├── inquiries/           # 문의 관리
+│   │   └── settings/            # 설정
+│   ├── api/                      # API Routes
+│   │   ├── sync-user/           # 사용자 동기화
+│   │   ├── market-prices/       # 시세 API
+│   │   ├── ai/                  # AI 표준화 API
+│   │   ├── payments/            # 결제 API
+│   │   └── admin/               # 관리자 API
+│   ├── layout.tsx               # Root Layout
+│   ├── page.tsx                 # 홈페이지
+│   └── globals.css              # 전역 스타일 (Tailwind v4)
 │
-├── components/            # React 컴포넌트
-│   ├── ui/               # shadcn/ui 컴포넌트 (자동 생성)
-│   ├── providers/        # Context Providers
-│   │   └── sync-user-provider.tsx
-│   └── Navbar.tsx        # 네비게이션 바
+├── actions/                      # Server Actions
+│   ├── admin/                   # 관리자 액션
+│   │   ├── account-management.ts
+│   │   ├── wholesaler-approval.ts
+│   │   ├── announcements.ts
+│   │   └── cs-reply.ts
+│   └── wholesaler/              # 도매 업체 액션
+│       ├── create-wholesaler.ts
+│       ├── update-product.ts
+│       ├── update-order-status.ts
+│       └── create-inquiry.ts
 │
-├── lib/                   # 유틸리티 및 설정
-│   ├── supabase/         # Supabase 클라이언트들
-│   │   ├── clerk-client.ts    # Client Component용
-│   │   ├── server.ts          # Server Component용
-│   │   ├── service-role.ts    # 관리자용
-│   │   └── client.ts          # 공개 데이터용
-│   └── utils.ts          # 공통 유틸리티 (cn 함수 등)
+├── components/                   # React 컴포넌트
+│   ├── ui/                      # shadcn/ui 컴포넌트
+│   ├── providers/               # Context Providers
+│   └── [기타 컴포넌트들]
 │
-├── hooks/                 # Custom React Hooks
-│   └── use-sync-user.ts  # 사용자 동기화 훅
+├── lib/                          # 유틸리티 및 설정
+│   ├── supabase/                # Supabase 클라이언트들
+│   │   ├── clerk-client.ts      # Client Component용
+│   │   ├── server.ts            # Server Component용
+│   │   ├── service-role.ts      # 관리자용
+│   │   └── client.ts            # 공개 데이터용
+│   ├── api/                     # 외부 API 클라이언트
+│   │   └── market-prices.ts     # 시세 API
+│   ├── payments/                # 결제 관련
+│   ├── utils/                   # 유틸리티 함수
+│   └── validation/              # 검증 스키마
 │
-├── supabase/             # Supabase 관련 파일
-│   ├── migrations/       # 데이터베이스 마이그레이션
-│   │   └── schema.sql   # 초기 스키마
-│   └── config.toml       # Supabase 프로젝트 설정
+├── hooks/                        # Custom React Hooks
+│   ├── use-sync-user.ts         # 사용자 동기화
+│   ├── use-wholesaler.ts        # 도매 업체 데이터
+│   ├── use-market-prices.ts     # 시세 조회
+│   └── useDashboardStats.ts     # 대시보드 통계
 │
-├── .cursor/              # Cursor AI 규칙
-│   └── rules/           # 개발 컨벤션 및 가이드
+├── types/                        # TypeScript 타입 정의
+│   ├── database.ts              # 데이터베이스 타입
+│   ├── wholesaler.ts            # 도매 업체 타입
+│   ├── product.ts               # 상품 타입
+│   ├── order.ts                 # 주문 타입
+│   └── [기타 타입들]
 │
-├── middleware.ts         # Next.js 미들웨어 (Clerk)
-├── .env.example         # 환경 변수 예시
-└── CLAUDE.md            # AI 에이전트용 프로젝트 가이드
+├── supabase/                     # Supabase 관련 파일
+│   ├── migrations/              # 데이터베이스 마이그레이션
+│   │   ├── setup_schema.sql    # 초기 스키마
+│   │   └── [마이그레이션 파일들]
+│   └── RLS_POLICIES_FIXED.sql  # RLS 정책 정의
+│
+├── docs/                         # 프로젝트 문서
+│   ├── PRD.md                   # 제품 요구사항 문서
+│   ├── TODO.md                   # 개발 TODO
+│   ├── admin/                    # 관리자 가이드
+│   └── Wholesaler/              # 도매 업체 가이드
+│
+├── .cursor/                      # Cursor AI 규칙
+│   └── rules/                   # 개발 컨벤션 및 가이드
+│
+├── middleware.ts                 # Next.js 미들웨어 (Clerk)
+├── AGENTS.md                     # AI 에이전트용 프로젝트 가이드
+└── README.md                     # 프로젝트 README
 ```
 
 ### 주요 파일 설명
 
-- **`middleware.ts`**: Clerk 인증 미들웨어 설정
+- **`middleware.ts`**: Clerk 인증 미들웨어 설정 및 라우트 보호
 - **`app/layout.tsx`**: ClerkProvider와 SyncUserProvider 설정
 - **`lib/supabase/`**: 환경별 Supabase 클라이언트 (매우 중요!)
 - **`hooks/use-sync-user.ts`**: Clerk 사용자를 Supabase에 자동 동기화
-- **`components/providers/sync-user-provider.tsx`**: 앱 전역에서 사용자 동기화 실행
-- **`CLAUDE.md`**: Claude Code를 위한 프로젝트 가이드
+- **`actions/`**: Server Actions (API Routes 대신 우선 사용)
+- **`supabase/migrations/`**: 데이터베이스 마이그레이션 파일들
+- **`AGENTS.md`**: Claude Code를 위한 프로젝트 가이드
 
 ## 추가 리소스
+
+### 공식 문서
 
 - [Next.js 15 문서](https://nextjs.org/docs)
 - [Clerk 문서](https://clerk.com/docs)
 - [Supabase 문서](https://supabase.com/docs)
 - [shadcn/ui 문서](https://ui.shadcn.com/)
 - [Tailwind CSS v4 문서](https://tailwindcss.com/docs)
-#   l i n k m a r k e t  
- 
+
+### 프로젝트 문서
+
+- [PRD.md](./docs/PRD.md): 제품 요구사항 문서
+- [TODO.md](./docs/TODO.md): 개발 TODO 리스트
+- [AGENTS.md](./AGENTS.md): 개발자 가이드
+- [도매 업체 가이드](./docs/Wholesaler/WS_Guideline.md): 도매 업체 기능 가이드
+- [관리자 가이드](./docs/admin/admin.md): 관리자 기능 가이드
+
+## 라이선스
+
+이 프로젝트는 비공개 프로젝트입니다.
