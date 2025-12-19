@@ -71,12 +71,46 @@ async function fetchOrders(
   if (!response.ok) {
     // 서버에서 반환한 상세 에러 메시지 추출
     let errorMessage = "주문 목록 조회 실패";
+
+    // 응답 상태 정보 로깅
+    console.error("❌ [orders-page] API 에러 발생", {
+      status: response.status,
+      statusText: response.statusText,
+      url: response.url,
+      headers: Object.fromEntries(response.headers.entries()),
+    });
+
     try {
-      const errorData = await response.json();
-      errorMessage = errorData.details || errorData.error || errorMessage;
-      console.error("❌ [orders-page] API 에러 응답:", errorData);
+      // 응답 본문을 텍스트로 먼저 읽어서 확인
+      const responseText = await response.text();
+      console.log("🔍 [orders-page] 응답 본문 (텍스트):", responseText);
+
+      // 빈 응답인지 확인
+      if (!responseText || responseText.trim() === "") {
+        console.error("❌ [orders-page] 응답 본문이 비어있음");
+        errorMessage = `서버 오류 (${response.status} ${response.statusText})`;
+      } else {
+        // JSON 파싱 시도
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage =
+            errorData.details ||
+            errorData.error ||
+            errorData.message ||
+            errorMessage;
+          console.error("❌ [orders-page] API 에러 응답:", errorData);
+        } catch (parseError) {
+          // JSON 파싱 실패 시 텍스트를 에러 메시지로 사용
+          console.error(
+            "❌ [orders-page] JSON 파싱 실패, 텍스트 사용:",
+            parseError,
+          );
+          errorMessage = responseText || errorMessage;
+        }
+      }
     } catch (e) {
-      console.error("❌ [orders-page] 에러 응답 파싱 실패:", e);
+      console.error("❌ [orders-page] 에러 응답 읽기 실패:", e);
+      errorMessage = `서버 오류 (${response.status} ${response.statusText})`;
     }
 
     throw new Error(errorMessage);
