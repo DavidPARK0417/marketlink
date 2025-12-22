@@ -223,22 +223,6 @@ function WholesalerLayoutContent({
     router.push("/admin");
   };
 
-  // 검색어 타입 판별 함수
-  const detectSearchType = (
-    query: string,
-  ): "order" | "product" | "customer" => {
-    const trimmed = query.trim();
-
-    // 주문번호 패턴: ORD-로 시작하거나 숫자-숫자-숫자-숫자 패턴
-    if (/^ORD-/.test(trimmed) || /^\d{4}-\d{2}-\d{2}-\d+/.test(trimmed)) {
-      return "order";
-    }
-
-    // 기본적으로 상품명으로 간주
-    // (고객명은 주문 페이지에서만 검색 가능하므로, 여기서는 상품명으로 처리)
-    return "product";
-  };
-
   // 검색 실행 핸들러
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -247,26 +231,15 @@ function WholesalerLayoutContent({
       return;
     }
 
-    const searchType = detectSearchType(searchQuery);
     const trimmedQuery = searchQuery.trim();
 
     console.log("🔍 [layout-search] 검색 실행", {
       query: trimmedQuery,
-      type: searchType,
       currentPath: pathname,
     });
 
-    if (searchType === "order") {
-      // 주문번호 검색 → 주문 페이지로 이동
-      router.push(
-        `/wholesaler/orders?search=${encodeURIComponent(trimmedQuery)}`,
-      );
-    } else {
-      // 상품명 검색 → 상품 페이지로 이동
-      router.push(
-        `/wholesaler/products?search=${encodeURIComponent(trimmedQuery)}`,
-      );
-    }
+    // 모든 검색 → 통합 검색 페이지로 이동
+    router.push(`/wholesaler/search?q=${encodeURIComponent(trimmedQuery)}`);
 
     // 검색 후 검색창 닫기 및 입력 필드 초기화
     setIsMobileSearchOpen(false);
@@ -398,7 +371,7 @@ function WholesalerLayoutContent({
             >
               <input
                 type="text"
-                placeholder="상품, 주문번호, 고객명을 검색해보세요"
+                placeholder="주문번호, 고객명, 상품명을 검색해보세요"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-gray-50 dark:bg-gray-800 border-0 rounded-xl pl-12 pr-4 py-3 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 focus:bg-white dark:focus:bg-gray-700 transition-all"
@@ -627,16 +600,18 @@ function WholesalerLayoutContent({
         {/* Mobile Header */}
         <header className="lg:hidden bg-gradient-to-b from-emerald-50/50 via-white/90 to-white/95 dark:from-gray-900/60 dark:via-gray-900/70 dark:to-gray-900/80 shadow-sm sticky top-0 z-50 backdrop-blur-xl border-b border-gray-100/50 dark:border-gray-800/60 supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60">
           <div className="container mx-auto px-4">
-            <div className={cn(
-              "flex items-center h-16",
-              isMobileSearchOpen ? "justify-start" : "justify-between"
-            )}>
+            <div
+              className={cn(
+                "flex items-center h-16",
+                isMobileSearchOpen ? "justify-start" : "justify-between",
+              )}
+            >
               {/* Mobile Logo - 검색창이 열려있을 때는 숨김 */}
-              <Link 
-                href="/wholesaler/dashboard" 
+              <Link
+                href="/wholesaler/dashboard"
                 className={cn(
                   "flex items-center",
-                  isMobileSearchOpen && "hidden"
+                  isMobileSearchOpen && "hidden",
                 )}
               >
                 {/* 모바일용 로고 */}
@@ -660,10 +635,12 @@ function WholesalerLayoutContent({
               </Link>
 
               {/* Mobile Search & Menu */}
-              <div className={cn(
-                "flex items-center gap-1",
-                isMobileSearchOpen && "flex-1"
-              )}>
+              <div
+                className={cn(
+                  "flex items-center gap-1",
+                  isMobileSearchOpen && "flex-1",
+                )}
+              >
                 {/* 검색 아이콘 버튼 (검색창이 닫혀있을 때만 표시) */}
                 {!isMobileSearchOpen && (
                   <button
@@ -677,13 +654,10 @@ function WholesalerLayoutContent({
 
                 {/* 검색창 (열렸을 때만 표시) */}
                 {isMobileSearchOpen && (
-                  <form
-                    onSubmit={handleSearch}
-                    className="flex-1 relative"
-                  >
+                  <form onSubmit={handleSearch} className="flex-1 relative">
                     <input
                       type="text"
-                      placeholder="검색..."
+                      placeholder="주문번호, 고객명, 상품명 검색"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus
@@ -707,220 +681,222 @@ function WholesalerLayoutContent({
                 {/* Mobile 알림, 설정, 고객센터 버튼 - 검색창이 열려있을 때는 숨김 */}
                 {!isMobileSearchOpen && (
                   <div className="flex items-center gap-1 mr-1">
-                  {role === "admin" && (
-                    <button
-                      type="button"
-                      onClick={handleGoToAdmin}
-                      className="p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                      aria-label="관리자 페이지로 이동"
-                    >
-                      <Shield className="w-5 h-5" />
-                    </button>
-                  )}
-
-                  {/* 알림 드롭다운 메뉴 (모바일) */}
-                  <DropdownMenu
-                    open={isMobileDropdownOpen}
-                    onOpenChange={setIsMobileDropdownOpen}
-                  >
-                    <DropdownMenuTrigger asChild>
+                    {role === "admin" && (
                       <button
-                        id="wholesaler-mobile-notifications-trigger"
-                        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                        aria-label="알림"
-                        disabled={isLoadingNotifications}
+                        type="button"
+                        onClick={handleGoToAdmin}
+                        className="p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                        aria-label="관리자 페이지로 이동"
                       >
-                        <div className="relative">
-                          <Bell className="w-5 h-5" />
-                          {hasNewNotifications && (
-                            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white transform translate-x-1/4 -translate-y-1/4"></span>
-                          )}
-                        </div>
+                        <Shield className="w-5 h-5" />
                       </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="w-80 overflow-x-hidden overflow-y-hidden"
+                    )}
+
+                    {/* 알림 드롭다운 메뉴 (모바일) */}
+                    <DropdownMenu
+                      open={isMobileDropdownOpen}
+                      onOpenChange={setIsMobileDropdownOpen}
                     >
-                      <DropdownMenuLabel className="flex items-center justify-between">
-                        <span>알림</span>
-                        {totalUnreadCount > 0 && (
-                          <span className="text-xs font-normal text-red-500">
-                            읽지 않음 {totalUnreadCount}개
-                          </span>
-                        )}
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {isLoadingNotifications ? (
-                        <div className="p-4 text-center text-sm text-gray-500">
-                          알림을 불러오는 중...
-                        </div>
-                      ) : recentOrders.length === 0 &&
-                        recentInquiries.length === 0 ? (
-                        <div className="p-4 text-center text-sm text-gray-500">
-                          알림이 없습니다
-                        </div>
-                      ) : (
-                        <div className="max-h-96 overflow-y-auto overflow-x-hidden">
-                          {/* 주문 알림 섹션 */}
-                          {recentOrders.length > 0 && (
-                            <>
-                              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                                주문 알림
-                                {unreadOrdersCount > 0 && (
-                                  <span className="ml-2 text-red-500">
-                                    ({unreadOrdersCount})
-                                  </span>
-                                )}
-                              </div>
-                              {recentOrders.map((order) => (
-                                <DropdownMenuItem
-                                  key={`order-${order.id}`}
-                                  className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
-                                  onClick={() => handleOrderClick(order.id)}
-                                >
-                                  <div className="flex items-center justify-between w-full min-w-0 gap-2">
-                                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                                      <Package className="w-4 h-4 text-gray-500 shrink-0" />
-                                      <span className="font-medium text-sm truncate">
-                                        {order.product.name}
-                                      </span>
-                                      {!order.is_read && (
-                                        <span className="w-2 h-2 bg-red-500 rounded-full shrink-0"></span>
-                                      )}
-                                    </div>
-                                    <span className="text-xs text-gray-500 shrink-0">
-                                      {formatDateTime(
-                                        order.created_at,
-                                        "time-only",
-                                      )}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center justify-between w-full text-xs text-gray-600 gap-2 min-w-0">
-                                    <span className="truncate">
-                                      주문번호: {order.order_number}
-                                    </span>
-                                    <span className="font-medium shrink-0">
-                                      {formatPrice(order.total_amount)}
-                                    </span>
-                                  </div>
-                                </DropdownMenuItem>
-                              ))}
-                              {recentInquiries.length > 0 && (
-                                <DropdownMenuSeparator />
-                              )}
-                            </>
-                          )}
-
-                          {/* 문의 알림 섹션 */}
-                          {recentInquiries.length > 0 && (
-                            <>
-                              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
-                                문의 알림
-                                {unreadInquiriesCount > 0 && (
-                                  <span className="ml-2 text-red-500">
-                                    ({unreadInquiriesCount})
-                                  </span>
-                                )}
-                              </div>
-                              {recentInquiries.map((inquiry) => (
-                                <DropdownMenuItem
-                                  key={`inquiry-${inquiry.id}`}
-                                  className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
-                                  onClick={() => handleInquiryClick(inquiry.id)}
-                                >
-                                  <div className="flex items-center justify-between w-full min-w-0 gap-2">
-                                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                                      <MessageSquare className="w-4 h-4 text-gray-500 shrink-0" />
-                                      <span className="font-medium text-sm truncate">
-                                        {inquiry.title}
-                                      </span>
-                                      {inquiry.status === "open" && (
-                                        <span className="w-2 h-2 bg-red-500 rounded-full shrink-0"></span>
-                                      )}
-                                    </div>
-                                    <span className="text-xs text-gray-500 shrink-0">
-                                      {formatDateTime(
-                                        inquiry.created_at,
-                                        "time-only",
-                                      )}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center justify-between w-full text-xs text-gray-600 gap-2 min-w-0">
-                                    {inquiry.user_anonymous_code && (
-                                      <span className="truncate">
-                                        문의자: {inquiry.user_anonymous_code}
-                                      </span>
-                                    )}
-                                    <span
-                                      className={`text-xs px-2 py-0.5 rounded shrink-0 ${
-                                        inquiry.status === "open"
-                                          ? "bg-red-100 text-red-700"
-                                          : "bg-gray-100 text-gray-700"
-                                      }`}
-                                    >
-                                      {inquiry.status === "open"
-                                        ? "미답변"
-                                        : "답변완료"}
-                                    </span>
-                                  </div>
-                                </DropdownMenuItem>
-                              ))}
-                            </>
-                          )}
-                        </div>
-                      )}
-
-                      {(recentOrders.length > 0 ||
-                        recentInquiries.length > 0) && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <div className="flex gap-2">
-                            {recentOrders.length > 0 && (
-                              <DropdownMenuItem
-                                className="text-center justify-center cursor-pointer flex-1"
-                                onClick={() => {
-                                  router.push("/wholesaler/orders");
-                                  setIsMobileDropdownOpen(false);
-                                }}
-                              >
-                                모든 주문 보기
-                              </DropdownMenuItem>
-                            )}
-                            {recentInquiries.length > 0 && (
-                              <DropdownMenuItem
-                                className="text-center justify-center cursor-pointer flex-1"
-                                onClick={() => {
-                                  router.push("/wholesaler/inquiries");
-                                  setIsMobileDropdownOpen(false);
-                                }}
-                              >
-                                모든 문의 보기
-                              </DropdownMenuItem>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          id="wholesaler-mobile-notifications-trigger"
+                          className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                          aria-label="알림"
+                          disabled={isLoadingNotifications}
+                        >
+                          <div className="relative">
+                            <Bell className="w-5 h-5" />
+                            {hasNewNotifications && (
+                              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white transform translate-x-1/4 -translate-y-1/4"></span>
                             )}
                           </div>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-80 overflow-x-hidden overflow-y-hidden"
+                      >
+                        <DropdownMenuLabel className="flex items-center justify-between">
+                          <span>알림</span>
+                          {totalUnreadCount > 0 && (
+                            <span className="text-xs font-normal text-red-500">
+                              읽지 않음 {totalUnreadCount}개
+                            </span>
+                          )}
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {isLoadingNotifications ? (
+                          <div className="p-4 text-center text-sm text-gray-500">
+                            알림을 불러오는 중...
+                          </div>
+                        ) : recentOrders.length === 0 &&
+                          recentInquiries.length === 0 ? (
+                          <div className="p-4 text-center text-sm text-gray-500">
+                            알림이 없습니다
+                          </div>
+                        ) : (
+                          <div className="max-h-96 overflow-y-auto overflow-x-hidden">
+                            {/* 주문 알림 섹션 */}
+                            {recentOrders.length > 0 && (
+                              <>
+                                <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                                  주문 알림
+                                  {unreadOrdersCount > 0 && (
+                                    <span className="ml-2 text-red-500">
+                                      ({unreadOrdersCount})
+                                    </span>
+                                  )}
+                                </div>
+                                {recentOrders.map((order) => (
+                                  <DropdownMenuItem
+                                    key={`order-${order.id}`}
+                                    className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
+                                    onClick={() => handleOrderClick(order.id)}
+                                  >
+                                    <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                                        <Package className="w-4 h-4 text-gray-500 shrink-0" />
+                                        <span className="font-medium text-sm truncate">
+                                          {order.product.name}
+                                        </span>
+                                        {!order.is_read && (
+                                          <span className="w-2 h-2 bg-red-500 rounded-full shrink-0"></span>
+                                        )}
+                                      </div>
+                                      <span className="text-xs text-gray-500 shrink-0">
+                                        {formatDateTime(
+                                          order.created_at,
+                                          "time-only",
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center justify-between w-full text-xs text-gray-600 gap-2 min-w-0">
+                                      <span className="truncate">
+                                        주문번호: {order.order_number}
+                                      </span>
+                                      <span className="font-medium shrink-0">
+                                        {formatPrice(order.total_amount)}
+                                      </span>
+                                    </div>
+                                  </DropdownMenuItem>
+                                ))}
+                                {recentInquiries.length > 0 && (
+                                  <DropdownMenuSeparator />
+                                )}
+                              </>
+                            )}
 
-                  {/* 설정 버튼 */}
-                  <Link
-                    href="/wholesaler/settings"
-                    className="p-2 text-gray-600 dark:text-gray-200 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                    aria-label="설정"
-                  >
-                    <Settings className="w-5 h-5 text-current" />
-                  </Link>
+                            {/* 문의 알림 섹션 */}
+                            {recentInquiries.length > 0 && (
+                              <>
+                                <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+                                  문의 알림
+                                  {unreadInquiriesCount > 0 && (
+                                    <span className="ml-2 text-red-500">
+                                      ({unreadInquiriesCount})
+                                    </span>
+                                  )}
+                                </div>
+                                {recentInquiries.map((inquiry) => (
+                                  <DropdownMenuItem
+                                    key={`inquiry-${inquiry.id}`}
+                                    className="flex flex-col items-start gap-1 p-3 cursor-pointer min-w-0"
+                                    onClick={() =>
+                                      handleInquiryClick(inquiry.id)
+                                    }
+                                  >
+                                    <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                                        <MessageSquare className="w-4 h-4 text-gray-500 shrink-0" />
+                                        <span className="font-medium text-sm truncate">
+                                          {inquiry.title}
+                                        </span>
+                                        {inquiry.status === "open" && (
+                                          <span className="w-2 h-2 bg-red-500 rounded-full shrink-0"></span>
+                                        )}
+                                      </div>
+                                      <span className="text-xs text-gray-500 shrink-0">
+                                        {formatDateTime(
+                                          inquiry.created_at,
+                                          "time-only",
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center justify-between w-full text-xs text-gray-600 gap-2 min-w-0">
+                                      {inquiry.user_anonymous_code && (
+                                        <span className="truncate">
+                                          문의자: {inquiry.user_anonymous_code}
+                                        </span>
+                                      )}
+                                      <span
+                                        className={`text-xs px-2 py-0.5 rounded shrink-0 ${
+                                          inquiry.status === "open"
+                                            ? "bg-red-100 text-red-700"
+                                            : "bg-gray-100 text-gray-700"
+                                        }`}
+                                      >
+                                        {inquiry.status === "open"
+                                          ? "미답변"
+                                          : "답변완료"}
+                                      </span>
+                                    </div>
+                                  </DropdownMenuItem>
+                                ))}
+                              </>
+                            )}
+                          </div>
+                        )}
 
-                  {/* 고객센터 버튼 */}
-                  <Link
-                    href="/wholesaler/support"
-                    className="p-2 text-gray-600 dark:text-gray-200 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                    aria-label="고객센터"
-                  >
-                    <HelpCircle className="w-5 h-5 text-current" />
-                  </Link>
+                        {(recentOrders.length > 0 ||
+                          recentInquiries.length > 0) && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <div className="flex gap-2">
+                              {recentOrders.length > 0 && (
+                                <DropdownMenuItem
+                                  className="text-center justify-center cursor-pointer flex-1"
+                                  onClick={() => {
+                                    router.push("/wholesaler/orders");
+                                    setIsMobileDropdownOpen(false);
+                                  }}
+                                >
+                                  모든 주문 보기
+                                </DropdownMenuItem>
+                              )}
+                              {recentInquiries.length > 0 && (
+                                <DropdownMenuItem
+                                  className="text-center justify-center cursor-pointer flex-1"
+                                  onClick={() => {
+                                    router.push("/wholesaler/inquiries");
+                                    setIsMobileDropdownOpen(false);
+                                  }}
+                                >
+                                  모든 문의 보기
+                                </DropdownMenuItem>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* 설정 버튼 */}
+                    <Link
+                      href="/wholesaler/settings"
+                      className="p-2 text-gray-600 dark:text-gray-200 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      aria-label="설정"
+                    >
+                      <Settings className="w-5 h-5 text-current" />
+                    </Link>
+
+                    {/* 고객센터 버튼 */}
+                    <Link
+                      href="/wholesaler/support"
+                      className="p-2 text-gray-600 dark:text-gray-200 hover:text-[#10B981] dark:hover:text-[#10B981] hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                      aria-label="고객센터"
+                    >
+                      <HelpCircle className="w-5 h-5 text-current" />
+                    </Link>
                   </div>
                 )}
 
