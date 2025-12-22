@@ -30,7 +30,7 @@
  * @see {@link ../supabase/server.ts} - Supabase 클라이언트
  */
 
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/database";
@@ -47,78 +47,133 @@ export interface ProfileWithDetails extends Profile {
 }
 
 /**
- * 현재 Clerk 사용자 정보 조회
+ * 현재 Clerk 사용자 ID 조회 (auth() 기반, API 호출 없음)
  *
- * 서버 사이드에서 현재 로그인한 Clerk 사용자 정보를 가져옵니다.
+ * 서버 사이드에서 현재 로그인한 Clerk 사용자 ID를 가져옵니다.
+ * auth()를 사용하므로 API 호출 없이 세션 정보만 확인합니다.
  * 인증되지 않은 경우 null을 반환합니다.
+ *
+ * @returns {Promise<string | null>} Clerk 사용자 ID 또는 null
+ *
+ * @example
+ * ```tsx
+ * const userId = await getCurrentUserId();
+ * if (!userId) {
+ *   redirect('/sign-in');
+ * }
+ * ```
+ */
+export async function getCurrentUserId(): Promise<string | null> {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      console.log("⚠️ [auth] getCurrentUserId: 사용자 인증되지 않음");
+      return null;
+    }
+
+    console.log("✅ [auth] getCurrentUserId: 사용자 ID 확인됨", { userId });
+    return userId;
+  } catch (error) {
+    console.error("❌ [auth] getCurrentUserId 오류:", {
+      message: error instanceof Error ? error.message : "알 수 없는 오류",
+      error,
+    });
+    return null;
+  }
+}
+
+/**
+ * 현재 Clerk 사용자 전체 정보 조회 (currentUser() 기반, API 호출)
+ *
+ * ⚠️ 주의: 이 함수는 Clerk API를 호출하므로 성능에 영향을 줄 수 있습니다.
+ * 사용자 ID만 필요한 경우 `getCurrentUserId()`를 사용하세요.
+ * 전체 사용자 정보(이메일, 이름 등)가 필요한 경우에만 이 함수를 사용하세요.
  *
  * @returns {Promise<User | null>} Clerk 사용자 정보 또는 null
  *
  * @example
  * ```tsx
- * const user = await getCurrentUser();
+ * const user = await getCurrentUserFull();
  * if (!user) {
  *   redirect('/sign-in');
  * }
+ * // user.emailAddresses, user.firstName 등 사용 가능
  * ```
  */
-export async function getCurrentUser() {
+export async function getCurrentUserFull() {
   try {
     // Clerk 환경 변수 확인
     const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
     const clerkSecretKey = process.env.CLERK_SECRET_KEY;
-    
+
     if (!clerkPublishableKey || !clerkSecretKey) {
-      console.error("❌ [auth] getCurrentUser: Clerk 환경 변수가 설정되지 않았습니다", {
-        hasPublishableKey: !!clerkPublishableKey,
-        hasSecretKey: !!clerkSecretKey,
-      });
+      console.error(
+        "❌ [auth] getCurrentUserFull: Clerk 환경 변수가 설정되지 않았습니다",
+        {
+          hasPublishableKey: !!clerkPublishableKey,
+          hasSecretKey: !!clerkSecretKey,
+        },
+      );
       return null;
     }
 
-    console.log("🔍 [auth] getCurrentUser: Clerk 사용자 조회 시작");
+    console.log(
+      "🔍 [auth] getCurrentUserFull: Clerk 사용자 조회 시작 (API 호출)",
+    );
     const user = await currentUser();
-    
+
     if (!user) {
-      console.log("⚠️ [auth] getCurrentUser: 사용자 인증되지 않음");
+      console.log("⚠️ [auth] getCurrentUserFull: 사용자 인증되지 않음");
       return null;
     }
 
-    console.log("✅ [auth] getCurrentUser: 사용자 조회 성공", {
+    console.log("✅ [auth] getCurrentUserFull: 사용자 조회 성공", {
       userId: user.id,
       email: user.emailAddresses[0]?.emailAddress,
     });
-    
+
     return user;
   } catch (error) {
     // 에러 타입별 상세 로깅
     if (error instanceof Error) {
-      console.error("❌ [auth] getCurrentUser 오류:", {
+      console.error("❌ [auth] getCurrentUserFull 오류:", {
         name: error.name,
         message: error.message,
         stack: error.stack,
         cause: error.cause,
       });
     } else {
-      console.error("❌ [auth] getCurrentUser 알 수 없는 오류:", {
+      console.error("❌ [auth] getCurrentUserFull 알 수 없는 오류:", {
         error,
         errorType: typeof error,
         errorString: String(error),
       });
     }
-    
+
     // Clerk API 에러인 경우 추가 정보 로깅
-    if (error && typeof error === 'object' && 'status' in error) {
-      console.error("❌ [auth] getCurrentUser: Clerk API 에러 상세:", {
+    if (error && typeof error === "object" && "status" in error) {
+      console.error("❌ [auth] getCurrentUserFull: Clerk API 에러 상세:", {
         status: (error as any).status,
         statusText: (error as any).statusText,
         data: (error as any).data,
         clerkTraceId: (error as any).clerkTraceId,
       });
     }
-    
+
     return null;
   }
+}
+
+/**
+ * @deprecated getCurrentUserId() 또는 getCurrentUserFull()을 사용하세요.
+ * 이 함수는 하위 호환성을 위해 유지되지만, getCurrentUserId()를 사용하는 것을 권장합니다.
+ */
+export async function getCurrentUser() {
+  console.warn(
+    "⚠️ [auth] getCurrentUser()는 deprecated입니다. getCurrentUserId() 또는 getCurrentUserFull()을 사용하세요.",
+  );
+  return getCurrentUserFull();
 }
 
 /**
@@ -145,29 +200,30 @@ export async function getCurrentUser() {
 export async function getUserProfile(): Promise<ProfileWithDetails | null> {
   try {
     console.log("🔍 [auth] getUserProfile 시작");
-    const user = await getCurrentUser();
 
-    if (!user) {
+    // auth()를 사용하여 사용자 ID만 확인 (API 호출 없음)
+    const userId = await getCurrentUserId();
+
+    if (!userId) {
       console.log("⚠️ [auth] getUserProfile: 사용자 인증되지 않음");
       return null;
     }
 
-    console.log("✅ [auth] getUserProfile: Clerk 사용자 확인됨", {
-      userId: user.id,
-      email: user.emailAddresses[0]?.emailAddress,
+    console.log("✅ [auth] getUserProfile: Clerk 사용자 ID 확인됨", {
+      userId,
     });
 
     const supabase = createClerkSupabaseClient();
 
     // clerk_user_id로 프로필 조회 (retailers, wholesalers 포함)
     console.log("🔍 [auth] getUserProfile: Supabase 프로필 조회 시작", {
-      clerkUserId: user.id,
+      clerkUserId: userId,
     });
-    
+
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("*, retailers(*), wholesalers(*)")
-      .eq("clerk_user_id", user.id)
+      .eq("clerk_user_id", userId)
       .single();
 
     if (error) {
@@ -175,7 +231,7 @@ export async function getUserProfile(): Promise<ProfileWithDetails | null> {
       if (error.code === "PGRST116") {
         console.log(
           "⚠️ [auth] getUserProfile: 프로필 없음 (정상 - 신규 사용자)",
-          { clerkUserId: user.id },
+          { clerkUserId: userId },
         );
         return null;
       }
@@ -186,19 +242,22 @@ export async function getUserProfile(): Promise<ProfileWithDetails | null> {
         message: error.message,
         details: error.details,
         hint: error.hint,
-        clerkUserId: user.id,
-        error: error instanceof Error ? {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-        } : error,
+        clerkUserId: userId,
+        error:
+          error instanceof Error
+            ? {
+                name: error.name,
+                message: error.message,
+                stack: error.stack,
+              }
+            : error,
       });
       return null;
     }
 
     if (!profile) {
       console.log("⚠️ [auth] getUserProfile: 프로필 없음", {
-        clerkUserId: user.id,
+        clerkUserId: userId,
       });
       return null;
     }
@@ -217,12 +276,15 @@ export async function getUserProfile(): Promise<ProfileWithDetails | null> {
     console.error("❌ [auth] getUserProfile 예외:", {
       message: error instanceof Error ? error.message : "알 수 없는 오류",
       stack: error instanceof Error ? error.stack : undefined,
-      error: error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        cause: error.cause,
-      } : error,
+      error:
+        error instanceof Error
+          ? {
+              name: error.name,
+              message: error.message,
+              stack: error.stack,
+              cause: error.cause,
+            }
+          : error,
     });
     return null;
   }
