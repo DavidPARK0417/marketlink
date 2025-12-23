@@ -44,7 +44,7 @@ import { formatDateTime } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
-  { href: "/admin/dashboard", label: "대시보드" },
+  { href: "/admin", label: "대시보드" },
   { href: "/admin/wholesalers/pending", label: "도매 승인 대기" },
   { href: "/admin/accounts", label: "계정 관리" },
   { href: "/admin/inquiries", label: "도매 문의 관리" },
@@ -159,7 +159,7 @@ export default function AdminHeader() {
       )}>
         {/* 모바일 로고 - 검색창이 열려있을 때는 숨김 */}
         {!isMobileSearchOpen && (
-          <Link href="/admin/dashboard" className="flex items-center">
+          <Link href="/admin" className="flex items-center">
             {/* 모바일용 로고 */}
             <Image
               src="/logo.png"

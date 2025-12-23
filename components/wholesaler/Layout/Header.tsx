@@ -151,7 +151,7 @@ export default function WholesalerHeader({
         {/* 관리자 배지 - 클릭 가능 */}
         {role === "admin" && (
           <Link
-            href="/admin/dashboard"
+            href="/admin"
             className="flex items-center gap-1.5 px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-semibold transition-colors cursor-pointer"
             title="관리자 페이지로 돌아가기"
           >

@@ -42,7 +42,7 @@ import { cn } from "@/lib/utils";
 
 const menuItems = [
   {
-    href: "/admin/dashboard",
+    href: "/admin",
     label: "대시보드",
     icon: LayoutDashboard,
   },
@@ -130,7 +130,7 @@ export default function AdminSidebar() {
       <aside className="hidden lg:flex flex-col w-64 bg-background border-r border-gray-200 dark:border-gray-800 fixed h-full z-30">
         {/* 로고 영역 */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-          <Link href="/admin/dashboard" className="block w-full">
+          <Link href="/admin" className="block w-full">
             <Image
               src="/farmtobiz_logo.png"
               alt="FarmToBiz"
@@ -148,7 +148,7 @@ export default function AdminSidebar() {
             const Icon = item.icon;
             // 대시보드는 정확히 일치만 체크, 다른 메뉴는 경로가 시작하는지 체크
             const isActive =
-              item.href === "/admin/dashboard"
+              item.href === "/admin"
                 ? pathname === item.href
                 : pathname === item.href ||
                   pathname.startsWith(item.href + "/");

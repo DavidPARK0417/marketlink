@@ -73,11 +73,25 @@ export default function WholesalerLayoutClient({
 }: WholesalerLayoutClientProps) {
   return (
     <WholesalerRoleProvider role={role}>
-      <Suspense fallback={<div className="min-h-screen bg-white"></div>}>
-        <WholesalerLayoutContent role={role}>{children}</WholesalerLayoutContent>
+      <Suspense fallback={<div className="min-h-screen bg-white dark:bg-gray-900"></div>}>
+        <WholesalerLayoutContentWrapper role={role}>{children}</WholesalerLayoutContentWrapper>
       </Suspense>
     </WholesalerRoleProvider>
   );
+}
+
+/**
+ * useSearchParams를 사용하는 래퍼 컴포넌트
+ * Next.js 15에서는 useSearchParams를 사용하는 컴포넌트를 Suspense로 감싸야 함
+ */
+function WholesalerLayoutContentWrapper({
+  children,
+  role,
+}: {
+  children: React.ReactNode;
+  role?: UserRole;
+}) {
+  return <WholesalerLayoutContent role={role}>{children}</WholesalerLayoutContent>;
 }
 
 function WholesalerLayoutContent({

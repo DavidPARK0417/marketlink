@@ -369,7 +369,7 @@ export function redirectByRole(role: UserRole | null | undefined): never {
       redirect("/wholesaler/dashboard");
       break;
     case "admin":
-      redirect("/admin/dashboard");
+      redirect("/admin");
       break;
     case "retailer":
       // 도매 전용 프로젝트이므로 소매 역할은 지원하지 않음

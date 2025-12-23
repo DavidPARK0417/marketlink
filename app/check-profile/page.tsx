@@ -140,7 +140,7 @@ export default async function CheckProfilePage() {
           {profile.role === "admin" ? (
             <>
               <a
-                href="/admin/dashboard"
+                href="/admin"
                 className="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg text-center transition-colors"
               >
                 ✅ 관리자 대시보드로 이동
