@@ -129,6 +129,9 @@ export default function SettlementsPage() {
     error: wholesalerError,
   } = useWholesaler();
 
+  // QueryClient 인스턴스 가져오기
+  const queryClient = useQueryClient();
+
   // 필터 상태
   const [statusFilter, setStatusFilter] = React.useState<
     SettlementStatus | "all"
