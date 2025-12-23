@@ -56,10 +56,27 @@ async function fetchInquiryDetail(inquiryId: string) {
     let errorMessage = "문의 상세 조회 실패";
     try {
       const errorData = await response.json();
-      errorMessage = errorData.error || errorMessage;
-      console.error("❌ [inquiry-detail-page] API 에러 응답:", errorData);
+      // 에러 데이터가 객체이고 error 속성이 있는 경우
+      if (errorData && typeof errorData === "object" && "error" in errorData) {
+        errorMessage = errorData.error || errorMessage;
+      } else if (typeof errorData === "string") {
+        errorMessage = errorData;
+      }
+      console.error("❌ [inquiry-detail-page] API 에러 응답:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorData,
+      });
     } catch (e) {
       console.error("❌ [inquiry-detail-page] 에러 응답 파싱 실패:", e);
+      // JSON 파싱 실패 시 상태 코드 기반 메시지 사용
+      if (response.status === 403) {
+        errorMessage = "이 문의를 조회할 권한이 없습니다.";
+      } else if (response.status === 404) {
+        errorMessage = "문의를 찾을 수 없습니다.";
+      } else if (response.status === 401) {
+        errorMessage = "인증이 필요합니다.";
+      }
     }
 
     throw new Error(errorMessage);

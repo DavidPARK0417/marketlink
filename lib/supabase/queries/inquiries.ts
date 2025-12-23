@@ -718,28 +718,34 @@ export async function getInquiryById(
 
   // 권한 확인: 문의 유형에 따라 다르게 처리
   if (inquiry.inquiry_type === "retailer_to_wholesaler") {
-    // 소매→도매 문의: 도매점 권한 필요
-    if (profile.role !== "wholesaler") {
-      console.error("❌ [inquiries] 도매점 권한 없음");
+    // 소매→도매 문의: 도매점 또는 관리자 권한 필요
+    if (profile.role !== "wholesaler" && profile.role !== "admin") {
+      console.error("❌ [inquiries] 도매점 또는 관리자 권한 없음", { role: profile.role });
       throw new Error("도매점 권한이 필요합니다.");
     }
 
-    // 도매점 정보 조회
-    const { data: wholesaler, error: wholesalerError } = await supabase
-      .from("wholesalers")
-      .select("id")
-      .eq("profile_id", profile.id)
-      .single();
+    // 관리자인 경우 모든 문의 조회 가능
+    if (profile.role === "admin") {
+      console.log("👑 [inquiries] 관리자 접근 - 모든 소매→도매 문의 조회 가능");
+    } else {
+      // 도매점인 경우 자신의 문의만 조회 가능
+      // 도매점 정보 조회
+      const { data: wholesaler, error: wholesalerError } = await supabase
+        .from("wholesalers")
+        .select("id")
+        .eq("profile_id", profile.id)
+        .single();
 
-    if (wholesalerError || !wholesaler) {
-      console.error("❌ [inquiries] 도매점 정보 조회 오류:", wholesalerError);
-      throw new Error("도매점 정보를 찾을 수 없습니다.");
-    }
+      if (wholesalerError || !wholesaler) {
+        console.error("❌ [inquiries] 도매점 정보 조회 오류:", wholesalerError);
+        throw new Error("도매점 정보를 찾을 수 없습니다.");
+      }
 
-    // 자신의 도매점 문의인지 확인
-    if (inquiry.wholesaler_id !== wholesaler.id) {
-      console.error("❌ [inquiries] 권한 없음 - 다른 도매점의 문의");
-      throw new Error("이 문의를 조회할 권한이 없습니다.");
+      // 자신의 도매점 문의인지 확인
+      if (inquiry.wholesaler_id !== wholesaler.id) {
+        console.error("❌ [inquiries] 권한 없음 - 다른 도매점의 문의");
+        throw new Error("이 문의를 조회할 권한이 없습니다.");
+      }
     }
 
     // 문의자 익명 코드 조회

@@ -42,12 +42,18 @@ export async function GET(
         ? error.message
         : "문의를 불러오는 중 오류가 발생했습니다.";
 
+    // 권한 관련 오류인 경우 403 상태 코드 반환
+    const isPermissionError = 
+      errorMessage.includes("권한") || 
+      errorMessage.includes("권한이 필요") ||
+      errorMessage.includes("권한이 없습니다");
+
     return NextResponse.json(
       {
         error: errorMessage,
         details: error instanceof Error ? error.stack : undefined,
       },
-      { status: 500 },
+      { status: isPermissionError ? 403 : 500 },
     );
   }
 }
