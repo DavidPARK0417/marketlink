@@ -293,21 +293,32 @@ export async function updateSettlementStatus(
     );
   }
 
-  if (profile.role !== "wholesaler") {
-    console.error("❌ [settlements] 도매점 권한 없음", { role: profile.role });
-    throw new Error("도매점 권한이 없습니다.");
+  if (profile.role !== "wholesaler" && profile.role !== "admin") {
+    console.error("❌ [settlements] 도매점 또는 관리자 권한 없음", { role: profile.role });
+    throw new Error("도매점 또는 관리자 권한이 없습니다.");
   }
 
+  const isAdmin = profile.role === "admin";
   const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
-    console.error("❌ [settlements] 도매점 정보 없음");
+  
+  // 관리자가 아닌 경우에만 도매점 정보 필수
+  if (!isAdmin && (!wholesalers || wholesalers.length === 0)) {
+    console.error("❌ [settlements] 도매점 정보 없음", {
+      wholesalers,
+      profileId: profile.id,
+      role: profile.role,
+    });
     throw new Error(
       "도매점 정보를 찾을 수 없습니다. 도매점 등록이 필요합니다.",
     );
   }
 
-  const currentWholesalerId = wholesalers[0].id;
-  console.log("✅ [settlements] 현재 도매점 ID:", currentWholesalerId);
+  const currentWholesalerId = isAdmin ? null : wholesalers?.[0]?.id;
+  if (isAdmin) {
+    console.log("✅ [settlements] 관리자 모드 - 모든 정산 상태 변경 가능");
+  } else {
+    console.log("✅ [settlements] 현재 도매점 ID:", currentWholesalerId);
+  }
 
   const supabase = createClerkSupabaseClient();
 
@@ -329,13 +340,21 @@ export async function updateSettlementStatus(
     console.log("📅 [settlements] 정산 완료일 초기화");
   }
 
-  const { data, error } = await supabase
+  // 쿼리 빌더 시작
+  let query = supabase
     .from("settlements")
     .update(updateData)
-    .eq("id", settlementId)
-    .eq("wholesaler_id", currentWholesalerId) // ⚠️ RLS 비활성화 환경 대응: 자신의 정산만 변경 가능
-    .select()
-    .single();
+    .eq("id", settlementId);
+
+  // 관리자가 아닌 경우에만 wholesaler_id 필터 적용
+  if (!isAdmin && currentWholesalerId) {
+    query = query.eq("wholesaler_id", currentWholesalerId);
+    console.log("🔒 [settlements] 도매점 필터 적용:", currentWholesalerId);
+  } else if (isAdmin) {
+    console.log("🔓 [settlements] 관리자 모드 - 모든 정산 변경 가능");
+  }
+
+  const { data, error } = await query.select().single();
 
   if (error) {
     console.error("❌ [settlements] 정산 상태 변경 오류:", error);
@@ -347,6 +366,7 @@ export async function updateSettlementStatus(
     settlementId,
     status,
     completed_at: data.completed_at,
+    isAdmin,
   });
   console.groupEnd();
 
