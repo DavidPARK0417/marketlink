@@ -140,6 +140,26 @@ export default async function AdminPage() {
           </div>
         </Link>
 
+        {/* 계정 관리 카드 */}
+        <Link
+          href="/admin/accounts"
+          className="block p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-green-300 dark:hover:border-green-700 transition-colors duration-200"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
+              <Shield className="w-6 h-6 text-green-600 dark:text-emerald-200" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground dark:text-foreground">
+                계정 관리
+              </h3>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
+                도매 및 소매 계정 정지/해제 관리
+              </p>
+            </div>
+          </div>
+        </Link>
+
         {/* 감사 로그 카드 */}
         <Link
           href="/admin/audit-logs"
