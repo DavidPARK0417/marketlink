@@ -25,8 +25,8 @@
 import * as React from "react";
 import { DateRange } from "react-day-picker";
 import { format } from "date-fns";
-import { X, Calendar, ArrowUp, ArrowDown, ArrowUpDown, Eye } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { X, Calendar, ArrowUp, ArrowDown, ArrowUpDown, Eye, ChevronDown } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ import type { SettlementFilter } from "@/types/settlement";
 import type { SettlementStatus } from "@/types/database";
 import { formatPrice } from "@/lib/utils/format";
 import type { SettlementWithOrder } from "@/lib/supabase/queries/settlements";
+import { updateSettlementStatus } from "@/actions/wholesaler/update-settlement-status";
 
 // 정산 목록 조회 함수
 async function fetchSettlements(
@@ -243,6 +244,40 @@ export default function SettlementsPage() {
   const handleViewDetail = (settlement: SettlementWithOrder) => {
     setSelectedSettlement(settlement);
     setIsDialogOpen(true);
+  };
+
+  // 정산 상태 변경 핸들러
+  const handleStatusChange = async (
+    settlementId: string,
+    newStatus: SettlementStatus,
+  ) => {
+    console.log("🔄 [settlements-page] 정산 상태 변경 요청", {
+      settlementId,
+      newStatus,
+    });
+
+    try {
+      const result = await updateSettlementStatus(settlementId, newStatus);
+
+      if (result.success) {
+        toast.success(
+          `정산 상태가 ${newStatus === "completed" ? "완료" : "대기"}로 변경되었습니다.`,
+        );
+
+        // 쿼리 캐시 무효화 및 재조회
+        queryClient.invalidateQueries({ queryKey: ["settlements"] });
+        queryClient.invalidateQueries({ queryKey: ["settlements-stats"] });
+      } else {
+        toast.error(result.error || "정산 상태 변경에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("❌ [settlements-page] 정산 상태 변경 오류:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "정산 상태 변경 중 오류가 발생했습니다.",
+      );
+    }
   };
 
   const wholesalerId = wholesaler?.id ?? null;
@@ -515,80 +550,135 @@ export default function SettlementsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                  {filteredSettlements.map((settlement) => (
-                    <tr
-                      key={settlement.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors duration-200"
-                      onClick={() => handleViewDetail(settlement)}
-                    >
-                      <td className="px-6 py-4 text-sm font-medium text-foreground dark:text-foreground">
-                        {settlement.orders?.order_number || "-"}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-foreground dark:text-foreground">
-                        {formatPrice(settlement.order_amount)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-red-600 dark:text-red-300">
-                        -{formatPrice(settlement.platform_fee)}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-bold text-[#10B981]">
-                        {formatPrice(settlement.wholesaler_amount)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground">
-                        {settlement.completed_at
-                          ? format(new Date(settlement.completed_at), "yyyy-MM-dd")
-                          : settlement.scheduled_payout_at
-                            ? format(
-                                new Date(settlement.scheduled_payout_at),
-                                "yyyy-MM-dd",
-                              )
-                            : "-"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                            settlement.status,
-                          )}`}
-                        >
-                          {getStatusText(settlement.status)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredSettlements.map((settlement) => {
+                    const status = settlement.status as SettlementStatus;
+                    return (
+                      <tr
+                        key={settlement.id}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                        onClick={(e) => {
+                          // select 클릭 시에는 상세보기로 이동하지 않도록
+                          const target = e.target as HTMLElement;
+                          if (target.closest("select")) {
+                            return;
+                          }
+                          handleViewDetail(settlement);
+                        }}
+                      >
+                        <td className="px-6 py-4 text-sm font-medium text-foreground dark:text-foreground cursor-pointer">
+                          {settlement.orders?.order_number || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-foreground dark:text-foreground cursor-pointer">
+                          {formatPrice(settlement.order_amount)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-red-600 dark:text-red-300 cursor-pointer">
+                          -{formatPrice(settlement.platform_fee)}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-bold text-[#10B981] cursor-pointer">
+                          {formatPrice(settlement.wholesaler_amount)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground cursor-pointer">
+                          {settlement.completed_at
+                            ? format(new Date(settlement.completed_at), "yyyy-MM-dd")
+                            : settlement.scheduled_payout_at
+                              ? format(
+                                  new Date(settlement.scheduled_payout_at),
+                                  "yyyy-MM-dd",
+                                )
+                              : "-"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="relative inline-block">
+                            <select
+                              value={status}
+                              onChange={(e) =>
+                                handleStatusChange(
+                                  settlement.id,
+                                  e.target.value as SettlementStatus,
+                                )
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              className={`appearance-none pl-4 pr-10 py-2 rounded-full text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 ${getStatusColor(
+                                status,
+                              )}`}
+                            >
+                              <option
+                                value="pending"
+                                className="text-gray-900 bg-white"
+                              >
+                                정산 대기
+                              </option>
+                              <option
+                                value="completed"
+                                className="text-gray-900 bg-white"
+                              >
+                                정산 완료
+                              </option>
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none opacity-80" />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* 모바일 카드 리스트 */}
             <div className="lg:hidden divide-y divide-gray-200 dark:divide-gray-800">
-              {filteredSettlements.map((settlement) => (
-                <div
-                  key={settlement.id}
-                  className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <span className="text-xs text-muted-foreground dark:text-muted-foreground block mb-1">
-                        {settlement.completed_at
-                          ? format(new Date(settlement.completed_at), "yyyy-MM-dd")
-                          : settlement.scheduled_payout_at
-                            ? format(
-                                new Date(settlement.scheduled_payout_at),
-                                "yyyy-MM-dd",
-                              )
-                            : "정산 예정"}
-                      </span>
-                      <span className="text-xs font-mono text-muted-foreground dark:text-muted-foreground">
-                        {settlement.orders?.order_number || "-"}
-                      </span>
+              {filteredSettlements.map((settlement) => {
+                const status = settlement.status as SettlementStatus;
+                return (
+                  <div
+                    key={settlement.id}
+                    className="p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <span className="text-xs text-muted-foreground dark:text-muted-foreground block mb-1">
+                          {settlement.completed_at
+                            ? format(new Date(settlement.completed_at), "yyyy-MM-dd")
+                            : settlement.scheduled_payout_at
+                              ? format(
+                                  new Date(settlement.scheduled_payout_at),
+                                  "yyyy-MM-dd",
+                                )
+                              : "정산 예정"}
+                        </span>
+                        <span className="text-xs font-mono text-muted-foreground dark:text-muted-foreground">
+                          {settlement.orders?.order_number || "-"}
+                        </span>
+                      </div>
+                      <div className="relative inline-block shrink-0">
+                        <select
+                          value={status}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              settlement.id,
+                              e.target.value as SettlementStatus,
+                            )
+                          }
+                          className={`appearance-none pl-3 pr-8 py-1.5 rounded-full text-xs font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 ${getStatusColor(
+                            status,
+                          )}`}
+                        >
+                          <option
+                            value="pending"
+                            className="text-gray-900 bg-white"
+                          >
+                            정산 대기
+                          </option>
+                          <option
+                            value="completed"
+                            className="text-gray-900 bg-white"
+                          >
+                            정산 완료
+                          </option>
+                        </select>
+                        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 pointer-events-none opacity-80" />
+                      </div>
                     </div>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusColor(
-                        settlement.status,
-                      )}`}
-                    >
-                      {getStatusText(settlement.status)}
-                    </span>
-                  </div>
 
                   <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg space-y-2 text-sm transition-colors duration-200">
                     <div className="flex justify-between">
@@ -619,8 +709,9 @@ export default function SettlementsPage() {
                       상세보기
                     </Button>
                   </div>
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
 
             {/* 페이지네이션 */}

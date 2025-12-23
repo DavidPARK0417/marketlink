@@ -181,21 +181,164 @@ export async function getSettlements(
   const total = count ?? 0;
   const totalPages = Math.ceil(total / pageSize);
 
+  // 정산 예정일이 지난 항목을 completed로 표시 (UI용)
+  // 실제 DB 상태는 변경하지 않음
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  let processedSettlements =
+    (data as SettlementWithOrder[])?.map((settlement) => {
+      // status가 pending이고 scheduled_payout_at이 오늘 이전이면 completed로 표시
+      if (
+        settlement.status === "pending" &&
+        settlement.scheduled_payout_at &&
+        new Date(settlement.scheduled_payout_at) < todayStart
+      ) {
+        console.log("📅 [settlements] 정산 예정일 경과:", {
+          settlement_id: settlement.id,
+          scheduled_payout_at: settlement.scheduled_payout_at,
+          today: todayStart.toISOString(),
+        });
+
+        return {
+          ...settlement,
+          status: "completed" as SettlementStatus,
+          completed_at:
+            settlement.completed_at ||
+            new Date(settlement.scheduled_payout_at).toISOString(),
+        };
+      }
+      return settlement;
+    }) ?? [];
+
+  // 필터 후처리: status 필터가 "pending"이면 예정일이 지난 항목 제외
+  // status 필터가 "completed"이면 예정일이 지난 pending 항목도 포함
+  if (filter.status === "pending") {
+    processedSettlements = processedSettlements.filter((settlement) => {
+      // 예정일이 지난 항목은 제외 (이미 completed로 표시됨)
+      if (
+        settlement.scheduled_payout_at &&
+        new Date(settlement.scheduled_payout_at) < todayStart
+      ) {
+        return false;
+      }
+      return true;
+    });
+  } else if (filter.status === "completed") {
+    // completed 필터: DB에서 completed인 항목 + 예정일이 지난 pending 항목 모두 포함
+    // 이미 위에서 예정일이 지난 항목이 completed로 변환되었으므로 그대로 사용
+    processedSettlements = processedSettlements.filter(
+      (settlement) => settlement.status === "completed",
+    );
+  }
+
   console.log("✅ [settlements] 정산 목록 조회 성공", {
-    count: data?.length ?? 0,
+    count: processedSettlements.length,
     total,
     page,
     totalPages,
+    autoCompletedCount: processedSettlements.filter(
+      (s) =>
+        s.status === "completed" &&
+        data?.find((d) => d.id === s.id)?.status === "pending",
+    ).length,
   });
   console.groupEnd();
 
   return {
-    settlements: (data as SettlementWithOrder[]) ?? [],
+    settlements: processedSettlements,
     total,
     page,
     pageSize,
     totalPages,
   };
+}
+
+/**
+ * 정산 상태 변경
+ *
+ * @param settlementId 정산 ID
+ * @param status 새로운 상태
+ * @returns 업데이트된 정산 정보
+ */
+export async function updateSettlementStatus(
+  settlementId: string,
+  status: SettlementStatus,
+): Promise<Settlement> {
+  console.group("🔄 [settlements] 정산 상태 변경 시작");
+  console.log("settlementId:", settlementId);
+  console.log("status:", status);
+
+  // ⚠️ RLS 비활성화 환경 대응: 현재 도매점 ID 가져오기
+  const profile = await getUserProfile();
+
+  if (!profile) {
+    console.error(
+      "❌ [settlements] 프로필 없음 - 인증되지 않았거나 프로필이 생성되지 않음",
+    );
+    throw new Error(
+      "사용자 프로필을 찾을 수 없습니다. 로그인 상태를 확인해주세요.",
+    );
+  }
+
+  if (profile.role !== "wholesaler") {
+    console.error("❌ [settlements] 도매점 권한 없음", { role: profile.role });
+    throw new Error("도매점 권한이 없습니다.");
+  }
+
+  const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
+  if (!wholesalers || wholesalers.length === 0) {
+    console.error("❌ [settlements] 도매점 정보 없음");
+    throw new Error(
+      "도매점 정보를 찾을 수 없습니다. 도매점 등록이 필요합니다.",
+    );
+  }
+
+  const currentWholesalerId = wholesalers[0].id;
+  console.log("✅ [settlements] 현재 도매점 ID:", currentWholesalerId);
+
+  const supabase = createClerkSupabaseClient();
+
+  // 상태에 따라 completed_at 설정
+  const updateData: {
+    status: SettlementStatus;
+    completed_at?: string | null;
+  } = {
+    status,
+  };
+
+  if (status === "completed") {
+    // completed로 변경 시 현재 시간 설정
+    updateData.completed_at = new Date().toISOString();
+    console.log("📅 [settlements] 정산 완료일 설정:", updateData.completed_at);
+  } else if (status === "pending") {
+    // pending으로 변경 시 completed_at을 null로 설정
+    updateData.completed_at = null;
+    console.log("📅 [settlements] 정산 완료일 초기화");
+  }
+
+  const { data, error } = await supabase
+    .from("settlements")
+    .update(updateData)
+    .eq("id", settlementId)
+    .eq("wholesaler_id", currentWholesalerId) // ⚠️ RLS 비활성화 환경 대응: 자신의 정산만 변경 가능
+    .select()
+    .single();
+
+  if (error) {
+    console.error("❌ [settlements] 정산 상태 변경 오류:", error);
+    console.groupEnd();
+    throw new Error(`정산 상태 변경 실패: ${error.message}`);
+  }
+
+  console.log("✅ [settlements] 정산 상태 변경 완료", {
+    settlementId,
+    status,
+    completed_at: data.completed_at,
+  });
+  console.groupEnd();
+
+  return data as Settlement;
 }
 
 /**
@@ -246,6 +389,35 @@ export async function getSettlementById(
   if (error) {
     console.error("❌ [settlements] 정산 상세 조회 실패:", error);
     throw new Error(`정산 상세 조회 실패: ${error.message}`);
+  }
+
+  // 정산 예정일이 지난 항목을 completed로 표시 (UI용)
+  if (data) {
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+
+    if (
+      data.status === "pending" &&
+      data.scheduled_payout_at &&
+      new Date(data.scheduled_payout_at) < todayStart
+    ) {
+      console.log("📅 [settlements] 정산 예정일 경과 (상세):", {
+        settlement_id: data.id,
+        scheduled_payout_at: data.scheduled_payout_at,
+        today: todayStart.toISOString(),
+      });
+
+      return {
+        ...data,
+        status: "completed" as SettlementStatus,
+        completed_at:
+          data.completed_at || new Date(data.scheduled_payout_at).toISOString(),
+      } as Settlement;
+    }
   }
 
   console.log("✅ [settlements] 정산 상세 조회 성공");
@@ -418,48 +590,68 @@ export async function getSettlementStats(): Promise<SettlementStats> {
 
   const supabase = createClerkSupabaseClient();
 
-  // 정산 예정 (pending) 통계
-  const { data: pendingData, error: pendingError } = await supabase
+  // 모든 정산 데이터 조회 (예정일 기준으로 자동 완료 처리)
+  const { data: allSettlements, error: allError } = await supabase
     .from("settlements")
-    .select("wholesaler_amount, platform_fee")
-    .eq("wholesaler_id", currentWholesalerId) // ⚠️ RLS 비활성화 환경 대응
-    .eq("status", "pending");
+    .select("status, wholesaler_amount, platform_fee, scheduled_payout_at")
+    .eq("wholesaler_id", currentWholesalerId); // ⚠️ RLS 비활성화 환경 대응
 
-  if (pendingError) {
-    console.error("❌ [settlements] 정산 예정 통계 조회 실패:", pendingError);
-    throw new Error(`정산 통계 조회 실패: ${pendingError.message}`);
+  if (allError) {
+    console.error("❌ [settlements] 정산 통계 조회 실패:", allError);
+    throw new Error(`정산 통계 조회 실패: ${allError.message}`);
   }
 
-  // 정산 완료 (completed) 통계
-  const { data: completedData, error: completedError } = await supabase
-    .from("settlements")
-    .select("wholesaler_amount, platform_fee")
-    .eq("wholesaler_id", currentWholesalerId) // ⚠️ RLS 비활성화 환경 대응
-    .eq("status", "completed");
+  // 정산 예정일이 지난 항목을 completed로 계산 (UI용)
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  if (completedError) {
-    console.error("❌ [settlements] 정산 완료 통계 조회 실패:", completedError);
-    throw new Error(`정산 통계 조회 실패: ${completedError.message}`);
-  }
+  let pendingAmount = 0;
+  let completedAmount = 0;
+  let pendingCount = 0;
+  let completedCount = 0;
+  let totalPlatformFee = 0;
 
-  const totalPendingAmount =
-    pendingData?.reduce((sum, s) => sum + (s.wholesaler_amount ?? 0), 0) ?? 0;
-  const totalCompletedAmount =
-    completedData?.reduce((sum, s) => sum + (s.wholesaler_amount ?? 0), 0) ?? 0;
-  const totalPlatformFee =
-    (pendingData?.reduce((sum, s) => sum + (s.platform_fee ?? 0), 0) ?? 0) +
-    (completedData?.reduce((sum, s) => sum + (s.platform_fee ?? 0), 0) ?? 0);
+  allSettlements?.forEach((settlement) => {
+    // 예정일이 지난 pending 항목은 completed로 처리
+    const isOverdue =
+      settlement.status === "pending" &&
+      settlement.scheduled_payout_at &&
+      new Date(settlement.scheduled_payout_at) < todayStart;
+
+    const effectiveStatus = isOverdue ? "completed" : settlement.status;
+    const amount = settlement.wholesaler_amount ?? 0;
+    const fee = settlement.platform_fee ?? 0;
+
+    if (effectiveStatus === "completed") {
+      completedAmount += amount;
+      completedCount++;
+    } else {
+      pendingAmount += amount;
+      pendingCount++;
+    }
+
+    totalPlatformFee += fee;
+  });
 
   const stats: SettlementStats = {
-    total_amount: totalPendingAmount + totalCompletedAmount,
+    total_amount: pendingAmount + completedAmount,
     total_platform_fee: totalPlatformFee,
-    total_wholesaler_amount: totalPendingAmount + totalCompletedAmount,
-    pending_amount: totalPendingAmount,
-    completed_amount: totalCompletedAmount,
-    pending_count: pendingData?.length ?? 0,
-    completed_count: completedData?.length ?? 0,
+    total_wholesaler_amount: pendingAmount + completedAmount,
+    pending_amount: pendingAmount,
+    completed_amount: completedAmount,
+    pending_count: pendingCount,
+    completed_count: completedCount,
   };
 
-  console.log("✅ [settlements] 정산 통계 조회 성공:", stats);
+  console.log("✅ [settlements] 정산 통계 조회 성공:", {
+    ...stats,
+    autoCompletedCount:
+      allSettlements?.filter(
+        (s) =>
+          s.status === "pending" &&
+          s.scheduled_payout_at &&
+          new Date(s.scheduled_payout_at) < todayStart,
+      ).length ?? 0,
+  });
   return stats;
 }
