@@ -42,6 +42,7 @@ import OrderTable from "@/components/wholesaler/Orders/OrderTable";
 import OrderDateRangePicker from "@/components/wholesaler/Orders/OrderDateRangePicker";
 import { useClerkSupabaseClient } from "@/lib/supabase/clerk-client";
 import { useWholesaler } from "@/hooks/useWholesaler";
+import { useWholesalerRole } from "@/contexts/WholesalerRoleContext";
 import {
   subscribeToNewOrders,
   subscribeToOrderUpdates,
@@ -129,11 +130,15 @@ export default function OrdersPage() {
   const queryClient = useQueryClient();
   const supabase = useClerkSupabaseClient();
   const searchParams = useSearchParams();
+  const role = useWholesalerRole();
   const {
     data: wholesaler,
     isLoading: isWholesalerLoading,
     error: wholesalerError,
   } = useWholesaler();
+  
+  // 관리자인지 확인 (Context에서 role 가져오기)
+  const isAdmin = role === "admin";
 
   // URL 쿼리 파라미터에서 초기값 읽기
   const initialSearchTerm = searchParams.get("search") || "";
@@ -232,7 +237,7 @@ export default function OrdersPage() {
 
   const wholesalerId = wholesaler?.id ?? null;
 
-  // 주문 목록 조회
+  // 주문 목록 조회 - 관리자인 경우 도매점 ID 없이도 조회 가능
   const {
     data: ordersData,
     isLoading,
@@ -240,7 +245,7 @@ export default function OrdersPage() {
   } = useQuery({
     queryKey: ["orders", filter, currentPage, pageSize],
     queryFn: () => fetchOrders(filter, currentPage, pageSize),
-    enabled: !!wholesalerId, // 도매점 ID가 있을 때만 조회
+    enabled: isAdmin || !!wholesalerId, // 관리자이거나 도매점 ID가 있을 때 조회
   });
 
   // 서버 사이드 페이지네이션 사용하므로 클라이언트 필터링 제거
@@ -305,9 +310,10 @@ export default function OrdersPage() {
     batchStatusChangeMutation.mutate({ orderIds, status });
   };
 
-  // 실시간 업데이트 구독
+  // 실시간 업데이트 구독 (관리자는 모든 주문 구독, 도매점은 자신의 주문만)
   React.useEffect(() => {
-    if (!wholesalerId) return;
+    // 관리자는 실시간 구독을 건너뜀 (모든 주문을 구독하면 너무 많음)
+    if (isAdmin || !wholesalerId) return;
 
     console.log("🔔 [orders-page] 실시간 구독 시작", { wholesalerId });
 
@@ -402,7 +408,7 @@ export default function OrdersPage() {
     setStatusFilter("all");
   };
 
-  // 도매점 ID가 없으면 로딩 또는 에러 표시
+  // 도매점 ID가 없으면 로딩 또는 에러 표시 (관리자 제외)
   // ⚠️ 중요: 모든 Hook 호출 후에 조건부 return 수행
   if (isWholesalerLoading) {
     return (
@@ -414,7 +420,8 @@ export default function OrdersPage() {
     );
   }
 
-  if (!wholesalerId) {
+  // 관리자가 아닌 경우에만 도매점 정보 필수
+  if (!isAdmin && !wholesalerId) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">

@@ -98,13 +98,16 @@ export async function getSettlements(
     );
   }
 
-  if (profile.role !== "wholesaler") {
-    console.error("❌ [settlements] 도매점 권한 없음", { role: profile.role });
-    throw new Error("도매점 권한이 없습니다.");
+  if (profile.role !== "wholesaler" && profile.role !== "admin") {
+    console.error("❌ [settlements] 도매점 또는 관리자 권한 없음", { role: profile.role });
+    throw new Error("도매점 또는 관리자 권한이 없습니다.");
   }
 
+  const isAdmin = profile.role === "admin";
   const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
+  
+  // 관리자가 아닌 경우에만 도매점 정보 필수
+  if (!isAdmin && (!wholesalers || wholesalers.length === 0)) {
     console.error("❌ [settlements] 도매점 정보 없음", {
       wholesalers,
       profileId: profile.id,
@@ -115,8 +118,12 @@ export async function getSettlements(
     );
   }
 
-  const currentWholesalerId = wholesalers[0].id;
-  console.log("✅ [settlements] 현재 도매점 ID:", currentWholesalerId);
+  const currentWholesalerId = isAdmin ? null : wholesalers?.[0]?.id;
+  if (isAdmin) {
+    console.log("✅ [settlements] 관리자 모드 - 모든 정산 조회");
+  } else {
+    console.log("✅ [settlements] 현재 도매점 ID:", currentWholesalerId);
+  }
 
   const supabase = createClerkSupabaseClient();
 
@@ -142,9 +149,14 @@ export async function getSettlements(
       )
     `,
       { count: "exact" },
-    )
-    .eq("wholesaler_id", currentWholesalerId)
-    .order(sortBy, { ascending: sortOrder === "asc" });
+    );
+  
+  // 관리자가 아닌 경우에만 wholesaler_id 필터 적용
+  if (!isAdmin && currentWholesalerId) {
+    query = query.eq("wholesaler_id", currentWholesalerId);
+  }
+  
+  query = query.order(sortBy, { ascending: sortOrder === "asc" });
 
   // 필터 적용
   if (filter.status) {
@@ -572,29 +584,42 @@ export async function getSettlementStats(): Promise<SettlementStats> {
     );
   }
 
-  if (profile.role !== "wholesaler") {
-    console.error("❌ [settlements] 도매점 권한 없음", { role: profile.role });
-    throw new Error("도매점 권한이 없습니다.");
+  if (profile.role !== "wholesaler" && profile.role !== "admin") {
+    console.error("❌ [settlements] 도매점 또는 관리자 권한 없음", { role: profile.role });
+    throw new Error("도매점 또는 관리자 권한이 없습니다.");
   }
 
+  const isAdmin = profile.role === "admin";
   const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
+  
+  // 관리자가 아닌 경우에만 도매점 정보 필수
+  if (!isAdmin && (!wholesalers || wholesalers.length === 0)) {
     console.error("❌ [settlements] 도매점 정보 없음");
     throw new Error(
       "도매점 정보를 찾을 수 없습니다. 도매점 등록이 필요합니다.",
     );
   }
 
-  const currentWholesalerId = wholesalers[0].id;
-  console.log("✅ [settlements] 현재 도매점 ID:", currentWholesalerId);
+  const currentWholesalerId = isAdmin ? null : wholesalers?.[0]?.id;
+  if (isAdmin) {
+    console.log("✅ [settlements] 관리자 모드 - 모든 정산 통계 조회");
+  } else {
+    console.log("✅ [settlements] 현재 도매점 ID:", currentWholesalerId);
+  }
 
   const supabase = createClerkSupabaseClient();
 
   // 모든 정산 데이터 조회 (예정일 기준으로 자동 완료 처리)
-  const { data: allSettlements, error: allError } = await supabase
+  let statsQuery = supabase
     .from("settlements")
-    .select("status, wholesaler_amount, platform_fee, scheduled_payout_at")
-    .eq("wholesaler_id", currentWholesalerId); // ⚠️ RLS 비활성화 환경 대응
+    .select("status, wholesaler_amount, platform_fee, scheduled_payout_at");
+  
+  // 관리자가 아닌 경우에만 wholesaler_id 필터 적용
+  if (!isAdmin && currentWholesalerId) {
+    statsQuery = statsQuery.eq("wholesaler_id", currentWholesalerId);
+  }
+  
+  const { data: allSettlements, error: allError } = await statsQuery;
 
   if (allError) {
     console.error("❌ [settlements] 정산 통계 조회 실패:", allError);

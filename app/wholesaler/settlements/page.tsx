@@ -41,6 +41,7 @@ import SettlementTableSkeleton from "@/components/wholesaler/Settlements/Settlem
 import SettlementDetailDialog from "@/components/wholesaler/Settlements/SettlementDetailDialog";
 import OrderDateRangePicker from "@/components/wholesaler/Orders/OrderDateRangePicker";
 import { useWholesaler } from "@/hooks/useWholesaler";
+import { useWholesalerRole } from "@/contexts/WholesalerRoleContext";
 import type { SettlementFilter } from "@/types/settlement";
 import type { SettlementStatus } from "@/types/database";
 import { formatPrice } from "@/lib/utils/format";
@@ -123,6 +124,7 @@ type SortField = "scheduled_payout_at" | "order_amount";
 type SortOrder = "asc" | "desc";
 
 export default function SettlementsPage() {
+  const role = useWholesalerRole();
   const {
     data: wholesaler,
     isLoading: isWholesalerLoading,
@@ -131,6 +133,9 @@ export default function SettlementsPage() {
 
   // QueryClient 인스턴스 가져오기
   const queryClient = useQueryClient();
+  
+  // 관리자인지 확인 (Context에서 role 가져오기)
+  const isAdmin = role === "admin";
 
   // 필터 상태
   const [statusFilter, setStatusFilter] = React.useState<
@@ -171,7 +176,7 @@ export default function SettlementsPage() {
     return filterObj;
   }, [dateRange, statusFilter]);
 
-  // 정산 목록 조회
+  // 정산 목록 조회 - 관리자인 경우 도매점 ID 없이도 조회 가능
   const {
     data: settlementsData,
     isLoading,
@@ -179,7 +184,7 @@ export default function SettlementsPage() {
   } = useQuery({
     queryKey: ["settlements", filter, page, pageSize, sortBy, sortOrder],
     queryFn: () => fetchSettlements(filter, page, pageSize, sortBy, sortOrder),
-    enabled: !!wholesaler?.id,
+    enabled: isAdmin || !!wholesaler?.id,
   });
 
   // 필터 변경 시 페이지를 1로 리셋
@@ -187,11 +192,11 @@ export default function SettlementsPage() {
     setPage(1);
   }, [filter, sortBy, sortOrder]);
 
-  // 정산 통계 조회 (헤더용)
+  // 정산 통계 조회 (헤더용) - 관리자인 경우 도매점 ID 없이도 조회 가능
   const { data: statsData } = useQuery({
     queryKey: ["settlements-stats"],
     queryFn: fetchSettlementStats,
-    enabled: !!wholesaler?.id,
+    enabled: isAdmin || !!wholesaler?.id,
   });
 
   // 에러 처리
@@ -285,7 +290,7 @@ export default function SettlementsPage() {
 
   const wholesalerId = wholesaler?.id ?? null;
 
-  // 도매점 ID가 없으면 로딩 또는 에러 표시
+  // 도매점 ID가 없으면 로딩 또는 에러 표시 (관리자 제외)
   if (isWholesalerLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -296,7 +301,8 @@ export default function SettlementsPage() {
     );
   }
 
-  if (!wholesalerId) {
+  // 관리자가 아닌 경우에만 도매점 정보 필수
+  if (!isAdmin && !wholesalerId) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">

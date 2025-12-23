@@ -60,6 +60,7 @@ import {
 import { formatPrice, formatDateTime } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/database";
+import { WholesalerRoleProvider } from "@/contexts/WholesalerRoleContext";
 
 interface WholesalerLayoutClientProps {
   children: React.ReactNode;
@@ -71,9 +72,11 @@ export default function WholesalerLayoutClient({
   role,
 }: WholesalerLayoutClientProps) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white"></div>}>
-      <WholesalerLayoutContent role={role}>{children}</WholesalerLayoutContent>
-    </Suspense>
+    <WholesalerRoleProvider role={role}>
+      <Suspense fallback={<div className="min-h-screen bg-white"></div>}>
+        <WholesalerLayoutContent role={role}>{children}</WholesalerLayoutContent>
+      </Suspense>
+    </WholesalerRoleProvider>
   );
 }
 

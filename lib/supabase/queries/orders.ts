@@ -138,44 +138,27 @@ export async function getOrders(
     throw new Error("도매점 권한이 없습니다.");
   }
 
+  const isAdmin = profile.role === "admin";
   const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
+  
+  // 관리자가 아닌 경우에만 도매점 정보 필수
+  if (!isAdmin && (!wholesalers || wholesalers.length === 0)) {
     console.error("❌ [orders-query] 도매점 정보 없음", {
       wholesalers,
       profileId: profile.id,
       role: profile.role,
     });
-
-    // 관리자 모드에서 도매점이 아직 없을 때는 빈 결과를 반환 (에러 대신 빈 리스트)
-    if (profile.role === "admin") {
-      console.log(
-        "ℹ️ [orders-query] 관리자 계정 - 연결된 도매점 없음, 빈 주문 리스트 반환",
-      );
-      return {
-        orders: [],
-        total: 0,
-        page,
-        pageSize,
-        totalPages: 0,
-        counts: {
-          all: 0,
-          pending: 0,
-          confirmed: 0,
-          shipped: 0,
-          completed: 0,
-          cancelled: 0,
-          processing: 0,
-        },
-      };
-    }
-
     throw new Error(
       "도매점 정보를 찾을 수 없습니다. 도매점 등록이 필요합니다.",
     );
   }
 
-  const currentWholesalerId = wholesalers[0].id;
-  console.log("✅ [orders-query] 현재 도매점 ID:", currentWholesalerId);
+  const currentWholesalerId = isAdmin ? null : wholesalers?.[0]?.id;
+  if (isAdmin) {
+    console.log("✅ [orders-query] 관리자 모드 - 모든 주문 조회");
+  } else {
+    console.log("✅ [orders-query] 현재 도매점 ID:", currentWholesalerId);
+  }
 
   const supabase = createClerkSupabaseClient();
 
@@ -237,8 +220,12 @@ export async function getOrders(
       retailers(id, anonymous_code, business_name)
     `,
       { count: "exact" },
-    )
-    .eq("wholesaler_id", currentWholesalerId);
+    );
+  
+  // 관리자가 아닌 경우에만 wholesaler_id 필터 적용
+  if (!isAdmin && currentWholesalerId) {
+    query = query.eq("wholesaler_id", currentWholesalerId);
+  }
 
   // 필터 적용
   if (filter.statuses && filter.statuses.length > 0) {
@@ -312,8 +299,12 @@ export async function getOrders(
   const buildCountsQuery = (status?: OrderStatus) => {
     let query = supabase
       .from("orders")
-      .select("status", { count: "exact", head: true })
-      .eq("wholesaler_id", currentWholesalerId);
+      .select("status", { count: "exact", head: true });
+    
+    // 관리자가 아닌 경우에만 wholesaler_id 필터 적용
+    if (!isAdmin && currentWholesalerId) {
+      query = query.eq("wholesaler_id", currentWholesalerId);
+    }
 
     // status 필터 적용
     if (status) {
