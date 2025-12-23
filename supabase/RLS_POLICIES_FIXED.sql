@@ -385,7 +385,15 @@ WITH CHECK (is_admin());
 CREATE POLICY "Settlements update" 
 ON settlements FOR UPDATE 
 TO authenticated 
-USING (is_admin());
+USING (
+  is_admin()
+  OR 
+  (current_profile_id() IS NOT NULL AND EXISTS(
+    SELECT 1 FROM wholesalers w 
+    WHERE w.id = settlements.wholesaler_id 
+    AND w.profile_id = current_profile_id()
+  ))
+);
 
 -- [payments]
 CREATE POLICY "Payments view" 

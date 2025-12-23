@@ -354,13 +354,30 @@ export async function updateSettlementStatus(
     console.log("🔓 [settlements] 관리자 모드 - 모든 정산 변경 가능");
   }
 
-  const { data, error } = await query.select().single();
+  // 업데이트 실행 및 업데이트된 데이터 조회
+  // .select()를 사용하여 배열로 받고, 첫 번째 요소 확인
+  const { data: updatedRows, error: updateError } = await query.select();
 
-  if (error) {
-    console.error("❌ [settlements] 정산 상태 변경 오류:", error);
+  if (updateError) {
+    console.error("❌ [settlements] 정산 상태 변경 오류:", updateError);
     console.groupEnd();
-    throw new Error(`정산 상태 변경 실패: ${error.message}`);
+    throw new Error(`정산 상태 변경 실패: ${updateError.message}`);
   }
+
+  // 업데이트된 행이 없는 경우 확인
+  if (!updatedRows || updatedRows.length === 0) {
+    console.error("❌ [settlements] 업데이트된 행이 없음", {
+      settlementId,
+      currentWholesalerId,
+      isAdmin,
+    });
+    console.groupEnd();
+    throw new Error(
+      "정산 상태를 변경할 수 없습니다. 권한이 없거나 정산 정보를 찾을 수 없습니다.",
+    );
+  }
+
+  const data = updatedRows[0];
 
   console.log("✅ [settlements] 정산 상태 변경 완료", {
     settlementId,

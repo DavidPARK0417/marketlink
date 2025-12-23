@@ -264,81 +264,34 @@ export default function SettlementsPage() {
       newStatus,
     });
 
-    // 낙관적 업데이트: 즉시 UI에 반영
-    const previousData = queryClient.getQueryData<{
-      settlements: SettlementWithOrder[];
-      total: number;
-      totalPages: number;
-    }>(["settlements", filter, page, pageSize, sortBy, sortOrder]);
-
-    if (previousData) {
-      const updatedSettlements = previousData.settlements.map((settlement) =>
-        settlement.id === settlementId
-          ? {
-              ...settlement,
-              status: newStatus,
-              completed_at:
-                newStatus === "completed"
-                  ? new Date().toISOString()
-                  : null,
-            }
-          : settlement,
-      );
-
-      queryClient.setQueryData(
-        ["settlements", filter, page, pageSize, sortBy, sortOrder],
-        {
-          ...previousData,
-          settlements: updatedSettlements,
-        },
-      );
-
-      console.log("✨ [settlements-page] 낙관적 업데이트 적용");
-    }
-
     try {
       const result = await updateSettlementStatus(settlementId, newStatus);
 
       if (result.success) {
-        console.log("✅ [settlements-page] 정산 상태 변경 성공, 데이터 재조회 시작");
+        console.log("✅ [settlements-page] 정산 상태 변경 성공, 캐시 무효화 시작");
         
         toast.success(
           `정산 상태가 ${newStatus === "completed" ? "완료" : "대기"}로 변경되었습니다.`,
         );
 
-        // 쿼리 캐시 무효화 및 재조회
-        // 현재 필터/페이지/정렬 상태를 유지하면서 데이터 재조회
-        await queryClient.refetchQueries({ 
+        // 쿼리 캐시 무효화 - 자동으로 재조회됨
+        // invalidateQueries를 사용하면 활성 쿼리가 자동으로 재조회됩니다
+        queryClient.invalidateQueries({ 
           queryKey: ["settlements"],
-          exact: false, // "settlements"로 시작하는 모든 쿼리 재조회
+          exact: false, // "settlements"로 시작하는 모든 쿼리 무효화
         });
         
-        // 통계 데이터도 재조회
-        await queryClient.refetchQueries({ 
+        // 통계 데이터도 무효화
+        queryClient.invalidateQueries({ 
           queryKey: ["settlements-stats"],
         });
         
-        console.log("✅ [settlements-page] 데이터 재조회 완료");
+        console.log("✅ [settlements-page] 캐시 무효화 완료, 자동 재조회 대기");
       } else {
-        // 실패 시 이전 상태로 롤백
-        if (previousData) {
-          queryClient.setQueryData(
-            ["settlements", filter, page, pageSize, sortBy, sortOrder],
-            previousData,
-          );
-          console.log("🔄 [settlements-page] 낙관적 업데이트 롤백");
-        }
+        console.error("❌ [settlements-page] 정산 상태 변경 실패:", result.error);
         toast.error(result.error || "정산 상태 변경에 실패했습니다.");
       }
     } catch (error) {
-      // 에러 발생 시 이전 상태로 롤백
-      if (previousData) {
-        queryClient.setQueryData(
-          ["settlements", filter, page, pageSize, sortBy, sortOrder],
-          previousData,
-        );
-        console.log("🔄 [settlements-page] 낙관적 업데이트 롤백 (에러)");
-      }
       console.error("❌ [settlements-page] 정산 상태 변경 오류:", error);
       toast.error(
         error instanceof Error
