@@ -89,6 +89,7 @@ export default function FAQManagementClient({
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [editingFAQ, setEditingFAQ] = React.useState<FAQ | null>(null);
   const [isDeleting, setIsDeleting] = React.useState<string | null>(null);
+  const [isMoving, setIsMoving] = React.useState<string | null>(null);
 
   const createForm = useForm<FAQFormData>({
     resolver: zodResolver(faqSchema),
@@ -176,23 +177,53 @@ export default function FAQManagementClient({
 
   // FAQ 위로 이동
   const handleMoveUp = async (id: string) => {
-    const result = await moveFAQUp(id);
-    if (result.success) {
-      toast.success("순서가 변경되었습니다.");
-      refreshFAQs();
-    } else {
-      toast.error(result.error || "순서 변경 실패");
+    setIsMoving(id);
+    try {
+      const result = await moveFAQUp(id);
+      if (result.success) {
+        // 서버에서 반환된 업데이트된 목록이 있으면 직접 상태 업데이트
+        if (result.faqs && Array.isArray(result.faqs)) {
+          setFAQs(result.faqs);
+          toast.success("순서가 변경되었습니다.");
+        } else {
+          // 목록이 없으면 router.refresh()로 폴백
+          refreshFAQs();
+          toast.success("순서가 변경되었습니다.");
+        }
+      } else {
+        toast.error(result.error || "순서 변경 실패");
+      }
+    } catch (error) {
+      console.error("❌ [FAQManagementClient] 순서 변경 오류:", error);
+      toast.error("순서 변경 중 오류가 발생했습니다.");
+    } finally {
+      setIsMoving(null);
     }
   };
 
   // FAQ 아래로 이동
   const handleMoveDown = async (id: string) => {
-    const result = await moveFAQDown(id);
-    if (result.success) {
-      toast.success("순서가 변경되었습니다.");
-      refreshFAQs();
-    } else {
-      toast.error(result.error || "순서 변경 실패");
+    setIsMoving(id);
+    try {
+      const result = await moveFAQDown(id);
+      if (result.success) {
+        // 서버에서 반환된 업데이트된 목록이 있으면 직접 상태 업데이트
+        if (result.faqs && Array.isArray(result.faqs)) {
+          setFAQs(result.faqs);
+          toast.success("순서가 변경되었습니다.");
+        } else {
+          // 목록이 없으면 router.refresh()로 폴백
+          refreshFAQs();
+          toast.success("순서가 변경되었습니다.");
+        }
+      } else {
+        toast.error(result.error || "순서 변경 실패");
+      }
+    } catch (error) {
+      console.error("❌ [FAQManagementClient] 순서 변경 오류:", error);
+      toast.error("순서 변경 중 오류가 발생했습니다.");
+    } finally {
+      setIsMoving(null);
     }
   };
 
@@ -241,7 +272,7 @@ export default function FAQManagementClient({
                         size="icon"
                         className="h-8 w-8"
                         onClick={() => handleMoveUp(faq.id)}
-                        disabled={index === 0}
+                        disabled={index === 0 || isMoving !== null}
                         title="위로 이동"
                       >
                         <ArrowUp className="h-4 w-4" />
@@ -251,7 +282,7 @@ export default function FAQManagementClient({
                         size="icon"
                         className="h-8 w-8"
                         onClick={() => handleMoveDown(faq.id)}
-                        disabled={index === faqs.length - 1}
+                        disabled={index === faqs.length - 1 || isMoving !== null}
                         title="아래로 이동"
                       >
                         <ArrowDown className="h-4 w-4" />

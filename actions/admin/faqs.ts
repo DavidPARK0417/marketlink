@@ -234,10 +234,28 @@ export async function moveFAQUp(id: string) {
     }
 
     console.log("✅ [admin/faqs] FAQ 위로 이동 성공");
+    
+    // 업데이트된 FAQ 목록 조회
+    const { data: updatedFAQs, error: listError } = await supabase
+      .from("faqs")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+
+    if (listError) {
+      console.error("❌ [admin/faqs] FAQ 목록 조회 오류:", listError);
+      // 목록 조회 실패해도 순서 변경은 성공했으므로 성공으로 반환
+      console.groupEnd();
+      return {
+        success: true,
+      };
+    }
+
     console.groupEnd();
 
     return {
       success: true,
+      faqs: updatedFAQs || [],
     };
   } catch (error) {
     console.error("❌ [admin/faqs] FAQ 위로 이동 예외:", error);
@@ -310,10 +328,28 @@ export async function moveFAQDown(id: string) {
     }
 
     console.log("✅ [admin/faqs] FAQ 아래로 이동 성공");
+    
+    // 업데이트된 FAQ 목록 조회
+    const { data: updatedFAQs, error: listError } = await supabase
+      .from("faqs")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+
+    if (listError) {
+      console.error("❌ [admin/faqs] FAQ 목록 조회 오류:", listError);
+      // 목록 조회 실패해도 순서 변경은 성공했으므로 성공으로 반환
+      console.groupEnd();
+      return {
+        success: true,
+      };
+    }
+
     console.groupEnd();
 
     return {
       success: true,
+      faqs: updatedFAQs || [],
     };
   } catch (error) {
     console.error("❌ [admin/faqs] FAQ 아래로 이동 예외:", error);
