@@ -398,22 +398,56 @@ export async function getOrderById(
   console.log("🔍 [orders-query] 주문 조회 시작", { orderId });
 
   // ⚠️ RLS 비활성화 환경 대응: 현재 도매점 ID 확인
+  console.log("🔍 [orders-query] 사용자 프로필 조회 시작");
   const profile = await getUserProfile();
 
-  if (!profile || profile.role !== "wholesaler") {
+  console.log("🔍 [orders-query] 프로필 조회 결과:", {
+    hasProfile: !!profile,
+    role: profile?.role,
+    hasWholesalers: !!profile?.wholesalers,
+    wholesalersLength: profile?.wholesalers?.length ?? 0,
+    wholesalers: profile?.wholesalers,
+  });
+
+  if (!profile) {
+    console.error(
+      "❌ [orders-query] 프로필 없음 - 인증되지 않았거나 프로필이 생성되지 않음",
+    );
+    throw new Error(
+      "사용자 프로필을 찾을 수 없습니다. 로그인 상태를 확인해주세요.",
+    );
+  }
+
+  if (profile.role !== "wholesaler" && profile.role !== "admin") {
+    console.error("❌ [orders-query] 도매점 권한 없음", { role: profile.role });
     throw new Error("도매점 권한이 없습니다.");
   }
 
+  const isAdmin = profile.role === "admin";
   const wholesalers = profile.wholesalers as Array<{ id: string }> | null;
-  if (!wholesalers || wholesalers.length === 0) {
-    throw new Error("도매점 정보를 찾을 수 없습니다.");
+  
+  // 관리자가 아닌 경우에만 도매점 정보 필수
+  if (!isAdmin && (!wholesalers || wholesalers.length === 0)) {
+    console.error("❌ [orders-query] 도매점 정보 없음", {
+      wholesalers,
+      profileId: profile.id,
+      role: profile.role,
+    });
+    throw new Error(
+      "도매점 정보를 찾을 수 없습니다. 도매점 등록이 필요합니다.",
+    );
   }
 
-  const currentWholesalerId = wholesalers[0].id;
+  const currentWholesalerId = isAdmin ? null : wholesalers?.[0]?.id;
+  if (isAdmin) {
+    console.log("✅ [orders-query] 관리자 모드 - 모든 주문 조회");
+  } else {
+    console.log("✅ [orders-query] 현재 도매점 ID:", currentWholesalerId);
+  }
 
   const supabase = createClerkSupabaseClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("orders")
     .select(
       `
@@ -423,9 +457,14 @@ export async function getOrderById(
       retailers(id, anonymous_code)
     `,
     )
-    .eq("id", orderId)
-    .eq("wholesaler_id", currentWholesalerId)
-    .single();
+    .eq("id", orderId);
+  
+  // 관리자가 아닌 경우에만 wholesaler_id 필터 적용
+  if (!isAdmin && currentWholesalerId) {
+    query = query.eq("wholesaler_id", currentWholesalerId);
+  }
+
+  const { data, error } = await query.single();
 
   if (error) {
     if (error.code === "PGRST116") {
