@@ -1,4 +1,6 @@
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+/* Pretendard Variable 폰트 - 로컬 파일로 최적화 */
+@font-face{font-family:'Pretendard Variable';font-weight:45 920;font-style:normal;font-display:swap;src:url('/fonts/PretendardVariable.woff2') format('woff2-variations')}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
