@@ -138,6 +138,7 @@ export default function AdminSidebar() {
               height={80}
               className="w-full h-auto object-contain"
               priority
+              fetchPriority="high"
             />
           </Link>
         </div>

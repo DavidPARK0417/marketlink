@@ -153,6 +153,7 @@ export default function WholesalerSidebar() {
               height={80}
               className="hidden md:block w-full h-auto object-contain"
               priority
+              fetchPriority="high"
             />
             {/* 모바일용 작은 로고 */}
             <div className="md:hidden flex items-center justify-center">

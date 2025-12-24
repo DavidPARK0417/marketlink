@@ -115,6 +115,8 @@ const Navbar = () => {
           width={180}
           height={69}
           className="object-contain"
+          priority
+          fetchPriority="high"
         />
       </Link>
 
