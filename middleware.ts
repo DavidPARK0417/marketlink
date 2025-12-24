@@ -32,11 +32,11 @@ import { NextResponse } from "next/server";
  */
 export default clerkMiddleware(async (auth, req) => {
   const response = NextResponse.next();
-  
+
   // 현재 경로를 헤더에 추가 (레이아웃에서 사용)
   const pathname = req.nextUrl.pathname;
   response.headers.set("x-pathname", pathname);
-  
+
   return response;
 });
 

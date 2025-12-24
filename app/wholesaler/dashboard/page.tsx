@@ -118,9 +118,26 @@ export default function DashboardPage() {
       },
     );
 
+    // bfcache 최적화: pagehide 이벤트에서도 WebSocket 정리
+    const handlePageHide = () => {
+      console.log("🧹 [dashboard] Page hide - cleaning up WebSocket");
+      unsubscribe();
+    };
+
+    // beforeunload 이벤트에서도 정리 (추가 안전장치)
+    const handleBeforeUnload = () => {
+      console.log("🧹 [dashboard] Before unload - cleaning up WebSocket");
+      unsubscribe();
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     // ⚠️ 필수: Cleanup 함수로 구독 해제 (메모리 누수 방지)
     return () => {
       console.log("🧹 [dashboard] Cleaning up order subscription");
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       unsubscribe();
     };
   }, [wholesalerId, supabase, router]);

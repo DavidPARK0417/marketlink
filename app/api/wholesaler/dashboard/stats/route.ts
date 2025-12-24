@@ -14,7 +14,12 @@ export async function GET() {
 
     const stats = await getDashboardStats();
 
-    return NextResponse.json(stats);
+    // bfcache 최적화: 적절한 캐시 헤더 설정
+    return NextResponse.json(stats, {
+      headers: {
+        "Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+      },
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류";
     const errorStack = error instanceof Error ? error.stack : undefined;
