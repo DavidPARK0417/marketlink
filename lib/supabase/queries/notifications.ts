@@ -243,12 +243,13 @@ export async function getUnreadInquiriesCount(
  * 현재 도매점의 최근 문의 목록 조회 (알림용)
  *
  * 최근 5개의 문의를 조회하며, inquiry_type이 'retailer_to_wholesaler'인 문의만 조회합니다.
+ * 답변완료(status = 'answered')된 문의는 알림에서 제외됩니다.
  * 문의자 익명 코드를 포함합니다.
  *
  * @param supabase Supabase 클라이언트
  * @param wholesalerId 도매점 ID
  * @param limit 조회할 문의 개수 (기본값: 5)
- * @returns 최근 문의 목록
+ * @returns 최근 문의 목록 (답변완료 제외)
  */
 export async function getRecentInquiryNotifications(
   supabase: SupabaseClient,
@@ -260,12 +261,13 @@ export async function getRecentInquiryNotifications(
     limit,
   });
 
-  // 1. 문의 목록 조회
+  // 1. 문의 목록 조회 (답변완료 제외)
   const { data: inquiries, error } = await supabase
     .from("inquiries")
     .select("id, title, content, status, inquiry_type, created_at, user_id")
     .eq("wholesaler_id", wholesalerId)
     .eq("inquiry_type", "retailer_to_wholesaler")
+    .neq("status", "answered") // 답변완료된 문의는 알림에서 제외
     .order("created_at", { ascending: false })
     .limit(limit);
 
