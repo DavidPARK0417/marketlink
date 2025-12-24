@@ -151,11 +151,6 @@ export async function uploadProductImage(
     clerkUserId,
   });
 
-  // 업로드 전에 파일 객체가 실제 File 객체인지 확인
-  if (!(file instanceof File) && !(file instanceof Blob)) {
-    throw new Error("유효한 파일 객체가 아닙니다.");
-  }
-
   // 업로드 시도
   console.log("🚀 [storage] Storage 업로드 시작...");
   const { data, error } = await supabase.storage
