@@ -44,7 +44,9 @@ export function useClerkSupabaseClient() {
       global: {
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
+          // Content-Type은 제거: 파일 업로드 시 자동으로 설정되도록 함
+          // Supabase Storage는 파일의 MIME 타입을 자동으로 감지하므로
+          // 전역 헤더에 Content-Type을 설정하면 파일 업로드가 실패함
         },
       },
     });

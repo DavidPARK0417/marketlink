@@ -2,17 +2,20 @@
  * @file actions/wholesaler/update-product.ts
  * @description 상품 수정 Server Action
  *
- * 도매점이 자신의 상품을 수정하는 Server Action입니다.
- * RLS 정책을 통해 자신의 상품만 수정할 수 있습니다.
+ * 도매점은 자신의 상품만 수정할 수 있습니다 (RLS 정책).
+ * 관리자는 모든 상품을 수정할 수 있습니다.
  *
  * 주요 기능:
- * 1. 상품 ID로 상품 조회 및 권한 확인
- * 2. 상품 정보 업데이트
- * 3. updated_at 자동 업데이트 (DB 트리거)
- * 4. 에러 처리 및 로깅
+ * 1. 사용자 역할 확인 (관리자/도매점)
+ * 2. 상품 ID로 상품 조회 및 권한 확인
+ * 3. 상품 정보 업데이트
+ * 4. updated_at 자동 업데이트 (DB 트리거)
+ * 5. 에러 처리 및 로깅
  *
  * @dependencies
  * - lib/supabase/server.ts (createClerkSupabaseClient)
+ * - lib/supabase/service-role.ts (getServiceRoleClient)
+ * - lib/clerk/auth.ts (getUserProfile)
  * - lib/validation/product.ts (ProductFormData)
  * - next/cache (revalidatePath)
  */
@@ -20,6 +23,8 @@
 "use server";
 
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
+import { getServiceRoleClient } from "@/lib/supabase/service-role";
+import { getUserProfile } from "@/lib/clerk/auth";
 import { revalidatePath } from "next/cache";
 import type { ProductFormData } from "@/lib/validation/product";
 
@@ -51,7 +56,8 @@ export interface UpdateProductResult {
 /**
  * 상품 수정
  *
- * 현재 로그인한 도매점의 상품만 수정할 수 있습니다 (RLS 정책).
+ * 도매점은 자신의 상품만 수정할 수 있습니다 (RLS 정책).
+ * 관리자는 모든 상품을 수정할 수 있습니다.
  *
  * @param {string} productId - 상품 ID
  * @param {ProductFormData} data - 수정할 상품 데이터
@@ -77,7 +83,34 @@ export async function updateProduct(
       images: data.images?.length || 0,
     });
 
-    const supabase = createClerkSupabaseClient();
+    // 현재 사용자 프로필 조회 (역할 확인용)
+    const profile = await getUserProfile();
+    if (!profile) {
+      console.error("❌ [product-action] 사용자 인증되지 않음");
+      return {
+        success: false,
+        error: "인증이 필요합니다.",
+      };
+    }
+
+    console.log("✅ [product-action] 사용자 프로필 확인:", {
+      role: profile.role,
+      userId: profile.id,
+    });
+
+    // 관리자인지 확인
+    const isAdmin = profile.role === "admin";
+    
+    // 관리자인 경우 Service Role 클라이언트 사용 (RLS 우회)
+    // 도매점인 경우 일반 클라이언트 사용 (RLS 정책 적용)
+    const supabase = isAdmin 
+      ? getServiceRoleClient() 
+      : createClerkSupabaseClient();
+
+    console.log("🔑 [product-action] Supabase 클라이언트 선택:", {
+      isAdmin,
+      clientType: isAdmin ? "Service Role" : "Clerk Client",
+    });
 
     // 1. 상품 존재 여부 및 권한 확인
     const { data: existingProduct, error: fetchError } = await supabase
@@ -102,7 +135,34 @@ export async function updateProduct(
       };
     }
 
-    console.log("✅ [product-action] 상품 조회 완료:", existingProduct.id);
+    // 관리자가 아닌 경우, 자신의 상품인지 확인
+    if (!isAdmin) {
+      // 도매점인 경우 자신의 상품만 수정 가능
+      // RLS 정책으로 이미 필터링되지만, 추가 확인
+      const wholesalerSupabase = createClerkSupabaseClient();
+      const { data: currentWholesaler } = await wholesalerSupabase
+        .from("wholesalers")
+        .select("id")
+        .eq("profile_id", profile.id)
+        .single();
+
+      if (!currentWholesaler || existingProduct.wholesaler_id !== currentWholesaler.id) {
+        console.error("❌ [product-action] 권한 없음:", {
+          productWholesalerId: existingProduct.wholesaler_id,
+          currentWholesalerId: currentWholesaler?.id,
+        });
+        return {
+          success: false,
+          error: "이 상품을 수정할 권한이 없습니다.",
+        };
+      }
+    }
+
+    console.log("✅ [product-action] 상품 조회 완료:", {
+      productId: existingProduct.id,
+      wholesalerId: existingProduct.wholesaler_id,
+      isAdmin,
+    });
 
     // 2. specification 생성 (specification_value + unit)
     const specification = combineSpecification(

@@ -77,40 +77,192 @@ export async function uploadProductImage(
     fileType: file.type,
   });
 
-  // 파일 타입 검증
-  if (!ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {
-    const allowedTypes = ALLOWED_TYPES.join(", ");
-    throw new Error(
-      `지원하지 않는 이미지 형식입니다. 허용 형식: ${allowedTypes}`,
-    );
+  // 파일 크기 검증 (먼저 체크)
+  if (file.size === 0) {
+    throw new Error("빈 파일은 업로드할 수 없습니다.");
   }
 
-  // 파일 크기 검증
   if (file.size > MAX_FILE_SIZE) {
     const maxSizeMB = MAX_FILE_SIZE / (1024 * 1024);
     throw new Error(`이미지 크기는 ${maxSizeMB}MB 이하여야 합니다.`);
   }
 
+  // 파일 확장자 추출 및 검증
+  const fileExt = file.name.split(".").pop()?.toLowerCase() || "";
+  const allowedExtensions = ["jpg", "jpeg", "png", "webp"];
+
+  if (!fileExt || !allowedExtensions.includes(fileExt)) {
+    throw new Error(
+      `지원하지 않는 파일 형식입니다. 허용 형식: ${allowedExtensions.join(
+        ", ",
+      )}`,
+    );
+  }
+
+  // 파일 타입 검증
+  // MIME 타입이 없거나 빈 문자열인 경우 확장자 기반으로 추론
+  let mimeType = file.type;
+
+  if (
+    !mimeType ||
+    mimeType === "" ||
+    mimeType === "application/json" ||
+    mimeType === "application/octet-stream"
+  ) {
+    // 확장자 기반으로 MIME 타입 추론
+    const mimeTypeMap: Record<string, string> = {
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      webp: "image/webp",
+    };
+    mimeType = mimeTypeMap[fileExt] || file.type;
+    console.warn(
+      "⚠️ [storage] MIME 타입이 없거나 잘못됨, 확장자 기반으로 추론:",
+      {
+        originalType: file.type,
+        inferredType: mimeType,
+        fileExt,
+      },
+    );
+  }
+
+  if (!ALLOWED_TYPES.includes(mimeType as (typeof ALLOWED_TYPES)[number])) {
+    const allowedTypes = ALLOWED_TYPES.join(", ");
+    throw new Error(
+      `지원하지 않는 이미지 형식입니다. 파일: ${file.name}, 감지된 형식: ${
+        mimeType || "알 수 없음"
+      }. 허용 형식: ${allowedTypes}`,
+    );
+  }
+
   // 파일명 생성 (타임스탬프 + 랜덤 문자열)
-  const fileExt = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const timestamp = Date.now();
   const randomStr = Math.random().toString(36).substring(2, 9);
   const fileName = `${timestamp}-${randomStr}.${fileExt}`;
   const filePath = `${clerkUserId}/products/${fileName}`;
 
   console.log("📁 [storage] 파일 경로:", filePath);
+  console.log("📋 [storage] 최종 파일 정보:", {
+    fileName,
+    filePath,
+    mimeType,
+    fileSize: file.size,
+    clerkUserId,
+  });
 
-  // 업로드
+  // 업로드 전에 파일 객체가 실제 File 객체인지 확인
+  if (!(file instanceof File) && !(file instanceof Blob)) {
+    throw new Error("유효한 파일 객체가 아닙니다.");
+  }
+
+  // 업로드 시도
+  console.log("🚀 [storage] Storage 업로드 시작...");
   const { data, error } = await supabase.storage
     .from(BUCKET_NAME)
     .upload(filePath, file, {
       cacheControl: "3600",
       upsert: false, // 기존 파일 덮어쓰기 방지
+      contentType: mimeType, // 명시적으로 MIME 타입 지정
     });
 
   if (error) {
-    console.error("❌ [storage] 이미지 업로드 실패:", error);
-    throw new Error(`이미지 업로드에 실패했습니다: ${error.message}`);
+    // 에러 객체의 모든 속성 확인
+    const errorDetails: Record<string, unknown> = {};
+    try {
+      // 에러 객체를 JSON으로 직렬화 시도
+      const errorJson = JSON.stringify(
+        error,
+        Object.getOwnPropertyNames(error),
+      );
+      Object.assign(errorDetails, JSON.parse(errorJson));
+    } catch {
+      // 직렬화 실패 시 수동으로 속성 추출
+      for (const key in error) {
+        try {
+          errorDetails[key] = (error as Record<string, unknown>)[key];
+        } catch {
+          // 직렬화 불가능한 속성은 무시
+        }
+      }
+      // 에러 객체의 직접 속성도 확인
+      if (error instanceof Error) {
+        errorDetails.name = error.name;
+        errorDetails.message = error.message;
+        errorDetails.stack = error.stack;
+      }
+    }
+
+    // 에러 메시지 추출 (여러 방법 시도)
+    const errorMessage =
+      error.message ||
+      (error as { error?: string }).error ||
+      (error as { message?: string }).message ||
+      JSON.stringify(error) ||
+      String(error) ||
+      "알 수 없는 오류";
+
+    // 에러 코드 추출
+    const errorCode =
+      error.statusCode ||
+      (error as { statusCode?: number }).statusCode ||
+      (error as { code?: string }).code ||
+      "unknown";
+
+    console.error("❌ [storage] 이미지 업로드 실패 - 상세 정보:", {
+      errorMessage: errorMessage,
+      errorCode: errorCode,
+      errorDetails:
+        Object.keys(errorDetails).length > 0
+          ? errorDetails
+          : "에러 상세 정보 없음",
+      errorType: typeof error,
+      errorConstructor: error?.constructor?.name,
+      fileName: file.name,
+      fileType: file.type,
+      inferredMimeType: mimeType,
+      filePath: filePath,
+      clerkUserId: clerkUserId,
+      bucketName: BUCKET_NAME,
+      // 원본 에러 객체는 별도로 출력 (디버깅용)
+      originalError: error,
+    });
+
+    // 에러 메시지를 문자열로 변환하여 확인
+    const errorMessageStr = String(errorMessage).toLowerCase();
+
+    // RLS 정책 관련 에러 확인
+    if (
+      errorMessageStr.includes("row-level security") ||
+      errorMessageStr.includes("rls") ||
+      errorMessageStr.includes("policy") ||
+      errorMessageStr.includes("permission") ||
+      errorMessageStr.includes("unauthorized") ||
+      errorMessageStr.includes("403") ||
+      errorCode === 403 ||
+      errorCode === "403"
+    ) {
+      throw new Error(
+        `이미지 업로드 권한이 없습니다. 관리자 권한이 필요할 수 있습니다. (에러 코드: ${errorCode}, 메시지: ${errorMessage})`,
+      );
+    }
+
+    // MIME 타입 관련 에러 확인
+    if (
+      errorMessageStr.includes("mime type") ||
+      errorMessageStr.includes("content type") ||
+      errorMessageStr.includes("not supported") ||
+      errorMessageStr.includes("unsupported")
+    ) {
+      throw new Error(
+        `이미지 파일 형식이 올바르지 않습니다. JPG, PNG, WebP 형식의 이미지 파일만 업로드할 수 있습니다. (파일: ${file.name}, 감지된 형식: ${mimeType}, 에러: ${errorMessage})`,
+      );
+    }
+
+    // 일반 에러
+    throw new Error(
+      `이미지 업로드에 실패했습니다. (에러 코드: ${errorCode}, 메시지: ${errorMessage})`,
+    );
   }
 
   console.log("✅ [storage] 이미지 업로드 성공:", data.path);
@@ -204,28 +356,78 @@ export async function uploadInquiryAttachment(
     fileType: file.type,
   });
 
-  // 파일 타입 검증
-  if (!ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {
-    const allowedTypes = ALLOWED_TYPES.join(", ");
-    throw new Error(
-      `지원하지 않는 이미지 형식입니다. 허용 형식: ${allowedTypes}`,
-    );
+  // 파일 크기 검증 (먼저 체크)
+  if (file.size === 0) {
+    throw new Error("빈 파일은 업로드할 수 없습니다.");
   }
 
-  // 파일 크기 검증
   if (file.size > MAX_FILE_SIZE) {
     const maxSizeMB = MAX_FILE_SIZE / (1024 * 1024);
     throw new Error(`이미지 크기는 ${maxSizeMB}MB 이하여야 합니다.`);
   }
 
+  // 파일 확장자 추출 및 검증
+  const fileExt = file.name.split(".").pop()?.toLowerCase() || "";
+  const allowedExtensions = ["jpg", "jpeg", "png", "webp"];
+
+  if (!fileExt || !allowedExtensions.includes(fileExt)) {
+    throw new Error(
+      `지원하지 않는 파일 형식입니다. 허용 형식: ${allowedExtensions.join(
+        ", ",
+      )}`,
+    );
+  }
+
+  // 파일 타입 검증
+  // MIME 타입이 없거나 빈 문자열인 경우 확장자 기반으로 추론
+  let mimeType = file.type;
+
+  if (
+    !mimeType ||
+    mimeType === "" ||
+    mimeType === "application/json" ||
+    mimeType === "application/octet-stream"
+  ) {
+    // 확장자 기반으로 MIME 타입 추론
+    const mimeTypeMap: Record<string, string> = {
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      webp: "image/webp",
+    };
+    mimeType = mimeTypeMap[fileExt] || file.type;
+    console.warn(
+      "⚠️ [storage] MIME 타입이 없거나 잘못됨, 확장자 기반으로 추론:",
+      {
+        originalType: file.type,
+        inferredType: mimeType,
+        fileExt,
+      },
+    );
+  }
+
+  if (!ALLOWED_TYPES.includes(mimeType as (typeof ALLOWED_TYPES)[number])) {
+    const allowedTypes = ALLOWED_TYPES.join(", ");
+    throw new Error(
+      `지원하지 않는 이미지 형식입니다. 파일: ${file.name}, 감지된 형식: ${
+        mimeType || "알 수 없음"
+      }. 허용 형식: ${allowedTypes}`,
+    );
+  }
+
   // 파일명 생성 (타임스탬프 + 랜덤 문자열)
-  const fileExt = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const timestamp = Date.now();
   const randomStr = Math.random().toString(36).substring(2, 9);
   const fileName = `${timestamp}-${randomStr}.${fileExt}`;
   const filePath = `${clerkUserId}/inquiries/${fileName}`;
 
   console.log("📁 [storage] 파일 경로:", filePath);
+  console.log("📋 [storage] 최종 파일 정보:", {
+    fileName,
+    filePath,
+    mimeType,
+    fileSize: file.size,
+  });
 
   // 업로드
   const { data, error } = await supabase.storage
@@ -233,10 +435,29 @@ export async function uploadInquiryAttachment(
     .upload(filePath, file, {
       cacheControl: "3600",
       upsert: false, // 기존 파일 덮어쓰기 방지
+      contentType: mimeType, // 명시적으로 MIME 타입 지정
     });
 
   if (error) {
-    console.error("❌ [storage] 문의 첨부 이미지 업로드 실패:", error);
+    console.error("❌ [storage] 문의 첨부 이미지 업로드 실패:", {
+      error,
+      errorCode: error.statusCode,
+      errorMessage: error.message,
+      fileName: file.name,
+      fileType: file.type,
+      inferredMimeType: mimeType,
+    });
+
+    // 더 친화적인 에러 메시지 제공
+    if (
+      error.message.includes("mime type") ||
+      error.message.includes("content type")
+    ) {
+      throw new Error(
+        `이미지 파일 형식이 올바르지 않습니다. JPG, PNG, WebP 형식의 이미지 파일만 업로드할 수 있습니다. (파일: ${file.name})`,
+      );
+    }
+
     throw new Error(`이미지 업로드에 실패했습니다: ${error.message}`);
   }
 

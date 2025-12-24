@@ -39,7 +39,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import { Edit2, Eye, ImageIcon, Trash2, Search, ChevronDown, Package, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit2, Eye, ImageIcon, Trash2, Search, ChevronDown, Package, ArrowUp, ArrowDown, ArrowUpDown, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -138,6 +138,10 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // 주문 존재 안내 모달 상태
+  const [orderExistsModalOpen, setOrderExistsModalOpen] = useState(false);
+  const [orderExistsMessage, setOrderExistsMessage] = useState<string>("");
 
   // 필터 적용 함수
   const applyFilters = () => {
@@ -220,36 +224,75 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
 
   // 삭제 확인 다이얼로그 열기
   const handleDeleteClick = useCallback((product: Product) => {
+    console.log("🗑️ [product-table] 삭제 버튼 클릭:", {
+      productId: product.id,
+      productName: product.name,
+    });
     setProductToDelete(product);
     setDeleteDialogOpen(true);
   }, []);
 
   // 상품 삭제 실행
   const handleDeleteConfirm = useCallback(async () => {
-    if (!productToDelete) return;
+    if (!productToDelete) {
+      console.error("❌ [product-table] 삭제할 상품이 없습니다.");
+      toast.error("삭제할 상품을 선택해주세요.");
+      return;
+    }
 
     setIsDeleting(true);
+    const productIdToDelete = productToDelete.id;
+    const productNameToDelete = productToDelete.name;
+    
     try {
-      console.log("🗑️ [product-table] 상품 삭제 시작", {
-        productId: productToDelete.id,
-        productName: productToDelete.name,
-      });
+      console.group("🗑️ [product-table] 상품 삭제 시작");
+      console.log("productId:", productIdToDelete);
+      console.log("productName:", productNameToDelete);
 
-      const result = await deleteProduct(productToDelete.id);
+      const result = await deleteProduct(productIdToDelete);
+
+      console.log("✅ [product-table] 삭제 결과:", result);
 
       if (result.success) {
+        // 즉시 로컬 상태에서 제거 (Optimistic Update)
+        setProducts((prev) => prev.filter((p) => p.id !== productIdToDelete));
+        
         toast.success("상품이 삭제되었습니다.");
+        
+        // Dialog 닫기 및 상태 초기화
         setDeleteDialogOpen(false);
         setProductToDelete(null);
-        router.refresh(); // 서버 데이터 새로고침
+        
+        // 서버 데이터 새로고침 (백그라운드)
+        setTimeout(() => {
+          router.refresh();
+        }, 100);
       } else {
-        toast.error(result.error || "상품 삭제에 실패했습니다.");
+        // 삭제 실패 시 (주문이 있는 경우 등)
+        if (result.error) {
+          // 주문이 있는 경우는 모달로 안내
+          if (result.error.includes("주문과 연결되어")) {
+            console.warn("⚠️ [product-table] 삭제 불가 (주문 존재):", result.error);
+            // 삭제 확인 다이얼로그 닫기
+            setDeleteDialogOpen(false);
+            // 주문 존재 안내 모달 표시
+            setOrderExistsMessage(result.error);
+            setOrderExistsModalOpen(true);
+          } else {
+            console.error("❌ [product-table] 삭제 실패:", result.error);
+            toast.error(result.error);
+          }
+        } else {
+          console.error("❌ [product-table] 삭제 실패: 알 수 없는 오류");
+          toast.error("상품 삭제에 실패했습니다.");
+        }
       }
     } catch (error) {
-      console.error("❌ [product-table] 상품 삭제 실패:", error);
+      console.error("❌ [product-table] 상품 삭제 예외 발생:", error);
       toast.error("상품 삭제 중 오류가 발생했습니다.");
     } finally {
       setIsDeleting(false);
+      console.groupEnd();
     }
   }, [productToDelete, router]);
 
@@ -1006,7 +1049,23 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
       )}
 
       {/* 삭제 확인 다이얼로그 */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <Dialog 
+        open={deleteDialogOpen} 
+        onOpenChange={(open) => {
+          // 삭제 중일 때는 Dialog를 닫을 수 없도록 함
+          if (!open && isDeleting) {
+            console.log("⚠️ [product-table] 삭제 중이므로 Dialog 닫기 무시");
+            return;
+          }
+          
+          // Dialog가 닫힐 때 상태 초기화
+          if (!open) {
+            console.log("🗑️ [product-table] Dialog 닫기 및 상태 초기화");
+            setDeleteDialogOpen(false);
+            setProductToDelete(null);
+          }
+        }}
+      >
         <DialogContent className="max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>상품 삭제 확인</DialogTitle>
@@ -1033,6 +1092,42 @@ export function ProductTable({ initialData, initialFilters }: ProductTableProps)
               disabled={isDeleting}
             >
               {isDeleting ? "삭제 중..." : "삭제"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 주문 존재 안내 모달 */}
+      <Dialog 
+        open={orderExistsModalOpen} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setOrderExistsModalOpen(false);
+            setOrderExistsMessage("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-center">
+              삭제할 수 없습니다
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-base text-center">
+              {orderExistsMessage || "이 상품은 주문과 연결되어 있어 삭제할 수 없습니다."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-center">
+            <Button
+              onClick={() => {
+                setOrderExistsModalOpen(false);
+                setOrderExistsMessage("");
+              }}
+              className="min-w-[120px] bg-[#10B981] hover:bg-[#059669]"
+            >
+              확인
             </Button>
           </DialogFooter>
         </DialogContent>
