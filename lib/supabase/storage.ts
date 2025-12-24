@@ -435,7 +435,7 @@ export async function uploadInquiryAttachment(
   if (error) {
     console.error("❌ [storage] 문의 첨부 이미지 업로드 실패:", {
       error,
-      errorCode: error.statusCode,
+      errorCode: (error as { statusCode?: number }).statusCode,
       errorMessage: error.message,
       fileName: file.name,
       fileType: file.type,
