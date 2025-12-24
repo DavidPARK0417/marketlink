@@ -20,8 +20,33 @@
  */
 
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getProductById } from "@/lib/supabase/queries/products";
+import { generateProductMetadata } from "@/lib/metadata/product";
 import EditProductClient from "./edit-product-client";
+
+/**
+ * 동적 메타데이터 생성
+ *
+ * Next.js가 자동으로 이 함수를 호출하여 SEO 메타데이터를 생성합니다.
+ * 같은 getProductById를 호출해도 Next.js가 캐싱하여 성능 저하가 없습니다.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const metadata = await generateProductMetadata(id);
+
+  // 상품이 없거나 메타데이터 생성 실패 시 기본값 반환
+  return (
+    metadata || {
+      title: "상품 수정 - FarmToBiz",
+      description: "상품 정보를 수정할 수 없습니다.",
+    }
+  );
+}
 
 /**
  * 상품 수정 페이지 (Server Component)

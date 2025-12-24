@@ -19,8 +19,33 @@
  */
 
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getOrderById } from "@/lib/supabase/queries/orders";
+import { generateOrderMetadata } from "@/lib/metadata/order";
 import OrderDetail from "@/components/wholesaler/Orders/OrderDetail";
+
+/**
+ * 동적 메타데이터 생성
+ *
+ * 주문 정보는 개인정보이므로 검색 엔진 인덱싱을 방지합니다.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const metadata = await generateOrderMetadata(id);
+
+  // 주문이 없거나 메타데이터 생성 실패 시 기본값 반환
+  return (
+    metadata || {
+      title: "주문 정보 - FarmToBiz",
+      description: "주문 정보를 불러올 수 없습니다.",
+      robots: "noindex, nofollow",
+    }
+  );
+}
 
 export default async function OrderDetailPage({
   params,
