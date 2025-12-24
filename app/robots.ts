@@ -24,13 +24,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: [
-          "/",
-          "/privacy",
-          "/terms",
-          "/sign-in/wholesaler",
-        ],
+        allow: ["/privacy", "/terms", "/sign-in/wholesaler"],
         disallow: [
+          "/", // 루트 페이지는 리다이렉트만 하므로 크롤링 금지
           "/api/", // API 라우트는 크롤링 금지
           "/admin/", // 관리자 페이지는 크롤링 금지
           "/wholesaler/", // 인증 필요한 페이지는 크롤링 금지
@@ -43,4 +39,3 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
-

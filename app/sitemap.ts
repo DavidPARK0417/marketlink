@@ -22,33 +22,27 @@ const SITE_URL =
 export default function sitemap(): MetadataRoute.Sitemap {
   // 공개적으로 접근 가능한 페이지만 포함
   // 인증이 필요한 페이지는 제외 (개인정보 보호)
+  // 루트 페이지(/)는 리다이렉트만 하므로 제외
   const publicPages: MetadataRoute.Sitemap = [
-    {
-      url: SITE_URL,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1.0,
-    },
     {
       url: `${SITE_URL}/privacy`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.8,
     },
     {
       url: `${SITE_URL}/terms`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.8,
     },
     {
       url: `${SITE_URL}/sign-in/wholesaler`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.9,
     },
   ];
 
   return publicPages;
 }
-

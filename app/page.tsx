@@ -9,12 +9,23 @@
  * @외부_진입점 wholesale.farmtobiz.com
  */
 
+import type { Metadata } from "next";
 import { getUserProfile, redirectByRole } from "@/lib/clerk/auth";
 import PendingApprovalPage from "./(auth)/pending-approval/page";
 import { redirect } from "next/navigation";
 
 // 인증 확인이 필요한 페이지이므로 동적 렌더링 강제
 export const dynamic = "force-dynamic";
+
+/**
+ * 루트 페이지는 인증이 필요하므로 검색 엔진 인덱싱 방지
+ * 실제 공개 콘텐츠는 /privacy, /terms 페이지에 있습니다.
+ */
+export const metadata: Metadata = {
+  title: "FarmToBiz - 도매 사업자 전용 플랫폼",
+  description: "도매 사업자 전용 플랫폼",
+  robots: "noindex, nofollow",
+};
 
 export default async function RootPage() {
   console.log("🏠 [root] 루트 페이지 접근");

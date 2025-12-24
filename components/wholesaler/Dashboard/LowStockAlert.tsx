@@ -55,7 +55,9 @@ export default function LowStockAlert() {
             <AlertCircle className="w-6 h-6 text-orange-500 dark:text-orange-300" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground dark:text-foreground">재고 부족 알림</h2>
+            <h2 className="text-xl font-bold text-foreground dark:text-foreground">
+              재고 부족 알림
+            </h2>
             <p className="text-sm text-orange-600 dark:text-orange-200 font-medium mt-1">
               {lowStockProducts.length > 0
                 ? `${lowStockProducts.length}개 상품 재고 부족`
@@ -66,9 +68,11 @@ export default function LowStockAlert() {
         {lowStockProducts.length > 0 && (
           <Link
             href="/wholesaler/products"
+            aria-label="재고 부족 상품 전체 목록 보기"
             className="flex items-center gap-1 bg-white dark:bg-gray-900 px-4 py-2 rounded-xl border border-orange-200 dark:border-orange-900/60 text-sm font-medium text-foreground dark:text-foreground hover:bg-orange-50 dark:hover:bg-orange-900/40 hover:text-orange-600 dark:hover:text-orange-200 transition-colors shadow-sm"
           >
-            전체 보기 <ChevronRight className="w-4 h-4" />
+            <span>재고 부족 상품 전체 보기</span>
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         )}
       </div>
