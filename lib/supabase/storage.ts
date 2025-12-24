@@ -175,7 +175,7 @@ export async function uploadProductImage(
       // 직렬화 실패 시 수동으로 속성 추출
       for (const key in error) {
         try {
-          errorDetails[key] = (error as Record<string, unknown>)[key];
+          errorDetails[key] = (error as unknown as Record<string, unknown>)[key];
         } catch {
           // 직렬화 불가능한 속성은 무시
         }
