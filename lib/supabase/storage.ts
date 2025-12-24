@@ -199,7 +199,6 @@ export async function uploadProductImage(
 
     // 에러 코드 추출
     const errorCode =
-      error.statusCode ||
       (error as { statusCode?: number }).statusCode ||
       (error as { code?: string }).code ||
       "unknown";
