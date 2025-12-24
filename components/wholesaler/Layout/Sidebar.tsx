@@ -220,7 +220,11 @@ export default function WholesalerSidebar() {
               return (
                 <Tooltip key={item.href}>
                   <TooltipTrigger asChild>
-                    <Link href={item.href} className={menuLinkClassName}>
+                    <Link 
+                      href={item.href} 
+                      className={menuLinkClassName}
+                      aria-label={item.label}
+                    >
                       {menuLinkContent}
                     </Link>
                   </TooltipTrigger>
@@ -241,6 +245,7 @@ export default function WholesalerSidebar() {
               <Link
                 href="/wholesaler/products/new"
                 className="flex items-center justify-center gap-2 w-full px-2 md:px-4 py-3 bg-[#10B981] text-white rounded-lg hover:bg-[#059669] transition-colors font-medium"
+                aria-label="새 상품 등록하기"
               >
                 <Plus className="w-5 h-5 flex-shrink-0" />
                 <span className="hidden md:inline break-keep">
