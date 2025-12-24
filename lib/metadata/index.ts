@@ -19,6 +19,15 @@ const SITE_DESCRIPTION = "도매 사업자 전용 플랫폼";
 const DEFAULT_OG_IMAGE = "/og-image.png";
 
 /**
+ * 사이트 기본 URL
+ * 프로덕션 환경에서는 환경 변수로 설정하는 것을 권장합니다.
+ */
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "https://wholesale.farmtobiz.com";
+
+/**
  * 기본 메타데이터 생성 함수
  *
  * @param title 페이지 제목
@@ -34,6 +43,7 @@ export function createMetadata(
     url?: string;
     type?: "website" | "article";
     noIndex?: boolean; // 검색 엔진 인덱싱 방지 (개발/비공개 페이지용)
+    canonical?: string; // Canonical URL (상대 경로 또는 절대 URL)
   },
 ): Metadata {
   const fullTitle = title.includes(SITE_NAME)
@@ -47,16 +57,30 @@ export function createMetadata(
       : [options.image]
     : [DEFAULT_OG_IMAGE];
 
+  // Canonical URL 처리
+  // 상대 경로인 경우 절대 URL로 변환, 이미 절대 URL이면 그대로 사용
+  const canonicalUrl = options?.canonical
+    ? options.canonical.startsWith("http")
+      ? options.canonical
+      : `${SITE_URL}${options.canonical.startsWith("/") ? "" : "/"}${options.canonical}`
+    : options?.url || undefined;
+
   return {
     title: fullTitle,
     description,
     // robots: 검색 엔진 인덱싱 제어
     robots: options?.noIndex ? "noindex, nofollow" : "index, follow",
+    // Canonical URL: 중복 콘텐츠 방지
+    alternates: canonicalUrl
+      ? {
+          canonical: canonicalUrl,
+        }
+      : undefined,
     // Open Graph: 소셜 미디어 공유용
     openGraph: {
       title: fullTitle,
       description,
-      url: options?.url,
+      url: options?.url || canonicalUrl,
       siteName: SITE_NAME,
       images: ogImages.map((img) => ({
         url: img,
@@ -83,12 +107,14 @@ export function createMetadata(
  * @param productName 상품명
  * @param productDescription 상품 설명
  * @param productImage 상품 이미지 URL
+ * @param productId 상품 ID (canonical URL 생성용)
  * @returns Metadata 객체
  */
 export function createProductMetadata(
   productName: string,
   productDescription: string,
   productImage?: string,
+  productId?: string,
 ): Metadata {
   return createMetadata(
     productName,
@@ -96,6 +122,7 @@ export function createProductMetadata(
     {
       image: productImage,
       type: "article",
+      canonical: productId ? `/wholesaler/products/${productId}/edit` : undefined,
     },
   );
 }

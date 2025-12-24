@@ -8,9 +8,19 @@
 
 import { Metadata } from "next";
 
+/**
+ * 정적 페이지로 생성 (SSG)
+ * 콘텐츠가 거의 변하지 않으므로 정적 생성이 적합합니다.
+ */
+export const dynamic = "force-static";
+export const revalidate = 86400; // 24시간마다 재검증
+
 export const metadata: Metadata = {
-  title: "이용약관 - Farm to Biz",
-  description: "Farm to Biz 서비스 이용약관",
+  title: "이용약관 - FarmToBiz",
+  description: "FarmToBiz 서비스 이용약관 - 서비스 이용 조건 및 약관을 확인하세요.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 // 이용약관 내용 (docs/Wholesaler/이용약관.md에서 가져온 내용)

@@ -58,7 +58,7 @@ export async function generateProductMetadata(
       title: product.name,
     });
 
-    return createProductMetadata(product.name, description, imageUrl);
+    return createProductMetadata(product.name, description, imageUrl, productId);
   } catch (error) {
     console.error("❌ [metadata] 상품 메타데이터 생성 실패:", error);
     // 에러 발생 시 기본 메타데이터 반환
