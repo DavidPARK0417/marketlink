@@ -34,6 +34,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import JsonViewer from "@/components/admin/JsonViewer";
+import { formatIpAddress } from "@/lib/utils/format";
 
 export const dynamic = "force-dynamic";
 
@@ -154,6 +155,13 @@ export default async function AuditLogDetailPage({
     adminEmail,
     profiles: log.profiles,
   });
+
+  // IP 주소 포맷팅 확인을 위한 로깅
+  console.log("🔍 [admin/audit-logs] IP 주소 포맷팅:", {
+    original: log.ip_address,
+    formatted: formatIpAddress(log.ip_address),
+  });
+
   const formattedDate = format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss", {
     locale: ko,
   });
@@ -210,7 +218,7 @@ export default async function AuditLogDetailPage({
             <div>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">IP 주소:</span>
               <p className="text-sm text-gray-900 dark:text-gray-100 mt-1 font-mono">
-                {log.ip_address || "-"}
+                {formatIpAddress(log.ip_address)}
               </p>
             </div>
             <div>

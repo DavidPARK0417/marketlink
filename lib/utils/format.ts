@@ -277,3 +277,45 @@ export function formatBusinessNumber(businessNumber: string): string {
   console.warn("⚠️ [format] 사업자번호 형식이 올바르지 않습니다:", businessNumber);
   return businessNumber;
 }
+
+/**
+ * IP 주소 포맷 함수
+ *
+ * IP 주소를 읽기 쉽게 포맷팅합니다.
+ * - "::1" → "localhost (IPv6)"
+ * - "127.0.0.1" → "localhost (IPv4)"
+ * - "unknown" 또는 빈 문자열 → "-"
+ * - 그 외 → 그대로 표시
+ *
+ * @param {string | null} ipAddress - 포맷팅할 IP 주소
+ * @returns {string} 포맷팅된 IP 주소
+ *
+ * @example
+ * ```tsx
+ * formatIpAddress('::1'); // "localhost (IPv6)"
+ * formatIpAddress('127.0.0.1'); // "localhost (IPv4)"
+ * formatIpAddress('192.168.1.1'); // "192.168.1.1"
+ * formatIpAddress('unknown'); // "-"
+ * formatIpAddress(null); // "-"
+ * ```
+ */
+export function formatIpAddress(ipAddress: string | null | undefined): string {
+  if (!ipAddress || ipAddress.trim() === "" || ipAddress === "unknown") {
+    return "-";
+  }
+
+  const trimmed = ipAddress.trim();
+
+  // IPv6 localhost
+  if (trimmed === "::1" || trimmed === "::ffff:127.0.0.1") {
+    return "localhost (IPv6)";
+  }
+
+  // IPv4 localhost
+  if (trimmed === "127.0.0.1" || trimmed === "localhost") {
+    return "localhost (IPv4)";
+  }
+
+  // 그 외는 그대로 반환
+  return trimmed;
+}

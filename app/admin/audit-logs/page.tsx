@@ -171,6 +171,17 @@ export default async function AuditLogsPage({
   // 타입 안전성을 위해 타입 단언
   const logs = (auditLogs as unknown as AuditLogWithProfile[]) ?? [];
 
+  // IP 주소 데이터 확인을 위한 로깅
+  console.log("🔍 [admin] 감사 로그 IP 주소 확인:", 
+    logs.slice(0, 3).map(log => ({
+      id: log.id,
+      action: log.action,
+      ip_address: log.ip_address,
+      ip_address_type: typeof log.ip_address,
+      ip_address_length: log.ip_address?.length,
+    }))
+  );
+
   // 관리자 목록 조회 (필터용)
   const { data: adminProfiles } = await supabase
     .from("profiles")

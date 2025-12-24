@@ -16,6 +16,7 @@
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { formatIpAddress } from "@/lib/utils/format";
 
 interface AuditLogTableRowProps {
   id: string;
@@ -91,8 +92,8 @@ export default function AuditLogTableRow({
               {targetId && (
                 <span className="font-mono">ID: {targetId.slice(0, 8)}...</span>
               )}
-              {ipAddress && (
-                <span>IP: {ipAddress}</span>
+              {formatIpAddress(ipAddress) !== "-" && (
+                <span className="font-mono">IP: {formatIpAddress(ipAddress)}</span>
               )}
             </div>
             <div className="text-xs text-muted-foreground dark:text-muted-foreground">
@@ -132,7 +133,9 @@ export default function AuditLogTableRow({
           )}
         </td>
         <td className="px-3 md:px-4 lg:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground hidden xl:table-cell">
-          <div className="max-w-[120px] truncate">{ipAddress || "-"}</div>
+          <div className="max-w-[120px] truncate font-mono text-xs">
+            {formatIpAddress(ipAddress)}
+          </div>
         </td>
         <td className="px-3 md:px-4 lg:px-6 py-4 text-sm text-muted-foreground dark:text-muted-foreground">
           <div className="whitespace-nowrap">{formattedDate}</div>
