@@ -12,6 +12,7 @@
  * - 관리자 계정은 관리자 대시보드로 자동 리다이렉트
  */
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   Card,
@@ -23,6 +24,28 @@ import { Button } from "@/components/ui/button";
 import { Package, UserPlus } from "lucide-react";
 import SignInWithRedirect from "@/components/auth/sign-in-with-redirect";
 import RetailerBlockModal from "@/components/auth/retailer-block-modal";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "https://wholesale.farmtobiz.com";
+
+/**
+ * 로그인 페이지는 공개 페이지이지만 개인정보 입력 페이지이므로
+ * 검색 엔진 인덱싱을 제한하는 것이 좋습니다.
+ */
+export const metadata: Metadata = {
+  title: "도매업자 로그인 - FarmToBiz",
+  description:
+    "FarmToBiz 도매업자 로그인 페이지 - 전국의 소매업체에게 상품을 판매하고 비즈니스를 확장하세요.",
+  robots: {
+    index: true, // 로그인 페이지는 검색 가능하도록 설정
+    follow: true,
+  },
+  alternates: {
+    canonical: `${SITE_URL}/sign-in/wholesaler`,
+  },
+};
 
 interface WholesalerSignInPageProps {
   searchParams: Promise<{ error?: string }>;

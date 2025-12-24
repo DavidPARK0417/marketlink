@@ -33,6 +33,12 @@ export const metadata: Metadata = {
   description:
     "전국의 소매업체에게 상품을 판매하고 비즈니스를 확장하세요. 상품 등록, 주문 관리, 정산까지 한 번에 관리할 수 있는 도매 전문 플랫폼",
   manifest: "/manifest.webmanifest",
+  // 기본 robots 설정: 공개 페이지는 인덱싱 허용
+  // 개별 페이지에서 noindex를 설정하면 이를 덮어씁니다
+  robots: {
+    index: true,
+    follow: true,
+  },
   alternates: {
     canonical:
       process.env.NEXT_PUBLIC_SITE_URL ||

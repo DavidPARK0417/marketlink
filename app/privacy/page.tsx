@@ -24,6 +24,11 @@ export const metadata: Metadata = {
   title: "개인정보처리방침 - FarmToBiz",
   description:
     "FarmToBiz 개인정보처리방침 - 개인정보 보호 및 처리 방침을 확인하세요.",
+  // 공개 페이지이므로 검색 엔진 인덱싱 허용
+  robots: {
+    index: true,
+    follow: true,
+  },
   alternates: {
     canonical: `${SITE_URL}/privacy`,
   },

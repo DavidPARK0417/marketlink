@@ -24,6 +24,11 @@ export const metadata: Metadata = {
   title: "이용약관 - FarmToBiz",
   description:
     "FarmToBiz 서비스 이용약관 - 서비스 이용 조건 및 약관을 확인하세요.",
+  // 공개 페이지이므로 검색 엔진 인덱싱 허용
+  robots: {
+    index: true,
+    follow: true,
+  },
   alternates: {
     canonical: `${SITE_URL}/terms`,
   },
