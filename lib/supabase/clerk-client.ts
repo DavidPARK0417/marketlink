@@ -41,6 +41,12 @@ export function useClerkSupabaseClient() {
       async accessToken() {
         return (await getToken()) ?? null;
       },
+      global: {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      },
     });
   }, [getToken]);
 

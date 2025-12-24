@@ -57,25 +57,39 @@ export function useSyncUser() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
         });
+
+        // 409 Conflict는 정상적인 상황이므로 조용히 처리
+        if (response.status === 409) {
+          try {
+            const data = await response.json();
+            // 중복 가입 감지 (409 Conflict) - 정상적인 상황이므로 조용히 처리
+            if (data.isDuplicate) {
+              // 이미 가입된 계정이므로 동기화 완료로 처리 (무한루프 방지)
+              // 정상적인 상황이므로 console.log로 조용히 처리 (에러 아님)
+              console.log("ℹ️ [use-sync-user] 기존 계정 확인됨 (정상):", {
+                message: data.message,
+                profileId: data.profile?.id,
+              });
+              syncedRef.current = true;
+              setIsDuplicate(true);
+              setIsSyncing(false);
+              return;
+            }
+          } catch (parseError) {
+            // JSON 파싱 실패 시에도 조용히 처리
+            console.log("ℹ️ [use-sync-user] 409 응답 처리 완료");
+            syncedRef.current = true;
+            setIsSyncing(false);
+            return;
+          }
+        }
 
         const data = await response.json();
 
         if (!response.ok) {
-          // 중복 가입 감지 (409 Conflict) - 정상적인 상황이므로 조용히 처리
-          if (response.status === 409 && data.isDuplicate) {
-            // 이미 가입된 계정이므로 동기화 완료로 처리 (무한루프 방지)
-            // 정상적인 상황이므로 console.log로 조용히 처리 (에러 아님)
-            console.log("ℹ️ [use-sync-user] 기존 계정 확인됨 (정상):", {
-              message: data.message,
-              profileId: data.profile?.id,
-            });
-            syncedRef.current = true;
-            setIsDuplicate(true);
-            setIsSyncing(false);
-            return;
-          }
 
           const errorMessage =
             data.error || data.details || "사용자 동기화에 실패했습니다.";
