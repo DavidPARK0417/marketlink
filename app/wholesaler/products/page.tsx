@@ -20,9 +20,19 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import type { Metadata } from "next";
 import { ProductTable } from "@/components/wholesaler/Products/ProductTable";
 import { ProductTableSkeleton } from "@/components/wholesaler/Products/ProductTableSkeleton";
 import { getProducts } from "@/lib/supabase/queries/products";
+
+/**
+ * 인증이 필요한 페이지이므로 검색 엔진 인덱싱 방지
+ */
+export const metadata: Metadata = {
+  title: "상품 관리 - FarmToBiz",
+  description: "도매 상품 관리 페이지",
+  robots: "noindex, nofollow",
+};
 
 /**
  * 상품 목록 페이지 (서버 컴포넌트)
@@ -48,7 +58,8 @@ export default async function ProductsPage({
   const category = params.category;
   const status = params.status; // "active" | "inactive" | undefined
   const search = params.search;
-  const sortBy = (params.sortBy as "created_at" | "price" | "name") ?? "created_at";
+  const sortBy =
+    (params.sortBy as "created_at" | "price" | "name") ?? "created_at";
   const sortOrder = (params.sortOrder as "asc" | "desc") ?? "desc";
 
   // 필터 구성
@@ -99,7 +110,9 @@ export default async function ProductsPage({
       {/* 페이지 헤더 - 디자인 핸드오프 스타일 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">상품 관리</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+            상품 관리
+          </h1>
           <p className="mt-2 text-sm lg:text-base text-muted-foreground">
             등록된 상품 {productsData.total}개를 관리하세요.
           </p>

@@ -88,6 +88,7 @@ export default async function AdminPage() {
             href="https://farmtobiz-retailer.vercel.app/retailer/dashboard"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="소매점 관리 화면으로 이동 (새 창에서 열림)"
             className="block p-4 md:p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-green-300 dark:hover:border-green-400 transition-colors duration-200"
           >
             <div className="flex items-center gap-3 md:gap-4">
@@ -113,88 +114,89 @@ export default async function AdminPage() {
           관리 기능
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* 도매 승인 대기 카드 */}
-        <Link
-          href="/admin/wholesalers/pending"
-          className="block p-4 md:p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors duration-200"
-        >
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-5 h-5 md:w-6 md:h-6 text-[#10B981] dark:text-emerald-200"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+          {/* 도매 승인 대기 카드 */}
+          <Link
+            href="/admin/wholesalers/pending"
+            className="block p-4 md:p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors duration-200"
+          >
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 md:w-6 md:h-6 text-[#10B981] dark:text-emerald-200"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground">
+                  도매 승인 대기
+                </h3>
+                <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground mt-1">
+                  승인 대기 중인 도매사업자 목록
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground">
-                도매 승인 대기
-              </h3>
-              <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground mt-1">
-                승인 대기 중인 도매사업자 목록
-              </p>
-            </div>
-          </div>
-        </Link>
+          </Link>
 
-        {/* 계정 관리 카드 */}
-        <Link
-          href="/admin/accounts"
-          className="block p-4 md:p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-green-300 dark:hover:border-green-700 transition-colors duration-200"
-        >
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 md:w-6 md:h-6 text-green-600 dark:text-emerald-200" />
+          {/* 계정 관리 카드 */}
+          <Link
+            href="/admin/accounts"
+            className="block p-4 md:p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-green-300 dark:hover:border-green-700 transition-colors duration-200"
+          >
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
+                <Shield className="w-5 h-5 md:w-6 md:h-6 text-green-600 dark:text-emerald-200" />
+              </div>
+              <div>
+                <h3 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground">
+                  계정 관리
+                </h3>
+                <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground mt-1">
+                  도매 및 소매 계정 정지/해제 관리
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground">
-                계정 관리
-              </h3>
-              <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground mt-1">
-                도매 및 소매 계정 정지/해제 관리
-              </p>
-            </div>
-          </div>
-        </Link>
+          </Link>
 
-        {/* 감사 로그 카드 */}
-        <Link
-          href="/admin/audit-logs"
-          className="block p-4 md:p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-green-300 dark:hover:border-green-700 transition-colors duration-200"
-        >
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-5 h-5 md:w-6 md:h-6 text-green-600 dark:text-emerald-200"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
+          {/* 감사 로그 카드 */}
+          <Link
+            href="/admin/audit-logs"
+            className="block p-4 md:p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-green-300 dark:hover:border-green-700 transition-colors duration-200"
+          >
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 md:w-6 md:h-6 text-green-600 dark:text-emerald-200"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground">
+                  감사 로그
+                </h3>
+                <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground mt-1">
+                  관리자 액션 기록 조회
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base md:text-lg font-semibold text-foreground dark:text-foreground">감사 로그</h3>
-              <p className="text-xs md:text-sm text-muted-foreground dark:text-muted-foreground mt-1">
-                관리자 액션 기록 조회
-              </p>
-            </div>
-          </div>
-        </Link>
-
+          </Link>
         </div>
       </div>
 
@@ -205,16 +207,28 @@ export default async function AdminPage() {
         </h3>
         <div className="space-y-2 md:space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-            <span className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">이메일:</span>
-            <span className="text-xs md:text-sm text-foreground dark:text-foreground break-all">{profile.email}</span>
+            <span className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              이메일:
+            </span>
+            <span className="text-xs md:text-sm text-foreground dark:text-foreground break-all">
+              {profile.email}
+            </span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-            <span className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">역할:</span>
-            <span className="text-xs md:text-sm text-foreground dark:text-foreground">{profile.role}</span>
+            <span className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              역할:
+            </span>
+            <span className="text-xs md:text-sm text-foreground dark:text-foreground">
+              {profile.role}
+            </span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-            <span className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">상태:</span>
-            <span className="text-xs md:text-sm text-foreground dark:text-foreground">{profile.status}</span>
+            <span className="text-xs md:text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+              상태:
+            </span>
+            <span className="text-xs md:text-sm text-foreground dark:text-foreground">
+              {profile.status}
+            </span>
           </div>
         </div>
       </div>

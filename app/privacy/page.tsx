@@ -15,11 +15,17 @@ import { Metadata } from "next";
 export const dynamic = "force-static";
 export const revalidate = 86400; // 24시간마다 재검증
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "https://wholesale.farmtobiz.com";
+
 export const metadata: Metadata = {
   title: "개인정보처리방침 - FarmToBiz",
-  description: "FarmToBiz 개인정보처리방침 - 개인정보 보호 및 처리 방침을 확인하세요.",
+  description:
+    "FarmToBiz 개인정보처리방침 - 개인정보 보호 및 처리 방침을 확인하세요.",
   alternates: {
-    canonical: "/privacy",
+    canonical: `${SITE_URL}/privacy`,
   },
 };
 
@@ -92,28 +98,37 @@ function formatPrivacyContent(content: string) {
     if (line.trim() === "") {
       return <br key={index} />;
     }
-    
+
     // 숫자로 시작하는 주요 항목 (1., 2., 3. 등)
     if (line.match(/^\d+\.\s/)) {
       return (
-        <h2 key={index} className="mt-8 mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">
+        <h2
+          key={index}
+          className="mt-8 mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+        >
           {line}
         </h2>
       );
     }
-    
+
     // 대괄호로 감싸진 항목 ([수집 항목], [수집 방법] 등)
     if (line.match(/^\[.*\]/)) {
       return (
-        <h3 key={index} className="mt-6 mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200">
+        <h3
+          key={index}
+          className="mt-6 mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
+        >
           {line}
         </h3>
       );
     }
-    
+
     // 일반 텍스트
     return (
-      <p key={index} className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+      <p
+        key={index}
+        className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+      >
         {line}
       </p>
     );
@@ -132,11 +147,8 @@ export default function PrivacyPage() {
         </p>
       </div>
       <div className="prose prose-gray max-w-none dark:prose-invert">
-        <div className="space-y-2">
-          {formatPrivacyContent(PRIVACY_CONTENT)}
-        </div>
+        <div className="space-y-2">{formatPrivacyContent(PRIVACY_CONTENT)}</div>
       </div>
     </div>
   );
 }
-

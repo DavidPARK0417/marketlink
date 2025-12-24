@@ -34,7 +34,10 @@ export const metadata: Metadata = {
     "전국의 소매업체에게 상품을 판매하고 비즈니스를 확장하세요. 상품 등록, 주문 관리, 정산까지 한 번에 관리할 수 있는 도매 전문 플랫폼",
   manifest: "/manifest.webmanifest",
   alternates: {
-    canonical: "/",
+    canonical:
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://wholesale.farmtobiz.com",
   },
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#10B981" },

@@ -18,12 +18,22 @@
  * - @clerk/nextjs (UserButton)
  */
 
+import type { Metadata } from "next";
 import { requireAdmin } from "@/lib/clerk/auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 
 // 인증이 필요한 레이아웃이므로 동적 렌더링 강제
 export const dynamic = "force-dynamic";
+
+/**
+ * 인증이 필요한 관리자 페이지이므로 검색 엔진 인덱싱 방지
+ */
+export const metadata: Metadata = {
+  title: "관리자 대시보드 - FarmToBiz",
+  description: "관리자 전용 관리 페이지",
+  robots: "noindex, nofollow",
+};
 
 export default async function AdminLayout({
   children,

@@ -24,12 +24,22 @@
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import type { Metadata } from "next";
 import { requireWholesaler } from "@/lib/clerk/auth";
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import WholesalerLayoutClient from "@/components/wholesaler/Layout/WholesalerLayoutClient";
 
 // 인증이 필요한 레이아웃이므로 동적 렌더링 강제
 export const dynamic = "force-dynamic";
+
+/**
+ * 인증이 필요한 도매 페이지이므로 검색 엔진 인덱싱 방지
+ */
+export const metadata: Metadata = {
+  title: "도매 관리 - FarmToBiz",
+  description: "도매 사업자 전용 관리 페이지",
+  robots: "noindex, nofollow",
+};
 
 export default async function WholesalerLayout({
   children,
@@ -43,19 +53,24 @@ export default async function WholesalerLayout({
     const headersList = await headers();
     const pathname = headersList.get("x-pathname") || "";
     const isSuspendedPage = pathname === "/wholesaler/suspended";
-    
-    console.log("📍 [wholesaler-layout] 현재 경로:", pathname, "| suspended 페이지 여부:", isSuspendedPage);
+
+    console.log(
+      "📍 [wholesaler-layout] 현재 경로:",
+      pathname,
+      "| suspended 페이지 여부:",
+      isSuspendedPage,
+    );
 
     // 1. 도매점 또는 관리자 권한 확인 (requireWholesaler 사용)
     const profile = await requireWholesaler();
 
-    console.log(
-      `✅ [wholesaler-layout] 권한 확인됨 (role: ${profile.role})`,
-    );
+    console.log(`✅ [wholesaler-layout] 권한 확인됨 (role: ${profile.role})`);
 
     // 2. 관리자인 경우 wholesaler 정보 체크를 건너뛰고 접근 허용
     if (profile.role === "admin") {
-      console.log("👑 [wholesaler-layout] 관리자 접근 - wholesaler 체크 건너뜀");
+      console.log(
+        "👑 [wholesaler-layout] 관리자 접근 - wholesaler 체크 건너뜀",
+      );
       return (
         <WholesalerLayoutClient role={profile.role}>
           {children}
@@ -121,7 +136,9 @@ export default async function WholesalerLayout({
 
     // 7. status = 'approved'인 경우에만 대시보드 접근 허용
     if (wholesaler.status !== "approved") {
-      console.log("⚠️ [wholesaler-layout] 승인되지 않은 상태, 홈으로 리다이렉트");
+      console.log(
+        "⚠️ [wholesaler-layout] 승인되지 않은 상태, 홈으로 리다이렉트",
+      );
       redirect("/");
     }
 
@@ -145,8 +162,11 @@ export default async function WholesalerLayout({
       throw error;
     }
     console.error("❌ [wholesaler-layout] 레이아웃 렌더링 오류:", error);
-    console.error("❌ [wholesaler-layout] 에러 스택:", error instanceof Error ? error.stack : "스택 없음");
-    
+    console.error(
+      "❌ [wholesaler-layout] 에러 스택:",
+      error instanceof Error ? error.stack : "스택 없음",
+    );
+
     // 에러 발생 시 로그인 페이지로 리다이렉트
     redirect("/sign-in");
   }

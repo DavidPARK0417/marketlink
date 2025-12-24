@@ -15,11 +15,17 @@ import { Metadata } from "next";
 export const dynamic = "force-static";
 export const revalidate = 86400; // 24시간마다 재검증
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "https://wholesale.farmtobiz.com";
+
 export const metadata: Metadata = {
   title: "이용약관 - FarmToBiz",
-  description: "FarmToBiz 서비스 이용약관 - 서비스 이용 조건 및 약관을 확인하세요.",
+  description:
+    "FarmToBiz 서비스 이용약관 - 서비스 이용 조건 및 약관을 확인하세요.",
   alternates: {
-    canonical: "/terms",
+    canonical: `${SITE_URL}/terms`,
   },
 };
 
@@ -88,28 +94,37 @@ function formatTermsContent(content: string) {
     if (line.trim() === "") {
       return <br key={index} />;
     }
-    
+
     // 제목 스타일 (제1장, 제2장 등으로 시작하는 줄)
     if (line.match(/^제\d+장/)) {
       return (
-        <h2 key={index} className="mt-8 mb-4 text-xl font-bold text-gray-900 dark:text-gray-100">
+        <h2
+          key={index}
+          className="mt-8 mb-4 text-xl font-bold text-gray-900 dark:text-gray-100"
+        >
           {line}
         </h2>
       );
     }
-    
+
     // 조항 스타일 (제1조, 제2조 등으로 시작하는 줄)
     if (line.match(/^제\d+조/)) {
       return (
-        <h3 key={index} className="mt-6 mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200">
+        <h3
+          key={index}
+          className="mt-6 mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
+        >
           {line}
         </h3>
       );
     }
-    
+
     // 일반 텍스트
     return (
-      <p key={index} className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+      <p
+        key={index}
+        className="mb-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300"
+      >
         {line}
       </p>
     );
@@ -128,11 +143,8 @@ export default function TermsPage() {
         </p>
       </div>
       <div className="prose prose-gray max-w-none dark:prose-invert">
-        <div className="space-y-2">
-          {formatTermsContent(TERMS_CONTENT)}
-        </div>
+        <div className="space-y-2">{formatTermsContent(TERMS_CONTENT)}</div>
       </div>
     </div>
   );
 }
-
