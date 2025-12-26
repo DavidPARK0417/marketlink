@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     const supabase = getServiceRoleClient();
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("id, total_amount, status")
+      .select("id, total_amount, status, payment_key")
       .eq("id", orderId)
       .single();
 
@@ -107,6 +107,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "주문을 찾을 수 없습니다." },
         { status: 404 },
+      );
+    }
+
+    // 2-1. 중복 결제 처리 확인 (이미 같은 paymentKey로 처리된 주문이 있는지 확인)
+    if (order.payment_key) {
+      console.log("⚠️ [payment-confirm] 이미 결제 처리된 주문입니다:", {
+        orderId: order.id,
+        existingPaymentKey: order.payment_key,
+        newPaymentKey: paymentKey,
+      });
+      
+      // 같은 paymentKey로 처리된 경우 중복 처리 방지
+      if (order.payment_key === paymentKey) {
+        console.log("✅ [payment-confirm] 이미 처리된 결제입니다. 중복 처리 방지");
+        console.groupEnd();
+        return NextResponse.json(
+          {
+            success: true,
+            message: "이미 처리된 결제입니다.",
+            orderId: order.id,
+          },
+          { status: 200 },
+        );
+      }
+    }
+
+    // 2-2. 같은 paymentKey로 다른 주문이 이미 생성되었는지 확인 (중복 주문 방지)
+    const { data: existingOrders, error: checkError } = await supabase
+      .from("orders")
+      .select("id, order_number")
+      .eq("payment_key", paymentKey)
+      .neq("id", orderId); // 자기 자신은 제외
+
+    if (checkError) {
+      console.error("❌ [payment-confirm] 중복 주문 체크 실패:", checkError);
+      // 체크 실패해도 계속 진행 (로깅만)
+    } else if (existingOrders && existingOrders.length > 0) {
+      console.error("❌ [payment-confirm] 중복 주문 감지:", {
+        paymentKey,
+        existingOrders: existingOrders.map((o) => ({
+          id: o.id,
+          orderNumber: o.order_number,
+        })),
+        currentOrderId: orderId,
+      });
+      console.groupEnd();
+      return NextResponse.json(
+        {
+          error: "이미 처리된 결제입니다. 중복 주문이 감지되었습니다.",
+          details:
+            process.env.NODE_ENV === "development"
+              ? `같은 결제 키(${paymentKey})로 이미 ${existingOrders.length}개의 주문이 존재합니다.`
+              : undefined,
+        },
+        { status: 409 }, // Conflict 상태 코드
       );
     }
 
