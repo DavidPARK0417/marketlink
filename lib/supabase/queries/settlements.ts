@@ -186,7 +186,7 @@ export async function getSettlements(
 
   // ⚠️ completed/pending 필터의 경우 전체 데이터를 먼저 가져와서 필터링 후 total 계산
   // 페이지네이션은 필터링 후에 적용해야 정확한 total을 계산할 수 있습니다
-  let queryForCount = query;
+  const queryForCount = query;
   
   // completed/pending 필터가 아닌 경우에만 페이지네이션 적용
   if (filter.status !== "completed" && filter.status !== "pending") {
