@@ -349,16 +349,17 @@ export default function SettlementsPage() {
   const pendingCount = stats.pending_count; // 전체 정산 대기 건수
   const completedCount = stats.completed_count; // 전체 정산 완료 건수
 
-  // 필터 버튼의 건수는 필터에 맞는 전체 개수
+  // 필터 버튼의 건수 계산
   // totalCount는 서버에서 필터를 적용한 후 반환된 전체 개수
-  const allCount = totalCount; // 서버에서 반환된 전체 개수 (필터 적용됨)
+  // ⚠️ 전체 탭의 건수는 항상 전체 통계를 사용 (날짜 필터와 무관)
+  const allCount = stats.pending_count + stats.completed_count; // 항상 전체 통계
   const pendingCountForFilter =
     statusFilter === "pending"
-      ? totalCount // 필터가 pending이면 서버에서 반환된 전체 개수
+      ? totalCount // 필터가 pending이면 서버에서 반환된 전체 개수 (예정일이 지난 항목 제외)
       : stats.pending_count; // 그 외에는 전체 통계
   const completedCountForFilter =
     statusFilter === "completed"
-      ? totalCount // 필터가 completed이면 서버에서 반환된 전체 개수
+      ? totalCount // 필터가 completed이면 서버에서 반환된 전체 개수 (예정일이 지난 pending 포함)
       : stats.completed_count; // 그 외에는 전체 통계
 
   // 상태 텍스트 및 색상 함수

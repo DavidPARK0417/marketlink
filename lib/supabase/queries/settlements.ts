@@ -159,9 +159,15 @@ export async function getSettlements(
   query = query.order(sortBy, { ascending: sortOrder === "asc" });
 
   // 필터 적용
-  if (filter.status) {
+  // ⚠️ 중요: 
+  // - completed 필터: 예정일이 지난 pending 항목도 포함해야 하므로 status 필터 미적용
+  // - pending 필터: 예정일이 지난 pending 항목을 제외해야 하므로 pending만 가져온 후 후처리
+  // 두 경우 모두 후처리에서 필터링하므로 DB 쿼리에서는 status 필터를 조건부로 적용합니다
+  if (filter.status && filter.status !== "completed") {
+    // pending 필터일 때는 pending만 가져옴 (예정일이 지난 것은 후처리에서 제외)
     query = query.eq("status", filter.status);
   }
+  // completed 필터는 후처리에서 처리 (예정일이 지난 pending 항목 포함)
 
   if (filter.start_date) {
     query = query.gte("scheduled_payout_at", filter.start_date);
@@ -178,10 +184,16 @@ export async function getSettlements(
     query = query.eq("order_id", filter.order_id);
   }
 
-  // 페이지네이션
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  query = query.range(from, to);
+  // ⚠️ completed/pending 필터의 경우 전체 데이터를 먼저 가져와서 필터링 후 total 계산
+  // 페이지네이션은 필터링 후에 적용해야 정확한 total을 계산할 수 있습니다
+  let queryForCount = query;
+  
+  // completed/pending 필터가 아닌 경우에만 페이지네이션 적용
+  if (filter.status !== "completed" && filter.status !== "pending") {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+  }
 
   const { data, error, count } = await query;
 
@@ -190,7 +202,20 @@ export async function getSettlements(
     throw new Error(`정산 목록 조회 실패: ${error.message}`);
   }
 
-  const total = count ?? 0;
+  // completed/pending 필터의 경우 전체 데이터를 가져와서 필터링 후 total 계산
+  let total = count ?? 0;
+  let allDataForFilter: SettlementWithOrder[] | null = null;
+  
+  if (filter.status === "completed" || filter.status === "pending") {
+    // completed/pending 필터의 경우 전체 데이터를 먼저 가져옴 (페이지네이션 없이)
+    const { data: allData, error: allError } = await queryForCount;
+    if (allError) {
+      console.error("❌ [settlements] 전체 데이터 조회 실패:", allError);
+      throw new Error(`정산 목록 조회 실패: ${allError.message}`);
+    }
+    allDataForFilter = allData as SettlementWithOrder[] | null;
+  }
+
   const totalPages = Math.ceil(total / pageSize);
 
   // 정산 예정일이 지난 항목을 completed로 표시 (UI용)
@@ -198,8 +223,14 @@ export async function getSettlements(
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
+  // completed/pending 필터의 경우 전체 데이터를 사용
+  const dataToProcess = (filter.status === "completed" || filter.status === "pending") && allDataForFilter 
+    ? allDataForFilter 
+    : data;
+
+  // 1단계: 먼저 예정일이 지난 pending 항목을 completed로 변환
   let processedSettlements =
-    (data as SettlementWithOrder[])?.map((settlement) => {
+    (dataToProcess as SettlementWithOrder[])?.map((settlement) => {
       // status가 pending이고 scheduled_payout_at이 오늘 이전이면 completed로 표시
       if (
         settlement.status === "pending" &&
@@ -223,9 +254,9 @@ export async function getSettlements(
       return settlement;
     }) ?? [];
 
-  // 필터 후처리: status 필터가 "pending"이면 예정일이 지난 항목 제외
-  // status 필터가 "completed"이면 예정일이 지난 pending 항목도 포함
+  // 2단계: 필터 후처리 (변환 후 필터링)
   if (filter.status === "pending") {
+    // pending 필터: 예정일이 지나지 않은 pending 항목만 포함
     processedSettlements = processedSettlements.filter((settlement) => {
       // 예정일이 지난 항목은 제외 (이미 completed로 표시됨)
       if (
@@ -234,25 +265,43 @@ export async function getSettlements(
       ) {
         return false;
       }
-      return true;
+      // pending 항목만 포함
+      return settlement.status === "pending";
     });
+    
+    // pending 필터의 경우 total 재계산
+    total = processedSettlements.length;
+    
+    // 페이지네이션 적용
+    const fromForPending = (page - 1) * pageSize;
+    const toForPending = fromForPending + pageSize - 1;
+    processedSettlements = processedSettlements.slice(fromForPending, toForPending + 1);
   } else if (filter.status === "completed") {
-    // completed 필터: DB에서 completed인 항목 + 예정일이 지난 pending 항목 모두 포함
-    // 이미 위에서 예정일이 지난 항목이 completed로 변환되었으므로 그대로 사용
+    // completed 필터: 변환된 completed 항목만 필터링
     processedSettlements = processedSettlements.filter(
       (settlement) => settlement.status === "completed",
     );
+    
+    // completed 필터의 경우 total 재계산
+    total = processedSettlements.length;
+    
+    // 페이지네이션 적용
+    const fromForCompleted = (page - 1) * pageSize;
+    const toForCompleted = fromForCompleted + pageSize - 1;
+    processedSettlements = processedSettlements.slice(fromForCompleted, toForCompleted + 1);
   }
 
   console.log("✅ [settlements] 정산 목록 조회 성공", {
     count: processedSettlements.length,
     total,
     page,
-    totalPages,
+    totalPages: (filter.status === "completed" || filter.status === "pending") 
+      ? Math.ceil(total / pageSize) 
+      : totalPages,
     autoCompletedCount: processedSettlements.filter(
       (s) =>
         s.status === "completed" &&
-        data?.find((d) => d.id === s.id)?.status === "pending",
+        dataToProcess?.find((d) => d.id === s.id)?.status === "pending",
     ).length,
   });
   console.groupEnd();
@@ -262,7 +311,9 @@ export async function getSettlements(
     total,
     page,
     pageSize,
-    totalPages,
+    totalPages: (filter.status === "completed" || filter.status === "pending") 
+      ? Math.ceil(total / pageSize) 
+      : totalPages,
   };
 }
 
