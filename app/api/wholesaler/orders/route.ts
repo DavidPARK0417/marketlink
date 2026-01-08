@@ -50,7 +50,14 @@ export async function POST(request: NextRequest) {
       pageSize,
     });
 
-    const result = await getOrders({ filter, page, pageSize });
+    // 최신 주문이 먼저 보이도록 정렬 옵션 명시적으로 설정
+    const result = await getOrders({ 
+      filter, 
+      page, 
+      pageSize,
+      sortBy: "created_at",
+      sortOrder: "desc"
+    });
 
     console.log("✅ [orders-api] 주문 목록 조회 성공", {
       ordersCount: result.orders.length,

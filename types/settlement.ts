@@ -26,7 +26,7 @@ export interface Settlement {
   platform_fee: number; // order_amount * platform_fee_rate
   wholesaler_amount: number; // order_amount - platform_fee
   status: SettlementStatus;
-  scheduled_payout_at: string; // 정산 예정일 (예: D+7)
+  scheduled_payout_at: string | null; // 정산 예정일 (배송완료일 + 7일). 배송완료 전에는 null
   completed_at: string | null;
   created_at: string;
   updated_at: string;

@@ -56,8 +56,8 @@ async function fetchSettlements(
   sortBy:
     | "created_at"
     | "scheduled_payout_at"
-    | "order_amount" = "scheduled_payout_at",
-  sortOrder: "asc" | "desc" = "asc",
+    | "order_amount" = "created_at",
+  sortOrder: "asc" | "desc" = "desc",
 ) {
   console.log("🔍 [settlements-page] 정산 목록 조회 요청", {
     filter,
@@ -120,7 +120,7 @@ async function fetchSettlementStats() {
   return data;
 }
 
-type SortField = "scheduled_payout_at" | "order_amount";
+type SortField = "created_at" | "scheduled_payout_at" | "order_amount";
 type SortOrder = "asc" | "desc";
 
 export default function SettlementsPage() {
@@ -143,9 +143,9 @@ export default function SettlementsPage() {
   >("all");
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
 
-  // 정렬 상태
-  const [sortBy, setSortBy] = React.useState<SortField>("scheduled_payout_at");
-  const [sortOrder, setSortOrder] = React.useState<SortOrder>("asc");
+  // 정렬 상태 - 최신 정산이 먼저 보이도록 기본값 설정
+  const [sortBy, setSortBy] = React.useState<SortField>("created_at");
+  const [sortOrder, setSortOrder] = React.useState<SortOrder>("desc");
 
   // 페이지네이션 상태
   const [page, setPage] = React.useState(1);
@@ -231,8 +231,8 @@ export default function SettlementsPage() {
   const handleResetFilters = () => {
     setDateRange(undefined);
     setStatusFilter("all");
-    setSortBy("scheduled_payout_at");
-    setSortOrder("asc");
+    setSortBy("created_at");
+    setSortOrder("desc");
     setPage(1);
   };
 
@@ -265,7 +265,34 @@ export default function SettlementsPage() {
     });
 
     try {
+      // 입력 검증
+      if (!settlementId || typeof settlementId !== "string") {
+        console.error("❌ [settlements-page] 잘못된 settlementId:", settlementId);
+        toast.error("정산 ID가 올바르지 않습니다.");
+        return;
+      }
+
+      if (newStatus !== "pending" && newStatus !== "completed") {
+        console.error("❌ [settlements-page] 잘못된 status:", newStatus);
+        toast.error("정산 상태가 올바르지 않습니다.");
+        return;
+      }
+
       const result = await updateSettlementStatus(settlementId, newStatus);
+
+      // result가 null이거나 undefined인 경우 처리
+      if (!result) {
+        console.error("❌ [settlements-page] Server Action 응답 없음");
+        toast.error("서버 응답을 받지 못했습니다. 다시 시도해주세요.");
+        return;
+      }
+
+      // result가 객체가 아닌 경우 처리 (HTML 에러 페이지가 반환된 경우)
+      if (typeof result !== "object" || !("success" in result)) {
+        console.error("❌ [settlements-page] 잘못된 응답 형식:", result);
+        toast.error("서버에서 잘못된 응답을 받았습니다. 다시 시도해주세요.");
+        return;
+      }
 
       if (result.success) {
         console.log("✅ [settlements-page] 정산 상태 변경 성공, 캐시 무효화 시작");
@@ -293,11 +320,21 @@ export default function SettlementsPage() {
       }
     } catch (error) {
       console.error("❌ [settlements-page] 정산 상태 변경 오류:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "정산 상태 변경 중 오류가 발생했습니다.",
-      );
+      
+      // 에러 타입별 처리
+      let errorMessage = "정산 상태 변경 중 오류가 발생했습니다.";
+      
+      if (error instanceof Error) {
+        // JSON 파싱 에러인 경우 (HTML 에러 페이지가 반환된 경우)
+        if (error.message.includes("JSON") || error.message.includes("Unexpected token")) {
+          errorMessage = "서버에서 오류가 발생했습니다. 페이지를 새로고침하고 다시 시도해주세요.";
+          console.error("❌ [settlements-page] JSON 파싱 에러 - HTML 응답 가능성:", error);
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
@@ -854,7 +891,7 @@ export default function SettlementsPage() {
           <div>
             <h3 className="font-bold text-gray-900 dark:text-foreground mb-2">정산 안내</h3>
             <ul className="text-sm text-gray-700 dark:text-muted-foreground space-y-1">
-              <li>• 정산은 주문 완료 후 익일 자동으로 처리됩니다.</li>
+              <li>• 정산은 배송완료일로부터 7일 후에 자동으로 처리됩니다.</li>
               <li>
                 • 플랫폼 수수료는 판매금액의 5%이며, 투명하게 공개됩니다.
               </li>

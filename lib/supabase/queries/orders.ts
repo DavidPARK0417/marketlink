@@ -519,6 +519,42 @@ export async function updateOrderStatus(
 
   console.log("✅ [orders-query] 주문 상태 변경 완료", { orderId, status });
 
+  // 주문 상태가 completed로 변경된 경우, 정산의 scheduled_payout_at 업데이트
+  if (status === "completed" && data) {
+    console.log("📦 [orders-query] 배송완료 처리 - 정산 예정일 업데이트");
+    
+    // 배송완료일(updated_at) + 7일 계산
+    // updated_at은 트리거에 의해 자동으로 업데이트되므로 현재 시간을 사용
+    const deliveryCompletedAt = new Date(data.updated_at);
+    const scheduledPayoutAt = new Date(deliveryCompletedAt);
+    scheduledPayoutAt.setDate(scheduledPayoutAt.getDate() + 7);
+
+    console.log("📅 [orders-query] 정산 예정일 계산:", {
+      delivery_completed_at: deliveryCompletedAt.toISOString(),
+      scheduled_payout_at: scheduledPayoutAt.toISOString(),
+    });
+
+    // 정산 업데이트 (scheduled_payout_at이 null인 경우에만 업데이트)
+    const { error: settlementError } = await supabase
+      .from("settlements")
+      .update({
+        scheduled_payout_at: scheduledPayoutAt.toISOString(),
+      })
+      .eq("order_id", orderId)
+      .is("scheduled_payout_at", null); // null인 경우에만 업데이트
+
+    if (settlementError) {
+      console.error("❌ [orders-query] 정산 예정일 업데이트 오류:", settlementError);
+      // 정산 업데이트 실패해도 주문 상태 변경은 성공으로 처리
+    } else {
+      console.log("✅ [orders-query] 정산 예정일 업데이트 완료:", {
+        order_id: orderId,
+        delivery_completed_at: deliveryCompletedAt.toISOString(),
+        scheduled_payout_at: scheduledPayoutAt.toISOString(),
+      });
+    }
+  }
+
   return data as Order;
 }
 

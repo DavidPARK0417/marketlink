@@ -41,7 +41,9 @@ export interface GetSettlementsOptions {
 export interface SettlementWithOrder extends Settlement {
   orders: {
     order_number: string;
+    status: string; // 주문 상태 (pending, confirmed, shipped, completed, cancelled)
     created_at: string;
+    updated_at: string; // 배송완료일 계산에 사용
     quantity: number;
     unit_price: number;
     shipping_fee: number;
@@ -77,8 +79,8 @@ export async function getSettlements(
   const {
     page = 1,
     pageSize = 20,
-    sortBy = "scheduled_payout_at",
-    sortOrder = "asc",
+    sortBy = "created_at",
+    sortOrder = "desc",
     filter = {},
   } = options;
 
@@ -132,6 +134,7 @@ export async function getSettlements(
   // settlements.order_id → orders.id 외래키 관계
   // orders.product_id → products.id, orders.variant_id → product_variants.id
   // ⚠️ paid_at은 orders 테이블에 없고 payments 테이블에 있으므로 제외
+  // 주문의 status와 updated_at을 포함하여 배송완료일 계산에 사용
   let query = supabase
     .from("settlements")
     .select(
@@ -139,7 +142,9 @@ export async function getSettlements(
       *,
       orders(
         order_number,
+        status,
         created_at,
+        updated_at,
         quantity,
         unit_price,
         shipping_fee,
@@ -228,9 +233,33 @@ export async function getSettlements(
     ? allDataForFilter 
     : data;
 
-  // 1단계: 먼저 예정일이 지난 pending 항목을 completed로 변환
+  // 1단계: scheduled_payout_at이 null이고 주문 상태가 completed인 경우 계산
+  // 2단계: 예정일이 지난 pending 항목을 completed로 변환
   let processedSettlements =
     (dataToProcess as SettlementWithOrder[])?.map((settlement) => {
+      // scheduled_payout_at이 null이고 주문 상태가 completed인 경우 배송완료일 + 7일로 계산
+      if (
+        !settlement.scheduled_payout_at &&
+        settlement.orders &&
+        settlement.orders.status === "completed" &&
+        settlement.orders.updated_at
+      ) {
+        const deliveryCompletedAt = new Date(settlement.orders.updated_at);
+        const calculatedPayoutAt = new Date(deliveryCompletedAt);
+        calculatedPayoutAt.setDate(calculatedPayoutAt.getDate() + 7);
+
+        console.log("📅 [settlements] 정산 예정일 계산 (배송완료일 + 7일):", {
+          settlement_id: settlement.id,
+          delivery_completed_at: deliveryCompletedAt.toISOString(),
+          calculated_payout_at: calculatedPayoutAt.toISOString(),
+        });
+
+        return {
+          ...settlement,
+          scheduled_payout_at: calculatedPayoutAt.toISOString(),
+        };
+      }
+
       // status가 pending이고 scheduled_payout_at이 오늘 이전이면 completed로 표시
       if (
         settlement.status === "pending" &&
@@ -554,16 +583,16 @@ export async function createSettlement(
   const platformFee = Math.floor(order.total_amount * platformFeeRate);
   const wholesalerAmount = order.total_amount - platformFee;
 
-  // 정산 예정일: 결제일 + 7일 (D+7)
-  const scheduledPayoutAt = new Date(order.paid_at);
-  scheduledPayoutAt.setDate(scheduledPayoutAt.getDate() + 7);
+  // 정산 예정일: 배송완료일 + 7일
+  // 배송완료 전이므로 null로 설정 (주문 상태가 completed로 변경될 때 업데이트됨)
+  const scheduledPayoutAt = null;
 
   console.log("정산 계산 결과:", {
     order_amount: order.total_amount,
     platform_fee_rate: platformFeeRate,
     platform_fee: platformFee,
     wholesaler_amount: wholesalerAmount,
-    scheduled_payout_at: scheduledPayoutAt.toISOString(),
+    scheduled_payout_at: "배송완료 후 설정됨 (배송완료일 + 7일)",
   });
 
   // 정산 데이터 삽입
@@ -577,7 +606,7 @@ export async function createSettlement(
       platform_fee: platformFee,
       wholesaler_amount: wholesalerAmount,
       status: "pending",
-      scheduled_payout_at: scheduledPayoutAt.toISOString(),
+      scheduled_payout_at: scheduledPayoutAt, // null: 배송완료일 + 7일로 나중에 업데이트
     })
     .select()
     .single();

@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
       filter = {},
       page = 1,
       pageSize = 20,
-      sortBy = "scheduled_payout_at",
-      sortOrder = "asc",
+      sortBy = "created_at",
+      sortOrder = "desc",
     }: {
       filter?: SettlementFilter;
       page?: number;

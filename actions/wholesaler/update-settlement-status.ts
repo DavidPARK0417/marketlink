@@ -58,25 +58,63 @@ export async function updateSettlementStatus(
     console.log("settlementId:", settlementId);
     console.log("status:", status);
 
+    // 입력 검증
+    if (!settlementId || typeof settlementId !== "string") {
+      console.error("❌ [settlement-action] 잘못된 settlementId:", settlementId);
+      console.groupEnd();
+      return {
+        success: false,
+        error: "정산 ID가 올바르지 않습니다.",
+      };
+    }
+
+    if (status !== "pending" && status !== "completed") {
+      console.error("❌ [settlement-action] 잘못된 status:", status);
+      console.groupEnd();
+      return {
+        success: false,
+        error: "정산 상태가 올바르지 않습니다.",
+      };
+    }
+
     await updateSettlementStatusQuery(settlementId, status);
 
     console.log("✅ [settlement-action] 정산 상태 변경 완료");
     console.groupEnd();
 
     // 캐시 무효화
-    revalidatePath("/wholesaler/settlements");
-    revalidatePath(`/wholesaler/settlements/${settlementId}`);
+    try {
+      revalidatePath("/wholesaler/settlements");
+      revalidatePath(`/wholesaler/settlements/${settlementId}`);
+    } catch (revalidateError) {
+      // revalidatePath 실패는 치명적이지 않으므로 로그만 남기고 계속 진행
+      console.warn("⚠️ [settlement-action] 캐시 무효화 실패 (무시됨):", revalidateError);
+    }
 
     return { success: true };
   } catch (error) {
     console.error("❌ [settlement-action] 정산 상태 변경 오류:", error);
     console.groupEnd();
+    
+    // 에러 메시지 추출
+    let errorMessage = "정산 상태 변경 중 오류가 발생했습니다.";
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      
+      // 특정 에러 타입에 대한 더 명확한 메시지
+      if (error.message.includes("프로필")) {
+        errorMessage = "사용자 프로필을 찾을 수 없습니다. 로그인 상태를 확인해주세요.";
+      } else if (error.message.includes("권한")) {
+        errorMessage = "정산 상태를 변경할 권한이 없습니다.";
+      } else if (error.message.includes("찾을 수 없")) {
+        errorMessage = "정산 정보를 찾을 수 없습니다.";
+      }
+    }
+    
     return {
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "정산 상태 변경 중 오류가 발생했습니다.",
+      error: errorMessage,
     };
   }
 }
