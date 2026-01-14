@@ -233,10 +233,25 @@ export async function getSettlements(
     ? allDataForFilter 
     : data;
 
-  // 1단계: scheduled_payout_at이 null이고 주문 상태가 completed인 경우 계산
+  // 1단계: 주문 상태 확인 및 정산 예정일 계산
   // 2단계: 예정일이 지난 pending 항목을 completed로 변환
   let processedSettlements =
     (dataToProcess as SettlementWithOrder[])?.map((settlement) => {
+      // ⚠️ 중요: 주문 상태가 completed가 아니면 정산 예정일을 무시
+      if (settlement.orders && settlement.orders.status !== "completed") {
+        // 배송이 완료되지 않았으므로 정산 예정일이 있어도 무효화
+        console.log("📦 [settlements] 배송 미완료 - 정산 예정일 무효화:", {
+          settlement_id: settlement.id,
+          order_status: settlement.orders.status,
+          scheduled_payout_at: settlement.scheduled_payout_at,
+        });
+
+        return {
+          ...settlement,
+          scheduled_payout_at: null, // 배송 미완료 시 정산 예정일 없음
+        };
+      }
+
       // scheduled_payout_at이 null이고 주문 상태가 completed인 경우 배송완료일 + 7일로 계산
       if (
         !settlement.scheduled_payout_at &&
@@ -261,7 +276,9 @@ export async function getSettlements(
       }
 
       // status가 pending이고 scheduled_payout_at이 오늘 이전이면 completed로 표시
+      // (단, 주문 상태가 completed인 경우에만)
       if (
+        settlement.orders?.status === "completed" &&
         settlement.status === "pending" &&
         settlement.scheduled_payout_at &&
         new Date(settlement.scheduled_payout_at) < todayStart

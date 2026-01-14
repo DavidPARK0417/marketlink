@@ -519,8 +519,9 @@ export async function updateOrderStatus(
 
   console.log("✅ [orders-query] 주문 상태 변경 완료", { orderId, status });
 
-  // 주문 상태가 completed로 변경된 경우, 정산의 scheduled_payout_at 업데이트
+  // 정산 예정일 업데이트 로직
   if (status === "completed" && data) {
+    // 배송 완료: 배송완료일 + 7일로 설정
     console.log("📦 [orders-query] 배송완료 처리 - 정산 예정일 업데이트");
     
     // 배송완료일(updated_at) + 7일 계산
@@ -534,14 +535,13 @@ export async function updateOrderStatus(
       scheduled_payout_at: scheduledPayoutAt.toISOString(),
     });
 
-    // 정산 업데이트 (scheduled_payout_at이 null인 경우에만 업데이트)
+    // 정산 업데이트 (항상 업데이트 - 배송완료일이 변경될 수 있으므로)
     const { error: settlementError } = await supabase
       .from("settlements")
       .update({
         scheduled_payout_at: scheduledPayoutAt.toISOString(),
       })
-      .eq("order_id", orderId)
-      .is("scheduled_payout_at", null); // null인 경우에만 업데이트
+      .eq("order_id", orderId);
 
     if (settlementError) {
       console.error("❌ [orders-query] 정산 예정일 업데이트 오류:", settlementError);
@@ -551,6 +551,30 @@ export async function updateOrderStatus(
         order_id: orderId,
         delivery_completed_at: deliveryCompletedAt.toISOString(),
         scheduled_payout_at: scheduledPayoutAt.toISOString(),
+      });
+    }
+  } else {
+    // 배송 완료가 아닌 경우: 정산 예정일을 null로 설정
+    // (배송이 완료되지 않았으므로 정산 예정일이 없어야 함)
+    console.log("📦 [orders-query] 배송 미완료 - 정산 예정일 초기화", {
+      order_id: orderId,
+      current_status: status,
+    });
+
+    const { error: settlementError } = await supabase
+      .from("settlements")
+      .update({
+        scheduled_payout_at: null,
+      })
+      .eq("order_id", orderId);
+
+    if (settlementError) {
+      console.error("❌ [orders-query] 정산 예정일 초기화 오류:", settlementError);
+      // 정산 업데이트 실패해도 주문 상태 변경은 성공으로 처리
+    } else {
+      console.log("✅ [orders-query] 정산 예정일 초기화 완료:", {
+        order_id: orderId,
+        status,
       });
     }
   }
