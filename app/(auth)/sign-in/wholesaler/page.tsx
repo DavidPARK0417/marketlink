@@ -24,6 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Package, UserPlus } from "lucide-react";
 import SignInWithRedirect from "@/components/auth/sign-in-with-redirect";
 import RetailerBlockModal from "@/components/auth/retailer-block-modal";
+import { getUserProfile } from "@/lib/clerk/auth";
+import { redirect } from "next/navigation";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -56,10 +58,43 @@ export default async function WholesalerSignInPage({
 }: WholesalerSignInPageProps) {
   const params = await searchParams;
   const showRetailerBlockModal = params.error === "retailer";
+  
   // 🚨 페이지 렌더링 확인
   console.log("=".repeat(80));
   console.log("🚨🚨🚨 [WholesalerSignInPage] 페이지가 렌더링되었습니다!");
   console.log("=".repeat(80));
+
+  // 🆕 이미 로그인된 사용자인지 확인
+  // role이 null이고 온보딩을 완료하지 않은 경우 온보딩 페이지로 리다이렉트
+  const profile = await getUserProfile();
+  if (profile) {
+    console.log("🔍 [sign-in/wholesaler] 이미 로그인된 사용자 확인:", {
+      role: profile.role,
+      wholesalersCount: profile.wholesalers?.length ?? 0,
+    });
+
+    // role이 null이고 온보딩을 완료하지 않은 경우 온보딩 페이지로 리다이렉트
+    if (profile.role === null) {
+      const wholesalersCount = profile.wholesalers?.length ?? 0;
+      if (wholesalersCount === 0) {
+        console.log("📝 [sign-in/wholesaler] 온보딩 미완료 사용자 - 온보딩 페이지로 리다이렉트");
+        redirect("/wholesaler-onboarding");
+      }
+    }
+
+    // 소매점 계정인 경우 에러 모달 표시 (이미 showRetailerBlockModal로 처리됨)
+    if (profile.role === "retailer" && !showRetailerBlockModal) {
+      console.log("🚫 [sign-in/wholesaler] 소매점 계정 감지 - 에러 모달 표시");
+      redirect("/sign-in/wholesaler?error=retailer");
+    }
+
+    // 이미 역할이 있는 경우 (wholesaler, admin 등) 루트로 리다이렉트
+    // 루트 페이지에서 역할별로 적절한 대시보드로 리다이렉트됨
+    if (profile.role !== null && profile.role !== "retailer") {
+      console.log("✅ [sign-in/wholesaler] 이미 역할이 있는 사용자 - 루트로 리다이렉트");
+      redirect("/");
+    }
+  }
 
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-4 md:py-8 bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-950 transition-colors duration-200">

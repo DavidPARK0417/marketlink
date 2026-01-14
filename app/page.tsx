@@ -50,6 +50,22 @@ export default async function RootPage() {
   // 로그인된 경우 역할별로 리다이렉트
   console.log("🏠 [root] 로그인된 사용자, 역할별 리다이렉트:", profile.role);
 
+  // 🆕 role이 null인 경우: 온보딩을 완료하지 않은 사용자
+  // 온보딩 페이지로 리다이렉트하여 무한 루프 방지
+  if (profile.role === null) {
+    const wholesalersCount = profile.wholesalers?.length ?? 0;
+    console.log("📝 [root] 역할 없음, 온보딩 완료 여부 확인:", {
+      role: profile.role,
+      wholesalersCount,
+    });
+    
+    // 온보딩을 완료하지 않은 경우 온보딩 페이지로 리다이렉트
+    if (wholesalersCount === 0) {
+      console.log("📝 [root] 온보딩 미완료 사용자 - 온보딩 페이지로 리다이렉트");
+      redirect("/wholesaler-onboarding");
+    }
+  }
+
   // 도매 계정이지만 승인 대기 상태면 루트에서 Pending 모달만 띄우고 머무름
   const wholesalerStatus = profile.wholesalers?.[0]?.status;
   if (profile.role === "wholesaler" && wholesalerStatus === "pending") {

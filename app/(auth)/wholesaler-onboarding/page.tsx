@@ -48,37 +48,37 @@ export default async function WholesalerOnboardingPage() {
     return <WholesalerOnboardingClient />;
   }
 
-  // 🔍 중복 가입 감지: 프로필이 존재하지만 생성 시간이 5분 이상이면 중복 가입으로 간주
-  const createdAt = new Date(profile.created_at);
-  const now = new Date();
-  const timeDiff = now.getTime() - createdAt.getTime();
-  const minutesDiff = timeDiff / (1000 * 60);
+  // 🔍 온보딩 미완료 사용자 확인
+  // role이 null이고 wholesalers가 없는 경우는 온보딩 미완료 사용자
+  // 이 경우는 중복 가입이 아니라 온보딩 폼을 표시해야 함
+  const wholesalersCount = profile.wholesalers?.length ?? 0;
+  const isOnboardingIncomplete = profile.role === null && wholesalersCount === 0;
 
-  // 5분 이상 전에 생성된 프로필이면 중복 가입 시도로 간주
-  if (minutesDiff > 5) {
-    console.log("⚠️ [wholesaler-onboarding] 중복 가입 시도 감지:", {
-      profileId: profile.id,
-      createdAt: profile.created_at,
-      minutesSinceCreation: minutesDiff.toFixed(2),
-    });
-    // 클라이언트 컴포넌트로 리다이렉트하여 중복 가입 모달 표시
-    return <WholesalerOnboardingClient forceCheckDuplicate={true} />;
+  console.log("🔍 [wholesaler-onboarding] 사용자 상태 확인:", {
+    profileId: profile.id,
+    role: profile.role,
+    wholesalersCount,
+    isOnboardingIncomplete,
+  });
+
+  // 온보딩 미완료 사용자는 중복 가입으로 처리하지 않고 온보딩 폼 표시
+  // 아래 로직에서 처리되므로 여기서는 건너뜀
+
+  // 소매점 계정의 도매점 회원가입 시도 차단
+  if (profile.role === "retailer") {
+    console.log("⚠️ [wholesaler-onboarding] 소매점 계정의 도매점 회원가입 시도 감지");
+    redirect("/sign-in/wholesaler?error=retailer");
   }
 
-  // 역할 확인: role이 null이면 온보딩 진행, null이 아니고 wholesaler가 아니면 메인 페이지로
+  // role이 설정되어 있지만 wholesaler가 아닌 경우 (admin 등)
+  if (profile.role !== null && profile.role !== "wholesaler") {
+    console.log("⚠️ [wholesaler-onboarding] 이미 다른 역할이 설정된 계정");
+    redirect("/");
+  }
+
+  // role이 null인 경우 온보딩 진행 (role은 createWholesaler 액션에서 설정됨)
   if (profile.role === null) {
     console.log("📝 [wholesaler-onboarding] 역할 없음, 온보딩 진행");
-    // role은 createWholesaler 액션에서 설정됨
-  } else if (profile.role !== "wholesaler") {
-    console.log(
-      "⚠️ [wholesaler-onboarding] 도매점 역할 아님 (이미 다른 역할 설정됨), 로그인 페이지로 리다이렉트",
-    );
-    // 소매점 계정인 경우 로그인 페이지로 리다이렉트 (무한 루프 방지)
-    if (profile.role === "retailer") {
-      redirect("/sign-in/wholesaler?error=retailer");
-    } else {
-      redirect("/");
-    }
   }
 
   // 이미 등록된 도매점 정보 확인
